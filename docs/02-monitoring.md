@@ -124,3 +124,25 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 - 저장소 공개 여부(= Actions·Pages 무료 조건): `gh api repos/angalle/sunmoon-shuttle --jq '{private,visibility,has_pages}'` → `private=false`, `visibility=public`
 - Pages 상태: `gh api repos/angalle/sunmoon-shuttle/pages --jq '{html_url,status,build_type}'` → 배포 후 관측값(§8 기록)
 - **미검증**: 결제 계정 청구서 자체(`Settings → Billing`)는 **저장소 소유자 계정 접근이 필요**해 확인하지 못했다. 다만 위 근거(공개 저장소 무료)상 Actions·Pages 는 과금 대상이 아니다. 사람이 1회 Billing 화면에서 "Actions/Pages 사용량 0 또는 무료 한도 내"를 확인하면 확정된다.
+
+## 8. 배포 파이프라인 실측 기록 (T3 · 2026-10-05)
+**저장소·Pages**: `angalle/sunmoon-shuttle` (public, default `main`) · Pages `build_type=workflow`, `https_enforced=true`
+
+**Pages URL**: https://angalle.github.io/sunmoon-shuttle/ → `curl -sI` = `HTTP/2 200`, `last-modified: Mon, 05 Oct 2026 05:26:50 GMT`, `content-length: 416`
+- 배포본 HTML 이 `./assets/index-CYcdGgtf.js` 를 **상대 경로**로 참조 → 하위 경로 배포 정상(`vite base: './'`).
+- `https://angalle.github.io/sunmoon-shuttle/data/timetable.json` → **404**(파서 T2 이전이라 동봉할 JSON 이 없음).
+
+**실행별 실측**(원출력은 `.session-notes/20261005-t3-deploy-pipeline-evidence.md`):
+
+| # | 워크플로 | 트리거 | 결과(스텝 단위) | 실행 URL |
+|---|---|---|---|---|
+| 1 | deploy | push `449f065` | failure — `Pages 설정` 에서 `Create Pages site failed. Error: Resource not accessible by integration` (GITHUB_TOKEN 은 Pages **사이트 생성** 권한이 없음) → `deploy` 잡 skipped | https://github.com/angalle/sunmoon-shuttle/actions/runs/37257418833 |
+| 2 | deploy | push `06c2f85` | success — 관리자 토큰으로 Pages 1회 활성화한 뒤 12스텝 전부 success | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267794703 |
+| 3 | deploy | push `360bcfc` | success — 액션 버전 상향(`checkout@v7`·`setup-node@v7`·`configure-pages@v6`·`upload-pages-artifact@v5`·`deploy-pages@v5`) 후 | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267845172 |
+| 4 | deploy | workflow_dispatch `t3/verify-fail-gate` | failure — `테스트` 스텝 `AssertionError: expected 1 to be 2` (Tests 1 failed \| 38 passed) → `정적 빌드`·`계약 데이터 동봉`·`Pages 설정`·`아티팩트 업로드` **skipped**, `deploy` 잡 **skipped** | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267897668 |
+| 5 | scrape | workflow_dispatch(`mode=commit`) | failure — 스냅샷 **11개 매칭** 후 `[scrape] 미구현: tools/scraper/index.ts 는 T2(t_5ccc5cf5)에서 구현한다.` exit 1 → 계약 검증·테스트·커밋 스텝 **skipped(반영 커밋 0건)** | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267949917 |
+
+- 4번(실패 게이트 시연)은 **임시 브랜치**에서 실행하고 브랜치는 삭제했다 — `main` 이력·배포본에 영향 없음.
+- **Pages 최초 활성화 절차**(1회, 재현용): 관리자 권한 계정으로 `gh api -X POST repos/angalle/sunmoon-shuttle/pages -f build_type=workflow` → 이후 `configure-pages` 는 이미 있는 사이트를 그대로 쓴다(멱등).
+- **로컬 사전 검증**(워크플로 push 전에 같은 명령을 로컬에서 실행): `actionlint` 2파일 **0건** · `verify_contract.mjs`(정상 fixture exit 0 / 손상 fixture exit 1) · `summarize.mjs` 1줄 출력 · 글롭 로직 실데이터 11개 매칭·미매칭 시 exit 1 · `npm run test` 5 pass · `npm run build`(dist 8.0K) · `bash scripts/boundary.sh` BOUNDARY: PASS.
+- **남은 것(다음 단계)**: ① T2 파서 완료 후 `scrape.yml` 재실행 → 성공 케이스로 §8 표 갱신(그때 `data/timetable.json` 이 Pages 에서 200) ② 저장소 `Watch → Actions` 알림 수신 설정(사람 1회 — §2) ③ 헤드리스 브라우저 스모크(T5·T6, §5).
