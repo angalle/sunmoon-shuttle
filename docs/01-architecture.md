@@ -78,7 +78,13 @@ tests/
       "id": "asan-ktx",
       "name": "아산(KTX)역",
       "path": "아산캠퍼스 > 탕정역 > 시티프라디움 > 천안아산역 > 아산캠퍼스",
+      "status": "active",                       // active | suspended(=운행 중단: 천안캠퍼스)
       "columns": ["seq", "depCampus", "depStation", "arrCampus", "note"],
+      // ⚠️ columns 는 **노선·요일별로 다르다**(T1 실측 2026-10-05):
+      //   평일 아산KTX 5열 · 천안역 7열(데이터 33행 중 32행이 <td colspan="2"> 병합) ·
+      //   천안터미널 8열(대부분 colspan="3" 병합) · 온양역/터미널 8열(**마지막 열 = 금요일 운행여부**, 값 `경유` 사용) ·
+      //   토요일 아산KTX **4열(운행 특이사항 열이 없다)** · 천안캠퍼스 **표 0개(운행 중단)**
+      //   → 요일별 열 구성은 `byDay[day].columns` 로 표현하고, **병합 셀(colspan)은 하나의 텍스트 값**으로 파싱한다(셀 수 강제 금지).
       "trips": [
         { "seq": 1, "depCampus": "08:05", "depStation": "08:25", "arrCampus": "08:40", "note": "0:15" },
         { "seq": 2, "depCampus": null,    "depStation": "08:35", "arrCampus": "08:50", "note": "금(X)" }
