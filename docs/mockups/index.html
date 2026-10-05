@@ -1,0 +1,31 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0"><title>셔틀버스 UI 시안 3종</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;background:#0f1419;color:#eef2f6;padding:22px 18px 50px;max-width:760px;margin:0 auto;line-height:1.5}
+h1{font-size:22px;letter-spacing:-.3px}
+p.sub{color:#9fb0c0;font-size:13px;margin-top:6px}
+a.card{display:block;text-decoration:none;color:inherit;background:#1a2027;border:1px solid #2a333d;border-radius:16px;padding:16px 18px;margin-top:14px}
+a.card:hover{border-color:#69b0ee}
+b{font-size:16px}
+.tag{display:inline-block;font-size:11px;font-weight:700;background:#16283a;color:#69b0ee;border-radius:6px;padding:2px 7px;margin-left:8px;vertical-align:middle}
+ul{margin:8px 0 0 18px;color:#c6d2dd;font-size:13px}
+li{margin:2px 0}
+table{border-collapse:collapse;width:100%;margin-top:18px;font-size:13px}
+th,td{border:1px solid #2a333d;padding:8px 10px;text-align:left}
+th{background:#161c23;color:#9fb0c0;font-weight:600}
+</style></head><body>
+<h1>셔틀버스 앱 — 간편 UI 시안 3종</h1>
+<p class="sub">실제 시간표 데이터(2026-2학기, 평일 165편)로 만든 목업입니다. 폰으로 열어보세요. 표 미러링을 버리고 "지금 무엇을 타야 하나" 중심으로 재구성했습니다.</p>
+<a class="card" href="./v1.html"><b>V1 · 지금 중심</b><span class="tag">추천</span>
+<ul><li>기준 시각 기준 <b>다음 출발 3편</b>을 큰 글씨로</li><li>학교→역 / 역→학교 <b>방향 필터</b></li><li>오늘 남은 출발 목록 · 원본 표는 접어둠</li><li>공지(운행없음·대체휴일) 상단 배너</li></ul></a>
+<a class="card" href="./v2.html"><b>V2 · 방향·노선 리스트</b><span class="tag">정밀</span>
+<ul><li>요일 · <b>방향</b> · 노선 3단 선택</li><li>42편을 3열 그리드로 압축(시각+도착시간)</li><li>특이사항(금(X)·월~화 2대)을 배지로 승격</li></ul></a>
+<a class="card" href="./v3.html"><b>V3 · 하루 한눈에</b><span class="tag">요약</span>
+<ul><li>노선별 <b>타임라인</b>: ● 학교출발 / ○ 학교도착</li><li>빨간선 = 기준 시각, 막대 = 운행 구간</li><li>아래에 오늘 총 편수 + 다음 4편</li></ul></a>
+<table><tr><th>축</th><th>V1 지금 중심</th><th>V2 방향·노선</th><th>V3 한눈에</th></tr>
+<tr><td>첫 화면 정보량</td><td>적음(3편)</td><td>많음(42편)</td><td>중간(전체 분포)</td></tr>
+<tr><td>주 용도</td><td>“지금 나가야 하나?”</td><td>“이 노선 몇 시들 있나”</td><td>“오늘 하루 어떻게 되나”</td></tr>
+<tr><td>탭 수</td><td>1</td><td>3</td><td>1</td></tr></table>
+<p class="sub" style="margin-top:18px">V1 홈 + V2 상세(노선 눌렀을 때) + V3 요약 탭 조합도 가능합니다.</p>
+</body></html>
