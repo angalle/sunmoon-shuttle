@@ -1,0 +1,107 @@
+/*
+ * 디자인 토큰 (T5) — 색·간격·반지름·타이포·그림자는 **여기서만** 정의한다.
+ * 컴포넌트 CSS 는 `var(--...)` 만 쓰고 하드코딩 hex/px 를 쓰지 않는다(검수 grep ③).
+ * 근거: docs/00-requirements.md §4(비기능) — 대비비 ≥ 4.5:1 · 터치 타깃 ≥ 48px.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* 표면·배경 */
+  --color-bg: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eaeef4;
+  --color-border: #c3ccd7;
+  --color-border-strong: #8d9aa8;
+
+  /* 글자 (대비 실측치는 .session-notes/T5-증거.md 참조) */
+  --color-text: #17202a;          /* on surface 15.9:1 */
+  --color-text-muted: #4c5a68;    /* on surface 8.1:1 */
+  --color-text-subtle: #5c6b7a;   /* on surface-alt 6.4:1 */
+
+  /* 강조·링크 */
+  --color-accent: #0b5497;        /* on surface 7.2:1 */
+  --color-accent-hover: #083d6f;
+  --color-on-accent: #ffffff;     /* on accent 7.2:1 */
+
+  /* 상태 (색만으로 전달 금지 — 항상 문구·기호를 함께 둔다) */
+  --color-ok-bg: #e3f3e8;
+  --color-ok-text: #14532d;
+  --color-ok-border: #3f7a52;
+  --color-warn-bg: #fdf2d8;
+  --color-warn-text: #6b4700;
+  --color-warn-border: #a5761a;
+  --color-danger-bg: #fbe9e7;
+  --color-danger-text: #8c1d18;
+  --color-danger-border: #b3261e;
+  --color-info-bg: #e7eefb;
+  --color-info-text: #1b3a6b;
+  --color-info-border: #4a6fa5;
+
+  /* 간격 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* 반지름·그림자 */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-1: 0 1px 2px rgba(16, 24, 32, 0.08), 0 2px 8px rgba(16, 24, 32, 0.06);
+
+  /* 타이포 */
+  --font-family-base: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+  --font-size-2xl: 2.25rem;
+  --line-height-base: 1.55;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+
+  /* 접근성 최소선 */
+  --touch-target-min: 48px;
+  --focus-ring-width: 3px;
+  --focus-ring-color: #0b5497;
+
+  --bp-md: 48rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #12161b;
+    --color-surface: #1b2129;
+    --color-surface-alt: #222a33;
+    --color-border: #3b4552;
+    --color-border-strong: #6b7784;
+
+    --color-text: #eef2f6;        /* on surface 13.6:1 */
+    --color-text-muted: #b9c3ce;  /* on surface 8.5:1 */
+    --color-text-subtle: #aab5c0;
+
+    --color-accent: #7cb6f0;      /* on surface 7.6:1 */
+    --color-accent-hover: #a3cbf6;
+    --color-on-accent: #10161d;   /* on accent 8.9:1 */
+
+    --color-ok-bg: #16301f;
+    --color-ok-text: #b7e3c3;
+    --color-ok-border: #4d8a63;
+    --color-warn-bg: #33280c;
+    --color-warn-text: #f4dda1;
+    --color-warn-border: #a5761a;
+    --color-danger-bg: #3a1c19;
+    --color-danger-text: #f6bab4;
+    --color-danger-border: #c9534a;
+    --color-info-bg: #1b2740;
+    --color-info-text: #bdd3f5;
+    --color-info-border: #5b7fb6;
+
+    --focus-ring-color: #7cb6f0;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+}
