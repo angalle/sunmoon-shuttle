@@ -44,6 +44,25 @@ npm run test           # 3) 테스트 (vitest · tests/**)
 `npm run test:watch`(감시 모드) · `npm run scrape`(원본 HTML → `data/timetable.json`) ·
 `npm run lint:boundary`(헥사고날 경계 검사 — `src/domain` 순수성·`src/application`→`adapters` 금지)
 
+## 도메인 규칙 — 다음 출발 계산 (T4)
+```ts
+import { nextDepartures } from './src/domain/rules/nextDeparture';
+
+const result = nextDepartures({
+  schedule,                     // data/timetable.json (docs/01 §4 스키마)
+  routeId: 'asan-ktx',
+  clock: { now: () => new Date() },  // 시계는 포트로 주입(도메인은 Date.now() 금지)
+  count: 3,                     // 기본 3개
+});
+
+// result.status: 'ok' | 'no-service-today' | 'empty-schedule' | 'unknown-route'
+// result.departures: [{ departure:'08:05', date:'2026-10-07', dayLabel:'내일', remainingMinutes, remainingSeconds, ... }]
+```
+- 요일·운행 여부는 `src/domain/rules/serviceDay.ts` 의 **문자열 패턴 표**(`NOTICE_RULES` / `TRIP_NOTE_RULES`)만 근거로 판정한다.
+  해석하지 못한 표기는 `result.warnings` 로 모아 올린다(조용히 무시하지 않는다).
+- 시각은 호스트 TZ 와 무관하게 **KST(+09:00) 고정**으로 계산한다(`src/domain/rules/kst.ts`).
+- 경계 케이스 12종(자정·요일 전환·운행 없는 날·`금(X)`·`Χ`·빈 스케줄 …)은 `tests/domain/nextDeparture.test.ts`.
+
 ## 문서
 | 파일 | 내용 |
 |---|---|

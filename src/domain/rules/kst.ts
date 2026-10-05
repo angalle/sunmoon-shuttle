@@ -55,6 +55,11 @@ export function kstDayOf(parts: KstParts): KstDay {
   return { year: parts.year, month: parts.month, day: parts.day, weekday: parts.weekday };
 }
 
+/** 인스턴트 → KST 날짜(편의). 현재 시각에서 "오늘"을 얻을 때 쓴다. */
+export function kstDayFromInstant(instant: Date): KstDay {
+  return kstDayOf(toKstParts(instant));
+}
+
 /** KST 날짜 + (시,분) → 인스턴트. */
 export function kstInstantOf(day: KstDay, hour: number, minute: number, second = 0): Date {
   const utcMs =

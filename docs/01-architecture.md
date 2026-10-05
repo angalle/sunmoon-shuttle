@@ -101,15 +101,21 @@ tests/
 | 데이터 | `data/timetable.json` — **캐시 우선 + `contentHash`/`fetchedAt` 비교** | 오프라인 우선, 변경 시에만 갱신 |
 | 요청 절약 | 서버가 `ETag`/`Last-Modified` 주면 **304** 로 본문 생략 | 대역·시간 절약 |
 | 만료 정책 | 캐시 나이 > 24h → 백그라운드 재검증, **실패해도 캐시 유지** | F8(폴백) |
-| 원본 서버 | 하루 2회·조건부 요청·간격 ≥1s | 예의·차단 회피 |
+| 배포 자산 | GitHub Pages 기본 CDN 캐시(자산 최대 10분) | 배포 직후 잠깐 이전 버전이 보일 수 있음 → `sw.js` 버전으로 무효화(T6) |
+| 원본 서버 | **자동 요청 없음** — 사람이 저장한 스냅샷만 반입(`scrape.yml` workflow_dispatch) | robots.txt 가 `/Page`(= `/Page2/…`) 차단(§8) · 이용 예의 |
 
 ## 6. 배포/실행
 | 대상 | 방법 | 비용 |
 |---|---|---|
-| 웹/PWA | GitHub Pages (`main` push → Actions deploy) | 0원 |
+| 웹/PWA | **GitHub Pages** — `main` push → `.github/workflows/deploy.yml`(공식 Pages Actions: `configure-pages` → `upload-pages-artifact` → `deploy-pages`) | 0원 |
+| 배포 게이트 | `npm ci` → `npm run lint:boundary` → `npm run test` → `npm run build` — **하나라도 실패하면 배포 잡은 실행되지 않는다**(깨진 앱·데이터 배포 금지). 계약 JSON(`data/timetable.json`)은 배포 산출물 `dist/data/` 로 동봉 | 0원 |
+| 데이터 | **수동 스냅샷 반입**(`.github/workflows/scrape.yml` = `workflow_dispatch` 전용) → 파싱·검증 → 변경 시 커밋 → 위 배포가 자동 실행 | 0원 |
 | Android | `npx cap sync android` → `bundleRelease` (기존 JDK17·SDK36 툴체인) → Play 내부 테스트 | 0원(Play 계정 기존) |
 | iOS | **PWA(홈 화면 추가)** 지금 / Xcode 설치 시 `npx cap sync ios` 로컬 빌드(무료, 기기 설치) | 0원 (App Store 배포는 $99/yr — 후순위) |
-| 데이터 | Actions cron(하루 2회) → 커밋 → Pages 반영 | 0원 |
+
+- **Pages URL**: https://angalle.github.io/sunmoon-shuttle/ (project site → 하위 경로. `vite.config.ts` 의 `base: './'` 로 자산 경로 안전)
+- ⚠️ **`schedule:`(cron) 금지** — 원본 `robots.txt` 의 `Disallow: /Page` 가 `/Page2/…`(시간표 URL 전부)를 포함해 차단한다(§8 · 결정 D5/D7). 자동 크롤 대신 **수동 스냅샷 반입**이 정본이다.
+- 배포 결과·모니터링 기준·복구 절차는 `docs/02-monitoring.md`(M8·M9, R3·R5·R6, §6 신선도 점검, §7 비용)에 있다.
 
 ## 7. 리스크와 대응
 | 리스크 | 영향 | 대응 |
