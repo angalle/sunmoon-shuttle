@@ -146,3 +146,19 @@ $ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r
 - `source.fetchedAt` 은 이제 **"마지막 내용 변경 시각"** 이다. 그래서 앱의 M2(데이터 나이)는 "우리가 언제 마지막으로 내용을 갱신했는지"를 뜻한다(docs/01 §4·docs/02 §1 M2).
 - 저장소 `Watch → Custom → Actions` 알림 수신 설정은 사람이 1회 해야 한다(계정 설정 접근 필요 — 미검증).
 - 앱(T5)이 읽는 경로는 `/data/timetable.json` 이다(루트 `/timetable.json` 은 404 — 실측).
+
+## 7. 최종 배포(문서 커밋) — https://github.com/angalle/sunmoon-shuttle/actions/runs/37269370314
+
+push `ce24362`(§8·§6 문서 갱신) → `build` success · `deploy (github-pages)` success(9s).
+
+```
+$ curl -sI https://angalle.github.io/sunmoon-shuttle/                      # 2026-10-05 14:48 KST 재측정
+HTTP/2 200 · last-modified: Mon, 05 Oct 2026 05:48:22 GMT · etag: "6ac33a26-1a0"
+$ curl -sI https://angalle.github.io/sunmoon-shuttle/data/timetable.json
+HTTP/2 200 · content-length: 84846 · last-modified: 05:48:22 GMT · etag: "6ac33a26-14b6e"
+$ curl -s .../data/timetable.json | jq -r '.source.sourceUpdatedAt, .source.fetchedAt, .source.contentHash'
+2026-08-20
+2026-10-05T14:39:32+09:00
+sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+→ 재배포해도 내용·해시 불변, last-modified(배포 시각)만 갱신
+```

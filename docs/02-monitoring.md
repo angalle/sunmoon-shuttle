@@ -138,13 +138,15 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 ## 8. 배포 파이프라인 실측 기록 (T3 · T3b · 2026-10-05)
 **저장소·Pages**: `angalle/sunmoon-shuttle` (public, default `main`) · Pages `build_type=workflow`, `https_enforced=true`
 
-**Pages URL**: https://angalle.github.io/sunmoon-shuttle/ → `curl -sI` = `HTTP/2 200`, `last-modified: Mon, 05 Oct 2026 05:45:13 GMT`, `etag: "6ac33969-1a0"`(= 416 bytes), `cache-control: max-age=600`
+**Pages URL**: https://angalle.github.io/sunmoon-shuttle/ → `curl -sI` = `HTTP/2 200`, `last-modified: Mon, 05 Oct 2026 05:45:13 GMT`(run 37269144210 배포 후 측정), `etag: "6ac33969-1a0"`(= 416 bytes), `cache-control: max-age=600`
 - 배포본 HTML 이 `./assets/index-CYcdGgtf.js` 를 **상대 경로**로 참조 → 하위 경로 배포 정상(`vite base: './'`).
-- **`https://angalle.github.io/sunmoon-shuttle/data/timetable.json` → HTTP/2 200** (T3b 실측, `content-type: application/json; charset=utf-8`, `content-length: 84846`, `last-modified: 05:45:13 GMT`).
+- **`https://angalle.github.io/sunmoon-shuttle/data/timetable.json` → HTTP/2 200** (T3b 실측 — run 37269144210 · 2026-10-05 14:46 KST, `content-type: application/json; charset=utf-8`, `content-length: 84846`, `last-modified: 05:45:13 GMT`).
   - 배포본 바이트가 로컬 `data/timetable.json` 과 **동일**(`shasum -a 256` = `269699a634d14ab6…` 양쪽 일치).
   - 본문 값 3개: `sourceUpdatedAt=2026-08-20` · `fetchedAt=2026-10-05T14:39:32+09:00` · `contentHash=sha256:16fac81b0115f70b…`.
   - ⚠️ **경로 정정(실측)**: `/timetable.json`(루트, `data/` 없이)은 **404** 다. 앱/점검은 **`/data/timetable.json`** 을 읽어야 한다.
   - T3 시점에는 **404**(T2 파서 이전이라 동봉할 JSON 이 없었음) → T3b 에서 200 으로 바뀌었다.
+- **최종 배포 = 같은 내용, 타임스탬프만 갱신(실측)**: push `ce24362`(이 문서 갱신 커밋) → run **37269370314** `build` success · `deploy (github-pages)` success → 재측정 루트·`/data/timetable.json` **모두 `HTTP/2 200`**, `last-modified: Mon, 05 Oct 2026 05:48:22 GMT`, `content-length: 84846`(본문 값·해시 불변).
+  → **배포를 반복해도 계약 데이터의 "내용"은 불변이고 `last-modified`(배포 시각)만 바뀐다** — 위 값은 특정 배포(run) 기준임을 명시해 둔다.
 
 **실행별 실측**(원출력: T3 = `.session-notes/20261005-t3-deploy-pipeline-evidence.md` · **T3b = `.session-notes/20261005-t3b-scrape-success-evidence.md`**):
 
@@ -158,6 +160,7 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 | 6 | scrape | workflow_dispatch(`mode=commit`) — **T2 완료 후 1회차**(T3b) | **success** — 스냅샷 **11개 파싱**(노선 5 · 평일 42/33/38/7행 · 안내문 17 · 시내버스 15) · 계약 검증 `OK — schemaVersion=1 노선=5 평일행=120` · 테스트 7파일 통과 · 변경 감지 `fetchedAt 외 내용 동일 → 데이터 변경 없음 → 커밋 0건` → 반영 스텝 **skipped**(반영 커밋 0건) | https://github.com/angalle/sunmoon-shuttle/actions/runs/37269154462 |
 | 7 | scrape | 같은 입력 **재실행(2회차)**(T3b) | **success** — 1회차와 동일 결과·**커밋 0건**, `origin/main` 해시 불변(`b24c150`) → 노이즈 커밋 차단 실증 | https://github.com/angalle/sunmoon-shuttle/actions/runs/37269211341 |
 | 8 | scrape | workflow_dispatch(**T3 시절 — 이력 보존**) | failure — 스냅샷 **11개 매칭** 후 `[scrape] 미구현: tools/scraper/index.ts 는 T2(t_5ccc5cf5)에서 구현한다.` exit 1 → 계약 검증·테스트·커밋 스텝 **skipped(반영 커밋 0건)** | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267949917 |
+| 9 | deploy | push `ce24362` (T3b — §8·§6 문서 갱신) | **success** — build success · `deploy (github-pages)` success(9s). 계약 데이터 재배포 — `last-modified` 만 갱신, 내용 불변(위 "최종 배포" 항목) | https://github.com/angalle/sunmoon-shuttle/actions/runs/37269370314 |
 
 - **T3 의 5번 행(스크레이프 실패)은 성공 케이스(6·7번)로 대체**하고, 그 실패 기록은 8번 행에 **이력으로 보존**했다(의도된 T2-미구현 실패 — 실패 경로 증거).
 - **5~7번(T3b) 재현 명령**: `gh auth switch -u angalle` 후 `gh workflow run scrape.yml --repo angalle/sunmoon-shuttle --ref main -f raw_glob='data/raw/*.html' -f mode=commit -f reason='…'`. (활성 계정이 `mz-heesun` 이면 관리자 작업이 막힌다 — 이 저장소는 pull 전용.)
