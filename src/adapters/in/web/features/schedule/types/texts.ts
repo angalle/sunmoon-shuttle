@@ -107,10 +107,27 @@ export const UI_TEXT = {
   boardDirectionOut: '학교에서 출발',
   boardDirectionIn: '학교로 도착',
   boardNotesPrefix: '특이사항',
+  /**
+   * 운행 없는 날(T13 결함 A) — 목록 자리 문구. **"끝났습니다"를 쓰지 않는다**(배너와 정면 충돌).
+   * 사유는 상단 배너가 이미 보여주므로 여기서 반복하지 않는다.
+   */
+  boardListNoService: '오늘은 운행이 없습니다',
+  /**
+   * 미해석 경고 요약(T13 결함 B) — 홈에는 **1줄만** 두고 상세 목록은 접힘(`source-details`)으로 보낸다.
+   * 예: `원본 표기 4건은 자동 해석하지 못했습니다 — 자세히 보기`
+   */
+  boardWarningsSummaryPrefix: '원본 표기',
+  boardWarningsSummarySuffix: '건은 자동 해석하지 못했습니다',
+  boardWarningsDetailHint: '자세히 보기',
+  /** 접힘 안 상세 목록 제목·안내 */
+  boardWarningsDetailsTitle: '원본 표기 중 해석하지 못한 항목',
+  boardWarningsDetailsNote: '아래 항목은 사람이 확인해야 합니다. 표시한 회차는 원본 표 기준입니다.',
   /** 다른 날 미리보기(요일 탭 · 보조) */
   boardOtherDaysTitle: '다른 날 미리보기',
-  /** 원본 전체표 접힘 */
+  /** 원본 전체표 접힘 — 제목에 **오늘 요일**을 명시한다(T13 옵션②: 별도 섹션 없이 접힘 제목만) */
   boardSourceDetailsSummary: '전체 시간표(원본) 보기',
+  boardSourceDetailsTodayPrefix: '오늘',
+  boardSourceDetailsTodaySuffix: '기준',
 } as const;
 
 /**

@@ -31,6 +31,7 @@ import {
   formatKstDate,
   formatKstDayLabel,
   formatKstInstant,
+  formatKstMonthDayWeekday,
   formatRemaining,
 } from '../../../shared/lib/format';
 import type { Notice, TripRow } from '../types/contract';
@@ -373,8 +374,8 @@ export function noticeGroups(model: TimetableModel): NoticeGroupsView {
 
 /* ───────────────────────── V1 간편 홈 보드 (T12) ───────────────────────── */
 
-/** 목록에 한 번에 보여줄 최대 편수 — 나머지는 "더 보기"로 접는다. */
-export const BOARD_LIST_LIMIT = 12;
+/** 목록에 한 번에 보여줄 최대 편수 — 나머지는 "더 보기"로 접는다. (T13: 12 → 5, 더 심플하게) */
+export const BOARD_LIST_LIMIT = 5;
 /**
  * 노선별로 도메인에서 받아올 다음 출발 개수.
  * 하루치(최대 42편)를 덮어 **오늘 남은 편수 집계가 정확**하도록 크게 잡는다(시각 계산은 도메인 몫).
@@ -419,8 +420,20 @@ export interface ServiceNoticeView {
 
 export type BoardStatus = 'loading' | 'ready' | 'no-service' | 'empty';
 
+/**
+ * 목록 영역 머리 문구 종류(T13) — 문구 결정은 여기(도메인 값 기반)에서만 하고 컴포넌트는 그리기만 한다.
+ * - `no-service`: 운행 없는 날. **"끝났습니다"를 쓰지 않는다**(상단 배너와 충돌).
+ * - `today-over` : 운행은 했지만 오늘 편이 다 지난 경우 → 다음 운행일 안내.
+ */
+export type BoardHeadlineKind = 'loading' | 'no-service' | 'today-over' | 'empty';
+
 export interface TodayBoardView {
   readonly status: BoardStatus;
+  /** 목록 영역 머리 문구(없으면 null) — 값은 도메인 판정 결과에서만 만든다. */
+  readonly listHeadline: string | null;
+  readonly listHeadlineKind: BoardHeadlineKind | null;
+  /** 목록 행을 그릴지 — 운행 없는 날/빈 목록은 숨기고 머리 문구만 남긴다. */
+  readonly listVisible: boolean;
   /** `10월 5일 (월) 21:52` — 주입된 clock 기준(60초 갱신) */
   readonly clockLabel: string;
   /** `2026-10-05 (월)` */
@@ -448,6 +461,10 @@ export interface TodayBoardView {
   readonly listLimit: number;
   /** 원본 표기 중 해석하지 못한 항목 — 조용히 숨기지 않는다 */
   readonly warnings: readonly string[];
+  /** 미해석 항목 수(= `warnings.length`) */
+  readonly warningsCount: number;
+  /** 홈에 두는 **요약 1줄**(없으면 null) — 상세 목록은 접힘(`source-details`)으로 보낸다(T13 결함 B) */
+  readonly warningsSummary: string | null;
 }
 
 /**
@@ -501,6 +518,9 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
     return {
       ...base,
       status: 'loading',
+      listHeadline: UI_TEXT.loading,
+      listHeadlineKind: 'loading',
+      listVisible: false,
       effectiveDayType: calendarDayType,
       notice: null,
       counts: { all: 0, out: 0, in: 0 },
@@ -512,6 +532,8 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
       rest: [],
       hasMore: false,
       warnings: [],
+      warningsCount: 0,
+      warningsSummary: null,
     };
   }
 
@@ -540,10 +562,20 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
   const pool = todayEvents.length > 0 ? todayEvents : upcoming.filter((event) => event.dayOffset === nextOffset);
   const filtered = filter === 'all' ? pool : pool.filter((event) => event.direction === filter);
   const list = filtered.slice(0, BOARD_LIST_LIMIT);
+  const status: BoardStatus = !service.serviceOn ? 'no-service' : upcoming.length === 0 ? 'empty' : 'ready';
+  // 다음 운행 편은 **방향 필터와 무관하게** 안내한다(필터로 0편이 되면 "다음 운행"이 사라져 버린다).
+  const nextService = pool.at(0) ?? null;
+  const nextServiceLabel =
+    nextService === null ? null : `${nextService.dayLabel} ${nextService.departure}`;
+  const headline = listHeadlineOf(status, service.serviceOn, todayEvents.length > 0, nextServiceLabel);
+  const warningList = [...warnings];
 
   return {
     ...base,
-    status: !service.serviceOn ? 'no-service' : upcoming.length === 0 ? 'empty' : 'ready',
+    status,
+    listHeadline: headline.text,
+    listHeadlineKind: headline.kind,
+    listVisible: headline.kind !== 'no-service' && headline.kind !== 'empty' && headline.kind !== 'loading',
     effectiveDayType: service.effectiveDayType,
     notice: serviceNoticeOf(day, model),
     counts: {
@@ -558,8 +590,48 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
     list,
     rest: filtered.slice(BOARD_LIST_LIMIT),
     hasMore: filtered.length > list.length,
-    warnings: [...warnings],
+    warnings: warningList,
+    warningsCount: warningList.length,
+    warningsSummary: warningsSummaryOf(warningList.length),
   };
+}
+
+/**
+ * 목록 영역 머리 문구를 **도메인 판정값만으로** 정한다(T13 결함 A).
+ * - 운행 없는 날(`no-service`): `오늘은 운행이 없습니다 · 다음 운행: 내일 08:00`.
+ *   **"끝났습니다"를 쓰지 않는다** — 상단 배너(`오늘 셔틀버스 운행이 없습니다`)와 충돌하기 때문.
+ *   사유(원본 안내문)는 배너가 이미 보여주므로 여기서 반복하지 않는다.
+ * - 운행은 했지만 오늘 편이 다 지난 경우(`today-over`): `오늘 운행이 끝났습니다 · 다음 운행: …`.
+ * - 그 밖에는 머리 문구 없음(목록을 그대로 보여준다).
+ */
+function listHeadlineOf(
+  status: BoardStatus,
+  serviceOn: boolean,
+  hasTodayEvents: boolean,
+  nextServiceLabel: string | null,
+): { readonly kind: BoardHeadlineKind | null; readonly text: string | null } {
+  const nextPart =
+    nextServiceLabel === null ? '' : ` · ${UI_TEXT.boardNextServicePrefix}: ${nextServiceLabel}`;
+  if (status === 'no-service' || !serviceOn) {
+    return { kind: 'no-service', text: `${UI_TEXT.boardListNoService}${nextPart}` };
+  }
+  if (status === 'empty') return { kind: 'empty', text: UI_TEXT.boardListEmpty };
+  if (!hasTodayEvents) return { kind: 'today-over', text: `${UI_TEXT.boardTodayOverTitle}${nextPart}` };
+  return { kind: null, text: null };
+}
+
+/** 홈에 두는 미해석 요약 1줄(T13 결함 B) — 상세 목록은 접힘으로 보낸다. */
+function warningsSummaryOf(count: number): string | null {
+  if (count === 0) return null;
+  return `${UI_TEXT.boardWarningsSummaryPrefix} ${String(count)}${UI_TEXT.boardWarningsSummarySuffix} — ${UI_TEXT.boardWarningsDetailHint}`;
+}
+
+/**
+ * 접힘(`source-details`) 제목 — **오늘 요일을 명시**한다(T13 옵션②).
+ * 예: `전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준` (주입된 clock 기준, 60초 갱신)
+ */
+export function sourceDetailsSummary(nowMs: number): string {
+  return `${UI_TEXT.boardSourceDetailsSummary} · ${UI_TEXT.boardSourceDetailsTodayPrefix} ${formatKstMonthDayWeekday(nowMs)} ${UI_TEXT.boardSourceDetailsTodaySuffix}`;
 }
 
 /** 도메인 반환 1편 + 원본 행(방향·도착·특이사항) → 화면 값. */

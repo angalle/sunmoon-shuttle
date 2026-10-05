@@ -32,8 +32,10 @@ import {
   selectedDayTable,
   selectedRoute,
   serviceNoticeView,
+  sourceDetailsSummary,
   todayBoardView,
   type DirectionFilter,
+  type TodayBoardView,
 } from '../store/selectors';
 import type { ScheduleState, ScheduleStore } from '../store/scheduleStore';
 import { UI_TEXT, FALLBACK_SOURCE_URL } from '../types/texts';
@@ -47,6 +49,7 @@ import { nextBusCard } from '../components/organisms/NextBusCard';
 import { noticePanel } from '../components/organisms/NoticePanel';
 import { serviceNoticeBanner } from '../components/organisms/ServiceNoticeBanner';
 import { sourceFooter } from '../components/organisms/SourceFooter';
+import { sourceWarnings } from '../components/organisms/SourceWarnings';
 import { timetablePanel } from '../components/organisms/TimetablePanel';
 import { upcomingBoardCard } from '../components/organisms/UpcomingBoardCard';
 import type { InstallHintPlatform } from '../api/installHintApi';
@@ -57,6 +60,7 @@ const INSTALL_HEADING_ID = 'shuttle-install-heading';
 const NOTICE_HEADING_ID = 'shuttle-v1-notice-heading';
 const BOARD_HEADING_ID = 'shuttle-v1-board-heading';
 const BOARD_LIST_HEADING_ID = 'shuttle-v1-board-list-heading';
+const SOURCE_WARNINGS_HEADING_ID = 'shuttle-source-warnings-heading';
 
 export interface SchedulePageOptions {
   readonly onRetry: () => void;
@@ -79,9 +83,15 @@ export function createSchedulePage(
   const panelHost = el('div', { dataset: { testid: 'panel-host' } });
   const nextBusHost = el('div', { dataset: { testid: 'next-bus-host' } });
   const timetableHost = el('div', { dataset: { testid: 'timetable-host' } });
+  const warningsHost = el('div', { dataset: { testid: 'warnings-host' } });
   const noticeHost = el('div', { dataset: { testid: 'notice-host' } });
   const freshnessHost = el('div', { dataset: { testid: 'freshness-host' } });
   const footerHost = el('div', { dataset: { testid: 'footer-host' } });
+  /**
+   * ⑥ 접힘 제목 — 오늘 요일을 명시한다(T13 옵션②). 상태가 바뀔 때마다 문구를 갱신한다.
+   * (`source-details` 는 처음 한 번만 만들고, 문구만 부분 갱신한다 — 구조 재렌더 시 스크롤·열림 상태 보존)
+   */
+  const summary = el('summary', { dataset: { testid: 'source-details-summary' } });
 
   replaceChildren(root, [
     el('div', { class: 'shuttle-app' }, [
@@ -109,18 +119,20 @@ export function createSchedulePage(
             dataset: { testid: 'day-panel' },
           },
           [
-            // ⑥ 원본 전체표는 접어 둔다 — 필요할 때만 펼친다(기본 닫힘).
+            // ⑥ 원본 전체표·신선도·출처·연락처·미해석 상세는 접어 둔다 — 필요할 때만 펼친다(기본 닫힘).
+            //    접힘 제목에 오늘 요일을 명시해 "오늘 시간표를 여기서 확인"하게 한다(T13 옵션②).
             el('details', { class: 'shuttle-details', dataset: { testid: 'source-details' } }, [
-              el('summary', { text: UI_TEXT.boardSourceDetailsSummary }),
+              summary,
               panelHost,
               nextBusHost,
               timetableHost,
+              warningsHost,
+              freshnessHost,
+              footerHost,
             ]),
             noticeHost,
-            freshnessHost,
           ],
         ),
-        footerHost,
       ]),
     ]),
   ]);
@@ -182,6 +194,8 @@ export function createSchedulePage(
   /** ① 상태줄 — 오늘 날짜·현재 시각(KST). 60초 틱마다 갱신된다. */
   const renderClock = (state: ScheduleState): void => {
     const view = todayBoardView(state);
+    // ⑥ 접힘 제목의 "오늘 M월 D일 (요일)" 도 같은 주입 clock 을 쓴다(자정 경계에서 함께 넘어간다).
+    summary.textContent = sourceDetailsSummary(state.nowMs);
     replaceChildren(clockHost, [
       el('p', { class: 'shuttle-clock' }, [
         el('span', { class: 'shuttle-clock__prefix', text: UI_TEXT.clockLabelPrefix }),
@@ -203,8 +217,7 @@ export function createSchedulePage(
   };
 
   /** ③④⑤ 다음 출발 카드 + 방향 필터 + 오늘 남은 출발 목록. */
-  const renderBoard = (state: ScheduleState): void => {
-    const view = todayBoardView(state, boardFilter);
+  const renderBoard = (view: TodayBoardView): void => {
     replaceChildren(boardHost, [
       upcomingBoardCard({ view, headingId: BOARD_HEADING_ID }),
       directionFilter({
@@ -212,11 +225,21 @@ export function createSchedulePage(
         counts: view.counts,
         onSelect: (value: DirectionFilter) => {
           boardFilter = value;
-          if (latestState !== null) renderBoard(latestState);
+          if (latestState !== null) renderBoard(todayBoardView(latestState, boardFilter));
           restoreFocus(`chip:${value}`);
         },
       }),
       departureList({ view, headingId: BOARD_LIST_HEADING_ID }),
+    ]);
+  };
+
+  /**
+   * ⑥ 미해석 원본 표기 상세 — 홈 첫 화면에는 요약 1줄(`UpcomingBoardCard`)만 두고,
+   * 사람이 확인해야 하는 전체 목록은 접힘(`source-details`) 안에서만 보여준다(T13 결함 B).
+   */
+  const renderWarnings = (view: TodayBoardView): void => {
+    replaceChildren(warningsHost, [
+      sourceWarnings({ warnings: view.warnings, headingId: SOURCE_WARNINGS_HEADING_ID }),
     ]);
   };
 
@@ -255,8 +278,10 @@ export function createSchedulePage(
 
   /** 시각 의존 부분만 다시 그린다(60초 틱 · 구조 변경 직후). */
   const renderLive = (state: ScheduleState): void => {
+    const view = todayBoardView(state, boardFilter);
     renderClock(state);
-    renderBoard(state);
+    renderBoard(view);
+    renderWarnings(view);
     renderRouteCard(state);
     renderTimetable(state);
     renderFreshness(state);

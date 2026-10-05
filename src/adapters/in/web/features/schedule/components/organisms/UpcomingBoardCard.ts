@@ -65,17 +65,14 @@ export function upcomingBoardCard(props: UpcomingBoardCardProps): HTMLElement {
               rest.map((event) => nextRow(event)),
             ),
           ]),
-      view.warnings.length === 0
+      view.warningsSummary === null
         ? null
-        : el(
-            'div',
-            { class: 'shuttle-banner shuttle-banner--warn', attrs: { role: 'status' }, dataset: { testid: 'next-bus-warnings' } },
-            [
-              el('p', {}, [el('strong', { text: UI_TEXT.nextBusWarningsTitle })]),
-              el('p', { text: UI_TEXT.nextBusWarningsDetail }),
-              el('ul', { class: 'shuttle-list' }, view.warnings.map((warning) => el('li', { text: warning }))),
-            ],
-          ),
+        : el('p', {
+            class: 'shuttle-board__warn',
+            attrs: { role: 'status' },
+            dataset: { testid: 'next-bus-warnings', count: String(view.warningsCount) },
+            text: view.warningsSummary,
+          }),
     ],
   );
 }
