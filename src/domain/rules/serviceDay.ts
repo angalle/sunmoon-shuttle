@@ -74,7 +74,7 @@ export function matchNoticeRule(text: string): NoticeRule | null {
 
 /* ────────────────────────── 회차 특이사항 패턴 표 ────────────────────────── */
 
-export type TripNoteRuleId = 'weekday-exclusion' | 'multi-bus-annotation';
+export type TripNoteRuleId = 'weekday-exclusion' | 'multi-bus-annotation' | 'duration-annotation';
 
 export interface TripNoteRule {
   readonly id: TripNoteRuleId;
@@ -84,10 +84,13 @@ export interface TripNoteRule {
 
 /**
  * 회차 특이사항(`trip.note`) → 규칙. **위에서부터 먼저 맞는 것 하나**를 쓴다.
- * 근거 원문(같은 스냅샷 '운행 특이사항' 열): `금(X)` · `월~화 2대 운행` · `월~목 2대 운행` · `중간노선 전용`
+ * 근거 원문(같은 스냅샷 '운행 특이사항' 열): `금(X)` · `월~화 2대 운행` · `월~목 2대 운행` ·
+ * `0:15`(소요시간) · `중간노선 전용`
  * - `금(X)`      → 그 요일에는 이 회차가 운행되지 않는다(제외).
  * - `월~화 2대 운행` → 운행 여부와 무관한 **주석**(2대 운행 안내)이다. 회차는 운행된다.
  *   (수용 기준 ⑦ "주석 처리" 지시)
+ * - `0:15`       → **소요시간(HH:MM) 표기**다. 회차는 운행되고 표시용 주석으로만 남긴다(T13 승인).
+ *   (원본 `아산(KTX)역` 평일 첫 회차의 특이사항 열 값 — 실측 `data/timetable.json`)
  * - 그 밖의 미등록 표기는 경고로 수집하고 운행 여부는 바꾸지 않는다.
  */
 export const TRIP_NOTE_RULES: readonly TripNoteRule[] = [
@@ -100,6 +103,12 @@ export const TRIP_NOTE_RULES: readonly TripNoteRule[] = [
     id: 'multi-bus-annotation',
     pattern: /^([월화수목금토일])\s*~\s*([월화수목금토일])\s*(\d+)\s*대\s*운행$/,
     description: '기간 중 N대 운행 안내 — 운행 여부를 바꾸지 않는 주석 (예: "월~화 2대 운행")',
+  },
+  {
+    id: 'duration-annotation',
+    // 소요시간(HH:MM) — 시:분. `0:15`(15분)처럼 한 자리 시(時)도 온다(원본 실측).
+    pattern: /^\d{1,3}:\d{2}$/,
+    description: '소요시간(HH:MM) 표기 — 운행 여부를 바꾸지 않는 주석 (예: "0:15")',
   },
 ];
 

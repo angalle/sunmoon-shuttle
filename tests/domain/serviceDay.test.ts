@@ -109,6 +109,27 @@ describe('rules/serviceDay — 회차 특이사항 패턴 표', () => {
     expect(status.warnings[0]).toContain('중간노선 전용');
   });
 
+  /* ── T13: 소요시간(HH:MM) 표기 등록 ──────────────────────────────────────── */
+
+  it('"0:15"(소요시간 HH:MM): 운행 여부를 바꾸지 않는 주석으로 해석한다(T13 승인)', () => {
+    expect(matchTripNoteRule('0:15')?.id).toBe('duration-annotation');
+    const durationTrip = { seq: 1, depCampus: '08:05', depStation: null, arrCampus: '08:25', note: '0:15' };
+    const status = resolveTripService(durationTrip, monday);
+    expect(status.runs).toBe(true);
+    expect(status.reason).toBe('runs');
+    expect(status.annotations).toEqual(['0:15']);
+    expect(status.warnings).toEqual([]);
+  });
+
+  it('소요시간 패턴은 좁게 유지한다 — 형식이 어긋나면 여전히 미등록 경고', () => {
+    const weird = { seq: 2, depCampus: '09:00', depStation: null, arrCampus: '09:20', note: '0:5' };
+    const status = resolveTripService(weird, monday);
+    expect(status.runs).toBe(true);
+    expect(status.reason).toBe('unknown-note');
+    expect(status.warnings[0]).toContain('0:5');
+    expect(matchTripNoteRule('15분')).toBeNull();
+  });
+
   it('빈 특이사항(전각 공백 포함)은 주석 없음', () => {
     const status = resolveTripService({ seq: 9, depCampus: '10:00', depStation: null, arrCampus: '10:20', note: '　' }, monday);
     expect(status.runs).toBe(true);
