@@ -1,0 +1,7 @@
+# actionlint 설정 (T15 infraprojectcreator)
+# self-hosted 러너(이 맥)에 등록한 커스텀 라벨 — actionlint 는 이 저장소의 기본 라벨 목록을 모른다.
+# 실측 등록 라벨: `gh api repos/angalle/sunmoon-shuttle/actions/runners --jq '.runners[].labels[].name'`
+#   → self-hosted · macOS · ARM64 · sunmoon
+self-hosted-runner:
+  labels:
+    - sunmoon
