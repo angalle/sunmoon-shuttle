@@ -2,6 +2,7 @@
 
 작성: ProjectCreator(총괄) · 2026-10-05
 갱신: T3 infraprojectcreator · 2026-10-05 — 배포 파이프라인 실측 반영(§1 M8·M9, §2 알림 경로 구체화, §3 R3·R5 롤백 명령, §5 실제 게이트, **§6 주간 신선도 점검 절차**, **§7 비용 실측**). `docs/01 §5·§6` 도 같은 취지로 갱신.
+갱신: T3b infraprojectcreator · 2026-10-05 — T2 파서 완료 후 **scrape.yml 성공 케이스 실측**(§8 표 5~7행) · **계약 JSON 이 Pages 에서 실제 서빙됨(HTTP 200)** · §6 1줄 명령 원출력 · **`fetchedAt` 커밋 규칙 실측**(§8 아래) · `docs/01 §4` 주석 1줄.
 
 > 이 앱은 **서버가 없다**(정적 + Actions). 모니터링 대상은 "서버 가용성"이 아니라 **① 수집 파이프라인 건강 ② 데이터 신선도 ③ 앱이 읽는 계약 데이터 무결성** 세 가지다.
 >
@@ -99,10 +100,19 @@
 curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '"원본 업데이트=\(.source.sourceUpdatedAt)  우리 반영=\(.source.fetchedAt)  해시=\(.source.contentHash)"'; curl -s "https://api.github.com/repos/angalle/sunmoon-shuttle/commits?path=data/timetable.json&per_page=1" | jq -r '"마지막 data 커밋=" + .[0].commit.committer.date'
 ```
 
+**실측 원출력**(T3b · 2026-10-05 14:45 KST · T2 파서 완료 + Pages 배포 후 실제 실행):
+
+```
+원본 업데이트=2026-08-20  우리 반영=2026-10-05T14:39:32+09:00  해시=sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+마지막 data 커밋=2026-10-05T05:41:48Z
+```
+
+→ 두 줄 모두 값이 나온다 = **계약 JSON 이 실제로 배포돼 있고 신선도 판단이 가능한 상태**다(이 시점 데이터 나이 ≈ 0h: `sourceUpdatedAt` 2026-08-20 · 우리 반영 14:39 → 실행 14:45).
+
 판단 기준(사람이 이 문장대로):
 - **원본 업데이트**(원본 페이지의 "최근 업데이트" 값)가 **우리 반영**보다 최신이면 → 원본이 개편됐는데 반영이 안 된 것 → 새 스냅샷을 `data/raw/` 에 넣고 `scrape.yml` 수동 실행.
 - **마지막 data 커밋**이 6개월 이상 과거이면서 학기 시작 ±14일 안이면 → M4 경고(수집이 죽었을 수 있음) → 원본 페이지를 사람이 직접 열어 대조(자동 수집 금지).
-- 출력이 **비어 있으면** `data/timetable.json` 이 아직 배포되지 않은 상태다(T2 파서 이전) → 그 자체가 "신선도 없음" 신호.
+- 출력이 **비어 있으면** `data/timetable.json` 이 배포되지 않은 상태다(T3 시점에는 실제로 404 — 빈 출력이었다) → 그 자체가 "신선도 없음" 신호. 2026-10-05 T3b(T2 파서 완료·배포) 이후로는 위 실측값이 나온다.
 - 원본 페이지의 "최근 업데이트" 는 **사람이 브라우저로 `lily.sunmoon.ac.kr` 를 열어 확인**한다(자동 크롤 금지 — `docs/01 §8`).
 
 ## 7. 비용 실측 (AC-8 근거)
@@ -125,14 +135,18 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 - Pages 상태: `gh api repos/angalle/sunmoon-shuttle/pages --jq '{html_url,status,build_type}'` → 배포 후 관측값(§8 기록)
 - **미검증**: 결제 계정 청구서 자체(`Settings → Billing`)는 **저장소 소유자 계정 접근이 필요**해 확인하지 못했다. 다만 위 근거(공개 저장소 무료)상 Actions·Pages 는 과금 대상이 아니다. 사람이 1회 Billing 화면에서 "Actions/Pages 사용량 0 또는 무료 한도 내"를 확인하면 확정된다.
 
-## 8. 배포 파이프라인 실측 기록 (T3 · 2026-10-05)
+## 8. 배포 파이프라인 실측 기록 (T3 · T3b · 2026-10-05)
 **저장소·Pages**: `angalle/sunmoon-shuttle` (public, default `main`) · Pages `build_type=workflow`, `https_enforced=true`
 
-**Pages URL**: https://angalle.github.io/sunmoon-shuttle/ → `curl -sI` = `HTTP/2 200`, `last-modified: Mon, 05 Oct 2026 05:26:50 GMT`, `content-length: 416`
+**Pages URL**: https://angalle.github.io/sunmoon-shuttle/ → `curl -sI` = `HTTP/2 200`, `last-modified: Mon, 05 Oct 2026 05:45:13 GMT`, `etag: "6ac33969-1a0"`(= 416 bytes), `cache-control: max-age=600`
 - 배포본 HTML 이 `./assets/index-CYcdGgtf.js` 를 **상대 경로**로 참조 → 하위 경로 배포 정상(`vite base: './'`).
-- `https://angalle.github.io/sunmoon-shuttle/data/timetable.json` → **404**(파서 T2 이전이라 동봉할 JSON 이 없음).
+- **`https://angalle.github.io/sunmoon-shuttle/data/timetable.json` → HTTP/2 200** (T3b 실측, `content-type: application/json; charset=utf-8`, `content-length: 84846`, `last-modified: 05:45:13 GMT`).
+  - 배포본 바이트가 로컬 `data/timetable.json` 과 **동일**(`shasum -a 256` = `269699a634d14ab6…` 양쪽 일치).
+  - 본문 값 3개: `sourceUpdatedAt=2026-08-20` · `fetchedAt=2026-10-05T14:39:32+09:00` · `contentHash=sha256:16fac81b0115f70b…`.
+  - ⚠️ **경로 정정(실측)**: `/timetable.json`(루트, `data/` 없이)은 **404** 다. 앱/점검은 **`/data/timetable.json`** 을 읽어야 한다.
+  - T3 시점에는 **404**(T2 파서 이전이라 동봉할 JSON 이 없었음) → T3b 에서 200 으로 바뀌었다.
 
-**실행별 실측**(원출력은 `.session-notes/20261005-t3-deploy-pipeline-evidence.md`):
+**실행별 실측**(원출력: T3 = `.session-notes/20261005-t3-deploy-pipeline-evidence.md` · **T3b = `.session-notes/20261005-t3b-scrape-success-evidence.md`**):
 
 | # | 워크플로 | 트리거 | 결과(스텝 단위) | 실행 URL |
 |---|---|---|---|---|
@@ -140,9 +154,18 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 | 2 | deploy | push `06c2f85` | success — 관리자 토큰으로 Pages 1회 활성화한 뒤 12스텝 전부 success | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267794703 |
 | 3 | deploy | push `360bcfc` | success — 액션 버전 상향(`checkout@v7`·`setup-node@v7`·`configure-pages@v6`·`upload-pages-artifact@v5`·`deploy-pages@v5`) 후 | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267845172 |
 | 4 | deploy | workflow_dispatch `t3/verify-fail-gate` | failure — `테스트` 스텝 `AssertionError: expected 1 to be 2` (Tests 1 failed \| 38 passed) → `정적 빌드`·`계약 데이터 동봉`·`Pages 설정`·`아티팩트 업로드` **skipped**, `deploy` 잡 **skipped** | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267897668 |
-| 5 | scrape | workflow_dispatch(`mode=commit`) | failure — 스냅샷 **11개 매칭** 후 `[scrape] 미구현: tools/scraper/index.ts 는 T2(t_5ccc5cf5)에서 구현한다.` exit 1 → 계약 검증·테스트·커밋 스텝 **skipped(반영 커밋 0건)** | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267949917 |
+| 5 | deploy | push `b24c150` (T3b — scrape.yml 개선 · docs/01 §4) | **success** — build 13스텝 + deploy 3스텝 전부 success · `계약 데이터 동봉: dist/data/timetable.json (84846 bytes)` → Pages 반영 | https://github.com/angalle/sunmoon-shuttle/actions/runs/37269144210 |
+| 6 | scrape | workflow_dispatch(`mode=commit`) — **T2 완료 후 1회차**(T3b) | **success** — 스냅샷 **11개 파싱**(노선 5 · 평일 42/33/38/7행 · 안내문 17 · 시내버스 15) · 계약 검증 `OK — schemaVersion=1 노선=5 평일행=120` · 테스트 7파일 통과 · 변경 감지 `fetchedAt 외 내용 동일 → 데이터 변경 없음 → 커밋 0건` → 반영 스텝 **skipped**(반영 커밋 0건) | https://github.com/angalle/sunmoon-shuttle/actions/runs/37269154462 |
+| 7 | scrape | 같은 입력 **재실행(2회차)**(T3b) | **success** — 1회차와 동일 결과·**커밋 0건**, `origin/main` 해시 불변(`b24c150`) → 노이즈 커밋 차단 실증 | https://github.com/angalle/sunmoon-shuttle/actions/runs/37269211341 |
+| 8 | scrape | workflow_dispatch(**T3 시절 — 이력 보존**) | failure — 스냅샷 **11개 매칭** 후 `[scrape] 미구현: tools/scraper/index.ts 는 T2(t_5ccc5cf5)에서 구현한다.` exit 1 → 계약 검증·테스트·커밋 스텝 **skipped(반영 커밋 0건)** | https://github.com/angalle/sunmoon-shuttle/actions/runs/37267949917 |
+
+- **T3 의 5번 행(스크레이프 실패)은 성공 케이스(6·7번)로 대체**하고, 그 실패 기록은 8번 행에 **이력으로 보존**했다(의도된 T2-미구현 실패 — 실패 경로 증거).
+- **5~7번(T3b) 재현 명령**: `gh auth switch -u angalle` 후 `gh workflow run scrape.yml --repo angalle/sunmoon-shuttle --ref main -f raw_glob='data/raw/*.html' -f mode=commit -f reason='…'`. (활성 계정이 `mz-heesun` 이면 관리자 작업이 막힌다 — 이 저장소는 pull 전용.)
+- **`fetchedAt` 커밋 규칙(실측 확정 — T2 지적 반영)**: 계약 JSON 은 실행마다 `source.fetchedAt`(수집 시각)이 달라져 **원시 `git diff` 로는 항상 changed=true** 였다(실측: 같은 입력 3회 → fetchedAt 3개 상이(`14:38:46`·`14:38:58`·`14:38:59`), 나머지 행·셀·해시는 결정적). T3b 는 `scrape.yml` 변경 감지를 `jq -S 'del(.source.fetchedAt)'` **정규화 비교**로 바꾸고, 무변경이면 `git checkout -- data/timetable.json` 으로 되돌려 **커밋 0건**으로 끝낸다 → 7번 행(2회차)에서 그 로그를 실측 확인. `source.fetchedAt` 의 의미 = **"현재 커밋된 데이터를 반영한 시각"(= 마지막 *내용* 변경 시각)**(`docs/01 §4` 주석에 명시).
+- **로컬 사전 검증(이번 변경분, 샌드박스 git 저장소에서 스텝 셸 원본 실행)** — 4케이스 실측: A) `fetchedAt` 만 변동 → `changed=false` + HEAD 복원 ✓ · B) 실제 내용 변동(트립 키 추가 / 안내문 텍스트 수정) → `changed=true` ✓ · C) HEAD 에 파일 없음(최초 반입) → `changed=true` ✓ · D) **구로직은 A 에서 `changed=TRUE`**(노이즈 커밋의 원인) → 신로직 `changed=false` ✓. 셸 문법 `bash -n` 통과 · `actionlint .github/workflows/scrape.yml` exit 0(지적 0건) · `npm run scrape -- --local data/raw/*.html` 로컬 재현 exit 0(84,846 bytes · contentHash `16fac81b…` 로 커밋본과 동일, `fetchedAt` 만 변동).
 
 - 4번(실패 게이트 시연)은 **임시 브랜치**에서 실행하고 브랜치는 삭제했다 — `main` 이력·배포본에 영향 없음.
 - **Pages 최초 활성화 절차**(1회, 재현용): 관리자 권한 계정으로 `gh api -X POST repos/angalle/sunmoon-shuttle/pages -f build_type=workflow` → 이후 `configure-pages` 는 이미 있는 사이트를 그대로 쓴다(멱등).
 - **로컬 사전 검증**(워크플로 push 전에 같은 명령을 로컬에서 실행): `actionlint` 2파일 **0건** · `verify_contract.mjs`(정상 fixture exit 0 / 손상 fixture exit 1) · `summarize.mjs` 1줄 출력 · 글롭 로직 실데이터 11개 매칭·미매칭 시 exit 1 · `npm run test` 5 pass · `npm run build`(dist 8.0K) · `bash scripts/boundary.sh` BOUNDARY: PASS.
-- **남은 것(다음 단계)**: ① T2 파서 완료 후 `scrape.yml` 재실행 → 성공 케이스로 §8 표 갱신(그때 `data/timetable.json` 이 Pages 에서 200) ② 저장소 `Watch → Actions` 알림 수신 설정(사람 1회 — §2) ③ 헤드리스 브라우저 스모크(T5·T6, §5).
+- **남은 것(다음 단계)**: ① ~~T2 파서 완료 후 `scrape.yml` 재실행·§8 갱신~~ → **T3b 완료**(6·7번 행 성공, Pages `data/timetable.json` 200 · 로컬 파일과 sha256 동일) ② 저장소 `Watch → Actions` 알림 수신 설정(사람 1회 — §2) ③ 헤드리스 브라우저 스모크(T5·T6, §5) ④ **앱(T5)의 계약 JSON 경로 확인**: `/data/timetable.json`(루트 `/timetable.json` 은 404 — §8 실측).
+- **남은 위험(정직)**: "내용이 실제로 바뀔 때 커밋 1건" 경로는 이번에 CI 에서 실측하지 못했다(T2 가 이미 같은 내용을 커밋해 있어 두 번의 트리거가 모두 커밋 0건이었다). 로컬 샌드박스에서 `changed=true` 분기는 확인했고, CI 실측은 다음 실제 스냅샷 변경(학기 개편 반영) 때 확인된다.
