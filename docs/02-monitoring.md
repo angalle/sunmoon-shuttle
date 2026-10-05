@@ -172,3 +172,19 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 - **로컬 사전 검증**(워크플로 push 전에 같은 명령을 로컬에서 실행): `actionlint` 2파일 **0건** · `verify_contract.mjs`(정상 fixture exit 0 / 손상 fixture exit 1) · `summarize.mjs` 1줄 출력 · 글롭 로직 실데이터 11개 매칭·미매칭 시 exit 1 · `npm run test` 5 pass · `npm run build`(dist 8.0K) · `bash scripts/boundary.sh` BOUNDARY: PASS.
 - **남은 것(다음 단계)**: ① ~~T2 파서 완료 후 `scrape.yml` 재실행·§8 갱신~~ → **T3b 완료**(6·7번 행 성공, Pages `data/timetable.json` 200 · 로컬 파일과 sha256 동일) ② 저장소 `Watch → Actions` 알림 수신 설정(사람 1회 — §2) ③ 헤드리스 브라우저 스모크(T5·T6, §5) ④ **앱(T5)의 계약 JSON 경로 확인**: `/data/timetable.json`(루트 `/timetable.json` 은 404 — §8 실측).
 - **남은 위험(정직)**: "내용이 실제로 바뀔 때 커밋 1건" 경로는 이번에 CI 에서 실측하지 못했다(T2 가 이미 같은 내용을 커밋해 있어 두 번의 트리거가 모두 커밋 0건이었다). 로컬 샌드박스에서 `changed=true` 분기는 확인했고, CI 실측은 다음 실제 스냅샷 변경(학기 개편 반영) 때 확인된다.
+
+---
+
+## 부록 A — 배치 v2 모니터링 (AI 보강, 2026-10-05)
+
+| 지표 | 임계/조건 | 알림 경로 | 복구 절차 |
+|---|---|---|---|
+| 배치 마지막 성공 시각 | **24시간 초과** | 총괄 알림(런 기록 + Discord DM) | 수동 dispatch 재실행 → 로그 확인 |
+| self-hosted runner 상태 | 오프라인/미등록 | 총괄 알림 | 러너 서비스 재기동(`launchd`), 이 맥 24/7 정책 확인 |
+| AI 추출 실패(로컬 Ollama 무응답) | 1회 이상 | 태스크 로그 경고 | Ollama 재기동, 모델 존재 확인, **규칙 전용 모드로 폴백**(AI 없이도 JSON 발행) |
+| 검증 불일치(`needsReview`) 건수 | **> 0** | 기록 + 리포트 | 해당 항목 원본 대조, 필요 시 규칙 패턴 등록 or 사람 확인 |
+| AI 인용 검증 실패(`sourceQuote` 불일치) | 1건 이상 | 배치 FAIL | 발행 중단 → 마지막 정상 JSON 유지, 원인 분석 |
+| JSON 스키마 검증 실패 | 발생 시 | 배치 FAIL | 발행 중단, 스키마 버전/필드 점검 |
+| 앱 네트워크 요청 출처 | 외부 도메인 요청 **> 0** | 스모크 FAIL | UI 에서 원본 읽기 유입 차단(T14 수용기준) |
+
+**복구 원칙**: 발행 실패는 **앱 장애로 이어지지 않는다**(마지막 정상 JSON 유지). 앱은 파일 하나만 읽으므로 롤백은 `git revert` 1회로 끝난다.
