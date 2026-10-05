@@ -1,0 +1,41 @@
+render_smoke: http://127.0.0.1:57652/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00 (base=/sunmoon-shuttle/, now=2026-10-05T14:40:00+09:00)
+
+검사 결과:
+  PASS  화면 렌더(next-bus-card 존재)
+  PASS  요일 탭 3개 — tabs=3
+  PASS  오늘(KST) 탭이 기본 선택 — selected=shuttle-day-tab-weekday
+  PASS  주말 탭이 노선 수를 반영 — 토요일 탭="토요일노선 3/5개"
+  PASS  평일 표 행 수 = JSON(asan-ktx weekday) — 화면=42 JSON=42
+  PASS  평일 tbody 행 수 일치 — tbody=42
+  PASS  미운행(Χ) 셀이 — 로 구분 표시 — empty cells=27
+  PASS  V1 상태줄: 오늘 날짜·현재 시각(KST) — clock=10월 5일 (월) 14:40
+  PASS  V1 공지 배너: 대체 시간표 안내 — 일요일 시간표로 운행합니다개천절대체휴일: 일요일 시간표로 운행
+  PASS  V1 다음 출발 카드 상태 ready — status=ready
+  PASS  V1 다음 출발 상위 3편(히어로 1 + 목록 2) — board rows=2
+  PASS  V1 히어로 시각이 노선 통합 도메인 계산값 — hero=오늘 16:00 출발
+  PASS  V1 방향 필터 칩 3개 — chips=3
+  PASS  V1 오늘 남은 출발 목록 — list rows=5
+  PASS  V1 원본 전체표는 접힘(details 기본 닫힘) — collapsed=true
+  PASS  신선도 2행(원본 업데이트 + 우리 반영) — rows=2
+  PASS  키보드(→)로 토요일 탭 이동 — selected=shuttle-day-tab-saturday
+  PASS  키보드 이동 후 포커스 유지 — focus=shuttle-day-tab-saturday
+  PASS  토요일 표 행 수 = JSON(asan-ktx saturday) — 화면=4 JSON=4
+  PASS  평일 탭 클릭
+  PASS  운행 중단 노선 선택
+  PASS  운행 중단 상태 표시(F2b) — status=suspended-route
+  PASS  운행 중단 사유(원본 문구) 표시 — 원본 안내: 2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.
+  PASS  목록에 운행 중단 배지 — ["운행 중단"]
+  INFO  실패 주입 전 캐시 비우기(T6): {"registrations":1,"caches":["sunmoon-shuttle-shell-2026-10-05.1"],"idb":"deleted"}
+  PASS  데이터 로드 실패 시 오류 UI + 원본 링크 — {"text":"데이터를 불러오지 못했습니다원인: ./data/timetable.json: 네트워크 요청 실패: Failed to fetch원본 페이지 열기다시 시도","link":"https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx","role":"alert","hasRetry":true,"notBlank":true}
+  PASS  오류 UI 는 alert 역할 · 재시도 버튼 포함 — role=alert retry=true
+  PASS  오류 상태에서도 빈 화면 아님 — app=true
+  PASS  콘솔 오류 0(정상 경로)
+  INFO  콘솔 경고 1건: console.warn: [sw] Service Worker 등록 실패 — 네트워크 계층 없이 동작합니다. TypeError: Failed to register a ServiceWorker for scope ('http://127.0.0.1:57652/sunmoon-shuttle/') with script ('http://127.0.0.1:57652/sunmoon-shuttle/sw.js'): A bad HTTP response code (404) was received when fetching the script.
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T5-1-평일탭.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T5-2-토요일탭.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T5-3-운행중단노선.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T5-4-다음버스카드.png
+
+RENDER SMOKE: PASS

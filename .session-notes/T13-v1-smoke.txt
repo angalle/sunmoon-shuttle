@@ -1,0 +1,91 @@
+
+검사 결과:
+  PASS  ① 평일 08:00: 페이지 렌더(보드 카드)
+  PASS  ① 상태줄: 오늘 날짜·현재 시각(KST) — clock=10월 6일 (화) 08:00 datetime=2026-10-05T23:00:00.000Z
+  PASS  ① 공지 배너 없음(안내문 없는 평일) — null
+  PASS  ① 방향 필터 칩 3개(전체 기본 선택) — [{"direction":"all","pressed":"true","text":"전체 113편"},{"direction":"out","pressed":"false","text":"학교에서 출발 89편"},{"direction":"in","pressed":"false","text":"학교로 도착 24편"}]
+  PASS  ① 다음 출발 카드: 상위 3편 = 히어로 1 + 목록 2 — {"hero":"오늘 08:05 출발","cardRows":2}
+  PASS  ① 다음 출발 카드: 오늘 첫 출발 = 오늘 08:05 출발 — 오늘 08:05 출발
+  PASS  ① 지난 편 제외: 오늘 편은 모두 기준 시각 이상 — times=["08:05","08:15","08:25"]
+  PASS  ① 노선 통합 정렬: 출발 시각 오름차순 — ["08:05","08:15","08:25","08:30","08:30"]
+  PASS  ① 목록 잘림: 목록 5편 + 더 보기 = 남은 편수 — list=5 rest=108 (총 115편 · 남은 113편)
+  PASS  ① 접힘 원본표: details 닫힘 + 안에 TimetableTable — {"node":true,"open":false,"table":true,"rows":42}
+  PASS  ④ 방향 칩(학교에서 출발) 즉시 반영 — out 필터: 남은 113편 중 상위 3편 — pressed=true rows=5+84 방향=["out","out","out","out"]
+  PASS  ④ 방향 칩(학교로 도착) 즉시 반영 — in 필터: 남은 113편 중 상위 3편 — pressed=true rows=5+19 방향=["in","in","in","in"]
+  PASS  ④ 방향 칩(전체) 복귀 — {"direction":"all","pressed":"true","text":"전체 113편"}
+  PASS  ② 대체휴일 10:00: 페이지 렌더
+  PASS  ② 상태줄: 10월 5일 (월) 10:00 — 10월 5일 (월) 10:00
+  PASS  ② 공지 배너: "일요일 시간표로 운행" + 근거 안내문 — {"kind":"alternate","text":"일요일 시간표로 운행합니다개천절대체휴일: 일요일 시간표로 운행"}
+  PASS  ② 적용 시간표(일요일) 편수 = JSON 일요일 합계 — (총 16편 · 남은 13편) (JSON 일요일 합계=16)
+  PASS  ② 다음 출발: 일요일 첫 남은 편 = 오늘 12:00 출발 — 오늘 12:00 출발
+  PASS  ② 지난 편 제외(09:00 편 없음) — ["12:00","12:00","12:00"]
+  PASS  ③ 자정 경계 23:59: 페이지 렌더
+  PASS  ③ 23:59 상태줄 = 10월 5일 (월) — 10월 5일 (월) 23:59
+  PASS  ③ 23:59 오늘 운행 종료 안내 + 다음 운행 내일 — 오늘 운행이 끝났습니다 · 다음 운행: 내일 07:30
+  PASS  ③ 23:59 목록이 다음 날(내일) 편으로 넘어간다 — [1,1,1,1,1]
+  PASS  ③ 23:59 카드 라벨 = 내일 — 내일 07:30 출발
+  PASS  ③ 자정 경계 00:01: 페이지 렌더
+  PASS  ③ 00:01 상태줄 = 10월 6일 (화) (다음 날로 바뀜) — 10월 6일 (화) 00:01
+  PASS  ③ 00:01 공지 배너 없음(대체휴일 종료) — null
+  PASS  ③ 00:01 카드 라벨 = 오늘 (다음 날 목록으로 전환) — 오늘 07:30 출발
+  PASS  ③ 00:01 목록이 모두 오늘(dayOffset 0) — [0,0,0,0,0]
+  PASS  ③ 00:01 지난 편 제외(00:01 이후만) — ["07:30","07:40","08:05"]
+  PASS  ④ 오늘 실측: 페이지 렌더(주입 없음)
+  PASS  ④ 오늘(2026-10-06) 상태줄이 실제 KST 날짜 — 10월 6일 (화) 00:18
+  PASS  ④ 오늘은 안내문이 없어 배너도 없다 — null
+  PASS  ⑤ 평일 09:00: 페이지 렌더
+  PASS  ⑤ 평일 09:00: 상태줄 = 10월 6일 (화) 09:00 — 10월 6일 (화) 09:00
+  PASS  ⑤ 평일 09:00: 접힘 제목에 오늘 요일 명시 — 전체 시간표(원본) 보기 · 오늘 10월 6일 (화) 기준
+  PASS  ⑤ 평일 09:00: 미해석 경고는 홈 1줄(목록 없음) — summary=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 items=0
+  PASS  ⑤ 평일 09:00: 상세 목록은 접힘(source-details) 안에 — count=5 inDetails=true
+  PASS  ⑤ 평일 09:00: "오늘 운행이 끝났습니다" 문구 없음(모순 0) — 오늘 남은 출발 (총 115편 · 남은 94편)09:05아산(KTX)역학교로 도착 · 09:20 도착약 5분 후금(X)09:05천안역학교로 도착 · 09:35 도
+  PASS  ⑤ 평일 09:00: 목록 5편 + 편수·방향 칩 표시 — rows=5 counts=true chips=3
+  PASS  ⑤ 평일 09:00: 배너 없음(안내문 없는 날) — null
+  INFO  ⑤ 평일 09:00: clock=10월 6일 (화) 09:00 · headline=null · warn=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 · list=5+89 (총 115편 · 남은 94편)
+  PASS  ⑥ 토요일 09:00: 페이지 렌더
+  PASS  ⑥ 토요일 09:00: 상태줄 = 10월 10일 (토) 09:00 — 10월 10일 (토) 09:00
+  PASS  ⑥ 토요일 09:00: 접힘 제목에 오늘 요일 명시 — 전체 시간표(원본) 보기 · 오늘 10월 10일 (토) 기준
+  PASS  ⑥ 토요일 09:00: 미해석 경고는 홈 1줄(목록 없음) — summary=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 items=0
+  PASS  ⑥ 토요일 09:00: 상세 목록은 접힘(source-details) 안에 — count=5 inDetails=true
+  PASS  ⑥ 토요일 09:00: "오늘 운행이 끝났습니다" 문구 없음(모순 0) — 오늘 남은 출발 (총 12편 · 남은 9편)12:00아산(KTX)역학교에서 출발 · 12:20 도착약 3시간 후12:00천안역학교에서 출발 · 12:30 도착약 
+  PASS  ⑥ 토요일 09:00: 목록 5편 + 편수·방향 칩 표시 — rows=5 counts=true chips=3
+  PASS  ⑥ 토요일 09:00: 배너 없음(안내문 없는 날) — null
+  INFO  ⑥ 토요일 09:00: clock=10월 10일 (토) 09:00 · headline=null · warn=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 · list=5+4 (총 12편 · 남은 9편)
+  PASS  ⑦ 일요일 09:00: 페이지 렌더
+  PASS  ⑦ 일요일 09:00: 상태줄 = 10월 11일 (일) 09:00 — 10월 11일 (일) 09:00
+  PASS  ⑦ 일요일 09:00: 접힘 제목에 오늘 요일 명시 — 전체 시간표(원본) 보기 · 오늘 10월 11일 (일) 기준
+  PASS  ⑦ 일요일 09:00: 미해석 경고는 홈 1줄(목록 없음) — summary=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 items=0
+  PASS  ⑦ 일요일 09:00: 상세 목록은 접힘(source-details) 안에 — count=5 inDetails=true
+  PASS  ⑦ 일요일 09:00: "오늘 운행이 끝났습니다" 문구 없음(모순 0) — 오늘 남은 출발 (총 16편 · 남은 13편)12:00아산(KTX)역학교에서 출발 · 12:20 도착약 3시간 후12:00천안역학교에서 출발 · 12:30 도착약
+  PASS  ⑦ 일요일 09:00: 목록 5편 + 편수·방향 칩 표시 — rows=5 counts=true chips=3
+  PASS  ⑦ 일요일 09:00: 배너 없음(안내문 없는 날) — null
+  INFO  ⑦ 일요일 09:00: clock=10월 11일 (일) 09:00 · headline=null · warn=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 · list=5+8 (총 16편 · 남은 13편)
+  PASS  ⑧ 한글날 09:00(운행 없음): 페이지 렌더
+  PASS  ⑧ 한글날 09:00(운행 없음): 상태줄 = 10월 9일 (금) 09:00 — 10월 9일 (금) 09:00
+  PASS  ⑧ 한글날 09:00(운행 없음): 접힘 제목에 오늘 요일 명시 — 전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준
+  PASS  ⑧ 한글날 09:00(운행 없음): 미해석 경고는 홈 1줄(목록 없음) — summary=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 items=0
+  PASS  ⑧ 한글날 09:00(운행 없음): 상세 목록은 접힘(source-details) 안에 — count=5 inDetails=true
+  PASS  ⑧ 한글날 09:00(운행 없음): "오늘 운행이 끝났습니다" 문구 없음(모순 0) — 오늘 남은 출발오늘은 운행이 없습니다 · 다음 운행: 내일 08:00
+  PASS  ⑧ 한글날 09:00(운행 없음): 운행 없음 배너 + 목록 문구(끝났습니다 아님) — notice={"kind":"no-service","text":"오늘 셔틀버스 운행이 없습니다사유: 한글날: 셔틀버스 운행 없음"} headline=오늘은 운행이 없습니다 · 다음 운행: 내일 08:00
+  PASS  ⑧ 한글날 09:00(운행 없음): 목록 행 0 + 편수(총 N편)·방향 칩 숨김 — rows=0 counts=false chips=0
+  INFO  ⑧ 한글날 09:00(운행 없음): clock=10월 9일 (금) 09:00 · headline=오늘은 운행이 없습니다 · 다음 운행: 내일 08:00 · warn=원본 표기 5건은 자동 해석하지 못했습니다 — 자세히 보기 · list=0+0 null
+  PASS  ⑧ 콘솔 오류 0
+  INFO  시나리오 스크린샷: .session-notes/T12-1-평일0800.png · .session-notes/T12-2-대체휴일1000.png · .session-notes/T12-3-자정경계-2359.png · .session-notes/T12-4-자정경계-0001.png · .session-notes/T12-5-오늘-실측.png
+  INFO  T13 스크린샷: .session-notes/T13-1-평일0900.png · .session-notes/T13-2-토0900.png · .session-notes/T13-3-일0900.png · .session-notes/T13-4-한글날0900.png
+  INFO  평일 08:00 보드: {"hero":"오늘 08:05 출발","counts":"(총 115편 · 남은 113편)","chips":["전체 113편","학교에서 출발 89편","학교로 도착 24편"]}
+  INFO  대체휴일 10:00 보드: {"hero":"오늘 12:00 출발","counts":"(총 16편 · 남은 13편)","notice":"일요일 시간표로 운행합니다개천절대체휴일: 일요일 시간표로 운행"}
+  INFO  자정 경계: 23:59={"clock":"10월 5일 (월) 23:59","hero":"내일 07:30 출발","over":"오늘 운행이 끝났습니다 · 다음 운행: 내일 07:30"} / 00:01={"clock":"10월 6일 (화) 00:01","hero":"오늘 07:30 출발"}
+  INFO  오늘 실측: {"clock":"10월 6일 (화) 00:18","counts":"(총 115편 · 남은 115편)"}
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T12-1-평일0800.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T12-2-대체휴일1000.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T12-3-자정경계-2359.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T12-4-자정경계-0001.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T12-5-오늘-실측.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T13-1-평일0900.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T13-2-토0900.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T13-3-일0900.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T13-4-한글날0900.png
+
+V1 SMOKE: PASS
