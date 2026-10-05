@@ -119,6 +119,25 @@ cmd_restart_runner() {
   (cd "$RUNNER_HOME" && ./svc.sh stop) || true
   sleep 2
   (cd "$RUNNER_HOME" && ./svc.sh start) || { alert runner-restart "svc.sh start 실패"; return 1; }
+  # ⚠️ 실측(macOS 26.2): `launchctl load -w` 가 "Started" 를 보고해도 프로세스가 스폰되지 않는 경우가 있다
+  #    (RunAtLoad/KeepAlive 무시 · `launchctl print` 는 pended nondemand spawn=speculative). 그때는
+  #    kickstart → (실패 시) bootout+bootstrap 으로 재적재해야 실제로 뜬다.
+  local plist label
+  if ! pgrep -f "Runner.Listener" >/dev/null 2>&1; then
+    plist="$(ls "$HOME"/Library/LaunchAgents/actions.runner.*.plist 2>/dev/null | head -1)"
+    label="$(basename "${plist%.plist}")"
+    say "launchd 스폰 지연 감지 — kickstart 시도"
+    launchctl kickstart -k "gui/$UID/$label" >/dev/null 2>&1 || true
+    sleep 6
+    if ! pgrep -f "Runner.Listener" >/dev/null 2>&1; then
+      say "kickstart 실패 — bootout/bootstrap 재적재"
+      launchctl bootout "gui/$UID/$label" >/dev/null 2>&1 || true
+      sleep 1
+      launchctl bootstrap "gui/$UID" "$plist" >/dev/null 2>&1 || true
+      sleep 6
+    fi
+    pgrep -f "Runner.Listener" >/dev/null 2>&1 && say "리스너 프로세스 기동 확인" || say "리스너 프로세스 없음(수동 확인 필요)"
+  fi
   local i
   for i in $(seq 1 20); do
     sleep 3
