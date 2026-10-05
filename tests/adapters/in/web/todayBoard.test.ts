@@ -287,6 +287,12 @@ describe('T13 심플화 — 목록 상한 5편', () => {
     expect(board.rest).toHaveLength(board.events.length - 5);
     expect(board.hasMore).toBe(true);
   });
+
+  it('방향 필터는 오늘 남은 편이 있을 때만 보여준다(0편 칩 3개 = 소음 제거)', () => {
+    expect(todayBoardView(state(MORNING)).directionFilterVisible).toBe(true);
+    expect(todayBoardView(state(HANGUL_DAY)).directionFilterVisible).toBe(false);
+    expect(todayBoardView(state('2026-10-05T23:59:00+09:00')).directionFilterVisible).toBe(false);
+  });
 });
 
 describe('T13 결함 B — 미해석 경고는 홈 1줄·상세는 접힘', () => {

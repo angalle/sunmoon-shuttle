@@ -175,6 +175,7 @@ async function evaluate(expression) {
   return result.result?.value;
 }
 
+/** 시나리오별 스크린샷 — 전체 페이지(증거용). */
 async function capture(fileName) {
   const layout = await cdp.send('Page.getLayoutMetrics');
   const contentHeight = Math.ceil(layout.cssContentSize?.height ?? 1200);
@@ -186,6 +187,22 @@ async function capture(fileName) {
   });
   await delay(150);
   const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+  const path = join(SHOT_DIR, fileName);
+  writeFileSync(path, Buffer.from(shot.data, 'base64'));
+  shots.push(path);
+  return path;
+}
+
+/**
+ * **첫 화면** 스크린샷(T13) — 뷰포트(390×844)만 찍는다.
+ * `captureBeyondViewport` 는 닫힌 `<details>` 내용까지 그려 버려 "심플한 첫 화면" 증거로 부적합하다(실측).
+ * 라이트 모드도 함께 고정한다 — 헤드리스 Chrome 은 호스트 OS 의 다크 설정을 물려받는다.
+ */
+async function captureViewport(fileName) {
+  await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await delay(150);
+  const shot = await cdp.send('Page.captureScreenshot', { format: 'png' });
   const path = join(SHOT_DIR, fileName);
   writeFileSync(path, Buffer.from(shot.data, 'base64'));
   shots.push(path);
@@ -317,6 +334,9 @@ async function main() {
     await cdp.send('Log.enable');
     await cdp.send('Page.enable');
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 1600, deviceScaleFactor: 2, mobile: true });
+    // 스크린샷·검사는 **라이트 모드 고정** — 헤드리스 Chrome 이 호스트 OS 의 다크 설정을 물려받아
+    // 같은 빌드에서도 그림이 달라진다(실측). 다크 대응은 a11y_smoke 가 두 테마 모두로 검증한다.
+    await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
 
     // ── 시나리오 ①: 평일 08:00 (2026-10-06 화) ──────────────────────────────
     const s1Now = '2026-10-06T08:00:00+09:00';
@@ -437,12 +457,12 @@ async function main() {
           state.notice?.kind === 'no-service' && String(state.noServiceHeadline).includes('오늘은 운행이 없습니다') && String(state.noServiceHeadline).includes('다음 운행: 내일'),
           `notice=${JSON.stringify(state.notice)} headline=${String(state.noServiceHeadline)}`,
         );
-        check(`${testCase.label}: 목록 행 0 + 편수(총 N편) 숨김`, state.listRowCount === 0 && state.listCardCountsVisible === false, `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)}`);
+        check(`${testCase.label}: 목록 행 0 + 편수(총 N편)·방향 칩 숨김`, state.listRowCount === 0 && state.listCardCountsVisible === false && state.chips.length === 0, `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} chips=${String(state.chips.length)}`);
       } else {
-        check(`${testCase.label}: 목록 5편 + 편수 표시`, state.listRowCount === 5 && state.listCardCountsVisible === true, `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)}`);
+        check(`${testCase.label}: 목록 5편 + 편수·방향 칩 표시`, state.listRowCount === 5 && state.listCardCountsVisible === true && state.chips.length === 3, `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} chips=${String(state.chips.length)}`);
         check(`${testCase.label}: 배너 없음(안내문 없는 날)`, state.notice === null, JSON.stringify(state.notice));
       }
-      t13Shots.push(await capture(testCase.shot));
+      t13Shots.push(await captureViewport(testCase.shot));
       info(`${testCase.label}: clock=${String(state.clockText)} · headline=${String(state.noServiceHeadline)} · warn=${String(state.warnSummary)} · list=${String(state.listRowCount)}+${String(state.restRows)} ${String(state.countsText)}`);
     }
 

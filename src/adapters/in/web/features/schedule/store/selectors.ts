@@ -434,6 +434,11 @@ export interface TodayBoardView {
   readonly listHeadlineKind: BoardHeadlineKind | null;
   /** 목록 행을 그릴지 — 운행 없는 날/빈 목록은 숨기고 머리 문구만 남긴다. */
   readonly listVisible: boolean;
+  /**
+   * 방향 필터 칩을 보여줄지 — **오늘 남은 편이 있을 때만**.
+   * 운행 없는 날·오늘 종료 뒤에는 모든 칩이 `0편`이라 정보가 아니라 소음이다(T13 심플화).
+   */
+  readonly directionFilterVisible: boolean;
   /** `10월 5일 (월) 21:52` — 주입된 clock 기준(60초 갱신) */
   readonly clockLabel: string;
   /** `2026-10-05 (월)` */
@@ -521,6 +526,7 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
       listHeadline: UI_TEXT.loading,
       listHeadlineKind: 'loading',
       listVisible: false,
+      directionFilterVisible: false,
       effectiveDayType: calendarDayType,
       notice: null,
       counts: { all: 0, out: 0, in: 0 },
@@ -576,6 +582,8 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
     listHeadline: headline.text,
     listHeadlineKind: headline.kind,
     listVisible: headline.kind !== 'no-service' && headline.kind !== 'empty' && headline.kind !== 'loading',
+    // 오늘 남은 편이 있을 때만 방향 필터를 보여준다(운행 없는 날·종료 뒤에는 모두 0편 = 소음).
+    directionFilterVisible: todayEvents.length > 0,
     effectiveDayType: service.effectiveDayType,
     notice: serviceNoticeOf(day, model),
     counts: {

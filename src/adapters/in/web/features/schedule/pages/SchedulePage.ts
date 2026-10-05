@@ -220,15 +220,18 @@ export function createSchedulePage(
   const renderBoard = (view: TodayBoardView): void => {
     replaceChildren(boardHost, [
       upcomingBoardCard({ view, headingId: BOARD_HEADING_ID }),
-      directionFilter({
-        value: boardFilter,
-        counts: view.counts,
-        onSelect: (value: DirectionFilter) => {
-          boardFilter = value;
-          if (latestState !== null) renderBoard(todayBoardView(latestState, boardFilter));
-          restoreFocus(`chip:${value}`);
-        },
-      }),
+      // 오늘 남은 편이 없으면(운행 없음·종료) 칩을 그리지 않는다 — `0편` 칩 3개는 소음이다(T13).
+      view.directionFilterVisible
+        ? directionFilter({
+            value: boardFilter,
+            counts: view.counts,
+            onSelect: (value: DirectionFilter) => {
+              boardFilter = value;
+              if (latestState !== null) renderBoard(todayBoardView(latestState, boardFilter));
+              restoreFocus(`chip:${value}`);
+            },
+          })
+        : null,
       departureList({ view, headingId: BOARD_LIST_HEADING_ID }),
     ]);
   };
