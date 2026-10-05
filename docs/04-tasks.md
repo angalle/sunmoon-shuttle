@@ -66,11 +66,11 @@
 | **T8 Android 패키징**(Capacitor·AAB·에뮬 스모크) | `t_3831a022` | infraprojectcreator | done |
 | **T9 iOS 경로 검증 도구** + 사람 체크리스트 | `t_8d2ff523` | app-qa | done |
 | **T10 P3 게이트 검수**(AC-1~AC-8 총괄 직접 판정) | `t_6c427296` | projectcreator | done — AC-1~AC-6·AC-8 통과 / AC-7 조건부(`docs/03 §7`) |
-| **T11 개인정보처리방침 + 스토어 문구**(P3 게이트 미비 보완) | `t_0d8c3f13` | frontendprojectcreator | todo(부모 T10) |
+| **T11 개인정보처리방침 + 스토어 문구**(P3 게이트 미비 보완) | `t_0d8c3f13` | frontendprojectcreator | **done — 총괄 검수 통과**(커밋 `a2c49cb`: 방침 `public/privacy.html` 6,172B + `privacy.css` + `docs/05-store-listing.md` + 테스트 26케이스(총 197) + 푸터 링크 + SW 셸 프리캐시 / a11y 스모크 **46건·실패 0** 총괄 재실행) |
 
 ## 상태
 - 현재: **T0~T10 완료**(2026-10-05) — **T10 P3 게이트 판정: AC-1~AC-6·AC-8 통과 · AC-7 조건부**(Android 실측 완료 / iOS 실기기 = 사람 게이트). 상세 `docs/03 §7`. **T11(개인정보처리방침·스토어 문구) 발행됨** — P3 게이트 미비 1건 보완.
 - **배포 주의**: 최신 배포본은 T5 시점(run `37270216029`, 커밋 `0ab0501`) — T6~T9(오프라인·PWA·접근성)는 **아직 미배포**. `main` 은 origin 보다 **12커밋 앞**이며 push(=배포 트리거)는 **사용자 승인 사안**.
 - 워커 배정은 `frontendprojectcreator`(표현 계층)·`app-qa`(자동 검증)·`infraprojectcreator`(배포/Android)·`apiprojectcreator`(앱 코어·캐시) 로 확정(위 표가 정본 — 이전 "가칭 프로필" 계획은 폐기)
-- 남은 결정: **① main 12커밋 push(=Pages 배포) 승인 여부 ② Play 스토어 제출 시점**(계정은 기존 것 사용). 사람 게이트 = ① **실기기 iOS 확인**(`scripts/qa/iOS-CHECKLIST.md` 19항목) ② T11 개인정보처리방침 검수
+- 남은 결정: **① main 14커밋 push(=Pages 배포) 승인 여부 ② Play 스토어 제출 시점**(계정은 기존 것 사용 — 단 현재 서명이 debug 키라 업로드 키 발급 필요). 사람 게이트 = ① **실기기 iOS 확인**(`scripts/qa/iOS-CHECKLIST.md` 19항목) ② Play 업로드 키 발급 — T11(방침)은 총괄 검수 통과로 종료
 - 소유: **ProjectCreator(이 프로필) 소관** — `~/.hermes/profiles/projectcreator/PROJECTS.md` 등록부에 `소유=나` 로 기록(2026-10-05 사용자 확인)
