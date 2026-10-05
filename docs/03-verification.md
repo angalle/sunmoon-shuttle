@@ -42,7 +42,8 @@ npm run verify:offline       # 오프라인 스모크(헤드리스)
 ## 4. 실행 결과 기록란
 | 회차 | 날짜 | 대상(커밋) | AC | 판정 | 증거 경로 |
 |---|---|---|---|---|---|
-| — | — | — | — | (구현 착수 후 총괄이 채운다) | — |
+| T7 검수 | 2026-10-05 | `8276cfb` (T7 PWA·접근성·다크모드) | AC-7(PWA 설치·전체화면)·접근성 | **통과(총괄 직접 실행)** — `npm run test` **171 passed** · `npm run build` 성공(dist 44.97kB js/11.03kB css) · `npm run lint:boundary` **PASS**(domain 순수성·application→adapters 0건) · 아이콘 192/512/maskable-192/512 + apple-touch 180 + favicon 32 **치수 실측 일치**(`file`) · 하드코딩 색 **0건** · 아이콘 생성기 재실행 **멱등**(public/ 무변경) · 워커 감사 스크립트 **총괄 재실행 → 검사 36건·실패 0·exit 0** · `src/domain/**` 변경 0줄 | `8276cfb` · `.session-notes/T7-a11y-report.md`(865행) · `.session-notes/T7-{light,dark,standalone,focus-skip-link}.png` |
+| — | — | — | — | (T6/T8/T9 후 T10 게이트에서 AC-1~AC-8 판정) | — |
 
 ## 5. 미달 시 처리
 | 상황 | 처리 |
