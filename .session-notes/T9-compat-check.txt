@@ -1,0 +1,83 @@
+
+iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
+
+  PASS  [html.exists] index.html 존재
+  PASS  [html.viewport-fit] viewport 에 viewport-fit=cover (노치 영역까지 쓰고 safe-area 로 보정)
+         → viewport="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  PASS  [html.viewport-width] viewport 에 width=device-width
+         → viewport="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  PASS  [html.apple-touch-icon] apple-touch-icon 링크 + PNG 실파일 존재
+         → href="./apple-touch-icon.png" size=180x180
+  PASS  [html.apple-touch-icon-size] apple-touch-icon 이 정사각 · iOS 권장 180x180 이상
+         → 180x180
+  PASS  [html.apple-capable] apple-mobile-web-app-capable=yes (홈 화면 실행 시 전체화면)
+         → content="yes"
+  PASS  [html.apple-status-bar] apple-mobile-web-app-status-bar-style 이 유효값
+         → content="default"
+  PASS  [html.apple-title] apple-mobile-web-app-title 존재(홈 화면 아이콘 이름)
+         → content="셔틀버스"
+  PASS  [html.mobile-web-app-capable] mobile-web-app-capable=yes (표준안)
+         → content="yes"
+  PASS  [html.manifest-link] manifest 링크 존재 + 대상 파일 존재
+         → href="./manifest.webmanifest"
+  PASS  [html.relative-links] 자원 링크가 절대경로(/)가 아님 — 하위 경로 배포 안전
+         → "./apple-touch-icon.png" "./manifest.webmanifest" "./favicon.svg" "./icons/favicon-32.png"
+  PASS  [html.no-absolute-assets] index.html 의 링크가 절대경로(/…)가 아님(개발 엔트리 /src/* 제외)
+         → 검사 완료
+  PASS  [dist.no-absolute-assets] 배포 산출물(dist/index.html)에 절대경로 자산 0건
+  PASS  [html.theme-color-meta] theme-color 메타 존재(값은 shared/lib/theme.ts 가 토큰에서 채운다)
+         → content=""
+  PASS  [html.color-scheme] color-scheme 메타(라이트/다크)
+         → content="light dark"
+  PASS  [manifest.parse] manifest JSON 파싱 성공
+  PASS  [manifest.required-fields] 필수 필드 8개 존재
+  PASS  [manifest.display] display=standalone|fullscreen (홈 화면 전체화면)
+         → display="standalone"
+  PASS  [manifest.short-name] short_name 길이 ≤ 12 (홈 화면 라벨 잘림 방지)
+         → short_name="셔틀버스 Shuttle" (12자)
+  PASS  [manifest.lang] lang=ko
+         → lang="ko"
+  PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
+         → 검사: start_url, scope, id
+  PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
+         → theme=#0b5497 bg=#f4f6f9
+  PASS  [manifest.icon-192] 아이콘 192x192 선언
+         → sizes=[192x192, 512x512, 192x192, 512x512]
+  PASS  [manifest.icon-512] 아이콘 512x512 선언
+         → sizes=[192x192, 512x512, 192x192, 512x512]
+  PASS  [manifest.icon-maskable] maskable 아이콘 선언(Android 적응형)
+         → purpose=[any, maskable]
+  PASS  [manifest.icons-real] 아이콘 4개 실파일 존재 + 선언 크기 = 실제 IHDR 크기
+  PASS  [css.files] CSS 파일 발견(src·dist)
+         → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css, dist/assets/index-BET44E-c.css
+  PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
+         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+  PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
+  PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
+         → viewport-fit=true env()=true var()=true
+  PASS  [css.text-size-adjust] -webkit-text-size-adjust: 100% (iOS 가로모드 글자 자동 확대 방지)
+  PASS  [sw.file] public/sw.js 존재(등록 대상)
+  PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
+  PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
+  PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
+         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+  PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
+  PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
+  PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
+  PASS  [sw.register-relative] SW 등록 호출(.register)이 있고 경로가 상대경로('./sw.js') — Pages 하위 경로에서 scope 가 그 하위로 잡힌다
+         → register(scriptPath) → "./sw.js" (scriptPath 기본값)
+  PASS  [sw.feature-detection] 'serviceWorker' in navigator 기능 감지 가드
+  PASS  [sw.warn-not-error] SW 실패를 console.warn 으로 남긴다(AC-5 콘솔 오류 0)
+  PASS  [idb.file] IndexedDB 캐시 어댑터 존재
+  PASS  [idb.availability-guard] indexedDB 가용성 가드(globalThis 경유) 존재 — 없으면 no-op
+  PASS  [idb.no-unguarded-global] 비가드 전역 indexedDB.<method> 직접 사용 0건(구형/프라이빗에서 예외 금지)
+         → 비가드 사용 0건
+
+참고:
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
+
+검사 44건 · PASS 44 · FAIL 0 · 소요 0.00s
+
+IOS COMPAT CHECK: PASS
