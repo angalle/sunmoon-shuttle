@@ -68,7 +68,9 @@ tests/
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_02_01_01_01.aspx",
     "sourceUpdatedAt": "2026-08-20",        // 원본 페이지의 "최근 업데이트"
-    "fetchedAt": "2026-10-05T03:00:12+09:00",
+    "fetchedAt": "2026-10-05T03:00:12+09:00",   // **"현재 커밋된 데이터를 반영한 시각"** = 마지막 *내용* 변경 시각.
+                                                //   실행 시각이 아니라서, 내용이 그대로면 갱신하지 않는다(scrape.yml 이 fetchedAt 을 제외하고 비교 → 무변경 시 커밋 0건).
+                                                //   앱의 "데이터 나이" 표시는 이 값 기준이다(docs/02 §1 M2).
     "contentHash": "sha256:…"               // 변경 감지·추적
   },
   "semester": { "label": "2026-2학기", "startsOn": "2026-09-01", "endsOn": "2026-12-14" },
