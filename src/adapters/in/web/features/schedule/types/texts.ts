@@ -78,6 +78,39 @@ export const UI_TEXT = {
   offlineNoticeAgePrefix: '마지막으로 받은 시각',
   offlineNoticeAgeUnknown: '알 수 없음',
   offlineNoticeStale: '이 캐시는 24시간이 지났습니다 — 최신 시간표인지 확인이 필요합니다.',
+
+  /* ── 간편 UI(V1, T12) — 지금 중심 홈. 문구 틀만 여기 두고 값은 도메인 결과에서 온다. ── */
+  /** 상태줄(오늘 날짜·현재 시각) — 값은 `formatKstClockLabel`(도메인 KST 규칙) */
+  clockLabelPrefix: '오늘',
+  /** 공지 배너 ① — 운행 없음. 사유는 `resolveDayService().reason`(원본 안내문 원문) */
+  serviceNoServiceTitle: '오늘 셔틀버스 운행이 없습니다',
+  serviceReasonPrefix: '사유',
+  /** 공지 배너 ② — 대체 시간표. `일요일 시간표로 운행합니다` 처럼 요일 라벨을 앞에 붙인다 */
+  serviceAlternateSuffix: '시간표로 운행합니다',
+  /** 다음 출발 카드 */
+  boardNowTitle: '다음 출발',
+  boardHeroLabel: '가장 가까운 출발',
+  boardDepartureSuffix: '출발',
+  boardArrivalSuffix: '도착',
+  boardEmptyTitle: '지금은 안내할 출발이 없습니다',
+  /** 오늘 남은 출발 목록 */
+  boardListTitle: '오늘 남은 출발',
+  boardListEmpty: '오늘 남은 출발이 없습니다',
+  boardListTotalPrefix: '총',
+  boardListRemainingPrefix: '남은',
+  boardListCountSuffix: '편',
+  boardListMorePrefix: '더 보기',
+  boardTodayOverTitle: '오늘 운행이 끝났습니다',
+  boardNextServicePrefix: '다음 운행',
+  boardDirectionLegend: '방향 선택',
+  boardDirectionAll: '전체',
+  boardDirectionOut: '학교에서 출발',
+  boardDirectionIn: '학교로 도착',
+  boardNotesPrefix: '특이사항',
+  /** 다른 날 미리보기(요일 탭 · 보조) */
+  boardOtherDaysTitle: '다른 날 미리보기',
+  /** 원본 전체표 접힘 */
+  boardSourceDetailsSummary: '전체 시간표(원본) 보기',
 } as const;
 
 /**

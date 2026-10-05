@@ -2,7 +2,7 @@
  * 표시 포맷 (shared/lib) — 순수 함수만. KST 달력 변환은 **도메인 규칙**을 쓴다
  * (화면에서 날짜/시간 계산을 다시 구현하지 않는다 — T5 스택 제약).
  */
-import { formatIsoDate, kstDayOf, toKstParts } from '../../../../../domain/rules/kst';
+import { formatIsoDate, kstDayOf, toKstParts, WEEKDAY_LABELS } from '../../../../../domain/rules/kst';
 
 const MS_PER_MINUTE = 60_000;
 const MS_PER_HOUR = 60 * MS_PER_MINUTE;
@@ -17,6 +17,21 @@ export function formatKstInstant(iso: string): string {
   const hh = pad2(parts.hour);
   const mm = pad2(parts.minute);
   return `${date} ${hh}:${mm} (KST)`;
+}
+
+/**
+ * 인스턴트 → `10월 5일 (월) 21:52` (KST) — 홈 상태줄(T12).
+ * 달력 계산은 도메인 규칙(`toKstParts`)만 쓴다(화면에서 날짜 산술 금지).
+ */
+export function formatKstClockLabel(nowMs: number): string {
+  const parts = toKstParts(new Date(nowMs));
+  const weekday = WEEKDAY_LABELS[parts.weekday] ?? '';
+  return `${String(parts.month)}월 ${String(parts.day)}일 (${weekday}) ${pad2(parts.hour)}:${pad2(parts.minute)}`;
+}
+
+/** 인스턴트 → `2026-10-05 (월)` (KST 날짜, 요일 포함). */
+export function formatKstDayLabel(nowMs: number): string {
+  return formatKstDate(formatIsoDate(kstDayOf(toKstParts(new Date(nowMs)))), WEEKDAY_LABELS);
 }
 
 /** `YYYY-MM-DD`(KST 날짜) → `YYYY-MM-DD (요일)`. */
