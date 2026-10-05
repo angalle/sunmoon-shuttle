@@ -7,7 +7,8 @@
  *       - 상태줄 `[data-testid="app-clock"]`(오늘 날짜·현재 시각 KST)
  *       - 다음 출발 카드 `[data-testid="next-bus-card"]`(상위 3편)
  *       - 방향 필터 `[data-testid="direction-filter"]`(칩 3개 + aria-pressed)
- *       - 접힘 원본표 `details[data-testid="source-details"]`(기본 닫힘, 안에 `[data-testid="timetable"]`)
+ *       - 오늘 남은 출발 목록 `[data-testid="departure-list"]`(5편 + "더 보기")
+ *       (T14: 접힘 원본표 `details[data-testid="source-details"]` 는 **없어야 한다** — 검사 대상)
  *  ② 공지 배너(조건부) — `resolveDayService` 결과: 대체 시간표 / 운행 없음
  *  ③ 노선 통합 상위 3편 정렬(오름차순) + 지난 편 제외(오늘 편은 모두 now 이상)
  *  ④ 방향 칩 즉시 반영(클릭 → 목록이 그 방향만)
@@ -19,6 +20,13 @@
  *  ⑤~⑦ 평일·토·일 09:00 — 접힘 제목의 "오늘 요일" 표기 · 홈 1줄(미해석 요약) · 목록 5편
  *  ⑧ 한글날(운행 없음) 09:00 — **모순 문구 0**: 목록 영역에 "오늘 운행이 끝났습니다"가 없고
  *       "오늘은 운행이 없습니다 · 다음 운행: 내일 …" + 목록 행 0 + 편수 숨김
+ *  ── T14(앱 UI 에서 "원본" 노출 제거) ──
+ *  ⑨ **요청 출처 검사** — 앱이 낸 모든 리소스 요청이 **단일 출처(로컬 서버)** 이고
+ *     학교 도메인(`lily.sunmoon.ac.kr`) 요청 **0건**(앱은 수집된 JSON 만 읽는다).
+ *  ⑩ **원본 노출 0** — `details[data-testid="source-details"]` 0개, `[data-testid="timetable"]` 0개,
+ *     `a[href*="lily.sunmoon.ac.kr"]` ≤ 1개(대표 출처 1줄), 화면 텍스트(innerText)에 `원본` 0회.
+ *  ⑪ 새 소개문구(한/영) · `데이터 갱신: …` 1줄 · `출처: …` 1줄 표시
+ *  ⑫ 미해석 표기 안내는 **판단에 영향 줄 때만** 홈 1줄(목록 `<li>` 없음)
  *
  * 사용: node scripts/v1_smoke.mjs [--base=/sunmoon-shuttle/]
  * 산출물: .session-notes/T12-*.png · .session-notes/T13-*.png (시나리오별 스크린샷)
@@ -211,7 +219,6 @@ async function captureViewport(fileName) {
 
 /** 화면 상태를 한 번에 읽는다(증거·검사 공용). */
 const READ = `
-  const details = document.querySelector('[data-testid="source-details"]');
   const card = document.querySelector('[data-testid="next-bus-card"]');
   const rows = [...document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]')];
   const restRows = [...document.querySelectorAll('[data-testid="departure-rest"] [data-testid="departure-row"]')];
@@ -222,8 +229,12 @@ const READ = `
   const hero = document.querySelector('[data-testid="next-bus-time"]');
   const noServiceHeadline = document.querySelector('[data-testid="departure-no-service"]');
   const warn = document.querySelector('[data-testid="next-bus-warnings"]');
-  const sourceWarn = document.querySelector('[data-testid="source-warnings"]');
-  const detailsSummary = document.querySelector('[data-testid="source-details-summary"]');
+  const sourceDetails = [...document.querySelectorAll('[data-testid="source-details"]')];
+  const schoolLinks = [...document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]')];
+  const refresh = document.querySelector('[data-testid="data-refresh-line"]');
+  const sourceLine = document.querySelector('[data-testid="source-line"]');
+  const subtitleKo = document.querySelector('.shuttle-header__subtitle:not([lang])');
+  const subtitleEn = document.querySelector('.shuttle-header__subtitle[lang="en"]');
   const listCard = document.querySelector('[data-testid="departure-list-card"]');
   const clockText = clock === null ? null : (clock.textContent || '').trim();
   return {
@@ -243,19 +254,25 @@ const READ = `
     times: [...rows, ...restRows].map((row) => { const t = row.querySelector('.shuttle-departure__time'); return t === null ? null : (t.textContent || '').trim(); }),
     directions: [...rows, ...restRows].map((row) => row.dataset.direction ?? null),
     dayOffsets: [...rows, ...restRows].map((row) => Number(row.dataset.dayOffset ?? '-1')),
-    detailsPresent: details !== null,
-    detailsOpen: details === null ? null : details.open === true,
-    timetableInside: details === null ? false : details.querySelector('[data-testid="timetable"]') !== null,
-    timetableRows: Number(document.querySelector('[data-testid="timetable"]')?.dataset.rows ?? -1),
+    // ── T14(앱 UI 에서 "원본" 노출 제거) 검사용 ──
+    sourceDetailsCount: sourceDetails.length,
+    detailsCount: document.querySelectorAll('details').length,
+    timetablePresent: document.querySelector('[data-testid="timetable"]') !== null,
+    schoolLinkCount: schoolLinks.length,
+    schoolLinks: schoolLinks.map((anchor) => anchor.getAttribute('href')),
+    // 사용자에게 **보이는** 텍스트 기준(innerText)과 DOM 전체 기준(textContent)을 함께 센다.
+    visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
+    domSourceCount: (document.body.textContent.match(/원본/g) ?? []).length,
+    subtitleKo: subtitleKo === null ? null : (subtitleKo.textContent || '').trim(),
+    subtitleEn: subtitleEn === null ? null : (subtitleEn.textContent || '').trim(),
+    refreshLine: refresh === null ? null : (refresh.textContent || '').trim(),
+    sourceLine: sourceLine === null ? null : (sourceLine.textContent || '').replace(/\\s+/g, ' ').trim(),
     // ── T13(밝은 톤·심플 UI·결함 정정) 검사용 ──
     noServiceHeadline: noServiceHeadline === null ? null : (noServiceHeadline.textContent || '').trim(),
     listCardText: listCard === null ? null : (listCard.textContent || '').replace(/\\s+/g, ' ').trim(),
     listCardCountsVisible: document.querySelector('[data-testid="departure-list-card"] [data-testid="board-counts"]') !== null,
     warnSummary: warn === null ? null : (warn.textContent || '').trim(),
     warnSummaryItems: warn === null ? 0 : warn.querySelectorAll('li').length,
-    sourceWarningsCount: sourceWarn === null ? null : Number(sourceWarn.dataset.count ?? '-1'),
-    sourceWarningsInsideDetails: sourceWarn === null ? false : sourceWarn.closest('details') !== null,
-    sourceDetailsSummary: detailsSummary === null ? null : (detailsSummary.textContent || '').trim(),
     listRowCount: rows.length,
   };
 `;
@@ -317,9 +334,16 @@ async function main() {
   );
 
   const consoleErrors = [];
+  /** 앱이 낸 리소스 요청 URL — 전부 같은 출처인지, 학교 도메인 요청이 0건인지 검사한다(T14 ⑨). */
+  const requestUrls = [];
   try {
     cdp = await connectCdp(await waitForDebugger(debugPort));
     cdp.on((message) => {
+      // ⑨ 요청 출처 검사(T14) — 앱이 낸 모든 http(s) 요청을 모아 둔다.
+      if (message.method === 'Network.requestWillBeSent') {
+        const url = message.params?.request?.url ?? '';
+        if (typeof url === 'string' && url.startsWith('http')) requestUrls.push(url);
+      }
       if (message.method === 'Runtime.exceptionThrown') {
         consoleErrors.push(`exception: ${message.params?.exceptionDetails?.text ?? 'unknown'}`);
       }
@@ -332,6 +356,7 @@ async function main() {
     });
     await cdp.send('Runtime.enable');
     await cdp.send('Log.enable');
+    await cdp.send('Network.enable');
     await cdp.send('Page.enable');
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 1600, deviceScaleFactor: 2, mobile: true });
     // 스크린샷·검사는 **라이트 모드 고정** — 헤드리스 Chrome 이 호스트 OS 의 다크 설정을 물려받아
@@ -351,7 +376,26 @@ async function main() {
     check('① 노선 통합 정렬: 출발 시각 오름차순', ascending(s1.times), JSON.stringify(s1.times.slice(0, 5)));
     const s1Counts = countsOf(s1.countsText);
     check('① 목록 잘림: 목록 5편 + 더 보기 = 남은 편수', s1.listRows === 5 && s1.restRows > 0 && s1.listRows + s1.restRows === s1Counts.remaining, `list=${String(s1.listRows)} rest=${String(s1.restRows)} ${String(s1.countsText)}`);
-    check('① 접힘 원본표: details 닫힘 + 안에 TimetableTable', s1.detailsPresent === true && s1.detailsOpen === false && s1.timetableInside === true, JSON.stringify({ node: s1.detailsPresent, open: s1.detailsOpen, table: s1.timetableInside, rows: s1.timetableRows }));
+    // ── T14: 앱 UI 에서 "원본" 노출 제거(지시 1·2·3·5) ───────────────────────────
+    check(
+      '⑩ 원본표가 없다 — details[data-testid="source-details"] 0개 + TimetableTable 0개',
+      s1.sourceDetailsCount === 0 && s1.timetablePresent === false,
+      JSON.stringify({ sourceDetails: s1.sourceDetailsCount, timetable: s1.timetablePresent, detailsTotal: s1.detailsCount }),
+    );
+    check('⑩ 학교 링크는 대표 출처 1줄뿐(≤1개)', s1.schoolLinkCount <= 1, `${String(s1.schoolLinkCount)}개 ${JSON.stringify(s1.schoolLinks)}`);
+    check(
+      '⑩ 화면 텍스트에 `원본` 0회(사용자 노출 기준)',
+      s1.visibleSourceCount === 0 && s1.domSourceCount === 0,
+      `innerText=${String(s1.visibleSourceCount)}회 textContent=${String(s1.domSourceCount)}회`,
+    );
+    check(
+      '⑪ 소개문구가 새 문구로 표시된다(한/영)',
+      s1.subtitleKo === '지금 탈 수 있는 셔틀버스를 바로 보여줍니다' && s1.subtitleEn === 'Shows the shuttle you can take right now.',
+      JSON.stringify({ ko: s1.subtitleKo, en: s1.subtitleEn }),
+    );
+    check('⑪ 데이터 갱신 1줄(앱 기준 반영 시각)', /^데이터 갱신: \d{4}-\d{2}-\d{2} \d{2}:\d{2} \(KST\) \(.+\)$/.test(String(s1.refreshLine)), String(s1.refreshLine));
+    check('⑪ 출처 1줄(대표 페이지)', /^출처: 선문대학교 셔틀버스 안내 페이지 — /.test(String(s1.sourceLine)), String(s1.sourceLine));
+    const s1Shot = await captureViewport('T14-1-아침0800.png');
     // ④ 방향 칩 즉시 반영
     const s1Out = await clickChip('out', s1OutExpected(s1Counts));
     check('④ 방향 칩(학교에서 출발) 즉시 반영', s1Out.ok, s1Out.detail);
@@ -360,7 +404,6 @@ async function main() {
     await clickChip('all', '전체');
     const s1Back = await evaluate(READ);
     check('④ 방향 칩(전체) 복귀', s1Back.chips[0]?.pressed === 'true' && s1Back.listRows === 5, JSON.stringify(s1Back.chips[0]));
-    const s1Shot = await capture('T12-1-평일0800.png');
 
     // ── 시나리오 ②: 개천절 대체휴일 10:00 (2026-10-05 월 · 일요일 시간표) ────────
     const s2Now = '2026-10-05T10:00:00+09:00';
@@ -421,35 +464,38 @@ async function main() {
         );
       }
     }
-    const s4Shot = await capture('T12-5-오늘-실측.png');
+    const s4Shot = await captureViewport('T14-2-오늘-실측.png');
 
     // ── 시나리오 ⑤~⑧: T13 — 밝은 톤·더 심플한 UI·결함 정정 (평일/토/일/운행없는날 09:00) ──
     //    요일 자동 판정은 총괄 실측으로 이미 확인됐고, 여기서는 **문구 모순 0**과
     //    홈 1줄(미해석 요약)·접힘 제목(오늘 요일)을 실제 DOM 에서 확인한다.
     const t13Cases = [
-      { label: '⑤ 평일 09:00', now: '2026-10-06T09:00:00+09:00', clock: '10월 6일 (화) 09:00', summary: '전체 시간표(원본) 보기 · 오늘 10월 6일 (화) 기준', shot: 'T13-1-평일0900.png' },
-      { label: '⑥ 토요일 09:00', now: '2026-10-10T09:00:00+09:00', clock: '10월 10일 (토) 09:00', summary: '전체 시간표(원본) 보기 · 오늘 10월 10일 (토) 기준', shot: 'T13-2-토0900.png' },
-      { label: '⑦ 일요일 09:00', now: '2026-10-11T09:00:00+09:00', clock: '10월 11일 (일) 09:00', summary: '전체 시간표(원본) 보기 · 오늘 10월 11일 (일) 기준', shot: 'T13-3-일0900.png' },
-      { label: '⑧ 한글날 09:00(운행 없음)', now: '2026-10-09T09:00:00+09:00', clock: '10월 9일 (금) 09:00', summary: '전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준', shot: 'T13-4-한글날0900.png', noService: true },
+      { label: '⑤ 평일 09:00', now: '2026-10-06T09:00:00+09:00', clock: '10월 6일 (화) 09:00', shot: 'T14-3-평일0900.png' },
+      { label: '⑥ 토요일 09:00', now: '2026-10-10T09:00:00+09:00', clock: '10월 10일 (토) 09:00', shot: 'T14-4-토0900.png' },
+      { label: '⑦ 일요일 09:00', now: '2026-10-11T09:00:00+09:00', clock: '10월 11일 (일) 09:00', shot: 'T14-5-일0900.png' },
+      { label: '⑧ 한글날 09:00(운행 없음)', now: '2026-10-09T09:00:00+09:00', clock: '10월 9일 (금) 09:00', shot: 'T14-6-한글날0900.png', noService: true },
     ];
     const t13Shots = [];
     for (const testCase of t13Cases) {
       check(`${testCase.label}: 페이지 렌더`, await open(urlFor(testCase.now)));
       const state = await evaluate(READ);
       check(`${testCase.label}: 상태줄 = ${testCase.clock}`, String(state.clockText).includes(testCase.clock), String(state.clockText));
-      check(`${testCase.label}: 접힘 제목에 오늘 요일 명시`, state.sourceDetailsSummary === testCase.summary, String(state.sourceDetailsSummary));
-      // 홈에는 미해석 요약 1줄만, 목록(<li>)과 상세는 접힘 안에 있어야 한다.
-      const summaryOk = /^원본 표기 \d+건은 자동 해석하지 못했습니다 — 자세히 보기$/.test(String(state.warnSummary));
+      // T14: 원본 노출 0 — 원본표·원본 문구·학교 링크 목록이 화면에 없다.
       check(
-        `${testCase.label}: 미해석 경고는 홈 1줄(목록 없음)`,
-        summaryOk && state.warnSummaryItems === 0,
+        `${testCase.label}: 원본 노출 0(표 0 · 원본 문구 0회 · 학교 링크 ≤1)`,
+        state.sourceDetailsCount === 0 && state.visibleSourceCount === 0 && state.schoolLinkCount <= 1,
+        JSON.stringify({ sourceDetails: state.sourceDetailsCount, visible: state.visibleSourceCount, links: state.schoolLinkCount }),
+      );
+      // 미해석 표기 안내는 **사용자 판단에 영향을 줄 때만** 홈 1줄이다(목록 `<li>` 는 없다).
+      const warnOk =
+        state.warnSummary === null ||
+        /^시각을 해석하지 못한 회차 \d+건은 목록에서 빠져 있을 수 있습니다 — 아래 출처의 학교 안내 페이지에서 확인해 주세요\.$/.test(String(state.warnSummary));
+      check(
+        `${testCase.label}: 미해석 안내는 홈 1줄(목록 0)`,
+        warnOk && state.warnSummaryItems === 0,
         `summary=${String(state.warnSummary)} items=${String(state.warnSummaryItems)}`,
       );
-      check(
-        `${testCase.label}: 상세 목록은 접힘(source-details) 안에`,
-        state.sourceWarningsCount !== null && state.sourceWarningsCount >= 1 && state.sourceWarningsInsideDetails === true,
-        `count=${String(state.sourceWarningsCount)} inDetails=${String(state.sourceWarningsInsideDetails)}`,
-      );
+      check(`${testCase.label}: 데이터 갱신 1줄`, /^데이터 갱신: /.test(String(state.refreshLine)), String(state.refreshLine));
       check(`${testCase.label}: "오늘 운행이 끝났습니다" 문구 없음(모순 0)`, String(state.listCardText).includes('끝났습니다') === false, String(state.listCardText).slice(0, 90));
       if (testCase.noService === true) {
         check(
@@ -466,7 +512,22 @@ async function main() {
       info(`${testCase.label}: clock=${String(state.clockText)} · headline=${String(state.noServiceHeadline)} · warn=${String(state.warnSummary)} · list=${String(state.listRowCount)}+${String(state.restRows)} ${String(state.countsText)}`);
     }
 
+    // ── ⑨ 요청 출처 검사(T14) — 앱이 낸 요청은 전부 자기 오리진(로컬 서버)이고 학교 도메인은 0건 ──
+    const appOrigin = `http://127.0.0.1:${String(webPort)}`;
+    const requestOrigins = [...new Set(requestUrls.map((requestUrl) => new URL(requestUrl).origin))];
+    const schoolRequests = requestUrls.filter((requestUrl) => /lily\.sunmoon\.ac\.kr/.test(requestUrl));
+    check(
+      '⑨ 모든 리소스 요청이 단일 출처(로컬 서버)다 — 앱은 자기 오리진만 요청한다',
+      requestOrigins.length === 1 && requestOrigins[0] === appOrigin,
+      `origins=${JSON.stringify(requestOrigins)} requests=${String(requestUrls.length)}`,
+    );
+    check(
+      '⑨ 학교 도메인(lily.sunmoon.ac.kr) 요청 0건 — 앱은 학교 사이트를 읽지 않는다',
+      schoolRequests.length === 0,
+      `school=${JSON.stringify(schoolRequests.slice(0, 3))}`,
+    );
     check('⑧ 콘솔 오류 0', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
+    info(`요청 출처: ${JSON.stringify(requestOrigins)} · 총 ${String(requestUrls.length)}건(중복 포함) · 학교 도메인 ${String(schoolRequests.length)}건`);
 
     info(`시나리오 스크린샷: ${[s1Shot, s2Shot, s3aShot, s3bShot, s4Shot].map((path) => path.slice(ROOT.length)).join(' · ')}`);
     info(`T13 스크린샷: ${t13Shots.map((path) => path.slice(ROOT.length)).join(' · ')}`);

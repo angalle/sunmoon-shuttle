@@ -249,14 +249,17 @@ async function capture(fileName, selector = null) {
   return path;
 }
 
-/** 앱이 로딩을 끝낸 상태(데이터 성공이든 F8 오류 UI 든) — 로딩 배너가 사라졌는지로 본다. */
+/**
+ * 앱이 로딩을 끝낸 상태(데이터 성공이든 F8 오류 UI 든).
+ * T14: 홈은 **오늘 남은 출발 보드**가 본문이다(`[data-testid="timetable"]` 은 UI 에서 제거됨).
+ */
 const READY =
-  'document.querySelector(\'[data-testid="loading"]\') === null && (document.querySelector(\'[data-testid="timetable"]\')?.dataset.rows !== undefined || document.querySelector(\'[data-testid="data-error"]\') !== null)';
+  'document.querySelector(\'[data-testid="loading"]\') === null && (document.querySelector(\'[data-testid="departure-list-card"]\') !== null || document.querySelector(\'[data-testid="data-error"]\') !== null)';
 
-/** 화면 상태를 한 번에 읽는다(증거용). */
+/** 화면 상태를 한 번에 읽는다(증거용) — T14 홈 구조(보드 + 최신 데이터 1줄 + 출처 1줄). */
 const READ_STATE = `
-  const table = document.querySelector('[data-testid="timetable"]');
   const card = document.querySelector('[data-testid="next-bus-card"]');
+  const listCard = document.querySelector('[data-testid="departure-list-card"]');
   const notice = document.querySelector('[data-testid="offline-notice"]');
   const tabs = [...document.querySelectorAll('[role="tab"]')];
   const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
@@ -265,13 +268,18 @@ const READ_STATE = `
     hasCard: card !== null,
     cardStatus: card?.dataset.status ?? null,
     heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
-    remaining: document.querySelector('.shuttle-hero__remaining')?.textContent ?? null,
-    rows: table === null ? null : Number(table.dataset.rows),
-    tbodyRows: document.querySelectorAll('[data-testid="timetable"] tbody tr').length,
+    remaining: document.querySelector('[data-testid="next-bus-remaining"]')?.textContent ?? null,
+    listStatus: listCard?.dataset.status ?? null,
+    departureRows: document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length,
+    restRows: document.querySelectorAll('[data-testid="departure-rest"] [data-testid="departure-row"]').length,
+    boardCounts: document.querySelector('[data-testid="board-counts"]')?.textContent ?? null,
+    refreshLine: document.querySelector('[data-testid="data-refresh-line"]')?.textContent ?? null,
     selectedTab: selected?.id ?? null,
     offlineNotice: notice === null ? null : { source: notice.dataset.source ?? null, text: notice.textContent },
     errorBanner: document.querySelector('[data-testid="data-error"]') !== null,
     swController: navigator.serviceWorker.controller !== null,
+    schoolLinks: document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]').length,
+    visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
   };
 `;
 
@@ -446,9 +454,15 @@ async function main() {
     check('오프라인: 앱 셸이 그려짐(빈 화면 아님)', offlineFirst.hasApp === true);
     check('오프라인: SW 가 계속 제어', offlineFirst.swController === true);
     check(
-      '오프라인: 평일 표 행 수 = 계약 JSON',
-      offlineFirst.rows === asanWeekday && offlineFirst.tbodyRows === asanWeekday,
-      `rows=${String(offlineFirst.rows)} tbody=${String(offlineFirst.tbodyRows)} json=${String(asanWeekday)}`,
+      '오프라인: 평일 보드가 계약 데이터로 그려진다(보드 ready · 출발 행 ≥1)',
+      offlineFirst.listStatus === 'ready' && offlineFirst.departureRows >= 1,
+      `listStatus=${String(offlineFirst.listStatus)} rows=${String(offlineFirst.departureRows)} counts=${String(offlineFirst.boardCounts)}`,
+    );
+    // T14: 홈에서 `원본` 노출 0 · 학교 링크 ≤1(대표 출처 1줄만).
+    check(
+      '오프라인: 홈에 `원본` 0회 · 학교 링크 ≤1(대표 출처 1줄)',
+      offlineFirst.visibleSourceCount === 0 && offlineFirst.schoolLinks <= 1,
+      `원본=${String(offlineFirst.visibleSourceCount)} schoolLinks=${String(offlineFirst.schoolLinks)}`,
     );
     check('오프라인: 다음 버스 카운트다운 표시', String(offlineFirst.heroTime ?? '').length > 0 && String(offlineFirst.remaining ?? '').length > 0, `hero=${String(offlineFirst.heroTime)} remaining=${String(offlineFirst.remaining)}`);
     const firstShot = await capture('T6-1-오프라인-첫화면.png');
@@ -456,9 +470,9 @@ async function main() {
     check('오프라인: 요일 탭(토요일) 전환', await clickTab('saturday'));
     const saturday = await evaluate(READ_STATE);
     check(
-      '오프라인: 토요일 표 행 수 = 계약 JSON',
-      saturday.selectedTab === 'shuttle-day-tab-saturday' && saturday.rows === asanSaturday,
-      `selected=${String(saturday.selectedTab)} rows=${String(saturday.rows)} json=${String(asanSaturday)}`,
+      '오프라인: 토요일 탭 전환 후에도 보드가 데이터로 그려진다',
+      saturday.selectedTab === 'shuttle-day-tab-saturday' && saturday.listStatus !== null && saturday.errorBanner === false,
+      `selected=${String(saturday.selectedTab)} listStatus=${String(saturday.listStatus)}`,
     );
     const saturdayShot = await capture('T6-2-오프라인-요일전환.png');
 
@@ -495,7 +509,11 @@ async function main() {
     check('수집 실패 후에도 화면이 뜬다(빈 화면 아님)', fallbackRendered);
     const fallback = await evaluate(READ_STATE);
     check('수집 실패 검증 조건: SW 미제어(앱 계층 폴백을 본다)', fallback.swController === false, `controller=${String(fallback.swController)}`);
-    check('수집 실패: 마지막 정상 데이터 표시(평일 표 행 수 = JSON)', fallback.rows === asanWeekday, `rows=${String(fallback.rows)} json=${String(asanWeekday)}`);
+    check(
+      '수집 실패: 마지막 정상 데이터 표시(보드가 데이터로 그려짐)',
+      fallback.listStatus === 'ready' && fallback.errorBanner === false,
+      `listStatus=${String(fallback.listStatus)} rows=${String(fallback.departureRows)}`,
+    );
     check('수집 실패: 캐시 폴백 안내를 문구로 표시', fallback.offlineNotice !== null, JSON.stringify(fallback.offlineNotice));
     check('수집 실패: 오류 UI(F8)로 가지 않는다 — 데이터가 있으므로', fallback.errorBanner === false);
     check(

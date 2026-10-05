@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 /**
- * 렌더 스모크 (T5) — **헤드리스 브라우저(Chrome CDP)** 로 빌드본을 열어 실제 화면을 검증한다.
+ * 렌더 스모크 (T5 → **T14 재기준**) — **헤드리스 브라우저(Chrome CDP)** 로 빌드본을 열어 실제 화면을 검증한다.
  *
- * 검증 항목(카드 지시 ⑦)
+ * 검증 항목(카드 지시 ⑦ · T14 재기준)
  *   ① 콘솔 오류 0
- *   ② 요일 탭·노선 선택이 동작(키보드 포함)
- *   ③ 표 행 수가 `data/timetable.json` 과 일치
- *   ④ 스크린샷 저장(`.session-notes/T5-*.png`)
+ *   ② 요일 탭(키보드 포함) 동작 — **노선 선택은 T14 에서 홈에서 제거**되어 더 이상 검사하지 않는다
+ *   ③ 보드가 계약 JSON 기반으로 그려진다(회차 수는 도메인 계산값 — 접힘 원본표·tbody 는 UI 에서 제거됨)
+ *   ④ **홈에 `원본` 노출 0 · 학교 링크 ≤1**(T14: 출처는 대표 1줄만)
+ *   ⑤ 스크린샷 저장(`.session-notes/T5-*.png`)
  * 추가(운영자 지시): **Pages 하위 경로 시뮬레이션**(기본 `/sunmoon-shuttle/`)에서 데이터가 로드되는지.
+ *
+ * ⚠️ T14 이후 이 스크립트가 보는 것은 **현재 홈**이다. 옛 T5 화면(노선 선택·접힘 원본표·신선도 2행·미운행 셀 `—`)은
+ *    앱 UI 에서 사라졌으므로 그 검사들도 함께 제거했다(컴포넌트 파일은 남아 있으나 홈에서 렌더하지 않는다).
  *
  * 의존성 0: node:http·node:child_process + Node 내장 WebSocket(≥22) 로 CDP 를 직접 말한다
  * (런타임 의존성 0 계약을 테스트 도구에도 유지).
@@ -204,17 +208,6 @@ async function clickTab(dayType) {
   return ok;
 }
 
-async function clickRoute(routeId) {
-  const ok = await evaluate(`
-    const node = document.querySelector('[data-testid="route-button"][data-route-id="${routeId}"]');
-    if (node === null) return false;
-    node.click();
-    return true;
-  `);
-  await delay(200);
-  return ok;
-}
-
 async function capture(fileName, selector = null) {
   const layout = await cdp.send('Page.getLayoutMetrics');
   const contentHeight = Math.ceil(layout.cssContentSize?.height ?? layout.contentSize?.height ?? 1200);
@@ -252,9 +245,7 @@ async function main() {
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
   if (!existsSync(DATA_FILE)) throw new Error('data/timetable.json 이 없습니다.');
 
-  const raw = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
-  const rowsOf = (routeId, dayType) => raw.routes.find((route) => route.id === routeId)?.byDay?.[dayType]?.trips?.length ?? 0;
-
+  // T14 재기준: 접힘 원본표·tbody 행 수 검사가 사라져 계약 JSON 을 다시 읽을 필요가 없다.
   mkdirSync(join(DIST, 'data'), { recursive: true });
   copyFileSync(DATA_FILE, join(DIST, 'data', 'timetable.json'));
   mkdirSync(SHOT_DIR, { recursive: true });
@@ -315,11 +306,10 @@ async function main() {
     }
     check('화면 렌더(next-bus-card 존재)', ready);
 
-    // ── ③ 행 수가 JSON 과 일치 / ② 탭 전환 ──────────────────────────
+    // ── ③ 보드가 계약 JSON 기반으로 그려진다 / ② 탭 전환 ───────────────
     const initial = await evaluate(`
-      const table = document.querySelector('[data-testid="timetable"]');
       const card = document.querySelector('[data-testid="next-bus-card"]');
-      const details = document.querySelector('[data-testid="source-details"]');
+      const listCard = document.querySelector('[data-testid="departure-list-card"]');
       const tabs = [...document.querySelectorAll('[role="tab"]')];
       const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
       return {
@@ -333,20 +323,18 @@ async function main() {
         clock: document.querySelector('[data-testid="app-clock"]')?.textContent ?? null,
         boardNotice: document.querySelector('[data-testid="board-notice"]')?.textContent ?? null,
         chips: [...document.querySelectorAll('[data-testid="direction-chip"]')].length,
-        sourceCollapsed: details === null ? null : details.open === false,
-        timetableRows: table === null ? null : Number(table.dataset.rows),
-        bodyRows: document.querySelectorAll('[data-testid="timetable"] tbody tr').length,
-        emptyCells: document.querySelectorAll('[data-cell="empty"]').length,
+        listStatus: listCard?.dataset.status ?? null,
         listRows: document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length,
-        freshnessRows: document.querySelectorAll('[data-testid="freshness-row"]').length,
+        refreshLine: document.querySelector('[data-testid="data-refresh-line"]')?.textContent ?? null,
+        sourceDetails: document.querySelectorAll('[data-testid="source-details"]').length,
+        timetable: document.querySelector('[data-testid="timetable"]') !== null,
+        schoolLinks: document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]').length,
+        visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
       };
     `);
     check('요일 탭 3개', initial.tabs === 3, `tabs=${String(initial.tabs)}`);
     check('오늘(KST) 탭이 기본 선택', initial.selectedTab === 'shuttle-day-tab-weekday', `selected=${String(initial.selectedTab)}`);
     check('주말 탭이 노선 수를 반영', String(initial.tabNotes[1]).includes('노선 3/5개'), `토요일 탭="${String(initial.tabNotes[1])}"`);
-    check('평일 표 행 수 = JSON(asan-ktx weekday)', initial.timetableRows === rowsOf('asan-ktx', 'weekday'), `화면=${String(initial.timetableRows)} JSON=${String(rowsOf('asan-ktx', 'weekday'))}`);
-    check('평일 tbody 행 수 일치', initial.bodyRows === rowsOf('asan-ktx', 'weekday'), `tbody=${String(initial.bodyRows)}`);
-    check('미운행(Χ) 셀이 — 로 구분 표시', initial.emptyCells > 0, `empty cells=${String(initial.emptyCells)}`);
     // ── V1 간편 홈 구조(T12) ──
     check('V1 상태줄: 오늘 날짜·현재 시각(KST)', String(initial.clock).includes('10월 5일 (월) 14:40'), `clock=${String(initial.clock)}`);
     check('V1 공지 배너: 대체 시간표 안내', String(initial.boardNotice).includes('일요일 시간표로 운행합니다'), String(initial.boardNotice));
@@ -355,8 +343,11 @@ async function main() {
     check('V1 히어로 시각이 노선 통합 도메인 계산값', initial.heroTime === '오늘 16:00 출발', `hero=${String(initial.heroTime)}`);
     check('V1 방향 필터 칩 3개', initial.chips === 3, `chips=${String(initial.chips)}`);
     check('V1 오늘 남은 출발 목록', initial.listRows > 0, `list rows=${String(initial.listRows)}`);
-    check('V1 원본 전체표는 접힘(details 기본 닫힘)', initial.sourceCollapsed === true, `collapsed=${String(initial.sourceCollapsed)}`);
-    check('신선도 2행(원본 업데이트 + 우리 반영)', initial.freshnessRows === 2, `rows=${String(initial.freshnessRows)}`);
+    check('V1 오늘 남은 출발 보드 상태 ready', initial.listStatus === 'ready', `listStatus=${String(initial.listStatus)}`);
+    // ── T14: 홈에서 원본 노출 0 ──
+    check('T14 접힘 원본표·원본 시간표가 홈에 없다', initial.sourceDetails === 0 && initial.timetable === false, `sourceDetails=${String(initial.sourceDetails)} timetable=${String(initial.timetable)}`);
+    check('T14 최신 데이터 1줄(`데이터 갱신: …`)', String(initial.refreshLine ?? '').startsWith('데이터 갱신:'), String(initial.refreshLine));
+    check('T14 홈에 `원본` 0회 · 학교 링크 ≤1(대표 출처 1줄)', initial.visibleSourceCount === 0 && initial.schoolLinks <= 1, `원본=${String(initial.visibleSourceCount)} links=${String(initial.schoolLinks)}`);
 
     const freshPath = await capture('T5-4-다음버스카드.png', '[data-testid="next-bus-card"]');
 
@@ -373,29 +364,30 @@ async function main() {
       return {
         selected: document.querySelector('[role="tab"][aria-selected="true"]')?.id ?? null,
         focus: document.activeElement?.id ?? null,
-        rows: Number(document.querySelector('[data-testid="timetable"]')?.dataset.rows ?? -1),
+        listStatus: document.querySelector('[data-testid="departure-list-card"]')?.dataset.status ?? null,
+        cardStatus: document.querySelector('[data-testid="next-bus-card"]')?.dataset.status ?? null,
       };
     `);
     check('키보드(→)로 토요일 탭 이동', afterKey.selected === 'shuttle-day-tab-saturday', `selected=${String(afterKey.selected)}`);
     check('키보드 이동 후 포커스 유지', afterKey.focus === 'shuttle-day-tab-saturday', `focus=${String(afterKey.focus)}`);
-    check('토요일 표 행 수 = JSON(asan-ktx saturday)', afterKey.rows === rowsOf('asan-ktx', 'saturday'), `화면=${String(afterKey.rows)} JSON=${String(rowsOf('asan-ktx', 'saturday'))}`);
+    check('토요일 탭에서도 보드가 데이터로 그려진다', afterKey.listStatus !== null && afterKey.cardStatus !== null, `list=${String(afterKey.listStatus)} card=${String(afterKey.cardStatus)}`);
     const saturdayPath = await capture('T5-2-토요일탭.png');
 
-    // 평일 탭으로 되돌리고 노선을 바꿔 본다(② 노선 선택)
+    // 평일 탭으로 되돌린다(② 탭 왕복 — 노선 선택은 T14 에서 홈에서 제거됐다)
     check('평일 탭 클릭', await clickTab('weekday'));
     const weekdayPath = await capture('T5-1-평일탭.png');
-    check('운행 중단 노선 선택', await clickRoute('cheonan-campus'));
-    const suspended = await evaluate(`
+    const back = await evaluate(`
       return {
-        cardStatus: document.querySelector('[data-testid="next-bus-card-route"]')?.dataset.status ?? null,
-        reason: document.querySelector('[data-testid="suspended-reason"]')?.textContent ?? null,
-        badge: [...document.querySelectorAll('[data-testid="route-list"] .shuttle-badge')].map((n) => n.textContent),
+        selected: document.querySelector('[role="tab"][aria-selected="true"]')?.id ?? null,
+        clock: document.querySelector('[data-testid="app-clock"]')?.textContent ?? null,
+        heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
+        visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
       };
     `);
-    check('운행 중단 상태 표시(F2b)', suspended.cardStatus === 'suspended-route', `status=${String(suspended.cardStatus)}`);
-    check('운행 중단 사유(원본 문구) 표시', String(suspended.reason).includes('운행하지 않습니다'), String(suspended.reason));
-    check('목록에 운행 중단 배지', suspended.badge.includes('운행 중단'), JSON.stringify(suspended.badge));
-    const suspendedPath = await capture('T5-3-운행중단노선.png');
+    check('탭 왕복 후 평일로 복귀', back.selected === 'shuttle-day-tab-weekday', `selected=${String(back.selected)}`);
+    check('탭 왕복 후에도 히어로 시각 유지', back.heroTime === '오늘 16:00 출발', `hero=${String(back.heroTime)}`);
+    check('탭 왕복 후에도 홈에 `원본` 0회(T14)', back.visibleSourceCount === 0, `원본=${String(back.visibleSourceCount)}`);
+    const suspendedPath = await capture('T5-3-평일복귀.png');
 
     // ── 데이터 로드 실패 시 오류 UI(조용한 실패 금지) — CDP 로 요청을 실제로 실패시켜 확인 ──
     // ⚠️ T6 이후: 캐시(SW·IndexedDB)가 채워져 있으면 실패해도 **마지막 정상 데이터**가 뜨는 게 정상 동작이다
@@ -440,7 +432,7 @@ async function main() {
       `);
       if (errorBanner === null) await delay(250);
     }
-    check('데이터 로드 실패 시 오류 UI + 원본 링크', errorBanner !== null && String(errorBanner.link).startsWith('https://lily.sunmoon.ac.kr'), JSON.stringify(errorBanner));
+    check('데이터 로드 실패 시 오류 UI + 학교 안내 링크', errorBanner !== null && String(errorBanner.link).startsWith('https://lily.sunmoon.ac.kr'), JSON.stringify(errorBanner));
     check('오류 UI 는 alert 역할 · 재시도 버튼 포함', errorBanner?.role === 'alert' && errorBanner?.hasRetry === true, `role=${String(errorBanner?.role)} retry=${String(errorBanner?.hasRetry)}`);
     check('오류 상태에서도 빈 화면 아님', errorBanner?.notBlank === true, `app=${String(errorBanner?.notBlank)}`);
     await cdp.send('Fetch.disable');
