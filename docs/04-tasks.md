@@ -51,5 +51,24 @@
 
 > **자원 주의**: `meteor-dodge`(출시 단계)와 워커를 공유한다. 동시 진행 시 우선순위를 정해달라 — 추천: **meteor-dodge P4/P5를 먼저 마감**하고 이 프로젝트는 T1(조사)·T2(파서)처럼 **충돌 없는 조사·데이터 작업부터** 착수.
 
+## 발행된 태스크 id (보드 실측 2026-10-05 18:2x, 총괄)
+| 단계 | id | 담당 | 상태 |
+|---|---|---|---|
+| T0 골격 | `t_37cdfc3e` | apiprojectcreator | done |
+| T1 사이트 매핑·수집 계약 | `t_59a0eb90` | apiprojectcreator | done |
+| T2 파서 + 골든 픽스처 | `t_5ccc5cf5` | apiprojectcreator | done |
+| T4 도메인 규칙 | `t_553d9eee` | apiprojectcreator | done |
+| T3 배포 파이프라인 | `t_68ff2524` | infraprojectcreator | done |
+| T3b scrape.yml 검증 + Pages 데이터 200 | `t_2e071b0c` | infraprojectcreator | done |
+| T5 앱 UI | `t_bd643879` | frontendprojectcreator | done |
+| **T6 캐시 계층**(SW·IndexedDB·폴백) | `t_3742a01b` | apiprojectcreator | **ready(실행 대기)** |
+| **T7 PWA·접근성·다크모드** | `t_264692a6` | frontendprojectcreator | **ready(실행 대기)** |
+| **T8 Android 패키징**(Capacitor·AAB·에뮬 스모크) | `t_3831a022` | infraprojectcreator | todo(부모 T6) |
+| **T9 iOS 경로 검증 도구** + 사람 체크리스트 | `t_8d2ff523` | app-qa | todo(부모 T6) |
+| **T10 P3 게이트 검수**(AC-1~AC-8 총괄 직접 판정) | `t_6c427296` | projectcreator | todo(부모 T6·T7·T8·T9) |
+
 ## 상태
-- 현재: **계획 확정 대기**(D1~D6) · 문서 5종 작성 완료 · 보드 미생성
+- 현재: **T0~T5 완료 · T6~T10 발행됨**(2026-10-05). 배포본 https://angalle.github.io/sunmoon-shuttle/ (Pages `deploy` 성공 이력 다수)
+- 워커 배정은 `frontendprojectcreator`(표현 계층)·`app-qa`(자동 검증)·`infraprojectcreator`(배포/Android)·`apiprojectcreator`(앱 코어·캐시) 로 확정(위 표가 정본 — 이전 "가칭 프로필" 계획은 폐기)
+- 남은 결정: 없음(계획 D1~D7 은 2026-10-05 사용자 확정). 사람 게이트 = ① 실기기 iOS 확인(T9 후) ② Play 계정은 기존 것 사용(별도 결제 없음)
+- 소유: **ProjectCreator(이 프로필) 소관** — `~/.hermes/profiles/projectcreator/PROJECTS.md` 등록부에 `소유=나` 로 기록(2026-10-05 사용자 확인)
