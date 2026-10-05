@@ -61,6 +61,19 @@ npx vite preview --base=/sunmoon-shuttle/          # → http://localhost:4173/s
 - 앱은 `./data/timetable.json` 을 **상대경로**로 요청한다(`vite.config.ts` 의 `base: './'`) → `/sunmoon-shuttle/` 하위 배포에서도 깨지지 않는다.
 - 디버그용 쿼리: `?now=<ISO8601 KST>`(시각 고정) · `?day=weekday|saturday|sunday` · `?route=<routeId>`(초기 선택).
 
+### 간편 홈 V1(T12) — 구조와 스모크
+홈은 **지금(now) 중심**이다: ① 상태줄(오늘 날짜·현재 시각, KST) ② 공지 배너(운행 없음/대체 시간표, 조건부)
+③ 다음 출발 카드(노선 통합 상위 3편 · 방향 · 도착 · 특이사항) ④ 방향 필터 칩(전체/학교에서 출발/학교로 도착)
+⑤ 오늘 남은 출발 목록(12편 + "더 보기") ⑥ 원본 전체표는 `<details>` 로 접힘 ⑦ 요일 탭은 보조("다른 날 미리보기").
+값은 전부 도메인(`dayTypeFromDate`·`resolveDayService`·`nextDepartures`)에서 오고, 60초마다 갱신되며 자정을 넘으면 다음 날로 바뀐다.
+```bash
+npm run build
+node scripts/v1_smoke.mjs    # 헤드리스 Chrome · 시나리오 4종(평일08:00/대체휴일10:00/자정경계23:59→00:01/오늘 실측)
+                             # 스크린샷 .session-notes/T12-*.png · 실패 시 exit 1
+node scripts/a11y_smoke.mjs  # 접근성·PWA·다크모드 회귀(대비 4.5:1 · 터치 48px)
+npm run verify:offline       # 오프라인/캐시 폴백 회귀(AC-5·AC-6)
+```
+
 
 ## 도메인 규칙 — 다음 출발 계산 (T4)
 ```ts

@@ -319,6 +319,7 @@ async function main() {
     const initial = await evaluate(`
       const table = document.querySelector('[data-testid="timetable"]');
       const card = document.querySelector('[data-testid="next-bus-card"]');
+      const details = document.querySelector('[data-testid="source-details"]');
       const tabs = [...document.querySelectorAll('[role="tab"]')];
       const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
       return {
@@ -326,11 +327,17 @@ async function main() {
         selectedTab: selected?.id ?? null,
         tabNotes: tabs.map((tab) => tab.textContent.trim()),
         cardStatus: card?.dataset.status ?? null,
+        boardCard: card !== null,
+        boardRows: document.querySelectorAll('[data-testid="next-bus-card"] [data-testid="next-bus-row"]').length,
         heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
+        clock: document.querySelector('[data-testid="app-clock"]')?.textContent ?? null,
+        boardNotice: document.querySelector('[data-testid="board-notice"]')?.textContent ?? null,
+        chips: [...document.querySelectorAll('[data-testid="direction-chip"]')].length,
+        sourceCollapsed: details === null ? null : details.open === false,
         timetableRows: table === null ? null : Number(table.dataset.rows),
         bodyRows: document.querySelectorAll('[data-testid="timetable"] tbody tr').length,
         emptyCells: document.querySelectorAll('[data-cell="empty"]').length,
-        nextBusRows: document.querySelectorAll('[data-testid="next-bus-row"]').length,
+        listRows: document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length,
         freshnessRows: document.querySelectorAll('[data-testid="freshness-row"]').length,
       };
     `);
@@ -340,10 +347,16 @@ async function main() {
     check('평일 표 행 수 = JSON(asan-ktx weekday)', initial.timetableRows === rowsOf('asan-ktx', 'weekday'), `화면=${String(initial.timetableRows)} JSON=${String(rowsOf('asan-ktx', 'weekday'))}`);
     check('평일 tbody 행 수 일치', initial.bodyRows === rowsOf('asan-ktx', 'weekday'), `tbody=${String(initial.bodyRows)}`);
     check('미운행(Χ) 셀이 — 로 구분 표시', initial.emptyCells > 0, `empty cells=${String(initial.emptyCells)}`);
-    check('다음 버스 카드 상태 ok(개천절 대체휴일 → 일요일 시간표)', initial.cardStatus === 'ok', `status=${String(initial.cardStatus)}`);
-    check('다음 버스 3개(히어로 1 + 목록 2)', initial.nextBusRows === 2, `list rows=${String(initial.nextBusRows)}`);
+    // ── V1 간편 홈 구조(T12) ──
+    check('V1 상태줄: 오늘 날짜·현재 시각(KST)', String(initial.clock).includes('10월 5일 (월) 14:40'), `clock=${String(initial.clock)}`);
+    check('V1 공지 배너: 대체 시간표 안내', String(initial.boardNotice).includes('일요일 시간표로 운행합니다'), String(initial.boardNotice));
+    check('V1 다음 출발 카드 상태 ready', initial.boardCard === true && initial.cardStatus === 'ready', `status=${String(initial.cardStatus)}`);
+    check('V1 다음 출발 상위 3편(히어로 1 + 목록 2)', initial.boardRows === 2, `board rows=${String(initial.boardRows)}`);
+    check('V1 히어로 시각이 노선 통합 도메인 계산값', initial.heroTime === '오늘 16:00 출발', `hero=${String(initial.heroTime)}`);
+    check('V1 방향 필터 칩 3개', initial.chips === 3, `chips=${String(initial.chips)}`);
+    check('V1 오늘 남은 출발 목록', initial.listRows > 0, `list rows=${String(initial.listRows)}`);
+    check('V1 원본 전체표는 접힘(details 기본 닫힘)', initial.sourceCollapsed === true, `collapsed=${String(initial.sourceCollapsed)}`);
     check('신선도 2행(원본 업데이트 + 우리 반영)', initial.freshnessRows === 2, `rows=${String(initial.freshnessRows)}`);
-    check('히어로 시각이 도메인 계산값', initial.heroTime === '오늘 16:10 출발', `hero=${String(initial.heroTime)}`);
 
     const freshPath = await capture('T5-4-다음버스카드.png', '[data-testid="next-bus-card"]');
 
@@ -374,7 +387,7 @@ async function main() {
     check('운행 중단 노선 선택', await clickRoute('cheonan-campus'));
     const suspended = await evaluate(`
       return {
-        cardStatus: document.querySelector('[data-testid="next-bus-card"]')?.dataset.status ?? null,
+        cardStatus: document.querySelector('[data-testid="next-bus-card-route"]')?.dataset.status ?? null,
         reason: document.querySelector('[data-testid="suspended-reason"]')?.textContent ?? null,
         badge: [...document.querySelectorAll('[data-testid="route-list"] .shuttle-badge')].map((n) => n.textContent),
       };
