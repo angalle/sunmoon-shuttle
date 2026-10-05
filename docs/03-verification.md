@@ -43,7 +43,9 @@ npm run verify:offline       # 오프라인 스모크(헤드리스)
 | 회차 | 날짜 | 대상(커밋) | AC | 판정 | 증거 경로 |
 |---|---|---|---|---|---|
 | T7 검수 | 2026-10-05 | `8276cfb` (T7 PWA·접근성·다크모드) | AC-7(PWA 설치·전체화면)·접근성 | **통과(총괄 직접 실행)** — `npm run test` **171 passed** · `npm run build` 성공(dist 44.97kB js/11.03kB css) · `npm run lint:boundary` **PASS**(domain 순수성·application→adapters 0건) · 아이콘 192/512/maskable-192/512 + apple-touch 180 + favicon 32 **치수 실측 일치**(`file`) · 하드코딩 색 **0건** · 아이콘 생성기 재실행 **멱등**(public/ 무변경) · 워커 감사 스크립트 **총괄 재실행 → 검사 36건·실패 0·exit 0** · `src/domain/**` 변경 0줄 | `8276cfb` · `.session-notes/T7-a11y-report.md`(865행) · `.session-notes/T7-{light,dark,standalone,focus-skip-link}.png` |
-| — | — | — | — | (T6/T8/T9 후 T10 게이트에서 AC-1~AC-8 판정) | — |
+| T6 검수 | 2026-10-05 | `9472134`·`8b3da7b`·`40d86e3` (T6 캐시 계층) | AC-5(수집 실패 폴백)·AC-6(오프라인) | **통과(총괄 직접 실행)** — 커밋 3건 전부 `src/domain/**` 변경 **0줄**, 트리 미커밋 **0** · `npm run test` **17파일 171 passed** · `npm run build` PASS · `npm run lint:boundary` PASS · **`node scripts/offline_smoke.mjs` 총괄 재실행 → OFFLINE SMOKE: PASS · exit 0 · 27항목**(오프라인 새로고침 첫 화면·SW 제어·평일 42행=JSON·토요일 4행=JSON·카운트다운 `오늘 16:10 출발/약 1시간 30분 후`·**앱 콘솔 오류 0** / 데이터 요청 실패 주입 → **마지막 정상 데이터 + 문구 안내**(색만 아님)·오류 UI 안 감·**콘솔 오류 0** / 캐시 24h 초과 → 캐시 유지 + `24시간 초과` 문구 / 캐시 없음 → 오류 UI+원본 링크, 조용한 실패 없음) · 런타임 `dependencies` **없음** (`public/sw.js` 버전 상수 무효화 확인) | `9472134`·`8b3da7b`·`40d86e3` · `.session-notes/T6-{1..6}-*.png` · `T6-commands-raw.txt` · `T6-offline-smoke-output.txt` · `T6-증거.md` |
+| T6 예외 승인 | 2026-10-05 | 〃 | — | **카드 지시 이탈 1건 승인**: 카드가 지정한 `fake-indexeddb`(devDependency)는 보안 게이트(`ecosyste.ms` 메타데이터 조회 실패·MEDIUM)로 설치 차단 → 워커가 **저장소 내 최소 페이크**(`tests/support/fakeIndexedDb.ts`, 의존성 0)로 대체하고 실 브라우저 경로는 헤드리스 CDP 스모크로 실측. 의존성 0 계약에 더 부합하므로 **총괄 승인**(카드 지시가 오히려 부적절했음). | `tests/support/fakeIndexedDb.ts` · `scripts/offline_smoke.mjs` |
+| — | — | — | — | (T8·T9 후 T10 게이트에서 AC-1~AC-8 최종 판정) | — |
 
 ## 5. 미달 시 처리
 | 상황 | 처리 |
