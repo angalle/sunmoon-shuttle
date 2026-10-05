@@ -145,8 +145,8 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
   - 본문 값 3개: `sourceUpdatedAt=2026-08-20` · `fetchedAt=2026-10-05T14:39:32+09:00` · `contentHash=sha256:16fac81b0115f70b…`.
   - ⚠️ **경로 정정(실측)**: `/timetable.json`(루트, `data/` 없이)은 **404** 다. 앱/점검은 **`/data/timetable.json`** 을 읽어야 한다.
   - T3 시점에는 **404**(T2 파서 이전이라 동봉할 JSON 이 없었음) → T3b 에서 200 으로 바뀌었다.
-- **최종 배포 = 같은 내용, 타임스탬프만 갱신(실측)**: push `ce24362`(이 문서 갱신 커밋) → run **37269370314** `build` success · `deploy (github-pages)` success → 재측정 루트·`/data/timetable.json` **모두 `HTTP/2 200`**, `last-modified: Mon, 05 Oct 2026 05:48:22 GMT`, `content-length: 84846`(본문 값·해시 불변).
-  → **배포를 반복해도 계약 데이터의 "내용"은 불변이고 `last-modified`(배포 시각)만 바뀐다** — 위 값은 특정 배포(run) 기준임을 명시해 둔다.
+- **문서 갱신 배포 = 같은 내용, 타임스탬프만 갱신(실측)**: push `ce24362` → run **37269370314** `build` success · `deploy (github-pages)` success(9s) → 재측정 루트·`/data/timetable.json` **모두 `HTTP/2 200`**, `last-modified: Mon, 05 Oct 2026 05:48:22 GMT`, `content-length: 84846`(본문 값·해시 불변). 이어서 push `b99fbbf` → run **37269457960** 도 build·deploy success, `/data/timetable.json` `HTTP/2 200` · `content-length: 84846` · `contentHash=sha256:16fac81b0115f70b…` **불변**.
+  → **배포를 반복해도 계약 데이터의 "내용"은 불변이고 `last-modified`(배포 시각)만 바뀐다** — 위 값들은 특정 배포(run) 기준임을 명시해 둔다.
 
 **실행별 실측**(원출력: T3 = `.session-notes/20261005-t3-deploy-pipeline-evidence.md` · **T3b = `.session-notes/20261005-t3b-scrape-success-evidence.md`**):
 
