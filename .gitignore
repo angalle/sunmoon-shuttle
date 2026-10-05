@@ -3,3 +3,14 @@ node_modules/
 dist/
 .session-notes/*.log
 .session-notes/evidence/tmp/
+
+# ── Android (Capacitor 래핑 · T8) ──────────────────────────────────────────
+# 서명키·서명 설정: 절대 커밋 금지
+android/keystore.properties
+*.jks
+*.keystore
+# 로컬 SDK 경로 등 머신 종속 설정
+android/local.properties
+# 릴리스 산출물 (배포는 빌드 파이프라인이 만들고, 저장소에는 두지 않는다)
+*.aab
+*.apk

@@ -1,0 +1,54 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.7.2'
+        classpath 'com.google.gms:google-services:4.4.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply from: "variables.gradle"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+// ── JDK 17 환경 대응 (소유: InfraProjectCreator · T8) ─────────────────────────
+// 실측: @capacitor/android 7.6.9 의 build.gradle 과 생성물 app/capacitor.build.gradle 은
+//       compileOptions 를 JavaVersion.VERSION_21 로 선언한다. 이 맥에는 JDK 17 만 있어
+//       `:capacitor-android:compileReleaseJavaWithJavac` 가 "error: invalid source release: 21" 로 실패한다.
+// 조치: 안드로이드 모듈의 컴파일 옵션을 afterEvaluate 에서 17 로 낮춘다.
+//       - 라이브러리 소스가 Java 21 문법을 쓰지 않으므로 17 컴파일로 유효하다(실측: 빌드·설치·실행 성공).
+//       - app/capacitor.build.gradle 은 `cap sync` 마다 재생성되므로 **그 파일을 고치면 안 된다**.
+//         루트에서 subprojects 로 덮어써야 재생성에도 살아남는다(실측: sync 2회 후에도 유지).
+//       - 대안(JDK 21 설치)과 되돌리기: android/README.md §"JDK 17 제약" 참조.
+subprojects { subproject ->
+    afterEvaluate {
+        def isAndroidModule =
+            subproject.plugins.hasPlugin('com.android.library') ||
+            subproject.plugins.hasPlugin('com.android.application')
+        if (isAndroidModule && subproject.extensions.findByName('android') != null) {
+            subproject.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+    }
+}

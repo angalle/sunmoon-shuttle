@@ -1,0 +1,13 @@
+{
+  "appId": "com.angalle.sunmoonshuttle",
+  "appName": "셔틀버스 Shuttle",
+  "webDir": "dist",
+  "backgroundColor": "#f4f6f9",
+  "android": {
+    "backgroundColor": "#f4f6f9",
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

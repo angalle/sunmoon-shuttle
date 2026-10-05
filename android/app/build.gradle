@@ -1,0 +1,81 @@
+apply plugin: 'com.android.application'
+
+// ── 서명 설정 (소유: InfraProjectCreator · T8) ─────────────────────────────────
+// android/keystore.properties (커밋 금지 · .gitignore) 가 있으면 업로드 키로, 없으면 debug 키로 서명한다.
+// debug 서명 산출물은 **스토어 제출용이 아니다** — 에뮬레이터/실기기 검증용이다.
+// 비밀번호·별칭 값은 로그·문서·커밋에 남기지 않는다(존재 여부만 확인). 키 이름·채우는 방법: android/README.md §서명.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def hasUploadKey = keystorePropsFile.exists()
+def keystoreProps = new Properties()
+if (hasUploadKey) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+} else {
+    logger.warn('[sunmoon-shuttle] android/keystore.properties 없음 → release 도 debug 키로 서명됩니다(스토어 배포용 아님).')
+}
+
+android {
+    namespace "com.angalle.sunmoonshuttle"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.angalle.sunmoonshuttle"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // versionName = 표기(사람이 읽는 버전), versionCode = 정수(Play 업로드마다 반드시 +1, 재사용 금지)
+        versionCode 1
+        versionName "0.1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            // 키가 없으면(hasUploadKey=false) 이 블록은 비어 있고, release 빌드는 debug 서명으로 떨어진다.
+            if (hasUploadKey) {
+                storeFile rootProject.file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 업로드 키가 있으면 release 서명, 없으면 debug 서명(배포용 아님)
+            signingConfig hasUploadKey ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

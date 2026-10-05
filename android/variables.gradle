@@ -1,0 +1,30 @@
+// Android 빌드 변수 (소유: InfraProjectCreator · T8 안드로이드 패키징)
+//
+// minSdkVersion 23 : Capacitor 7 기본값. Android 6.0+ — WebView 가 Play 스토어로 자동 갱신되므로
+//                    낮게 잡아도 최신 엔진을 받는다. 실기기 하한을 넓히려고 이 값은 건드리지 않는다.
+// compileSdkVersion 36 / targetSdkVersion 36 :
+//   - 설치된 SDK platform 은 `platforms;android-36`(실측: sdkmanager --list_installed) — 툴체인에 이미 있다.
+//   - targetSdk 36(Android 16)은 Play 의 신규 앱·업데이트 요구 수준이다. compileSdk 를 같이 올려야
+//     targetSdk 36 의 새 API 검증이 가능하다.
+//   - ⚠️ AGP 8.7.2 의 "테스트된 상한"은 35 → 첫 빌드에서 아래 취지의 **경고**가 한 줄 나온다:
+//       "We recommend using a newer Android Gradle plugin to use compileSdk = 36"
+//     경고일 뿐 실패가 아니다(실측: bundleRelease 성공). AGP 를 올리려면 JDK 21 이 필요해
+//     이 맥의 JDK 17 툴체인과 충돌한다(JDK 21 설치 = 별도 승인 사항, T8 완료 보고 참조).
+//   - 되돌리기: 두 줄을 35 로 되돌리고 `npm run cap:sync` → 재빌드(약 1분). 스토어 업로드 요건이
+//     36 이므로 되돌리면 Play 업로드가 거부될 수 있다.
+ext {
+    minSdkVersion = 23
+    compileSdkVersion = 36
+    targetSdkVersion = 36
+    androidxActivityVersion = '1.9.2'
+    androidxAppCompatVersion = '1.7.0'
+    androidxCoordinatorLayoutVersion = '1.2.0'
+    androidxCoreVersion = '1.15.0'
+    androidxFragmentVersion = '1.8.4'
+    coreSplashScreenVersion = '1.0.1'
+    androidxWebkitVersion = '1.12.1'
+    junitVersion = '4.13.2'
+    androidxJunitVersion = '1.2.1'
+    androidxEspressoCoreVersion = '3.6.1'
+    cordovaAndroidVersion = '10.1.1'
+}
