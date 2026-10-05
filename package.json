@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "verify:offline": "node scripts/offline_smoke.mjs",
     "scrape": "tsx tools/scraper/index.ts",
+    "extract": "tsx tools/extract/index.ts",
     "lint:boundary": "bash scripts/boundary.sh",
     "cap:sync": "cap sync android",
     "android:build": "bash android/build-release.sh"
