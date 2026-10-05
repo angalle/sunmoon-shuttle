@@ -33,6 +33,17 @@ npm run scrape        # 로컬에서 파서 실행(원본 HTML → JSON)
 npm run dev           # 로컬 개발 · npm run build → GitHub Pages
 ```
 
+## 개발 (로컬) — 설치 · 실행 · 테스트
+```bash
+npm ci                 # 1) 설치 (package-lock.json 기준 · Node ≥ 26)
+npm run dev            # 2) 실행 (Vite 개발 서버)
+npm run test           # 3) 테스트 (vitest · tests/**)
+```
+그 밖의 스크립트(이름 고정 — 다른 문서·워크플로가 이 이름을 쓴다):
+`npm run build`(`tsc --noEmit` + `vite build` → `dist/`) · `npm run preview`(빌드 결과 미리보기) ·
+`npm run test:watch`(감시 모드) · `npm run scrape`(원본 HTML → `data/timetable.json`) ·
+`npm run lint:boundary`(헥사고날 경계 검사 — `src/domain` 순수성·`src/application`→`adapters` 금지)
+
 ## 문서
 | 파일 | 내용 |
 |---|---|
