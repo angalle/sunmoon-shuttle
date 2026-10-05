@@ -37,6 +37,9 @@ const SHELL_ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-512.png',
+  // 개인정보처리방침(T11) — 오프라인에서도 앱 푸터의 방침 링크가 방침 페이지로 열리게 한다.
+  './privacy.html',
+  './privacy.css',
 ];
 
 /* ───────────────────────── 설치: 셸 프리캐시 + 즉시 활성화 ───────────────────────── */

@@ -89,3 +89,4 @@ const result = nextDepartures({
 | `docs/02-monitoring.md` | 지표·임계값·알림 경로·장애 시나리오별 복구(runbook)·로그 보존 |
 | `docs/03-verification.md` | AC ↔ 테스트 매핑·실행 명령·증거 형식·미달 처리 |
 | `docs/04-tasks.md` | 보드 slug·태스크 10건·의존관계·가정·**결정 대기 목록** |
+| `docs/05-store-listing.md` | **스토어 등록 문구**(한/영·길이 제한 실측)·카테고리·콘텐츠 등급 근거·Data safety 초안·**개인정보처리방침 URL**·비공식 고지 |

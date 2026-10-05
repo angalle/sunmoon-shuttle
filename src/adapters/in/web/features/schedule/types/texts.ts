@@ -64,6 +64,8 @@ export const UI_TEXT = {
   unofficialNotice: '이 앱은 학교 공식 앱이 아닙니다(비공식). 시간표 저작권은 학교에 있으며, 아래 원본 페이지를 출처로 표시합니다.',
   sourceLinkLabel: '원본 페이지 열기',
   sourcePagesLabel: '노선·요일별 원본 페이지',
+  /** 개인정보처리방침 정적 페이지(public/privacy.html) — 스토어 제출 요건(T11). */
+  privacyLinkLabel: '개인정보처리방침',
   contactsLabel: '문의처',
   contactsMissing: '원본에서 문의처를 찾지 못했습니다.',
   dataErrorTitle: '데이터를 불러오지 못했습니다',

@@ -1,0 +1,148 @@
+/*
+ * 개인정보처리방침 페이지 스타일 (public/privacy.css)
+ *
+ * - `public/` 아래에 있어 빌드 도구를 거치지 않고 그대로 배포된다(public/ → dist/).
+ *   그래서 앱 본체의 해시된 CSS 를 참조할 수 없어, **디자인 토큰 값을 여기에 그대로 미러링**한다.
+ * - 미러 값이 원본 토큰과 어긋나면 색 단일출처가 깨지므로, 두 파일의 값이 같은지
+ *   `tests/web/privacy.test.ts` 가 검사한다(원본: src/adapters/in/web/shared/ui/styles/tokens.css).
+ * - 스타일 규칙 본문에는 색 리터럴을 쓰지 않는다 — `var(...)` 만 쓴다(하드코딩 색 0건).
+ *   값 리터럴은 아래 토큰 정의 블록에만 있다.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* 표면·글자·강조·테두리 (tokens.css 라이트 값과 동일) */
+  --color-bg: #f4f6f9;
+  --color-text: #17202a;
+  --color-text-muted: #4c5a68;
+  --color-accent: #0b5497;
+  --color-border: #c3ccd7;
+
+  /* 간격 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* 타이포 */
+  --font-family-base: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+  --line-height-base: 1.55;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+
+  /* 접근성 최소선 */
+  --touch-target-min: 48px;
+  --focus-ring-width: 3px;
+  --focus-ring-color: #0b5497;
+
+  --bp-md: 48rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #12161b;
+    --color-text: #eef2f6;
+    --color-text-muted: #b9c3ce;
+    --color-accent: #7cb6f0;
+    --color-border: #3b4552;
+    --focus-ring-color: #7cb6f0;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+/* 본문 안의 링크도 터치 타깃 높이를 확보한다(앱 셸과 같은 기준). */
+a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.privacy-page {
+  max-width: var(--bp-md);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-7);
+}
+
+.privacy-back-wrap {
+  margin: 0 0 var(--space-4);
+}
+
+.privacy-back {
+  font-weight: var(--font-weight-bold);
+}
+
+.privacy-title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-xl);
+}
+
+.privacy-lead {
+  margin: 0 0 var(--space-3);
+}
+
+.privacy-page section {
+  margin-top: var(--space-5);
+}
+
+.privacy-page h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-lg);
+}
+
+.privacy-page p {
+  margin: 0 0 var(--space-3);
+  font-weight: var(--font-weight-normal);
+}
+
+.privacy-page ul {
+  margin: var(--space-2) 0 var(--space-3);
+  padding-left: var(--space-5);
+}
+
+.privacy-page li {
+  margin-bottom: var(--space-1);
+}
+
+.privacy-footer {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

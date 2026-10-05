@@ -13,9 +13,11 @@
  *   ⑤ 전체화면(standalone) 실측 — `--app=` 모드에서 matchMedia(display-mode) 확인 + 스크린샷
  *   ⑥ 안전영역(safe-area) 대응 — `Emulation.setSafeAreaInsets` 로 노치·홈 인디케이터를 주입해 여백 확인
  *   ⑦ 설치 안내 1회 표시 — 닫기 → localStorage 표시 → 새로고침 후 **다시 안 뜸**
+ *   ⑧ 개인정보처리방침 정적 페이지(T11) — 푸터 링크(./privacy.html) → HTTP 200 · 필수 문구 5종 ·
+ *      실제 렌더 대비 실측(같은 WCAG 4.5/3.0) · 가로 스크롤 없음 · 스크린샷
  *
  * 산출물
- *   .session-notes/T7-light.png / T7-dark.png / T7-standalone.png
+ *   .session-notes/T7-light.png / T7-dark.png / T7-standalone.png / T11-privacy.png
  *   .session-notes/T7-a11y-report.md  (원출력 표 — 증거 문서에 그대로 인용한다)
  *
  * 사용: node scripts/a11y_smoke.mjs  [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
@@ -200,8 +202,8 @@ async function capture(fileName) {
 
 // ───────── 페이지 안에서 실행되는 감사 코드 (문자열로 주입) ─────────
 
-/** 화면의 모든 텍스트 노드에 대해 WCAG 대비를 계산한다. */
-const CONTRAST_PROBE = `
+/** 화면의 모든 텍스트 노드에 대해 WCAG 대비를 계산한다. 루트 선택자를 바꿔 방침 페이지(T11)에도 쓴다. */
+const contrastProbe = (rootSelector) => `
   const parseColor = (value) => {
     const match = value.match(/rgba?\\(([^)]+)\\)/);
     if (match === null) return null;
@@ -221,7 +223,7 @@ const CONTRAST_PROBE = `
     return { r: 255, g: 255, b: 255, a: 1 };
   };
   const rows = [];
-  for (const node of document.querySelectorAll('.shuttle-app *')) {
+  for (const node of document.querySelectorAll('${rootSelector} *')) {
     const own = [...node.childNodes]
       .filter((child) => child.nodeType === 3)
       .map((child) => child.textContent.trim())
@@ -255,6 +257,11 @@ const CONTRAST_PROBE = `
   }
   return rows;
 `;
+
+/** 앱 화면(.shuttle-app) 대비 실측 — T7. */
+const CONTRAST_PROBE = contrastProbe('.shuttle-app');
+/** 개인정보처리방침 페이지(.privacy-page) 대비 실측 — T11. 같은 WCAG·같은 임계값(4.5/3.0)을 쓴다. */
+const PRIVACY_CONTRAST_PROBE = contrastProbe('.privacy-page');
 
 /** 포커스 가능한 요소의 터치 타깃 크기 측정. */
 const TARGET_PROBE = `
@@ -297,7 +304,7 @@ const TOKEN_PROBE = `
 async function main() {
   if (!existsSync(CHROME)) throw new Error(`Chrome 실행 파일을 찾지 못했습니다: ${CHROME}`);
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
-  for (const required of ['manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-192.png', 'icons/maskable-512.png', 'apple-touch-icon.png', 'favicon.svg']) {
+  for (const required of ['manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-192.png', 'icons/maskable-512.png', 'apple-touch-icon.png', 'favicon.svg', 'privacy.html', 'privacy.css']) {
     if (!existsSync(join(DIST, required))) throw new Error(`dist/${required} 이 없습니다 — npm run build 후 다시 실행하세요.`);
   }
   mkdirSync(SHOT_DIR, { recursive: true });
@@ -333,6 +340,8 @@ async function main() {
   let standaloneChrome = null;
   const consoleErrors = [];
   const report = [];
+  /** T11 — 방침 페이지 스크린샷 경로(블록 밖 보고서 헤더에서도 참조). */
+  let privacyShot = null;
   try {
     cdp = await connectCdp(await waitForDebugger(debugPort));
     cdp.on((message) => {
@@ -606,8 +615,90 @@ async function main() {
       report.push(`\n### ⑦ 전체화면(standalone 에뮬레이션)\n- 스크린샷: ${standaloneShot}\n`);
     }
 
+    // ── ⑧ 개인정보처리방침 정적 페이지(privacy.html · T11) ─────────────
+    {
+      // 앱 푸터의 방침 링크(내부 상대경로)부터 확인한다 — 지금 페이지는 앱 화면이다.
+      const privacyLink = await evaluate(`
+        const node = document.querySelector('[data-testid="privacy-link"]');
+        return node === null ? null : { href: node.getAttribute('href'), text: (node.textContent || '').trim(), resolved: node.href };
+      `);
+      check(
+        '푸터에 개인정보처리방침 링크가 있다(href=./privacy.html)',
+        privacyLink !== null && privacyLink.href === './privacy.html' && privacyLink.text.includes('개인정보처리방침'),
+        JSON.stringify(privacyLink),
+      );
+
+      await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
+      const privacyUrl = `${origin}${BASE}privacy.html`;
+      const privacyResponse = await fetch(privacyUrl);
+      const privacyBody = await privacyResponse.text();
+      check('privacy.html 응답 200', privacyResponse.status === 200, `status=${String(privacyResponse.status)} ${String(Buffer.byteLength(privacyBody, 'utf8'))}B`);
+
+      await cdp.send('Page.navigate', { url: privacyUrl });
+      const privacyDeadline = Date.now() + 20_000;
+      let privacyReady = false;
+      while (Date.now() < privacyDeadline && !privacyReady) {
+        privacyReady = (await evaluate(`return document.querySelector('.privacy-page h1') !== null && document.readyState === 'complete';`)) === true;
+        if (!privacyReady) await delay(200);
+      }
+      const privacyState = await evaluate(`
+        const h1 = document.querySelector('.privacy-page h1');
+        const text = document.body.textContent || '';
+        const scroller = document.scrollingElement ?? document.documentElement;
+        const before = scroller.scrollLeft;
+        scroller.scrollLeft = 99999;
+        const after = scroller.scrollLeft;
+        scroller.scrollLeft = before;
+        const required = ['수집하지 않습니다', '제3자에게 제공하지 않습니다', '광고를 게재하지 않으며', '비공식', '시행일'];
+        return {
+          h1: h1 === null ? null : h1.textContent.trim(),
+          title: document.title,
+          missing: required.filter((phrase) => !text.includes(phrase)),
+          backHref: document.querySelector('.privacy-back')?.getAttribute('href') ?? null,
+          bodyBackground: getComputedStyle(document.body).backgroundColor,
+          bodyColor: getComputedStyle(document.body).color,
+          canScrollHorizontally: after > 0,
+          scrollWidth: scroller.scrollWidth,
+        };
+      `);
+      check('privacy.html 렌더(h1 = 개인정보처리방침)', privacyReady && privacyState.h1 === '개인정보처리방침', JSON.stringify({ h1: privacyState.h1, title: privacyState.title }));
+      check('필수 문구 5종이 화면에 있다(수집·제3자·광고·비공식·시행일)', privacyState.missing.length === 0, privacyState.missing.join(' | '));
+      check('privacy.css 적용 실측(body 배경 = 토큰 색)', /^rgb/.test(String(privacyState.bodyBackground)), `bg=${String(privacyState.bodyBackground)} color=${String(privacyState.bodyColor)}`);
+      check('앱으로 돌아가는 링크(href=./)', privacyState.backHref === './', `href=${String(privacyState.backHref)}`);
+      check('privacy.html 가로 스크롤 없음', privacyState.canScrollHorizontally === false, `scrollWidth=${String(privacyState.scrollWidth)}`);
+
+      const privacyContrast = await evaluate(PRIVACY_CONTRAST_PROBE);
+      const privacyContrastBad = privacyContrast.filter((row) => row.ratio < row.threshold);
+      check(
+        `[privacy] 대비 미달 0건 (텍스트 ${String(privacyContrast.length)}개 실측)`,
+        privacyContrastBad.length === 0,
+        privacyContrastBad.map((row) => `${row.label} "${row.text}" ${String(row.ratio)}<${String(row.threshold)}`).join(' | '),
+      );
+      check('privacy.html 콘솔 오류 0(지금까지 누적 기준)', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
+      const privacyShotPath = await capture('T11-privacy.png');
+      privacyShot = privacyShotPath;
+      report.push(
+        `\n### ⑧ 개인정보처리방침(privacy.html · T11)\n- URL: ${privacyUrl} (HTTP ${String(privacyResponse.status)}, ${String(Buffer.byteLength(privacyBody, 'utf8'))}B)\n- h1: ${String(privacyState.h1)} · 필수 문구 누락: ${privacyState.missing.length === 0 ? '0건' : privacyState.missing.join(', ')}\n- body bg=${String(privacyState.bodyBackground)} · color=${String(privacyState.bodyColor)} · 가로 스크롤 ${privacyState.canScrollHorizontally ? '있음' : '없음'}(scrollWidth=${String(privacyState.scrollWidth)})\n- 푸터 링크: ${JSON.stringify(privacyLink)}\n- 스크린샷: ${privacyShot}\n\n| 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |\n|---|---|---|---|---|---|---|\n${privacyContrast
+          .map(
+            (row) =>
+              `| ${row.label} | ${row.text.replace(/\|/g, '\\|')} | ${row.foreground} | ${row.background} | ${String(row.fontSize)}px${row.bold ? ' bold' : ''}${row.large ? ' (큰글씨)' : ''} | ${String(row.ratio)}:1 | ≥${String(row.threshold)} |`,
+          )
+          .join('\n')}\n\n미달: ${privacyContrastBad.length === 0 ? '0건' : `${String(privacyContrastBad.length)}건`}\n`,
+      );
+
+      // 앱 화면으로 복귀(뒤따르는 검사·보고가 앱 상태를 전제로 한다).
+      await cdp.send('Page.navigate', { url });
+      const backDeadline = Date.now() + 20_000;
+      let backReady = false;
+      while (Date.now() < backDeadline && !backReady) {
+        backReady = (await evaluate(`return document.querySelector('[data-testid="next-bus-card"]') !== null;`)) === true;
+        if (!backReady) await delay(250);
+      }
+      check('방침 페이지 → 앱 복귀 렌더', backReady);
+    }
+
     check('콘솔 오류 0', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
-    report.unshift(`# T7 감사 원출력 (a11y_smoke.mjs)\n\n- 일시: ${new Date().toISOString()}\n- URL: ${url}\n- 뷰포트: 390×844 @2x (mobile, touch)\n- 스크린샷: ${[lightShot, darkShot, focusShot].map((path) => path.slice(ROOT.length)).join(' · ')}\n`);
+    report.unshift(`# T7·T11 감사 원출력 (a11y_smoke.mjs)\n\n- 일시: ${new Date().toISOString()}\n- URL: ${url}\n- 뷰포트: 390×844 @2x (mobile, touch)\n- 스크린샷: ${[lightShot, darkShot, focusShot, privacyShot].filter((path) => typeof path === 'string').map((path) => path.slice(ROOT.length)).join(' · ')}\n`);
     writeFileSync(REPORT, report.join('\n'));
   } finally {
     try {

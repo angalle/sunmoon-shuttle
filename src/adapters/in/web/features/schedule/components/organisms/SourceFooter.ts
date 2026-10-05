@@ -26,6 +26,14 @@ export function sourceFooter(props: SourceFooterProps): HTMLElement {
           text: `${UI_TEXT.sourceLinkLabel} (${source.url})`,
         }),
       ]),
+      // 개인정보처리방침(T11) — 앱과 같은 출처의 정적 페이지로 간다(내부 링크 → rel/target 불필요).
+      el('p', {}, [
+        el('a', {
+          attrs: { href: './privacy.html' },
+          dataset: { testid: 'privacy-link' },
+          text: UI_TEXT.privacyLinkLabel,
+        }),
+      ]),
       el('p', {
         text: `${UI_TEXT.sourcePagesLabel}: ${String(source.pages.length)}개 · 원본 최근 업데이트 ${source.sourceUpdatedAt} · 반영 ${source.fetchedAt} · ${source.contentHash.slice(0, 19)}…`,
       }),
