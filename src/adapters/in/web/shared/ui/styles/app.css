@@ -516,3 +516,192 @@ body {
   color: var(--color-text);
   border-color: var(--color-info-border);
 }
+
+/* ───────────────────────── V1 간편 홈 (T12) ───────────────────────── */
+/* 값은 전부 토큰(`var(--...)`)만 쓴다 — 하드코딩 색·간격 금지(검수 grep ③). */
+
+/* ① 상태줄 — 오늘 날짜·현재 시각(KST) */
+.shuttle-clock {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.shuttle-clock time {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ② 공지 배너(조건부) */
+.shuttle-notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.shuttle-notice--warn {
+  border-color: var(--color-warn-border);
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+}
+
+.shuttle-notice--info {
+  border-color: var(--color-info-border);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.shuttle-notice__title {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.shuttle-notice__detail {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* ⑦ 요일 탭을 감싸는 보조 구역("다른 날 미리보기") */
+.shuttle-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shuttle-section__title {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ④ 방향 필터 칩 */
+.shuttle-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.shuttle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.shuttle-chip[aria-pressed='true'] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: var(--font-weight-bold);
+}
+
+.shuttle-chip__count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.shuttle-chip[aria-pressed='true'] .shuttle-chip__count {
+  color: var(--color-on-accent);
+}
+
+/* ③ 다음 출발 카드 보조 요소 */
+.shuttle-hero__notes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.shuttle-nextbus__route {
+  font-weight: var(--font-weight-bold);
+}
+
+.shuttle-nextbus__dir {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+/* ⑤ 오늘 남은 출발 목록 */
+.shuttle-board__counts {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+}
+
+.shuttle-board__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.shuttle-departures {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shuttle-departure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.shuttle-departure:last-child {
+  border-bottom: 0;
+}
+
+.shuttle-departure__time {
+  min-width: 3.5rem;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.shuttle-departure__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.shuttle-departure__route {
+  font-weight: var(--font-weight-bold);
+}
+
+.shuttle-departure__dir {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.shuttle-departure__remaining {
+  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.shuttle-departure__marks {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-left: auto;
+}

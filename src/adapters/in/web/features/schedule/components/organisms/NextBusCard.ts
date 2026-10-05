@@ -18,6 +18,8 @@ export interface NextBusCardProps {
   readonly routeName: string;
   readonly dayLabel: string;
   readonly headingId: string;
+  /** 스모크·테스트가 요소를 찾는 표식(기본 `next-bus-card`). */
+  readonly testid?: string;
 }
 
 export function nextBusCard(props: NextBusCardProps): HTMLElement {
@@ -29,7 +31,7 @@ export function nextBusCard(props: NextBusCardProps): HTMLElement {
     {
       class: 'shuttle-card',
       attrs: { 'aria-labelledby': props.headingId },
-      dataset: { testid: 'next-bus-card', status: view.domainStatus, tone: view.tone },
+      dataset: { testid: props.testid ?? 'next-bus-card', status: view.domainStatus, tone: view.tone },
     },
     [
       el('h2', { class: 'shuttle-card__title', attrs: { id: props.headingId }, text: UI_TEXT.nextBusTitle }),
