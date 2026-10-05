@@ -5,9 +5,9 @@
 ## 1. 구성도
 ```
 [원본] lily.sunmoon.ac.kr/Page2/About/About08_04_02_01_0*.aspx
-   │  (하루 2회, ETag/If-Modified-Since, UA 명시, 요청간 ≥1s)
+   │  (수동 1회 반입 — 자동 크롤 없음: robots.txt `Disallow: /Page`, §8)
    ▼
-[수집] GitHub Actions (cron)                    ← 무료(공개 저장소) · 서버 0
+[수집] GitHub Actions (workflow_dispatch — cron 없음)  ← 무료(공개 저장소) · 서버 0
    │  tools/scraper: 파서 실행 → 정규화
    ├─▶ data/raw/<날짜>-<요일>.html   (원본 스냅샷 = 골든 픽스처·증거)
    └─▶ data/timetable.json           (앱이 읽는 계약 데이터)
@@ -15,7 +15,7 @@
    ▼
 [배포] GitHub Pages (정적)                      ← 무료 · CORS 허용
    ├─ 앱 번들 (index.html + js/css + manifest + SW)
-   └─ data/timetable.json · data/raw/*.html
+   └─ data/timetable.json            (배포 대상은 이 파일만 — data/raw/*.html 는 서버에 올리지 않는다)
    ▼
 [앱] Vite + TS (헥사고날) · PWA(Capacitor로 Android 패키징)
    ├─ Service Worker: 앱 셸 + data/timetable.json 캐시(오프라인)
@@ -32,6 +32,7 @@
 | 크로스플랫폼 | **PWA + Capacitor** | 웹 자산 그대로 iOS/Android. **iOS는 PWA로 무료 즉시**, Android는 기존 툴체인 재사용 | React Native/Expo(새 툴체인·iOS는 EAS 유료 경로), Flutter(Dart 신규·바이너리 큼) |
 | iOS 경로 | **PWA 우선** → (선택) Xcode 설치로 Capacitor iOS 로컬 빌드 | App Store는 $99/년(비용), PWA는 무료·즉시 | 지금 App Store 등록(비용 발생) |
 | 파서 위치 | **`tools/scraper` (TS) — 앱과 같은 파서 모듈 import** | 파싱 규칙 단일출처. Actions는 `tsx`로 실행 | Actions 전용 파이썬 파서(중복·불일치 위험) |
+| 의존성 스코프 | **웹 번들 런타임 의존성 0** · `@capacitor/{core,android}` 는 **Android 패키징 전용** | `src/` 에서 `@capacitor` import 0건(빌드 산출물 = 자체 모듈 42개) — 공급망·오프라인 신뢰성. T10 게이트 판정(§docs/03 §7.1-5) | 웹 런타임 라이브러리 도입(번들·공급망 증가) |
 
 ## 3. 헥사고날 구조 (총괄 표준)
 ```

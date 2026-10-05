@@ -1,0 +1,17 @@
+스냅샷 파일 수: 11
+AC-1/AC-2 2026-2학기-asan-ktx-일요일.html | trips=6 | 결정성=OK | hash=9e93fb3e9b79dae7
+AC-1/AC-2 2026-2학기-asan-ktx-토요일.html | trips=4 | 결정성=OK | hash=9110f93b0fb4eb1f
+AC-1/AC-2 2026-2학기-asan-ktx-평일.html | trips=42 | 결정성=OK | hash=6c4f43cffd27db39
+AC-1/AC-2 2026-2학기-cheonan-campus-평일.html | trips=0 | 결정성=OK | hash=98f6a72d486eda35
+AC-1/AC-2 2026-2학기-cheonan-station-일요일.html | trips=5 | 결정성=OK | hash=9ab8a80f9b7811f5
+AC-1/AC-2 2026-2학기-cheonan-station-토요일.html | trips=4 | 결정성=OK | hash=46d4dc74dcd7b225
+AC-1/AC-2 2026-2학기-cheonan-station-평일.html | trips=33 | 결정성=OK | hash=d7a08e35dc1f6920
+AC-1/AC-2 2026-2학기-cheonan-terminal-일요일.html | trips=5 | 결정성=OK | hash=a22d7890c2b682c6
+AC-1/AC-2 2026-2학기-cheonan-terminal-토요일.html | trips=4 | 결정성=OK | hash=8a233a3f9255d7ae
+AC-1/AC-2 2026-2학기-cheonan-terminal-평일.html | trips=38 | 결정성=OK | hash=c5b85db4a12245b7
+AC-1/AC-2 2026-2학기-onyang-평일.html | trips=7 | 결정성=OK | hash=5950ff919313c080
+AC-2 토큰변이 2026-2학기-asan-ktx-평일.html | HTML바이트 상이=true | 파싱결과 동일=OK
+AC-2 토큰변이 2026-2학기-cheonan-terminal-토요일.html | HTML바이트 상이=true | 파싱결과 동일=OK
+AC-2 조립 바이트동일= true | 순서무관= true | contentHash 안정(fetchedAt만 다름)= true | contentHash= sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+
+판정: AC-2(결정성) OK

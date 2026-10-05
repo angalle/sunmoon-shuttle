@@ -1,0 +1,43 @@
+adb: /opt/homebrew/share/android-commandlinetools/platform-tools/adb · emulator: /opt/homebrew/share/android-commandlinetools/emulator/emulator
+=== 에뮬레이터 부팅 (meteor-dodge-api35) ===
+emulator pid=49831
+device 연결됨 — boot_completed 대기
+boot_completed=1 (대기 4회)
+=== APK 설치 ===
+Performing Streamed Install
+Success
+package=com.angalle.sunmoonshuttle
+versionName=0.1.0
+=== 로그 초기화 + 앱 실행(콜드 스타트) ===
+Starting: Intent { cmp=com.angalle.sunmoonshuttle/.MainActivity }
+--- 단말 증거: 시각 / pid / resumed activity / focus ---
+Mon Oct  5 18:52:35 KST 2026
+2884
+topResumedActivity=ActivityRecord{8a8725 u0 com.angalle.sunmoonshuttle/.MainActivity t72}
+ResumedActivity: ActivityRecord{8a8725 u0 com.angalle.sunmoonshuttle/.MainActivity t72}
+mCurrentFocus=Window{a21fc84 u0 com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity}
+스크린샷1 262039 bytes
+=== 요일 전환(토요일 탭, T8 실측 좌표 540,515) ===
+스크린샷2 262637 bytes
+=== 스크롤(표 아래로) ===
+스크린샷3 224270 bytes
+=== 크래시/오류 판정 (사용 중 로그) ===
+FATAL EXCEPTION      : 0
+AndroidRuntime crash : 0
+ANR                  : 0
+앱 콘솔(chromium) error: 0
+--- chromium 'crash detected' 라인(참고: WebView 렌더러 teardown 로그) ---
+--- Capacitor 로그 ---
+10-05 18:52:27.099  2884  3006 D Capacitor: Handling local request: https://localhost/
+10-05 18:52:27.142  2884  3006 D Capacitor: Handling local request: https://localhost/assets/index-hbcy5NfT.js
+10-05 18:52:27.627  2884  3010 D Capacitor: Handling local request: https://localhost/assets/index-BET44E-c.css
+10-05 18:52:27.628  2884  3008 D Capacitor: Handling local request: https://localhost/icons/favicon-32.png
+10-05 18:52:27.628  2884  3019 D Capacitor: Handling local request: https://localhost/favicon.svg
+10-05 18:52:27.628  2884  3023 D Capacitor: Handling local request: https://localhost/sw.js
+10-05 18:52:27.643  2884  3007 D Capacitor: Handling local request: https://localhost/data/timetable.json
+10-05 18:52:29.216  2884  3006 D Capacitor: Handling local request: https://localhost/sw.js
+프로세스 생존: pidof=yes
+크래시 리포트 파일: 0개
+=== 앱 종료 + 에뮬레이터 종료 ===
+남은 qemu 프로세스: 0
+android smoke done

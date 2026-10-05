@@ -1,0 +1,68 @@
+boot_completed=1
+Performing Streamed Install
+Success
+=== WebView devtools 소켓 탐색 ===
+@webview_devtools_remote_1965
+socket=webview_devtools_remote_1965
+9222
+forward: emulator-5554 tcp:9222 localabstract:webview_devtools_remote_1965
+=== DOM 실측 ===
+CDP target: 선문대 셔틀버스 시간표 | https://localhost/
+--- 초기 상태 ---
+{
+ "title": "선문대 셔틀버스 시간표",
+ "tabs": [
+  {
+   "id": "shuttle-day-tab-weekday",
+   "text": "평일 (오늘)노선 4/5개",
+   "selected": "true"
+  },
+  {
+   "id": "shuttle-day-tab-saturday",
+   "text": "토요일노선 3/5개",
+   "selected": "false"
+  },
+  {
+   "id": "shuttle-day-tab-sunday",
+   "text": "일요일노선 3/5개",
+   "selected": "false"
+  }
+ ],
+ "rows": 57,
+ "bodyLen": 3747,
+ "hero": "가장 가까운 출발 오늘 19:10 출발 약 14분 후"
+}
+토요일 탭 클릭 → shuttle-day-tab-saturday | 토요일노선 3/5개
+--- 클릭 후 상태 ---
+{
+ "title": "선문대 셔틀버스 시간표",
+ "tabs": [
+  {
+   "id": "shuttle-day-tab-weekday",
+   "text": "평일 (오늘)노선 4/5개",
+   "selected": "false"
+  },
+  {
+   "id": "shuttle-day-tab-saturday",
+   "text": "토요일노선 3/5개",
+   "selected": "true"
+  },
+  {
+   "id": "shuttle-day-tab-sunday",
+   "text": "일요일노선 3/5개",
+   "selected": "false"
+  }
+ ],
+ "rows": 19,
+ "bodyLen": 2536,
+ "hero": "가장 가까운 출발 오늘 19:10 출발 약 14분 후"
+}
+스크린샷: T10-android-4-표-스크롤.png
+전체페이지 스크린샷: T10-android-5-전체페이지.png (height=4191)
+앱 콘솔 오류: 0건 
+앱 콘솔 경고: 0건
+FATAL EXCEPTION: 0
+앱 콘솔(chromium) error: 0
+1965
+남은 qemu: 0
+dom smoke done

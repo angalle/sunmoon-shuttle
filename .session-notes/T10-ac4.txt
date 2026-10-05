@@ -1,0 +1,22 @@
+=== AC-4 (A) 무변경: 원본 재파싱 ↔ HEAD ===
+scrape exit=0 (로그: /Users/leeheesun/.hermes/profiles/projectcreator/cache/scratch/t10-ac4/scrape-regen.log)
+[scrape] 씀: /Users/leeheesun/.hermes/profiles/projectcreator/cache/scratch/t10-ac4/regen.json (84846 bytes) · sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+HEAD contentHash : sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+regen contentHash: sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+변경 감지 결과(A) = changed=false  → 커밋 0건
+git log -- data/ 건수(현재) = 4
+
+=== AC-4 (B) 변경: 스냅샷 1개 변조 후 재파싱 ===
+변조 셀 수=1 (8:05→8:06)
+scrape exit=0 (로그: /Users/leeheesun/.hermes/profiles/projectcreator/cache/scratch/t10-ac4/scrape-changed.log)
+HEAD  contentHash: sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900
+변조  contentHash: sha256:a2b9a15f399c9ef235d8dd161163d13be0a164fc6d5e6f710d265be3be93015b
+asan-ktx 평일 1행: HEAD={"seq":1,"depCampus":"08:05","depStation":"08:25","arrCampus":"08:40","note":"0:15"}
+                   변조={"seq":1,"depCampus":"08:06","depStation":"08:25","arrCampus":"08:40","note":"0:15"}
+변경 감지 결과(B) = changed=true → 커밋 1건
+
+=== AC-4 (B) 반영 커밋 시뮬레이션 (스크래치 git, 워크플로 '반영 — main 커밋' 블록과 동일 명령) ===
+커밋 전 data/ 커밋수=1 · 후=2 (증가 1건)
+b5fe352 data: 스냅샷 반영 — asan-ktx 평일 08:05→08:06 (T10 AC-4 변경 반영 재현)
+
+AC-4 판정: 무변경→커밋 0건(changed=false) · 변경→커밋 1건(changed=true) — PASS

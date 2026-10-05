@@ -1,0 +1,26 @@
+=== AC-1 (1) 데이터 행 수: 원본 HTML 표 ↔ 파서 JSON ===
+파일                                            표 tr     데이터행 JSON trips  판정
+2026-2학기-asan-ktx-일요일.html                       8        6          6  OK
+    시각값 멀티셋 OK (원본 18개 = JSON 18개)
+2026-2학기-asan-ktx-토요일.html                       6        4          4  OK
+    시각값 멀티셋 OK (원본 12개 = JSON 12개)
+2026-2학기-asan-ktx-평일.html                       43       42         42  OK
+    시각값 멀티셋 OK (원본 118개 = JSON 117개 (note 열 원문값 1개 상쇄))
+2026-2학기-cheonan-campus-평일.html                  0        0          0  OK
+    시각값 멀티셋 OK (원본 0개 = JSON 0개)
+2026-2학기-cheonan-station-일요일.html                7        5          5  OK
+    시각값 멀티셋 OK (원본 15개 = JSON 15개)
+2026-2학기-cheonan-station-토요일.html                6        4          4  OK
+    시각값 멀티셋 OK (원본 12개 = JSON 12개)
+2026-2학기-cheonan-station-평일.html                34       33         33  OK
+    시각값 멀티셋 OK (원본 91개 = JSON 91개)
+2026-2학기-cheonan-terminal-일요일.html               7        5          5  OK
+    시각값 멀티셋 OK (원본 15개 = JSON 15개)
+2026-2학기-cheonan-terminal-토요일.html               6        4          4  OK
+    시각값 멀티셋 OK (원본 12개 = JSON 12개)
+2026-2학기-cheonan-terminal-평일.html               39       38         38  OK
+    시각값 멀티셋 OK (원본 105개 = JSON 105개)
+2026-2학기-onyang-평일.html                          8        7          7  OK
+    시각값 멀티셋 OK (원본 27개 = JSON 27개)
+
+AC-1 판정: 행 수 전부 일치 · 시각 셀 값 전부 일치

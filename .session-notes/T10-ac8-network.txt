@@ -1,0 +1,19 @@
+=== AC-8 네트워크 요청 감사 (헤드리스 Chrome, dist/ 빌드본) ===
+페이지: http://127.0.0.1:50397/sunmoon-shuttle/  |  선문대 셔틀버스 시간표|57
+총 요청 8건 · 호스트별: {"127.0.0.1":8}
+
+요청 목록(method type url):
+  GET  Document     http://127.0.0.1:50397/sunmoon-shuttle/?now=2026-10-05T14:40:00%2B09:00
+  GET  Script       http://127.0.0.1:50397/sunmoon-shuttle/assets/index-hbcy5NfT.js
+  GET  Stylesheet   http://127.0.0.1:50397/sunmoon-shuttle/assets/index-BET44E-c.css
+  GET  Manifest     http://127.0.0.1:50397/sunmoon-shuttle/manifest.webmanifest
+  GET  Other        http://127.0.0.1:50397/sunmoon-shuttle/favicon.svg
+  GET  Other        http://127.0.0.1:50397/sunmoon-shuttle/icons/icon-192.png
+  GET  Other        http://127.0.0.1:50397/sunmoon-shuttle/icons/favicon-32.png
+  GET  Fetch        http://127.0.0.1:50397/sunmoon-shuttle/data/timetable.json
+
+제3자(비로컬) 호스트: 0건
+비로컬 요청 URL: 0건
+앱 콘솔 오류: 0건
+
+AC-8(개인정보·제3자 요청 0) 판정: PASS

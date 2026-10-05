@@ -1,0 +1,58 @@
+=== T9 검출력 자체검증 (2026-10-05 18:51:27 +0900) ===
+checker: scripts/qa/ios_compat_check.mjs
+sandbox: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.lDwD64 (리포 밖 temp — 리포 파일은 실제 파일 주입 1건 때만 건드린다)
+
+주입 전 해시 — index.html=aaa0b3d0248ce764 manifest=13fb3e077af7e84c sw.js=5c4b110d33302d85
+
+[0] 기준선(sandbox 무주입)
+  [PASS] 기준선 sandbox — 기준선: exit 0 (PASS) 기대대로
+
+[1] 실제 파일 주입 — public/manifest.webmanifest 에서 display·icons 삭제
+  주입 후 manifest(앞 6줄): {   "id": "./",   "name": "선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus",   "short_name": "셔틀버스 Shuttle",   "description": "선문대학교 셔틀버스 시간표(비공식) — 노선·요일별 시간표와 다음 버스까지 남은 시간. Sunmoon University shuttle bus timetable (unofficial).",   "lang": "ko", 
+  [PASS] 실제 파일 주입 — FAIL 검출(exit 1, manifest.display + manifest.required-fields)
+  [PASS] 실제 파일 원복 — 해시 동일(13fb3e077af7e84c)
+
+[2] sandbox — manifest 아이콘 선언과 다른 실파일(icon-192 ← 180x180 파일)
+  [PASS] 아이콘 IHDR 크기 위조 — FAIL 검출(exit 1, id=manifest.icons-real)
+
+[3] sandbox — Service Worker 등록 호출 제거(src/…/serviceWorker.ts)
+  [PASS] SW 등록 제거 — FAIL 검출(exit 1, id=sw.register-relative)
+
+[4] sandbox — 등록 경로를 절대경로(/sw.js)로 변조
+  [PASS] SW 등록 경로 절대화 — FAIL 검출(exit 1, id=sw.register-relative)
+
+[5] sandbox — public/sw.js 제거(등록 대상 없음)
+  [PASS] sw.js 파일 삭제 — FAIL 검출(exit 1, id=sw.file)
+
+[6] sandbox — iOS Safari 16 에 없는 CSS 기능(color-mix) 주입
+  [PASS] iOS 미지원 CSS(color-mix) — FAIL 검출(exit 1, id=css.ios-feature-baseline)
+
+[7] sandbox — 100vh 의 dvh 대체 제거(주소창 문제 재현)
+  [PASS] dvh 대체 제거 — FAIL 검출(exit 1, id=css.viewport-unit)
+
+[8] sandbox — viewport-fit=cover 제거(안전영역 정합 깨짐)
+  [PASS] viewport-fit 제거 — FAIL 검출(exit 1, id=html.viewport-fit)
+
+[9] sandbox — IndexedDB 비가드 전역 사용 주입
+  [PASS] IndexedDB 비가드 사용 — FAIL 검출(exit 1, id=idb.no-unguarded-global)
+
+=== 원복 검증 ===
+주입 후 해시 — index.html=aaa0b3d0248ce764 manifest=13fb3e077af7e84c sw.js=5c4b110d33302d85
+  [PASS] 추적 파일 3종 해시 주입 전 = 주입 후
+  [PASS] 주입 대상 추적 파일 6경로 — git status 변경 0(원복 클린)
+  (참고) 리포 전체 git status — 동시에 도는 다른 워커(T8 Android 등)의 변경이 섞여 있다:
+     M .session-notes/T9-selfcheck.txt
+    ?? .session-notes/T10-ac1-rows.txt
+    ?? .session-notes/T10-ac12-independent.ts
+    ?? .session-notes/T10-ac2-determinism.txt
+    ?? .session-notes/T10-ac4-repro.sh
+    ?? .session-notes/T10-ac4.txt
+    ?? .session-notes/T10-ac8-network-audit.mjs
+    ?? .session-notes/T10-ac8-network.txt
+    ?? .session-notes/T10-ios-compat.txt
+    ?? .session-notes/T10-ios-pwa-smoke.txt
+    ?? .session-notes/T10-ios-selfcheck.txt
+    ?? .session-notes/T10-offline-smoke.txt
+
+케이스 결과: PASS 13 · FAIL 0
+SELF-CHECK: PASS (위조 주입 9종 전부 검출 · 원복 클린)
