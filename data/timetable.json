@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "semester": {
     "title": "2026-2학기 셔틀버스 시간표(2026.9.1(화)~2026.12.14(월))",
     "label": "2026-2학기",
@@ -734,7 +734,60 @@
           ]
         }
       },
-      "offDays": []
+      "offDays": [],
+      "tripNotes": [
+        {
+          "direction": "inbound",
+          "minutes": 15,
+          "segment": "아산역>캠퍼스",
+          "conditions": [],
+          "note": null,
+          "sourceQuote": "*소요시간: 등교시 아산역>캠퍼스 15분 소요 / 하교시 캠퍼스>탕정역 경유>아산역 20분 소요",
+          "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        },
+        {
+          "direction": "outbound",
+          "minutes": 20,
+          "segment": "캠퍼스>탕정역 경유>아산역",
+          "conditions": [],
+          "note": null,
+          "sourceQuote": "*소요시간: 등교시 아산역>캠퍼스 15분 소요 / 하교시 캠퍼스>탕정역 경유>아산역 20분 소요",
+          "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
+      ],
+      "stopWindows": [
+        {
+          "location": "학생회관 승강장",
+          "dayTypes": [
+            "weekday"
+          ],
+          "term": "학기 중",
+          "windows": [
+            {
+              "start": "13:30",
+              "end": "15:30",
+              "raw": "13:30~15:30"
+            },
+            {
+              "start": "19:30",
+              "end": null,
+              "raw": "19:30~막차까지"
+            }
+          ],
+          "note": null,
+          "sourceQuote": "- 학기 중 평일 학생회관 승강장 정차시간 13:30~15:30 / 19:30~ 막차까지 이용가능",
+          "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
+      ]
     },
     {
       "id": "cheonan-station",
@@ -1456,7 +1509,92 @@
           ]
         }
       },
-      "offDays": []
+      "offDays": [],
+      "tripNotes": [
+        {
+          "direction": "outbound",
+          "minutes": 35,
+          "segment": "캠퍼스>천안역",
+          "conditions": [
+            "교통정체"
+          ],
+          "note": "교통정체",
+          "sourceQuote": "*소요시간: 08:00~9:00/17:30~19:30, 교통정체로 인하여 캠퍼스>천안역 35분 소요, 천안역>캠퍼스 30분 소요/",
+          "sourcePage": "data/raw/2026-2학기-cheonan-station-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        },
+        {
+          "direction": "inbound",
+          "minutes": 30,
+          "segment": "천안역>캠퍼스",
+          "conditions": [
+            "교통정체"
+          ],
+          "note": "교통정체",
+          "sourceQuote": "*소요시간: 08:00~9:00/17:30~19:30, 교통정체로 인하여 캠퍼스>천안역 35분 소요, 천안역>캠퍼스 30분 소요/",
+          "sourcePage": "data/raw/2026-2학기-cheonan-station-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        },
+        {
+          "direction": "outbound",
+          "minutes": 30,
+          "segment": "캠퍼스>천안역",
+          "conditions": [
+            "이외 시간"
+          ],
+          "note": "이외 시간",
+          "sourceQuote": "이외시간 캠퍼스>천안역 30분 소요, 천안역>캠퍼스 25분 소요",
+          "sourcePage": "data/raw/2026-2학기-cheonan-station-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        },
+        {
+          "direction": "inbound",
+          "minutes": 25,
+          "segment": "천안역>캠퍼스",
+          "conditions": [
+            "이외 시간"
+          ],
+          "note": "이외 시간",
+          "sourceQuote": "이외시간 캠퍼스>천안역 30분 소요, 천안역>캠퍼스 25분 소요",
+          "sourcePage": "data/raw/2026-2학기-cheonan-station-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
+      ],
+      "stopWindows": [
+        {
+          "location": "학생회관 승강장",
+          "dayTypes": [
+            "weekday"
+          ],
+          "term": "학기 중",
+          "windows": [
+            {
+              "start": "13:30",
+              "end": "15:30",
+              "raw": "13:30~15:30"
+            },
+            {
+              "start": "19:30",
+              "end": null,
+              "raw": "19:30~막차까지"
+            }
+          ],
+          "note": null,
+          "sourceQuote": "- 학기 중 평일 학생회관 승강장 정차시간 13:30~15:30 / 19:30~ 막차까지 이용가능",
+          "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
+      ]
     },
     {
       "id": "cheonan-terminal",
@@ -2347,7 +2485,64 @@
           ]
         }
       },
-      "offDays": []
+      "offDays": [],
+      "tripNotes": [
+        {
+          "direction": "both",
+          "minutes": 40,
+          "segment": null,
+          "conditions": [
+            "교통정체"
+          ],
+          "note": "교통정체",
+          "sourceQuote": "* 소요시간: 운영시간 8:00~09:00/ 16:30~19:30, 교통정체로 인하여 40분 소요, 이외 시간 30분 소요",
+          "sourcePage": "data/raw/2026-2학기-cheonan-terminal-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        },
+        {
+          "direction": "both",
+          "minutes": 30,
+          "segment": null,
+          "conditions": [
+            "이외 시간"
+          ],
+          "note": "이외 시간",
+          "sourceQuote": "* 소요시간: 운영시간 8:00~09:00/ 16:30~19:30, 교통정체로 인하여 40분 소요, 이외 시간 30분 소요",
+          "sourcePage": "data/raw/2026-2학기-cheonan-terminal-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
+      ],
+      "stopWindows": [
+        {
+          "location": "학생회관 승강장",
+          "dayTypes": [
+            "weekday"
+          ],
+          "term": "학기 중",
+          "windows": [
+            {
+              "start": "13:30",
+              "end": "15:30",
+              "raw": "13:30~15:30"
+            },
+            {
+              "start": "19:30",
+              "end": null,
+              "raw": "19:30~막차까지"
+            }
+          ],
+          "note": null,
+          "sourceQuote": "- 학기 중 평일 학생회관 승강장 정차시간 13:30~15:30 / 19:30~ 막차까지 이용가능",
+          "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
+      ]
     },
     {
       "id": "onyang",
@@ -2545,6 +2740,34 @@
       "offDays": [
         "saturday",
         "sunday"
+      ],
+      "tripNotes": [],
+      "stopWindows": [
+        {
+          "location": "학생회관 승강장",
+          "dayTypes": [
+            "weekday"
+          ],
+          "term": "학기 중",
+          "windows": [
+            {
+              "start": "13:30",
+              "end": "15:30",
+              "raw": "13:30~15:30"
+            },
+            {
+              "start": "19:30",
+              "end": null,
+              "raw": "19:30~막차까지"
+            }
+          ],
+          "note": null,
+          "sourceQuote": "- 학기 중 평일 학생회관 승강장 정차시간 13:30~15:30 / 19:30~ 막차까지 이용가능",
+          "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+          "extractedBy": "rule",
+          "confidence": 1,
+          "needsReview": false
+        }
       ]
     },
     {
@@ -2576,7 +2799,239 @@
         "weekday",
         "saturday",
         "sunday"
+      ],
+      "tripNotes": [],
+      "stopWindows": []
+    }
+  ],
+  "dateRules": [
+    {
+      "kind": "route-change",
+      "start": "2026-09-01",
+      "end": null,
+      "yearInferred": false,
+      "dayTypes": [
+        "weekday"
+      ],
+      "scope": [
+        "asan-ktx"
+      ],
+      "effect": {
+        "via": "탕정역",
+        "statement": "* 2026-2학기부터 학교출발->천안아산역 하교버스는 전체 차량 모두 탕정역 경유",
+        "appliesFrom": "semester-start"
+      },
+      "note": "원문 \"…학기부터\" 문구를 해당 학기 시작일로 환산",
+      "sourceQuote": "* 2026-2학기부터 학교출발->천안아산역 하교버스는 전체 차량 모두 탕정역 경유",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "route-change",
+      "start": "2026-09-01",
+      "end": null,
+      "yearInferred": false,
+      "dayTypes": [
+        "saturday",
+        "sunday"
+      ],
+      "scope": [
+        "asan-ktx"
+      ],
+      "effect": {
+        "via": "탕정역",
+        "statement": "2026-2학기부터 모든 셔틀버스 캠퍼스>탕정역 경유 운행 20분 소요/ 아산역>캠퍼스 운행 15분 소요",
+        "appliesFrom": "semester-start"
+      },
+      "note": "원문 \"…학기부터\" 문구를 해당 학기 시작일로 환산",
+      "sourceQuote": "2026-2학기부터 모든 셔틀버스 캠퍼스>탕정역 경유 운행 20분 소요/ 아산역>캠퍼스 운행 15분 소요",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-토요일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "period-meaning",
+      "start": "2026-09-05",
+      "end": "2026-12-13",
+      "yearInferred": true,
+      "dayTypes": [
+        "saturday",
+        "sunday"
+      ],
+      "scope": [],
+      "effect": {
+        "appliesTo": "weekend-timetable",
+        "statement": "2026-2학기 셔틀버스 휴일 운행기간 : 2026.9.5.(토) ~ 12.13.(일)"
+      },
+      "note": "원본의 \"휴일 운행기간\" 은 주말(토·일) 시간표 적용 구간을 뜻한다(기간 → 시간표 연결)",
+      "sourceQuote": "2026-2학기 셔틀버스 휴일 운행기간 : 2026.9.5.(토) ~ 12.13.(일)",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-토요일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "no-service",
+      "start": "2026-09-24",
+      "end": "2026-09-26",
+      "yearInferred": true,
+      "dayTypes": [
+        "weekday",
+        "saturday"
+      ],
+      "scope": [],
+      "effect": {
+        "appliesTo": "all-routes"
+      },
+      "note": null,
+      "sourceQuote": "*추석연휴[9.24(목)~9.26(토)]: 셔틀버스 운행 없음",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "no-service",
+      "start": "2026-10-03",
+      "end": "2026-10-04",
+      "yearInferred": true,
+      "dayTypes": [
+        "saturday",
+        "sunday"
+      ],
+      "scope": [],
+      "effect": {
+        "appliesTo": "all-routes"
+      },
+      "note": "중복 공지 1건 통합(같은 기간)",
+      "sourceQuote": "*개천절연휴[10.3.(토)~10.4(일)]: 셔틀버스 운행 없음",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false,
+      "mergedQuotes": [
+        "*개천절[10.3.(토)~10.4(일)]: 셔틀버스 운행 없음"
       ]
+    },
+    {
+      "kind": "alternate-schedule",
+      "start": "2026-10-05",
+      "end": null,
+      "yearInferred": true,
+      "dayTypes": [
+        "weekday"
+      ],
+      "scope": [],
+      "effect": {
+        "timetable": "sunday",
+        "appliesTo": "all-routes"
+      },
+      "note": null,
+      "sourceQuote": "*개천절대체휴일[10. 5.(월)]: 일요일 시간표로 운행",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "no-service",
+      "start": "2026-10-09",
+      "end": null,
+      "yearInferred": true,
+      "dayTypes": [
+        "weekday"
+      ],
+      "scope": [],
+      "effect": {
+        "appliesTo": "all-routes"
+      },
+      "note": null,
+      "sourceQuote": "*한글날[10. 9.(금)]: 셔틀버스 운행 없음",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "no-service",
+      "start": "2026-10-28",
+      "end": null,
+      "yearInferred": true,
+      "dayTypes": [
+        "weekday"
+      ],
+      "scope": [],
+      "effect": {
+        "appliesTo": "all-routes"
+      },
+      "note": null,
+      "sourceQuote": "*개교기념일[10. 28.(수)]: 셔틀버스 운행 없음",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "stop-time-window",
+      "start": null,
+      "end": null,
+      "yearInferred": false,
+      "dayTypes": [
+        "weekday"
+      ],
+      "scope": [],
+      "effect": {
+        "location": "학생회관 승강장",
+        "term": "학기 중",
+        "windows": [
+          {
+            "start": "13:30",
+            "end": "15:30"
+          },
+          {
+            "start": "19:30",
+            "end": null
+          }
+        ],
+        "limit": "막차까지"
+      },
+      "note": "시간창(정차 가능 시간) 조건 — 날짜 범위 규칙이 아니라 매일 반복 조건이다",
+      "sourceQuote": "- 학기 중 평일 학생회관 승강장 정차시간 13:30~15:30 / 19:30~ 막차까지 이용가능",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    }
+  ],
+  "terms": [
+    {
+      "kind": "semester",
+      "label": "2026-2학기",
+      "start": "2026-09-01",
+      "end": "2026-12-14",
+      "timetableSource": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_02_01_01_01.aspx",
+      "note": "원문 제목의 기간 = 학기 시간표 적용 구간",
+      "sourceQuote": "2026-2학기 셔틀버스 시간표(2026.9.1(화)~2026.12.14(월))",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 1,
+      "needsReview": false
+    },
+    {
+      "kind": "vacation",
+      "label": "방학",
+      "start": null,
+      "end": null,
+      "timetableSource": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_03_01_01.aspx",
+      "note": "원본 메뉴의 별도 페이지 — 이 스냅샷에는 방학 표 본문·기간 문구가 없다(기간 미기재)",
+      "sourceQuote": "방학 시간표",
+      "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "extractedBy": "rule",
+      "confidence": 0.5,
+      "needsReview": true
     }
   ],
   "notices": [
@@ -2656,13 +3111,6 @@
       "kind": "notice",
       "text": "학생회관 승차 가능 시간, 이외 시간은 공대 승강장에서만 승차가능합니다.",
       "raw": "학생회관 승차 가능 시간, 이외 시간은 공대 승강장에서만 승차가능합니다."
-    },
-    {
-      "kind": "no-service",
-      "text": "개천절: 셔틀버스 운행 없음",
-      "raw": "*개천절[10.3.(토)~10.4(일)]: 셔틀버스 운행 없음",
-      "date": "2026-10-03",
-      "endDate": "2026-10-04"
     },
     {
       "kind": "notice",
@@ -2759,8 +3207,8 @@
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx",
     "sourceUpdatedAt": "2026-08-20",
-    "fetchedAt": "2026-10-05T14:39:32+09:00",
-    "contentHash": "sha256:16fac81b0115f70b78b43d750681042053e13dccebc96e9d7b9be7fb7744f900",
+    "fetchedAt": "2026-10-06T09:00:00+09:00",
+    "contentHash": "sha256:a38d713a5d7dd9f79534e0ad1c36ab47cf3e905eb824326447b8f09b88673865",
     "pages": [
       {
         "routeId": "asan-ktx",
@@ -2828,6 +3276,62 @@
         "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_02_01_04.aspx",
         "sourceUpdatedAt": "2025-08-27"
       }
-    ]
+    ],
+    "extraction": {
+      "extractor": "tools/extract (schema v2)",
+      "model": null,
+      "promptTemplateSha256": "sha256:e86a2f83c952acff25e7ea60fbd38fe22a90059c750a98c660a6918f58a44a27",
+      "promptChars": 1804,
+      "aiStatus": "disabled",
+      "aiError": null,
+      "candidates": 25,
+      "ruleEntries": 11,
+      "aiDrafts": 0,
+      "aiAccepted": 0,
+      "aiDropped": 0,
+      "aiRepairs": 0,
+      "aiConflicts": 0,
+      "needsReview": 1,
+      "dedupedNotices": 1,
+      "reviewReasons": [],
+      "gaps": [
+        {
+          "gap": 1,
+          "name": "시점 조건부 운행 변경",
+          "where": "dateRules[kind=route-change]",
+          "count": 2
+        },
+        {
+          "gap": 2,
+          "name": "방향별 소요시간",
+          "where": "routes[].tripNotes[]",
+          "count": 8
+        },
+        {
+          "gap": 3,
+          "name": "시간창 조건부 정차",
+          "where": "dateRules[kind=stop-time-window] + routes[].stopWindows[]",
+          "count": 5
+        },
+        {
+          "gap": 4,
+          "name": "방학/학기 시간표 구분",
+          "where": "terms[]",
+          "count": 2
+        },
+        {
+          "gap": 5,
+          "name": "기간의 의미 연결",
+          "where": "dateRules[kind=period-meaning]",
+          "count": 1
+        },
+        {
+          "gap": 6,
+          "name": "중복 공지 제거 + 연도 추론",
+          "where": "notices 중복 제거 + dateRules[yearInferred]",
+          "count": 7
+        }
+      ]
+    }
   }
 }
