@@ -13,7 +13,6 @@ import { parseTimetable } from '../../../../src/adapters/in/web/features/schedul
 import {
   BOARD_LIST_LIMIT,
   serviceNoticeView,
-  sourceDetailsSummary,
   todayBoardView,
   type DepartureEventView,
 } from '../../../../src/adapters/in/web/features/schedule/store/selectors';
@@ -42,6 +41,17 @@ function state(now: string, overrides: Partial<ScheduleState> = {}): ScheduleSta
 }
 
 const departuresOf = (events: readonly DepartureEventView[]): string[] => events.map((event) => event.departure);
+
+/**
+ * T14 — 회차 하나의 출발 시각이 **비어 있는** 모델(도메인 경고 `출발 시각이 없는 회차입니다(순번 N)` 유발).
+ * 실제 데이터(`data/timetable.json`)에도 같은 경고가 5건 있다 → 홈 안내 1줄 조건을 픽스처로 재현한다.
+ */
+const brokenRaw = structuredClone(BOARD_RAW) as {
+  routes: { id: string; byDay: Record<string, { trips: unknown[] } | null> }[];
+};
+const asanRoute = brokenRaw.routes.find((route) => route.id === 'r-asan');
+asanRoute?.byDay['weekday']?.trips.push({ seq: 99, depCampus: null, depStation: null, arrCampus: null, note: null });
+const brokenModel = parseTimetable(brokenRaw);
 
 describe('상태줄 — 오늘 날짜·현재 시각(KST)', () => {
   it('주입된 clock 을 `10월 6일 (화) 07:00` / `2026-10-06 (화)` 로 표시한다', () => {
@@ -229,7 +239,7 @@ describe('로딩 상태', () => {
     expect(board.listHeadlineKind).toBe('loading');
     expect(board.listHeadline).toBe('시간표를 불러오는 중…');
     expect(board.listVisible).toBe(false);
-    expect(board.warningsSummary).toBeNull();
+    expect(board.warningsNotice).toBeNull();
   });
 });
 
@@ -295,21 +305,24 @@ describe('T13 심플화 — 목록 상한 5편', () => {
   });
 });
 
-describe('T13 결함 B — 미해석 경고는 홈 1줄·상세는 접힘', () => {
-  it('요약은 "원본 표기 N건은 자동 해석하지 못했습니다 — 자세히 보기" 한 줄 형식이다', () => {
-    const board = todayBoardView(state(EARLY));
-    expect(board.warnings.length).toBeGreaterThan(0);
-    expect(board.warningsCount).toBe(board.warnings.length);
-    expect(board.warningsSummary).toBe(
-      `원본 표기 ${String(board.warnings.length)}건은 자동 해석하지 못했습니다 — 자세히 보기`,
-    );
-    // 요약은 정말 "한 줄"이어야 한다(줄바꿈·목록 구분자 없음).
-    expect(String(board.warningsSummary).split('\n')).toHaveLength(1);
+describe('T14 — 미해석 표기 안내 1줄(사용자 판단에 영향 줄 때만)', () => {
+  it('출발 시각을 못 읽어 회차가 빠질 수 있으면 홈 1줄로 알린다', () => {
+    const board = todayBoardView({ ...state(EARLY), model: brokenModel });
+    expect(board.warningsNoticeCount).toBeGreaterThan(0);
+    expect(String(board.warningsNotice).startsWith('시각을 해석하지 못한 회차 ')).toBe(true);
+    expect(String(board.warningsNotice)).toContain('빠져 있을 수 있습니다');
+    // 대표 출처 1줄(푸터)로 유도한다 — 화면 문구에 `원본` 표현을 쓰지 않는다(T14).
+    expect(String(board.warningsNotice)).not.toContain('원본');
+    expect(String(board.warningsNotice).split('\n')).toHaveLength(1);
   });
 
-  it('미해석 항목이 없으면 요약도 없다(빈 경고 배너를 띄우지 않는다)', () => {
+  it('주석성 표기(`중간노선 전용`)만 못 읽었으면 홈에 아무 줄도 띄우지 않는다', () => {
     const board = todayBoardView(state(EARLY));
-    expect(board.warningsSummary === null).toBe(board.warnings.length === 0);
+    // 도메인은 여전히 경고를 모아 남긴다(조용히 무시 금지) …
+    expect(board.warnings.some((warning) => warning.includes('중간노선 전용'))).toBe(true);
+    // … 하지만 화면(홈)에는 판단에 영향을 주는 경고만 올린다.
+    expect(board.warningsNoticeCount).toBe(0);
+    expect(board.warningsNotice).toBeNull();
   });
 
   it('"0:15"(소요시간)는 경고가 아니라 특이사항 주석으로 해석된다', () => {
@@ -317,23 +330,5 @@ describe('T13 결함 B — 미해석 경고는 홈 1줄·상세는 접힘', () =
     expect(board.warnings.some((warning) => warning.includes('0:15'))).toBe(false);
     const first = board.events.find((event) => event.routeId === 'r-asan' && event.departure === '08:00');
     expect(first?.notes).toContain('0:15');
-  });
-});
-
-describe('T13 — 접힘 제목에 오늘 요일 명시(옵션②)', () => {
-  it('주입된 clock 의 오늘 날짜·요일을 붙인다', () => {
-    expect(sourceDetailsSummary(Date.parse(HANGUL_DAY))).toBe('전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준');
-    expect(sourceDetailsSummary(Date.parse('2026-10-06T08:01:00+09:00'))).toBe(
-      '전체 시간표(원본) 보기 · 오늘 10월 6일 (화) 기준',
-    );
-  });
-
-  it('자정을 넘기면 다음 날 요일로 바뀐다(요일 자동 판정)', () => {
-    expect(sourceDetailsSummary(Date.parse('2026-10-09T23:59:00+09:00'))).toBe(
-      '전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준',
-    );
-    expect(sourceDetailsSummary(Date.parse('2026-10-10T00:01:00+09:00'))).toBe(
-      '전체 시간표(원본) 보기 · 오늘 10월 10일 (토) 기준',
-    );
   });
 });

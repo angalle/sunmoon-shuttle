@@ -91,21 +91,24 @@ describe('nextBusView — 도메인 상태 → 화면 문구', () => {
   });
 });
 
-describe('freshnessView — 신선도(F5)', () => {
-  it('원본 최근 업데이트와 우리 반영 시각을 함께, 48시간 초과는 경고', () => {
+describe('freshnessView — 최신 데이터 1줄(T14 간소화)', () => {
+  it('앱 기준 한 줄(`데이터 갱신: <반영 시각> (<경과>)`)만 만든다', () => {
     const view = freshnessView(model, NOW);
-    expect(view.rows.map((row) => row.key)).toEqual(['source-updated-at', 'fetched-at']);
-    expect(view.rows[1]?.value).toBe('2026-10-05 14:39 (KST)');
-    // 2026-08-20 원본 업데이트는 48시간 초과 → 경고 1건
-    expect(view.rows[0]?.stale).toBe(true);
-    expect(view.warnings.some((warning) => warning.includes('원본 페이지 최근 업데이트'))).toBe(true);
+    expect(view.label).toBe('데이터 갱신');
+    expect(view.value).toBe('2026-10-05 14:39 (KST)');
+    expect(view.line).toBe('데이터 갱신: 2026-10-05 14:39 (KST) (17시간 전)');
+    // 학교 페이지 "최근 업데이트" 2행·페이지별 상세는 T14 에서 화면에서 빠졌다.
+    expect(view.stale).toBe(false);
+    expect(view.warning).toBeNull();
+    expect(view.line).not.toContain('원본');
   });
 
-  it('우리 반영 시각이 48시간을 넘으면 경고가 늘어난다', () => {
+  it('반영 시각이 48시간을 넘으면 경고 문구가 함께 온다(색만으로 알리지 않는다)', () => {
     const stale = { ...model, source: { ...model.source, fetchedAt: '2026-10-01T00:00:00+09:00' } };
     const view = freshnessView(stale, NOW);
-    expect(view.rows[1]?.stale).toBe(true);
-    expect(view.warnings.some((warning) => warning.includes('우리 반영 시각'))).toBe(true);
+    expect(view.stale).toBe(true);
+    expect(view.warning).toContain('48시간');
+    expect(String(view.warning)).not.toContain('원본');
   });
 });
 
