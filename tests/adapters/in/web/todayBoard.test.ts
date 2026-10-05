@@ -13,6 +13,7 @@ import { parseTimetable } from '../../../../src/adapters/in/web/features/schedul
 import {
   BOARD_LIST_LIMIT,
   serviceNoticeView,
+  sourceDetailsSummary,
   todayBoardView,
   type DepartureEventView,
 } from '../../../../src/adapters/in/web/features/schedule/store/selectors';
@@ -172,7 +173,7 @@ describe('방향 필터', () => {
 });
 
 describe('오늘 남은 출발 목록', () => {
-  it('목록은 12편까지만 그리고 나머지는 "더 보기"로 분리한다', () => {
+  it('목록은 상한(BOARD_LIST_LIMIT)까지만 그리고 나머지는 "더 보기"로 분리한다', () => {
     const board = todayBoardView(state(EARLY));
     expect(board.events).toHaveLength(19);
     expect(board.list).toHaveLength(BOARD_LIST_LIMIT);
@@ -221,5 +222,112 @@ describe('로딩 상태', () => {
     expect(board.next).toHaveLength(0);
     expect(board.todayTotal).toBe(0);
     expect(board.clockLabel).toBe('10월 6일 (화) 07:00');
+  });
+
+  it('로딩 중에는 목록 머리 문구가 로딩 안내이고 목록 행을 그리지 않는다(T13)', () => {
+    const board = todayBoardView(state(EARLY, { model: null }));
+    expect(board.listHeadlineKind).toBe('loading');
+    expect(board.listHeadline).toBe('시간표를 불러오는 중…');
+    expect(board.listVisible).toBe(false);
+    expect(board.warningsSummary).toBeNull();
+  });
+});
+
+/* ───────────────────────── T13 — 밝은 톤·더 심플한 UI 정정 ───────────────────────── */
+
+const HANGUL_DAY = '2026-10-09T09:00:00+09:00'; // 한글날(금) — 운행 없음
+
+describe('T13 결함 A — 운행 없는 날 목록 문구(모순 금지)', () => {
+  it('운행 없는 날: 머리 문구가 "오늘은 운행이 없습니다 · 다음 운행: …" 이고 "끝났습니다"가 없다', () => {
+    const board = todayBoardView(state(HANGUL_DAY));
+    expect(board.status).toBe('no-service');
+    expect(board.listHeadlineKind).toBe('no-service');
+    expect(board.listHeadline).toBe('오늘은 운행이 없습니다 · 다음 운행: 내일 09:00');
+    // 상단 배너가 "운행이 없습니다"를 말하는데 목록이 "끝났습니다"라고 하면 정면 충돌한다.
+    expect(String(board.listHeadline)).not.toContain('끝났습니다');
+  });
+
+  it('운행 없는 날: 목록 행을 숨기고 남은 편수도 0 이다(총 0편·남은 0편 소음 제거)', () => {
+    const board = todayBoardView(state(HANGUL_DAY));
+    expect(board.listVisible).toBe(false);
+    expect(board.counts.all).toBe(0);
+    expect(board.todayTotal).toBe(0);
+  });
+
+  it('운행 없는 날: 머리 문구에 사유(원본 안내문)를 반복하지 않는다 — 배너 1회만', () => {
+    const board = todayBoardView(state(HANGUL_DAY));
+    expect(board.notice?.detail).toContain('한글날');
+    expect(String(board.listHeadline)).not.toContain('한글날');
+    expect(String(board.listHeadline)).not.toContain('사유');
+  });
+
+  it('운행은 했지만 오늘 편이 다 지난 경우에만 "끝났습니다" 문구를 쓴다(nextIsToday=false)', () => {
+    const board = todayBoardView(state('2026-10-05T23:59:00+09:00'));
+    expect(board.status).toBe('ready');
+    expect(board.nextIsToday).toBe(false);
+    expect(board.listHeadlineKind).toBe('today-over');
+    expect(String(board.listHeadline)).toContain('오늘 운행이 끝났습니다');
+    expect(String(board.listHeadline)).toContain('내일');
+  });
+
+  it('정상 운행 중에는 머리 문구가 없고 목록을 그린다', () => {
+    const board = todayBoardView(state(MORNING));
+    expect(board.status).toBe('ready');
+    expect(board.listHeadline).toBeNull();
+    expect(board.listHeadlineKind).toBeNull();
+    expect(board.listVisible).toBe(true);
+  });
+});
+
+describe('T13 심플화 — 목록 상한 5편', () => {
+  it('목록은 5편까지만 그리고 나머지는 "더 보기"로 분리한다', () => {
+    const board = todayBoardView(state(EARLY));
+    expect(BOARD_LIST_LIMIT).toBe(5);
+    expect(board.list).toHaveLength(5);
+    expect(board.rest).toHaveLength(board.events.length - 5);
+    expect(board.hasMore).toBe(true);
+  });
+});
+
+describe('T13 결함 B — 미해석 경고는 홈 1줄·상세는 접힘', () => {
+  it('요약은 "원본 표기 N건은 자동 해석하지 못했습니다 — 자세히 보기" 한 줄 형식이다', () => {
+    const board = todayBoardView(state(EARLY));
+    expect(board.warnings.length).toBeGreaterThan(0);
+    expect(board.warningsCount).toBe(board.warnings.length);
+    expect(board.warningsSummary).toBe(
+      `원본 표기 ${String(board.warnings.length)}건은 자동 해석하지 못했습니다 — 자세히 보기`,
+    );
+    // 요약은 정말 "한 줄"이어야 한다(줄바꿈·목록 구분자 없음).
+    expect(String(board.warningsSummary).split('\n')).toHaveLength(1);
+  });
+
+  it('미해석 항목이 없으면 요약도 없다(빈 경고 배너를 띄우지 않는다)', () => {
+    const board = todayBoardView(state(EARLY));
+    expect(board.warningsSummary === null).toBe(board.warnings.length === 0);
+  });
+
+  it('"0:15"(소요시간)는 경고가 아니라 특이사항 주석으로 해석된다', () => {
+    const board = todayBoardView(state(EARLY));
+    expect(board.warnings.some((warning) => warning.includes('0:15'))).toBe(false);
+    const first = board.events.find((event) => event.routeId === 'r-asan' && event.departure === '08:00');
+    expect(first?.notes).toContain('0:15');
+  });
+});
+
+describe('T13 — 접힘 제목에 오늘 요일 명시(옵션②)', () => {
+  it('주입된 clock 의 오늘 날짜·요일을 붙인다', () => {
+    expect(sourceDetailsSummary(Date.parse(HANGUL_DAY))).toBe('전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준');
+    expect(sourceDetailsSummary(Date.parse('2026-10-06T08:01:00+09:00'))).toBe(
+      '전체 시간표(원본) 보기 · 오늘 10월 6일 (화) 기준',
+    );
+  });
+
+  it('자정을 넘기면 다음 날 요일로 바뀐다(요일 자동 판정)', () => {
+    expect(sourceDetailsSummary(Date.parse('2026-10-09T23:59:00+09:00'))).toBe(
+      '전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준',
+    );
+    expect(sourceDetailsSummary(Date.parse('2026-10-10T00:01:00+09:00'))).toBe(
+      '전체 시간표(원본) 보기 · 오늘 10월 10일 (토) 기준',
+    );
   });
 });
