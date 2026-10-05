@@ -36,13 +36,28 @@ npm run dev           # 로컬 개발 · npm run build → GitHub Pages
 ## 개발 (로컬) — 설치 · 실행 · 테스트
 ```bash
 npm ci                 # 1) 설치 (package-lock.json 기준 · Node ≥ 26)
-npm run dev            # 2) 실행 (Vite 개발 서버)
+npm run dev            # 2) 실행 (Vite 개발 서버 · http://localhost:5173/)
 npm run test           # 3) 테스트 (vitest · tests/**)
 ```
 그 밖의 스크립트(이름 고정 — 다른 문서·워크플로가 이 이름을 쓴다):
 `npm run build`(`tsc --noEmit` + `vite build` → `dist/`) · `npm run preview`(빌드 결과 미리보기) ·
 `npm run test:watch`(감시 모드) · `npm run scrape`(원본 HTML → `data/timetable.json`) ·
 `npm run lint:boundary`(헥사고날 경계 검사 — `src/domain` 순수성·`src/application`→`adapters` 금지)
+
+### 앱 화면(T5) — 렌더 스모크 (헤드리스 Chrome, 의존성 0)
+```bash
+# 1) 빌드 (dist/) — 앱은 dist/data/timetable.json 을 상대경로로 읽는다
+npm run build
+# 2) 스모크 — 빌드본을 **Pages 하위 경로**(/sunmoon-shuttle/)로 서빙해 실제 화면을 검증
+node scripts/render_smoke.mjs                     # 스크린샷 .session-notes/T5-*.png · 실패 시 exit 1
+node scripts/render_smoke.mjs --base=/            # 루트 경로로 서빙(로컬 dev 형태)
+node scripts/render_smoke.mjs --now=2026-10-05T14:40:00+09:00   # 시각 고정(결정적 검증)
+# 3) 하위 경로 수동 확인(선택)
+npx vite preview --base=/sunmoon-shuttle/          # → http://localhost:4173/sunmoon-shuttle/
+```
+- 앱은 `./data/timetable.json` 을 **상대경로**로 요청한다(`vite.config.ts` 의 `base: './'`) → `/sunmoon-shuttle/` 하위 배포에서도 깨지지 않는다.
+- 디버그용 쿼리: `?now=<ISO8601 KST>`(시각 고정) · `?day=weekday|saturday|sunday` · `?route=<routeId>`(초기 선택).
+
 
 ## 도메인 규칙 — 다음 출발 계산 (T4)
 ```ts
