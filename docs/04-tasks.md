@@ -68,7 +68,7 @@
 | **T10 P3 게이트 검수**(AC-1~AC-8 총괄 직접 판정) | `t_6c427296` | projectcreator | done — AC-1~AC-6·AC-8 통과 / AC-7 조건부(`docs/03 §7`) |
 | **T11 개인정보처리방침 + 스토어 문구**(P3 게이트 미비 보완) | `t_0d8c3f13` | frontendprojectcreator | **done — 총괄 검수 통과**(커밋 `a2c49cb`: 방침 `public/privacy.html` 6,172B + `privacy.css` + `docs/05-store-listing.md` + 테스트 26케이스(총 197) + 푸터 링크 + SW 셸 프리캐시 / a11y 스모크 **46건·실패 0** 총괄 재실행) |
 
-| **T12 간편 UI 재설계(승인 V1)** — 지금 중심 홈 + 오늘 날짜·현재시각 자동 바인딩 | `t_178e58f7` | frontendprojectcreator | **ready(발행)** — 시안 정본 `docs/mockups/v1-now-first.html`(커밋 `881061e`). 배경: 사용자 지시 "원본 크롤링 미러링이 목적이 아님, 더 간편한 UI" + "오늘 날짜·시간 자동 바인딩" |
+| **T12 간편 UI 재설계(승인 V1)** — 지금 중심 홈 + 오늘 날짜·현재시각 자동 바인딩 | `t_178e58f7` | frontendprojectcreator | **done — 총괄 검수 통과**(커밋 `35fa369`·`8c5fc1a`·`37be52e`·`489acab`) — 시안 정본 `docs/mockups/v1-now-first.html`. 검증: `test` **216 passed** · `v1_smoke` **PASS 35/0**(오늘 실측 대체휴일 배너 · 자정 23:59→00:01 자동 전환) · `a11y` 46/0 · `verify:offline` PASS · domain/docs 0줄 |
 
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
