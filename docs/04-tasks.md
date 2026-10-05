@@ -2,7 +2,16 @@
 
 작성: ProjectCreator(총괄) · 2026-10-05 · 보드 slug: **`sunmoon-shuttle`** (생성 예정 — 결정 확정 후)
 
-## 결정 대기 (사용자) — 이것이 정해져야 태스크를 발행한다
+## 결정 확정 (사용자 "선문셔틀은 진행해", 2026-10-05) — 추천안 채택
+**실행 기록(총괄)**:
+- 새 저장소 **https://github.com/angalle/sunmoon-shuttle** (public — Pages 무료 조건) · 커밋 `c104735`(계획) · `e9d1184`(원본 스냅샷)
+- 보드 **`sunmoon-shuttle`** 생성(`--default-workdir` = 프로젝트 홈) · 워커 워크스페이스는 `workspace_kind=dir`
+- **원본 스냅샷 1회 반입**: 5개 노선 HTML(`data/raw/2026-2학기-<노선>-요일혼합.html`, 총 621KB) + 출처·절차 `data/raw/README.md` — **자동 크롤 없음**(1회, UA 명시, 간격 2s)
+- 크루: `apiprojectcreator`(파서·도메인) · `infraprojectcreator`(Pages/CI·Android 패키징) · `frontendprojectcreator`(UI·캐시·PWA) · **`app-qa` 신규 생성**(앱 검증 전용, 검증 독립성 확보)
+- 발행 태스크: **T1 `t_59a0eb90`**(사이트 매핑·수집 계약) · **T0 `t_37cdfc3e`**(골격) · **T2 `t_5ccc5cf5`**(파서+골든, T0 후) · **T4 `t_553d9eee`**(도메인 규칙, T0 후) · **T3 `t_68ff2524`**(Pages+수동 스냅샷 워크플로)
+- 앞으로: T5(UI)→T6(캐시)→T7(PWA·접근성)→T8(Android)→T9(iOS/PWA 검증, `app-qa`)→T10(총괄 AC 판정)
+
+다음 표는 **확정된 결정**이다(뒤집으려면 사용자 지시 필요).
 | # | 결정 | 선택지 | 총괄 추천 |
 |---|---|---|---|
 | **D1** | 저장소 | ① **새 저장소 `sunmoon-shuttle`** + 기존 저장소는 archived ② 기존 저장소에 새 코드(히스토리 꼬임) ③ 기존 저장소 강제 교체 | **①** — 기존 Java 히스토리·APK·노출된 키를 새 저장소로 끌고 갈 이유가 없다 |
