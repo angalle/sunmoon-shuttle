@@ -16,8 +16,9 @@ export interface NoticePanelProps {
 
 export function noticePanel(props: NoticePanelProps): HTMLElement {
   const sections: (HTMLElement | null)[] = [
-    subSection('운행 없는 날(원본 안내)', props.groups.noService),
-    subSection('대체 시간표(원본 안내)', props.groups.alternate),
+    // T14 — 섹션 제목에서 `(원본 안내)` 표현을 뺐다(문구는 texts.ts 단일 출처).
+    subSection(UI_TEXT.noticeNoServiceTitle, props.groups.noService),
+    subSection(UI_TEXT.noticeAlternateTitle, props.groups.alternate),
     subSection(UI_TEXT.noticeTitle, props.groups.notices),
     busRefSection(props.busRefs),
   ];

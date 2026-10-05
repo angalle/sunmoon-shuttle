@@ -65,13 +65,14 @@ export function upcomingBoardCard(props: UpcomingBoardCardProps): HTMLElement {
               rest.map((event) => nextRow(event)),
             ),
           ]),
-      view.warningsSummary === null
+      // T14 — 미해석 표기 안내 1줄. 주석성 표기(소요시간 등)는 값 단계에서 이미 걸러져 여기 오지 않는다.
+      view.warningsNotice === null
         ? null
         : el('p', {
             class: 'shuttle-board__warn',
             attrs: { role: 'status' },
-            dataset: { testid: 'next-bus-warnings', count: String(view.warningsCount) },
-            text: view.warningsSummary,
+            dataset: { testid: 'next-bus-warnings', count: String(view.warningsNoticeCount) },
+            text: view.warningsNotice,
           }),
     ],
   );

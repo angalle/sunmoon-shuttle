@@ -8,11 +8,7 @@
  *  - 표시 문자열: shared/lib/format (KST 변환은 domain/rules/kst 사용)
  */
 import { dayTypeFromDate, dayTypeLabel } from '../../../../../../domain/rules/dayType';
-import {
-  kstDayFromInstant,
-  WEEKDAY_LABELS,
-  type KstDay,
-} from '../../../../../../domain/rules/kst';
+import { kstDayFromInstant, type KstDay } from '../../../../../../domain/rules/kst';
 import {
   DEFAULT_NEXT_DEPARTURE_COUNT,
   nextDepartures,
@@ -24,14 +20,10 @@ import { tripDepartureTime } from '../../../../../../domain/entities/Trip';
 import type { DayType } from '../../../../../../domain/entities/DayType';
 import {
   ageHours,
-  ageHoursOfDate,
   formatAge,
-  formatAgeOfDate,
   formatKstClockLabel,
-  formatKstDate,
   formatKstDayLabel,
   formatKstInstant,
-  formatKstMonthDayWeekday,
   formatRemaining,
 } from '../../../shared/lib/format';
 import type { Notice, TripRow } from '../types/contract';
@@ -266,78 +258,37 @@ const EMPTY_SCHEDULE = {
   notices: [],
 } as const;
 
-/* ───────────────────────── 신선도 ───────────────────────── */
+/* ───────────────────────── 데이터 갱신 (T14 간소화) ───────────────────────── */
 
-export interface FreshnessRowView {
-  readonly key: string;
+/**
+ * 신선도 뷰(T14) — 예전에는 ①학교 페이지 최근 업데이트 ②우리 반영 시각 **2행 + 페이지별 상세**를
+ * 보여줬지만, 이제는 앱 기준 **한 줄**(`데이터 갱신: <반영 시각> (<경과>)`)만 만든다.
+ * 48시간 초과 판정은 그대로 남겨 색이 아니라 문구로 알린다(경고를 숨기지 않는다).
+ */
+export interface FreshnessView {
+  /** `데이터 갱신: 2026-10-05 14:39 (KST) (3시간 전)` — 화면에 그대로 쓰는 한 줄 */
+  readonly line: string;
   readonly label: string;
   readonly value: string;
   readonly age: string;
   readonly stale: boolean;
-}
-
-export interface PageFreshnessView {
-  readonly routeId: string;
-  readonly dayLabel: string;
-  readonly url: string;
-  readonly sourceUpdatedAt: string;
-  readonly age: string;
-  readonly stale: boolean;
-}
-
-export interface FreshnessView {
-  readonly rows: readonly FreshnessRowView[];
-  readonly warnings: readonly string[];
-  readonly pages: readonly PageFreshnessView[];
+  readonly warning: string | null;
 }
 
 export function freshnessView(model: TimetableModel, nowMs: number): FreshnessView {
   const source = model.source;
   const fetchedAge = ageHours(source.fetchedAt, nowMs);
-  const sourceAge = ageHoursOfDate(source.sourceUpdatedAt, nowMs);
-  const fetchedStale = fetchedAge !== null && fetchedAge > STALE_AFTER_HOURS;
-  const sourceStale = sourceAge !== null && sourceAge > STALE_AFTER_HOURS;
-
-  const rows: FreshnessRowView[] = [
-    {
-      key: 'source-updated-at',
-      label: UI_TEXT.freshnessSourceUpdatedLabel,
-      value: formatKstDate(source.sourceUpdatedAt, WEEKDAY_LABELS),
-      age: formatAgeOfDate(source.sourceUpdatedAt, nowMs),
-      stale: sourceStale,
-    },
-    {
-      key: 'fetched-at',
-      label: UI_TEXT.freshnessFetchedLabel,
-      value: formatKstInstant(source.fetchedAt),
-      age: formatAge(source.fetchedAt, nowMs),
-      stale: fetchedStale,
-    },
-  ];
-
-  const warnings: string[] = [];
-  if (fetchedStale) {
-    warnings.push(`${UI_TEXT.freshnessFetchedLabel}: ${formatAge(source.fetchedAt, nowMs)} — ${UI_TEXT.freshnessStaleWarn}`);
-  }
-  if (sourceStale) {
-    warnings.push(
-      `${UI_TEXT.freshnessSourceUpdatedLabel}: ${source.sourceUpdatedAt} (${formatAgeOfDate(source.sourceUpdatedAt, nowMs)}) — ${UI_TEXT.freshnessStaleWarn}`,
-    );
-  }
-
-  const pages: PageFreshnessView[] = source.pages.map((page) => {
-    const age = ageHoursOfDate(page.sourceUpdatedAt, nowMs);
-    return {
-      routeId: page.routeId,
-      dayLabel: DAY_TAB_LABEL[page.dayType],
-      url: page.url,
-      sourceUpdatedAt: page.sourceUpdatedAt,
-      age: formatAgeOfDate(page.sourceUpdatedAt, nowMs),
-      stale: age !== null && age > STALE_AFTER_HOURS,
-    };
-  });
-
-  return { rows, warnings, pages };
+  const stale = fetchedAge !== null && fetchedAge > STALE_AFTER_HOURS;
+  const value = formatKstInstant(source.fetchedAt);
+  const age = formatAge(source.fetchedAt, nowMs);
+  return {
+    label: UI_TEXT.freshnessFetchedLabel,
+    value,
+    age,
+    stale,
+    line: `${UI_TEXT.freshnessFetchedLabel}: ${value} (${age})`,
+    warning: stale ? `${UI_TEXT.freshnessFetchedLabel}: ${age} — ${UI_TEXT.freshnessStaleWarn}` : null,
+  };
 }
 
 /* ───────────────────────── 안내문 ───────────────────────── */
@@ -464,12 +415,17 @@ export interface TodayBoardView {
   readonly rest: readonly DepartureEventView[];
   readonly hasMore: boolean;
   readonly listLimit: number;
-  /** 원본 표기 중 해석하지 못한 항목 — 조용히 숨기지 않는다 */
+  /** 원본 표기 중 해석하지 못한 항목 — 조용히 숨기지 않는다(내부 값·증거용) */
   readonly warnings: readonly string[];
   /** 미해석 항목 수(= `warnings.length`) */
   readonly warningsCount: number;
-  /** 홈에 두는 **요약 1줄**(없으면 null) — 상세 목록은 접힘(`source-details`)으로 보낸다(T13 결함 B) */
-  readonly warningsSummary: string | null;
+  /**
+   * 홈에 두는 **안내 1줄**(없으면 null, T14) — 사용자 판단에 영향을 주는 경고
+   * (회차가 목록에서 빠질 수 있음)만 센다. 주석성 표기는 세지 않는다.
+   */
+  readonly warningsNoticeCount: number;
+  /** 위 개수의 안내 1줄. 0건이면 null(빈 경고 줄을 그리지 않는다). */
+  readonly warningsNotice: string | null;
 }
 
 /**
@@ -539,7 +495,8 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
       hasMore: false,
       warnings: [],
       warningsCount: 0,
-      warningsSummary: null,
+      warningsNoticeCount: 0,
+      warningsNotice: null,
     };
   }
 
@@ -600,7 +557,8 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
     hasMore: filtered.length > list.length,
     warnings: warningList,
     warningsCount: warningList.length,
-    warningsSummary: warningsSummaryOf(warningList.length),
+    warningsNoticeCount: warningList.filter(isJudgmentWarning).length,
+    warningsNotice: warningsNoticeOf(warningList),
   };
 }
 
@@ -628,18 +586,22 @@ function listHeadlineOf(
   return { kind: null, text: null };
 }
 
-/** 홈에 두는 미해석 요약 1줄(T13 결함 B) — 상세 목록은 접힘으로 보낸다. */
-function warningsSummaryOf(count: number): string | null {
+/** 홈에 두는 미해석 표기 안내 1줄(T14) — 사용자 판단에 영향을 주는 경고만. */
+function warningsNoticeOf(warnings: readonly string[]): string | null {
+  const count = warnings.filter(isJudgmentWarning).length;
   if (count === 0) return null;
-  return `${UI_TEXT.boardWarningsSummaryPrefix} ${String(count)}${UI_TEXT.boardWarningsSummarySuffix} — ${UI_TEXT.boardWarningsDetailHint}`;
+  return `${UI_TEXT.boardWarningsNoticePrefix}${String(count)}${UI_TEXT.boardWarningsNoticeCountSuffix}${UI_TEXT.boardWarningsNoticeDetail}`;
 }
 
 /**
- * 접힘(`source-details`) 제목 — **오늘 요일을 명시**한다(T13 옵션②).
- * 예: `전체 시간표(원본) 보기 · 오늘 10월 9일 (금) 기준` (주입된 clock 기준, 60초 갱신)
+ * 미해석 표기 분류(T14) — **사용자 판단에 영향을 주는 경고**만 화면으로 올린다.
+ * - 대상 ✅: 출발 시각이 없거나 형식이 깨져 **회차가 목록에서 빠질 수 있는** 경고.
+ * - 제외 ❌: `회차 특이사항을 해석하지 못했습니다(…)` 처럼 **주석성 표기**(예: `중간노선 전용`,
+ *   소요시간 `0:15`)만 못 읽은 경고 — 회차 시각에는 영향이 없어 화면에 내보내지 않는다.
+ *   (T14 지시: 주석성 표기는 아예 노출하지 않는다 — 내부 로그·증거로만.)
  */
-export function sourceDetailsSummary(nowMs: number): string {
-  return `${UI_TEXT.boardSourceDetailsSummary} · ${UI_TEXT.boardSourceDetailsTodayPrefix} ${formatKstMonthDayWeekday(nowMs)} ${UI_TEXT.boardSourceDetailsTodaySuffix}`;
+function isJudgmentWarning(warning: string): boolean {
+  return !warning.startsWith('회차 특이사항을 해석하지 못했습니다');
 }
 
 /** 도메인 반환 1편 + 원본 행(방향·도착·특이사항) → 화면 값. */

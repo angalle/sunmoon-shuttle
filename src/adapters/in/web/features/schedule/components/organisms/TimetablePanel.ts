@@ -2,6 +2,10 @@
  * 유기체: 시간표 패널 (features/schedule/components/organisms)
  * 노선 표시 + 상태(운행 중단 F2b / 이 요일 표 없음) + 원문 열 구성 표(F2 가변 열).
  * 표가 없을 때도 **빈 화면이 아니라 이유**를 보여준다.
+ *
+ * ⚠️ T14 — **홈(`SchedulePage`)에서 렌더하지 않는다**. 앱은 수집된 JSON 만 읽어 보여주는 앱이고,
+ *    학교 시간표 원문 표를 그대로 옮겨 그리지 않는다(사용자 지시 `원본은 왜 보여?`).
+ *    파일은 남겨 둔다(태스크 지시: 컴포넌트 파일은 남겨도 되지만 홈에서 렌더 금지).
  */
 import { el } from '../../../../shared/lib/dom';
 import { badge } from '../../../../shared/ui/atoms/Badge';
@@ -43,14 +47,14 @@ export function timetablePanel(props: TimetablePanelProps): HTMLElement {
 
   let body: HTMLElement;
   if (props.table === null) {
-    // 운행 중단이면 원본 문구를, 아니면 "원본에 이 요일 표가 없다"를 명시한다.
+    // 운행 중단이면 안내 문구를, 아니면 "이 요일 표가 없다"를 명시한다(T14: `원본` 표현 제거).
     body =
       route.status === 'suspended'
         ? el('p', { class: 'shuttle-card__reason', dataset: { testid: 'suspended-reason' } }, [
-            el('strong', { text: '원본 안내: ' }),
+            el('strong', { text: '안내: ' }),
             route.suspendedReason ?? UI_TEXT.routeStatusSuspended,
           ])
-        : el('p', { class: 'shuttle-banner shuttle-banner--info', dataset: { testid: 'no-table' }, text: `${route.name} 노선은 원본에 ${dayLabel} 표가 없습니다.` });
+        : el('p', { class: 'shuttle-banner shuttle-banner--info', dataset: { testid: 'no-table' }, text: `${route.name} 노선은 ${dayLabel} 표가 없습니다.` });
   } else {
     body = el('div', { class: 'shuttle-table-scroll' }, [
       timetableTable({

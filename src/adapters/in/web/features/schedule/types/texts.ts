@@ -2,15 +2,22 @@
  * UI 문구 상수 (features/schedule/types) — 화면에 나가는 한국어 문구는 전부 여기서 온다
  * (스킬 §4: 하드코딩 문구는 feature 의 types/constants 에 모은다).
  *
- * ⚠️ 판정 문구 금지: 안내문·사유는 **원본 문구 그대로**(도메인이 돌려준 `reason` 등) 표시하고,
+ * ⚠️ 판정 문구 금지: 안내문·사유는 **학교 안내문 원문**(도메인이 돌려준 `reason` 등) 표시하고,
  *    여기에는 우리가 붙이는 **틀 문구**만 둔다.
+ *
+ * ⚠️ T14 — 앱 UI 에서 "읽어 온 출처"를 내세우지 않는다:
+ *    이 앱은 **수집된 JSON 만** 읽어 보여준다(원본 사이트를 실시간으로 읽지 않는다).
+ *    그래서 화면 문구에 `원본`(표·페이지·최근 업데이트) 표현을 쓰지 않는다 —
+ *    출처 표시는 대표 페이지 1줄(`sourceLinePrefix` + 링크 1개)로만 한다.
+ *    (내부 주석·로그에서 `원본` 은 계속 쓴다 — 코드 추적용.)
  */
 
 export const UI_TEXT = {
   appTitle: '선문대 셔틀버스 시간표',
-  appSubtitle: '비공식 앱 — 아래 원본 시간표를 그대로 보여줍니다',
+  /** T14 — 앱이 하는 일을 그대로 말한다(옛 문구: `비공식 앱 — 아래 원본 시간표를 그대로 보여줍니다`). */
+  appSubtitle: '지금 탈 수 있는 셔틀버스를 바로 보여줍니다',
   /** 한/영 병기(T7) — 영어 문장은 화면에서 `lang="en"` 으로 표시한다. */
-  appSubtitleEn: 'Unofficial PWA — the original timetable is shown as-is.',
+  appSubtitleEn: 'Shows the shuttle you can take right now.',
   skipToContent: '본문으로 건너뛰기',
   loading: '시간표를 불러오는 중…',
 
@@ -29,45 +36,50 @@ export const UI_TEXT = {
   routeOffDay: '이 요일 운행 없음',
   routeNoTable: '이 요일 표 없음',
 
+  /* 표 셀 문구 — 앱 UI 에서 표를 그리지 않게 됐지만(T14) 표 계약은 유지한다. */
   tableEmptyCell: '—',
-  tableEmptyCellSr: '미운행(원본 Χ)',
-  tableCaptionPrefix: '원본 시간표',
-  tableCaptionNote: '원본 열 구성을 그대로 표시합니다. “—” 는 미운행(원본 Χ), 빈 칸은 원본이 비어 있는 칸입니다.',
+  tableEmptyCellSr: '미운행',
+  tableCaptionPrefix: '시간표',
+  tableCaptionNote: '표의 열 구성을 그대로 표시합니다. “—” 는 미운행(Χ 표기), 빈 칸은 값이 비어 있는 칸입니다.',
 
   nextBusTitle: '다음 버스',
   nextBusListTitle: '이어서 오는 버스',
   nextBusSuspendedTitle: '운행 중단 노선입니다',
-  nextBusSuspendedDetail: '원본 안내 문구를 그대로 표시합니다. 운행 재개 여부는 아래 문의처로 확인해 주세요.',
+  nextBusSuspendedDetail: '안내 문구를 그대로 표시합니다. 운행 재개 여부는 아래 문의처로 확인해 주세요.',
   nextBusNoServiceTitle: '오늘은 셔틀버스 운행이 없습니다',
   nextBusNoServiceNextPrefix: '다음 운행',
   nextBusNoServiceNone: '앞으로 찾아본 기간 안에 다음 운행 회차가 없습니다.',
   nextBusEmptyTitle: '이 요일 시간표에 안내할 회차가 없습니다',
-  nextBusEmptyDetail: '원본 표를 확인하거나 다른 노선·요일을 선택해 주세요.',
+  nextBusEmptyDetail: '다른 노선·요일을 선택해 주세요.',
   nextBusUnknownRouteTitle: '노선 정보를 찾을 수 없습니다',
   nextBusUnknownRouteDetail: '등록된 노선에서 선택해 주세요.',
-  nextBusWarningsTitle: '원본 표기 중 해석하지 못한 항목이 있습니다',
-  nextBusWarningsDetail: '표시한 회차는 원본 표 기준이며, 아래 항목은 사람이 확인해야 합니다.',
+  nextBusWarningsTitle: '해석하지 못한 표기가 있습니다',
+  nextBusWarningsDetail: '표시한 회차는 시간표 기준이며, 아래 항목은 사람이 확인해야 합니다.',
 
-  freshnessTitle: '데이터 신선도',
-  freshnessSourceUpdatedLabel: '원본 페이지 최근 업데이트',
-  freshnessFetchedLabel: '우리 반영 시각',
+  /* 데이터 신선도(T14 간소화) — 앱 기준 한 줄(`데이터 갱신: …`). */
+  freshnessTitle: '최신 데이터',
+  freshnessFetchedLabel: '데이터 갱신',
   freshnessStaleWarn: '48시간이 지났습니다 — 최신 시간표인지 확인이 필요합니다.',
-  freshnessPageDetail: '페이지별 원본 최근 업데이트',
 
-  suspectTitle: '운행 안내(원본)',
-  noticeTitle: '이용 안내(원본)',
-  busRefTitle: '시내버스 참고(원본)',
+  suspectTitle: '운행 안내',
+  noticeTitle: '이용 안내',
+  noticeNoServiceTitle: '운행 없는 날 안내',
+  noticeAlternateTitle: '대체 시간표 안내',
+  busRefTitle: '시내버스 참고',
   busRefColumns: { line: '노선', stop: '승강장', to: '방면' },
-  noNotices: '원본에서 추출된 안내문이 없습니다.',
+  noNotices: '표시할 안내문이 없습니다.',
 
   sourceTitle: '출처·고지',
-  unofficialNotice: '이 앱은 학교 공식 앱이 아닙니다(비공식). 시간표 저작권은 학교에 있으며, 아래 원본 페이지를 출처로 표시합니다.',
-  sourceLinkLabel: '원본 페이지 열기',
-  sourcePagesLabel: '노선·요일별 원본 페이지',
+  unofficialNotice:
+    '이 앱은 학교 공식 앱이 아닙니다(비공식). 시간표 저작권은 학교에 있으며, 학교 안내 페이지를 출처로 표시합니다.',
+  /** 출처 1줄 — 대표 페이지만 링크한다(T14: 노선·요일별 링크 목록 금지). */
+  sourceLinePrefix: '출처',
+  sourceLineLabel: '선문대학교 셔틀버스 안내 페이지',
+  sourceLinkLabel: '학교 안내 페이지 열기',
   /** 개인정보처리방침 정적 페이지(public/privacy.html) — 스토어 제출 요건(T11). */
   privacyLinkLabel: '개인정보처리방침',
   contactsLabel: '문의처',
-  contactsMissing: '원본에서 문의처를 찾지 못했습니다.',
+  contactsMissing: '문의처를 찾지 못했습니다.',
   dataErrorTitle: '데이터를 불러오지 못했습니다',
   dataErrorRetry: '다시 시도',
   dataErrorDetailPrefix: '원인',
@@ -82,7 +94,7 @@ export const UI_TEXT = {
   /* ── 간편 UI(V1, T12) — 지금 중심 홈. 문구 틀만 여기 두고 값은 도메인 결과에서 온다. ── */
   /** 상태줄(오늘 날짜·현재 시각) — 값은 `formatKstClockLabel`(도메인 KST 규칙) */
   clockLabelPrefix: '오늘',
-  /** 공지 배너 ① — 운행 없음. 사유는 `resolveDayService().reason`(원본 안내문 원문) */
+  /** 공지 배너 ① — 운행 없음. 사유는 `resolveDayService().reason`(안내문 원문) */
   serviceNoServiceTitle: '오늘 셔틀버스 운행이 없습니다',
   serviceReasonPrefix: '사유',
   /** 공지 배너 ② — 대체 시간표. `일요일 시간표로 운행합니다` 처럼 요일 라벨을 앞에 붙인다 */
@@ -113,25 +125,19 @@ export const UI_TEXT = {
    */
   boardListNoService: '오늘은 운행이 없습니다',
   /**
-   * 미해석 경고 요약(T13 결함 B) — 홈에는 **1줄만** 두고 상세 목록은 접힘(`source-details`)으로 보낸다.
-   * 예: `원본 표기 4건은 자동 해석하지 못했습니다 — 자세히 보기`
+   * 미해석 표기 안내(T14) — **사용자 판단에 영향을 줄 때만** 홈 1줄.
+   * `TodayBoardView.warningsNotice` 는 "회차가 목록에서 빠질 수 있는" 경고만 골라 이 틀에 넣는다
+   * (T14 지시: 소요시간 `0:15` 같은 주석성 표기는 노출하지 않는다 — 내부 로그·증거로만).
    */
-  boardWarningsSummaryPrefix: '원본 표기',
-  boardWarningsSummarySuffix: '건은 자동 해석하지 못했습니다',
-  boardWarningsDetailHint: '자세히 보기',
-  /** 접힘 안 상세 목록 제목·안내 */
-  boardWarningsDetailsTitle: '원본 표기 중 해석하지 못한 항목',
-  boardWarningsDetailsNote: '아래 항목은 사람이 확인해야 합니다. 표시한 회차는 원본 표 기준입니다.',
+  boardWarningsNoticePrefix: '시각을 해석하지 못한 회차 ',
+  boardWarningsNoticeCountSuffix: '건은 목록에서 빠져 있을 수 있습니다',
+  boardWarningsNoticeDetail: ' — 아래 출처의 학교 안내 페이지에서 확인해 주세요.',
   /** 다른 날 미리보기(요일 탭 · 보조) */
   boardOtherDaysTitle: '다른 날 미리보기',
-  /** 원본 전체표 접힘 — 제목에 **오늘 요일**을 명시한다(T13 옵션②: 별도 섹션 없이 접힘 제목만) */
-  boardSourceDetailsSummary: '전체 시간표(원본) 보기',
-  boardSourceDetailsTodayPrefix: '오늘',
-  boardSourceDetailsTodaySuffix: '기준',
 } as const;
 
 /**
- * 데이터를 못 읽었을 때 안내할 원본 링크(폴백).
+ * 데이터를 못 읽었을 때 안내할 학교 안내 페이지(폴백).
  * 평소에는 JSON 의 `source.url` 을 쓰고, **데이터 자체를 못 읽은 경우에만** 이 값을 쓴다
  * (T1 실측: 셔틀버스 안내 최상위 페이지 — docs/01 §8 부록).
  */

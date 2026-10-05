@@ -7,6 +7,9 @@
  * ③ 운행 없음이면 **사유(원본 안내문 원문)를 먼저** 보여준다.
  * ④ `unknown-route`·`empty-schedule` 등도 사용자 문구로 표시(빈 화면·크래시 금지).
  * 색만으로 상태를 전달하지 않는다 — 모든 배지에 문구가 있고, 상태는 `data-status` 로도 남긴다(검증용).
+ *
+ * ⚠️ T14 — **홈에서 렌더하지 않는다**(노선 선택 진입점 제거). 홈의 "다음 출발"은 노선을 통합한
+ *    `UpcomingBoardCard` 가 맡는다. 파일은 남겨 둔다(태스크 지시).
  */
 import { el, srOnly } from '../../../../shared/lib/dom';
 import type { NextBusTone, NextBusView } from '../../store/selectors';
@@ -39,11 +42,11 @@ export function nextBusCard(props: NextBusCardProps): HTMLElement {
         class: 'shuttle-header__subtitle',
         text: `${props.routeName} · ${props.dayLabel}`,
       }),
-      // ③ 사유(원본 문구)를 먼저
+      // ③ 사유(안내문 원문)를 먼저 — T14: `원본 안내` 대신 `안내` 로 표기한다.
       view.reason === null
         ? null
         : el('p', { class: 'shuttle-card__reason', dataset: { testid: 'next-bus-reason' } }, [
-            el('strong', { text: '원본 안내: ' }),
+            el('strong', { text: '안내: ' }),
             view.reason,
           ]),
       el(

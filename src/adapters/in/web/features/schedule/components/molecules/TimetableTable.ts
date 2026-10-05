@@ -3,6 +3,9 @@
  * - 열 구성은 **데이터가 준 원문 헤더(`columns`)를 그대로** 렌더한다(노선·요일별로 다름 — F2).
  * - 의미 구조 유지: `<table>` + `<caption>` + `<th scope="col">` → 스크린리더가 표로 읽는다.
  * - `null`(원본 Χ) 셀은 빈칸이 아니라 `—` + 스크린리더 문구로 **구분 표시**한다(빈 문자열과 구분).
+ *
+ * ⚠️ T14 — **홈에서 렌더하지 않는다**(`TimetablePanel` 과 같은 사유: 앱 UI 에서 학교 표를 그대로 옮겨
+ *    그리지 않는다). 파일은 태스크 지시대로 남겨 둔다.
  */
 import { el, srOnly } from '../../../../shared/lib/dom';
 import type { TripRow } from '../../types/contract';

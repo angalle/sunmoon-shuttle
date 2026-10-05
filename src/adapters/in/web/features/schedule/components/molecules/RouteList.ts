@@ -2,6 +2,9 @@
  * 분자: 노선 목록 (features/schedule/components/molecules)
  * 노선 목록은 **데이터에서 온다**(하드코딩 금지). 운행 중단(F2b)·해당 요일 표 없음(offDays)을
  * 목록에서 조용히 숨기지 않고 배지로 표시한다.
+ *
+ * ⚠️ T14 — **홈에서 렌더하지 않는다**. 홈은 노선을 통합한 "지금 탈 수 있는 셔틀버스" 보드다
+ *    (방향 칩 + 오늘 남은 출발 목록). 노선별 카드·표로 들어가는 진입점을 없앴다.
  */
 import { el } from '../../../../shared/lib/dom';
 import { badge } from '../../../../shared/ui/atoms/Badge';
