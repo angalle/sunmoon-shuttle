@@ -6,23 +6,27 @@
 :root {
   color-scheme: light dark;
 
-  /* 표면·배경 */
-  --color-bg: #f4f6f9;
+  /*
+   * 표면·배경 (T13 — 밝고 깨끗한 톤)
+   * 페이지 배경을 회색(#f4f6f9)에서 **흰색**으로 올리고, 표면 구분은 얇은 테두리와
+   * 보조 표면(#f6f8fb)만으로 한다(그림자 최소화). 실측 대비는 tokens 테스트·a11y 스모크가 낸다.
+   */
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-alt: #eaeef4;
-  --color-border: #c3ccd7;
-  /* 강한 테두리 = 배지·버튼의 경계(정보를 담는 선) → 표면 대비 ≥ 3:1 (T7 실측 #717d88) */
-  --color-border-strong: #717d88;
+  --color-surface-alt: #f6f8fb;
+  --color-border: #e8edf3;
+  /* 강한 테두리 = 배지·버튼의 경계(정보를 담는 선) → 표면 대비 ≥ 3:1 (T13 실측 #7b8794 = 3.66:1) */
+  --color-border-strong: #7b8794;
 
-  /* 글자 (대비 실측치는 .session-notes/T5-증거.md 참조) */
-  --color-text: #17202a;          /* on surface 15.9:1 */
-  --color-text-muted: #4c5a68;    /* on surface 8.1:1 */
-  --color-text-subtle: #5c6b7a;   /* on surface-alt 6.4:1 */
+  /* 글자 (대비 실측치는 tests/web/a11y_tokens.test.ts · .session-notes/T13-증거.md 참조) */
+  --color-text: #0f1720;          /* on surface 18.05:1 */
+  --color-text-muted: #5a6b7c;    /* on surface  5.48:1 / on surface-alt 5.16:1 */
+  --color-text-subtle: #5a6b7c;   /* on surface-alt 5.16:1 */
 
   /* 강조·링크 */
-  --color-accent: #0b5497;        /* on surface 7.2:1 */
+  --color-accent: #0b5497;        /* on surface 7.69:1 (T13 재실측) */
   --color-accent-hover: #083d6f;
-  --color-on-accent: #ffffff;     /* on accent 7.2:1 */
+  --color-on-accent: #ffffff;     /* on accent 7.69:1 */
 
   /* 상태 (색만으로 전달 금지 — 항상 문구·기호를 함께 둔다) */
   --color-ok-bg: #e3f3e8;
@@ -47,11 +51,11 @@
   --space-6: 2rem;
   --space-7: 3rem;
 
-  /* 반지름·그림자 */
+  /* 반지름·그림자 — 밝은 톤에서는 그림자를 최소화하고 테두리로 정보를 담는다(T13) */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
-  --shadow-1: 0 1px 2px rgba(16, 24, 32, 0.08), 0 2px 8px rgba(16, 24, 32, 0.06);
+  --shadow-1: 0 1px 2px rgba(16, 24, 32, 0.04);
 
   /* 타이포 */
   --font-family-base: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
@@ -85,6 +89,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /*
+     * 다크 값은 T13 에서 **재실측**했다(tests/web/a11y_tokens.test.ts + a11y 스모크 46건·실패 0).
+     * 라이트가 밝은 톤이 되어도 다크는 "어두운 화면" 요구를 그대로 유지한다 — 값 변경 없음.
+     */
     --color-bg: #12161b;
     --color-surface: #1b2129;
     --color-surface-alt: #222a33;

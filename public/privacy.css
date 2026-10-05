@@ -12,12 +12,12 @@
 :root {
   color-scheme: light dark;
 
-  /* 표면·글자·강조·테두리 (tokens.css 라이트 값과 동일) */
-  --color-bg: #f4f6f9;
-  --color-text: #17202a;
-  --color-text-muted: #4c5a68;
+  /* 표면·글자·강조·테두리 (tokens.css 라이트 값과 동일 — T13 밝은 톤) */
+  --color-bg: #ffffff;
+  --color-text: #0f1720;
+  --color-text-muted: #5a6b7c;
   --color-accent: #0b5497;
-  --color-border: #c3ccd7;
+  --color-border: #e8edf3;
 
   /* 간격 */
   --space-1: 0.25rem;

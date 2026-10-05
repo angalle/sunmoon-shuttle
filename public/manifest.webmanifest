@@ -10,7 +10,7 @@
   "display": "standalone",
   "orientation": "any",
   "theme_color": "#0b5497",
-  "background_color": "#f4f6f9",
+  "background_color": "#ffffff",
   "categories": ["travel", "navigation", "utilities"],
   "icons": [
     {
