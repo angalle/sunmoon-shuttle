@@ -1,0 +1,996 @@
+--------- beginning of main
+10-05 18:39:37.833 I/ogle.android.as( 1337): Background concurrent mark compact GC freed 2841KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 5389KB/10MB, paused 124us,3.046ms total 104.117ms
+10-05 18:39:37.833 W/ogle.android.as( 1337): Reducing the number of considered missed Gc histogram windows from 139 to 100
+10-05 18:39:37.838 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:39:37.838 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:39:37.838 I/AiAiEcho( 1337): AppFetcherImpl onPackageChanged com.angalle.sunmoonshuttle.
+10-05 18:39:37.839 I/AiAiEcho( 1337): AppIndexer Package:[com.angalle.sunmoonshuttle] UserProfile:[0] Enabled:[true].
+10-05 18:39:37.839 I/AiAiEcho( 1337): AppFetcherImplV2 updateApps package:[com.angalle.sunmoonshuttle], userId:[0], reason:[package is updated.].
+10-05 18:39:37.839 D/PackageUpdatedTask( 1092): Package updated: mOp=UPDATE packages=[com.angalle.sunmoonshuttle]
+10-05 18:39:37.855 E/SmsApplication(  978): com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+--------- beginning of system
+10-05 18:39:37.855 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 10137, code = READ_CELL_BROADCASTS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.856 E/CellBroadcastUtils(  978): getDefaultCellBroadcastReceiverPackageName: no package found
+10-05 18:39:37.856 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = READ_SMS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.856 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = RECEIVE_SMS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.856 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = RECEIVE_WAP_PUSH, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.856 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = SEND_SMS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.856 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = READ_CELL_BROADCASTS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.856 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/YouTube/YouTube.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGmail/PrebuiltGmail.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~fK_bCCgWQxXGqF-8J72PLQ==/com.angalle.sunmoonshuttle-srM1TKJ3N0gBeGPrHsKe3g==/base.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleDialer/GoogleDialer.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Drive/Drive.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Maps/Maps.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleContacts/GoogleContacts.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~l9s_Hbzf7a_LaUZJH4tRqQ==/com.android.chrome-K4Q89Hb0g7_dTirgqECxeg==/Chrome.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/CalendarGooglePrebuilt/CalendarGooglePrebuilt.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DocumentsUIGoogle/DocumentsUIGoogle.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/SettingsGoogle/SettingsGoogle.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '/product/overlay/SettingsGoogle__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Camera2/Camera2.apk' with 1 weak references
+10-05 18:39:37.857 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Photos/Photos.apk' with 1 weak references
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/YouTubeMusicPrebuilt/YouTubeMusicPrebuilt.apk' with 1 weak references
+10-05 18:39:37.858 I/s.nexuslauncher( 1092): Background concurrent mark compact GC freed 4029KB AllocSpace bytes, 20(1756KB) LOS objects, 49% free, 8138KB/15MB, paused 112us,545us total 127.471ms
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltDeskClockGoogle/PrebuiltDeskClockGoogle.apk' with 1 weak references
+10-05 18:39:37.858 W/s.nexuslauncher( 1092): Reducing the number of considered missed Gc histogram windows from 1550 to 100
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/SafetyHubPrebuilt/SafetyHubPrebuilt.apk' with 1 weak references
+10-05 18:39:37.858 E/SmsApplication(  978): com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/SystemUIGoogle/SystemUIGoogle.apk' with 1 weak references
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/SystemUIGoogle__sdk_gphone64_arm64__auto_generated_rro_vendor.apk' with 1 weak references
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '/product/overlay/SystemUIGoogle__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:37.858 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '/product/overlay/SystemUIEmulationPixel6/SystemUIEmulationPixel6Overlay.apk' with 1 weak references
+10-05 18:39:37.858 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 10137, code = READ_CELL_BROADCASTS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.858 I/s.nexuslauncher( 1092): WaitForGcToComplete blocked ProfileSaver on Background for 59.917ms
+10-05 18:39:37.858 E/CellBroadcastUtils(  978): getDefaultCellBroadcastReceiverPackageName: no package found
+10-05 18:39:37.858 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = READ_SMS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.858 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = RECEIVE_SMS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.858 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = RECEIVE_WAP_PUSH, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.858 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = SEND_SMS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.859 W/AppOpService(  568): Ignored setUidMode call for runtime permission app op: uid = 1001, code = READ_CELL_BROADCASTS, mode = allow, callingUid = 1001, oldMode = allow
+10-05 18:39:37.860 D/nativeloader( 7754): Configuring clns-shared-7 for other apk /system/app/KeyChain/KeyChain.apk. target_sdk_version=35, uses_libraries=, library_path=/system/app/KeyChain/lib/arm64:/system/app/KeyChain/KeyChain.apk!/lib/arm64-v8a:/system/lib64:/system_ext/lib64, permitted_path=/data:/mnt/expand:/data/user/0/com.android.keychain:/system/app/KeyChain:/system/lib64:/system_ext/lib64
+10-05 18:39:37.863 D/ImsResolver(  978): maybeAddedImsService, packageName: com.angalle.sunmoonshuttle
+10-05 18:39:37.864 W/System  ( 1092): A resource failed to call release. 
+10-05 18:39:37.865 W/System  ( 1092): A resource failed to call release. 
+10-05 18:39:37.865 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/CalendarGooglePrebuilt/CalendarGooglePrebuilt.apk' with 1 weak references
+10-05 18:39:37.865 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/SystemUIGoogle/SystemUIGoogle.apk' with 1 weak references
+10-05 18:39:37.865 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/SystemUIGoogle__sdk_gphone64_arm64__auto_generated_rro_vendor.apk' with 1 weak references
+10-05 18:39:37.865 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '/product/overlay/SystemUIGoogle__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:37.865 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '/product/overlay/SystemUIEmulationPixel6/SystemUIEmulationPixel6Overlay.apk' with 1 weak references
+10-05 18:39:37.866 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/WellbeingPrebuilt/WellbeingPrebuilt.apk' with 1 weak references
+10-05 18:39:37.866 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/Velvet/Velvet.apk' with 1 weak references
+10-05 18:39:37.866 W/s.nexuslauncher( 1092): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~fK_bCCgWQxXGqF-8J72PLQ==/com.angalle.sunmoonshuttle-srM1TKJ3N0gBeGPrHsKe3g==/base.apk' with 1 weak references
+10-05 18:39:37.867 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/WellbeingPrebuilt/WellbeingPrebuilt.apk' with 1 weak references
+10-05 18:39:37.867 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/Velvet/Velvet.apk' with 1 weak references
+10-05 18:39:37.867 W/ogle.android.as( 1337): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/SettingsIntelligenceGooglePrebuilt/SettingsIntelligenceGooglePrebuilt.apk' with 1 weak references
+10-05 18:39:37.873 D/CompatChangeReporter( 7754): Compat change id reported: 202956589; UID 1000; state: ENABLED
+10-05 18:39:37.875 V/GraphicsEnvironment( 7754): Currently set values for:
+10-05 18:39:37.875 V/GraphicsEnvironment( 7754):   angle_gl_driver_selection_pkgs=[]
+10-05 18:39:37.875 V/GraphicsEnvironment( 7754):   angle_gl_driver_selection_values=[]
+10-05 18:39:37.875 V/GraphicsEnvironment( 7754): Global.Settings values are invalid: number of packages: 0, number of values: 0
+10-05 18:39:37.876 V/GraphicsEnvironment( 7754): Neither updatable production driver nor prerelease driver is supported.
+10-05 18:39:37.884 D/CompatChangeReporter(  568): Compat change id reported: 311208629; UID 1000; state: ENABLED
+10-05 18:39:37.892 I/system_server(  568): Background concurrent mark compact GC freed 21MB AllocSpace bytes, 64(1388KB) LOS objects, 46% free, 27MB/51MB, paused 389us,917us total 162.579ms
+10-05 18:39:37.894 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk' with 1 weak references
+10-05 18:39:37.894 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGmail/PrebuiltGmail.apk' with 1 weak references
+10-05 18:39:37.894 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Drive/Drive.apk' with 1 weak references
+10-05 18:39:37.894 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/CalendarGooglePrebuilt/CalendarGooglePrebuilt.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/app/AccessibilityMenu/AccessibilityMenu.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '/product/overlay/AccessibilityMenu__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/LatinIMEGooglePrebuilt/LatinIMEGooglePrebuilt.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/Velvet/Velvet.apk' with 1 weak references
+10-05 18:39:37.895 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~fK_bCCgWQxXGqF-8J72PLQ==/com.angalle.sunmoonshuttle-srM1TKJ3N0gBeGPrHsKe3g==/base.apk' with 1 weak references
+10-05 18:39:37.896 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleTTS/GoogleTTS.apk' with 1 weak references
+10-05 18:39:37.896 W/system_server(  568): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/InputDevices/InputDevices.apk' with 1 weak references
+10-05 18:39:37.903 I/ndroid.systemui(  825): Background concurrent mark compact GC freed 13MB AllocSpace bytes, 120(2400KB) LOS objects, 49% free, 16MB/33MB, paused 314us,1.209ms total 167.151ms
+10-05 18:39:37.903 W/ndroid.systemui(  825): Reducing the number of considered missed Gc histogram windows from 120 to 100
+10-05 18:39:37.904 W/ndroid.systemui(  825): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~fK_bCCgWQxXGqF-8J72PLQ==/com.angalle.sunmoonshuttle-srM1TKJ3N0gBeGPrHsKe3g==/base.apk' with 1 weak references
+10-05 18:39:37.939 W/ActivityTaskManager(  568): callingPackage for (uid=2000, pid=7777) has no WPC
+10-05 18:39:37.939 W/OptProp (  568): Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-05 18:39:37.939 W/OptProp (  568): Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-05 18:39:37.939 W/OptProp (  568): Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+10-05 18:39:37.939 V/GrammaticalInflectionUtils(  568): AttributionSource: AttributionSource { uid = 10208, packageName = null, attributionTag = null, token = android.os.Binder@577ea3a, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+10-05 18:39:37.939 W/OptProp (  568): Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-05 18:39:37.940 W/OptProp (  568): Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-05 18:39:37.942 I/ActivityTaskManager(  568): Add Task{8c33ca7 #67 type=standard A=10208:com.angalle.sunmoonshuttle} to hidden list because adding Task{b4d7f69 #68 type=standard A=10208:com.angalle.sunmoonshuttle}
+10-05 18:39:37.942 V/WindowManagerShell(  825): Transition requested (#28): android.os.BinderProxy@7fcabf9 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=68 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity } baseActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} topActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} origActivity=null realActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} numActivities=1 lastActiveTime=15801411 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@e91473e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{f84699f com.angalle.sunmoonshuttle.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2400 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 28 }
+10-05 18:39:37.942 I/ActivityTaskManager(  568): START u0 {flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+10-05 18:39:37.943 V/GrammaticalInflectionUtils(  568): AttributionSource: AttributionSource { uid = 10208, packageName = null, attributionTag = null, token = android.os.Binder@577ea3a, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+10-05 18:39:37.943 I/TopTaskTracker( 1092): onTaskMovedToFront: (moved taskInfo to front) taskId=68, baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity }
+10-05 18:39:37.943 D/SplashScreenView(  825): Build android.window.SplashScreenView{b72e131 V.E...... ......ID 0,0-0,0}
+10-05 18:39:37.943 D/SplashScreenView(  825): Icon: view: android.widget.ImageView{d6d0016 V.ED..... ......I. 0,0-0,0 #1020504 android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@473ed97 size: 420
+10-05 18:39:37.943 D/SplashScreenView(  825): Branding: view: android.view.View{18a5b84 G.ED..... ......I. 0,0-0,0 #1020503 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+10-05 18:39:37.947 D/Zygote  (  374): Forked child process 7780
+10-05 18:39:37.947 I/ActivityManager(  568): Start proc 7780:com.angalle.sunmoonshuttle/u0a208 for next-top-activity {com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity}
+10-05 18:39:37.949 D/Capacitor( 4325): App paused
+10-05 18:39:37.961 I/.sunmoonshuttle( 7780): Late-enabling -Xcheck:jni
+10-05 18:39:37.962 D/CoreBackPreview(  568): Window{f007afa u0 Splash Screen com.angalle.sunmoonshuttle}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4b4cc6, mPriority=0, mIsAnimationCallback=false}
+10-05 18:39:37.970 V/WindowManagerShell(  825): onTransitionReady(transaction=2439541425085)
+10-05 18:39:37.970 V/WindowManagerShell(  825): onTransitionReady (#28) android.os.BinderProxy@7fcabf9: {id=28 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@19d0908} m=OPEN f=NONE leash=Surface(name=Task=68)/@0x9a60f25 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@ccd78a1} m=TO_BACK f=NONE leash=Surface(name=Task=66)/@0xfefe8fa sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-05 18:39:37.970 V/WindowManagerShell(  825): Transition (#28) android.os.BinderProxy@7fcabf9@0 ready while (#27) android.os.BinderProxy@4ed11d7@0 is still animating. Notify the animating transition in case they can be merged
+10-05 18:39:37.970 V/WindowManagerShell(  825): Transition animation finished (aborted=false), notifying core (#27) android.os.BinderProxy@4ed11d7@0
+10-05 18:39:37.972 I/.sunmoonshuttle( 7780): Using CollectorTypeCMC GC.
+10-05 18:39:37.973 V/WindowManager(  568): Sent Transition (#28) createdAt=10-05 18:39:37.940 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=68 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity } baseActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} topActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} origActivity=null realActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} numActivities=1 lastActiveTime=15801411 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{550d7dd Task{b4d7f69 #68 type=standard A=10208:com.angalle.sunmoonshuttle}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{71f6f52 com.angalle.sunmoonshuttle.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2400 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 28 }
+10-05 18:39:37.973 V/WindowManager(  568):     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+10-05 18:39:37.973 V/WindowManager(  568):     info={id=28 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+10-05 18:39:37.973 V/WindowManager(  568):         {WCT{RemoteToken{550d7dd Task{b4d7f69 #68 type=standard A=10208:com.angalle.sunmoonshuttle}}} m=OPEN f=NONE leash=Surface(name=Task=68)/@0x8983487 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},
+10-05 18:39:37.973 V/WindowManager(  568):         {WCT{RemoteToken{3213b74 Task{b216a57 #66 type=standard A=10207:com.leeheesun.meteordodge}}} m=TO_BACK f=NONE leash=Surface(name=Task=66)/@0xfe78286 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}
+10-05 18:39:37.973 V/WindowManager(  568):     ]}
+10-05 18:39:37.973 I/adbd    (  428): jdwp connection from 7780
+10-05 18:39:37.975 E/IPCThreadState(  568): Binder transaction failure. id: 7977880, BR_*: 29189, error: -22 (Invalid argument)
+10-05 18:39:37.975 W/ActivityManager(  568): pid 568 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-05 18:39:37.975 D/ActivityManager(  568): Too many transaction errors, throttling freezer binder callback.
+10-05 18:39:37.975 V/WindowManager(  568): Finish Transition (#27): created at 10-05 18:39:37.692 collect-started=0.014ms request-sent=0.336ms started=13.413ms ready=13.406ms sent=56.503ms finished=282.419ms
+10-05 18:39:37.975 W/WindowManager(  568): Exception thrown during dispatchAppVisibility Window{e7d8760 u0 com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity EXITING}
+10-05 18:39:37.975 W/WindowManager(  568): android.os.DeadObjectException
+10-05 18:39:37.975 W/WindowManager(  568): 	at android.os.BinderProxy.transactNative(Native Method)
+10-05 18:39:37.975 W/WindowManager(  568): 	at android.os.BinderProxy.transact(BinderProxy.java:586)
+10-05 18:39:37.975 W/WindowManager(  568): 	at android.view.IWindow$Stub$Proxy.dispatchAppVisibility(IWindow.java:553)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.WindowState.sendAppVisibilityToClients(WindowState.java:3253)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.WindowContainer.sendAppVisibilityToClients(WindowContainer.java:1289)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.WindowToken.setClientVisible(WindowToken.java:403)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.ActivityRecord.setClientVisible(ActivityRecord.java:7166)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.ActivityRecord.postApplyAnimation(ActivityRecord.java:5881)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.ActivityRecord.commitVisibility(ActivityRecord.java:5823)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.Transition.finishTransition(Transition.java:1286)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.TransitionController.finishTransition(TransitionController.java:937)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.WindowOrganizerController.finishTransition(WindowOrganizerController.java:494)
+10-05 18:39:37.975 W/WindowManager(  568): 	at android.window.IWindowOrganizerController$Stub.onTransact(IWindowOrganizerController.java:289)
+10-05 18:39:37.975 W/WindowManager(  568): 	at com.android.server.wm.WindowOrganizerController.onTransact(WindowOrganizerController.java:204)
+10-05 18:39:37.975 W/WindowManager(  568): 	at android.os.Binder.execTransactInternal(Binder.java:1500)
+10-05 18:39:37.975 W/WindowManager(  568): 	at android.os.Binder.execTransact(Binder.java:1444)
+10-05 18:39:37.975 W/Process (  568): Unable to open /proc/7523/status
+10-05 18:39:37.976 D/nativeloader( 7780): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+--------- beginning of kernel
+10-05 18:39:37.978 I/binder  ( 3609): 3609:568 cannot find target node
+10-05 18:39:37.978 I/binder  ( 3609): 568:3609 transaction async to 0:0 failed 7977880/29189/-22, size 64-0 line 3265
+10-05 18:39:37.977 V/WindowManagerShell(  825): Playing animation for (#28) android.os.BinderProxy@7fcabf9@0
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.transition.DefaultMixedHandler@81644e3
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@50aaee0
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.pip.PipTransition@814e599
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@c30905e
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.recents.RecentsTransitionHandler@35e4c3f
+10-05 18:39:37.977 V/ShellRecents(  825): RecentsTransitionHandler.startAnimation: no controller found
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.splitscreen.StageCoordinator@21bd90c
+10-05 18:39:37.977 V/WindowManagerShell(  825):  try handler com.android.wm.shell.transition.RemoteTransitionHandler@d454255
+10-05 18:39:37.977 V/WindowManagerShell(  825): Transition doesn't have explicit remote, search filters for match for {id=28 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@19d0908} m=OPEN f=NONE leash=Surface(name=Task=68)/@0x9a60f25 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@ccd78a1} m=TO_BACK f=NONE leash=Surface(name=Task=66)/@0xfefe8fa sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-05 18:39:37.977 V/WindowManagerShell(  825):  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[OPEN,TO_FRONT] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@50755f8, appThread = android.app.IApplicationThread$Stub$Proxy@6215ad1, debugName = OverlaySwipeBack }}
+10-05 18:39:37.978 V/WindowManagerShell(  825):  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@4858936, appThread = android.app.IApplicationThread$Stub$Proxy@26e1037, debugName = LauncherToDream }}
+10-05 18:39:37.978 V/WindowManagerShell(  825):  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@357d9a4, appThread = android.app.IApplicationThread$Stub$Proxy@98fd30d, debugName = QuickstepLaunchHome }}
+10-05 18:39:37.978 V/WindowManagerShell(  825):  Delegate animation for (#28) to null
+10-05 18:39:37.978 V/WindowManagerShell(  825):  try handler com.android.wm.shell.transition.DefaultTransitionHandler@8223da4
+10-05 18:39:37.978 V/WindowManagerShell(  825): start default transition animation, info = {id=28 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@19d0908} m=OPEN f=NONE leash=Surface(name=Task=68)/@0x9a60f25 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@ccd78a1} m=TO_BACK f=NONE leash=Surface(name=Task=66)/@0xfefe8fa sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-05 18:39:37.978 V/WindowManagerShell(  825): loadAnimation: anim=android.view.animation.AnimationSet@cce9d52 animAttr=0x9 type=OPEN isEntrance=false
+10-05 18:39:37.980 V/WindowManagerShell(  825): loadAnimation: anim=android.view.animation.AnimationSet@704ff4c animAttr=0x8 type=OPEN isEntrance=true
+10-05 18:39:37.984 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:39:37.986 V/WindowManagerShell(  825):  animated by com.android.wm.shell.transition.DefaultTransitionHandler@8223da4
+10-05 18:39:37.987 D/EGL_emulation(  825): app_time_stats: avg=37947.42ms min=37947.42ms max=37947.42ms count=1
+10-05 18:39:37.988 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:39:37.988 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:39:37.989 I/TopTaskTracker( 1092): onTaskRemoved: taskId=67
+10-05 18:39:37.989 I/TopTaskTracker( 1092): onTaskRemoved: taskId=67
+10-05 18:39:37.994 I/RanchuHwc(  397): logCompositionFallbackIfChanged: layer 52 CompositionType fallback from 3 to 1
+10-05 18:39:37.994 W/ziparchive( 7780): Unable to open '/data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/base.dm': No such file or directory
+10-05 18:39:37.994 W/ziparchive( 7780): Unable to open '/data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/base.dm': No such file or directory
+10-05 18:39:38.011 E/BpTransactionCompletedListener(  422): Failed to transact (-32)
+10-05 18:39:38.044 I/RanchuHwc(  397): logCompositionFallbackIfChanged: layer 53 CompositionType fallback from 2 to 1
+10-05 18:39:38.044 I/RanchuHwc(  397): logCompositionFallbackIfChanged: layer 54 CompositionType fallback from 2 to 1
+10-05 18:39:38.046 D/EGL_emulation( 1092): app_time_stats: avg=13022.03ms min=14.26ms max=104066.48ms count=8
+10-05 18:39:38.075 D/nativeloader( 7780): Configuring clns-7 for other apk /data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/lib/arm64, permitted_path=/data:/mnt/expand:/data/user/0/com.angalle.sunmoonshuttle
+10-05 18:39:38.079 V/GraphicsEnvironment( 7780): Currently set values for:
+10-05 18:39:38.079 V/GraphicsEnvironment( 7780):   angle_gl_driver_selection_pkgs=[]
+10-05 18:39:38.079 V/GraphicsEnvironment( 7780):   angle_gl_driver_selection_values=[]
+10-05 18:39:38.079 V/GraphicsEnvironment( 7780): Global.Settings values are invalid: number of packages: 0, number of values: 0
+10-05 18:39:38.079 V/GraphicsEnvironment( 7780): Neither updatable production driver nor prerelease driver is supported.
+10-05 18:39:38.092 W/OptProp (  568): Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+10-05 18:39:38.114 D/AppCompatDelegate( 7780): Checking for metadata for AppLocalesMetadataHolderService : Service not found
+10-05 18:39:38.143 W/.sunmoonshuttle( 7780): Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (unsupported, reflection, allowed)
+10-05 18:39:38.149 I/WebViewFactory( 7780): Loading com.google.android.webview version 124.0.6367.219 (code 636771932)
+10-05 18:39:38.153 V/ResourcesManager( 7780): The following library key has been added: ResourcesKey{ mHash=60bca0f2 mResDir=null mSplitDirs=[] mOverlayDirs=[/product/overlay/EmulationPixel6/EmulationPixel6Overlay.apk,/product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk] mLibDirs=[/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk,/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v35 mCompatInfo={420dpi always-compat} mLoaders=[]}
+10-05 18:39:38.153 W/ziparchive( 7780): Unable to open '/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.dm': No such file or directory
+10-05 18:39:38.153 W/ziparchive( 7780): Unable to open '/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.dm': No such file or directory
+10-05 18:39:38.153 W/.sunmoonshuttle( 7780): Entry not found
+10-05 18:39:38.155 D/nativeloader( 7780): Configuring clns-8 for other apk /data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk. target_sdk_version=34, uses_libraries=ALL, library_path=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/lib/arm64:/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk!/lib/arm64-v8a:/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+10-05 18:39:38.155 D/ApplicationLoaders( 7780): Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{673dc5a com.android.cts.priv.ctsshim/10189} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4146e8b com.google.android.youtube/10167} BLOCKED
+10-05 18:39:38.156 D/nativeloader( 7780): Configuring clns-9 for other apk /data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/lib/arm64:/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk!/lib/arm64-v8a:/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{92a8514 com.android.internal.display.cutout.emulation.corner/10013} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d1ef1bd com.android.internal.display.cutout.emulation.double/10079} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e39b68 com.google.android.googlequicksearchbox/10143} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4b30b81 com.google.android.onetimeinitializer/10129} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4836426 com.google.android.ext.shared/10116} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fd96867 com.android.virtualmachine.res/10194} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{8e458fe com.android.managedprovisioning.auto_generated_rro_product__/10014} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ecb785f com.android.carrierconfig.auto_generated_rro_vendor__/10085} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{40b0614 com.google.android.server.deviceconfig.resources/10196} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5d79b75 com.android.systemui.emulation.pixel_3_xl/10008} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fa9070a com.android.systemui.emulation.pixel_4_xl/10076} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6d93b7b com.android.systemui.emulation.pixel_fold/10039} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6bffd98 com.android.providers.telephony.auto_generated_characteristics_rro/10064} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a9379f1 com.android.simappdialog.auto_generated_rro_product__/10015} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c03debd com.android.htmlviewer/10115} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{eb19cb2 com.google.android.health.connect.backuprestore/10200} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9835b44 com.android.systemui.auto_generated_rro_product__/10047} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{30a2403 com.google.android.apps.messaging/10137} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f9c6f80 com.google.android.soundpicker/10164} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{8ab6d62 com.google.android.marvin.talkbackoverlay/10089} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c94a9b9 com.google.android.configupdater/10139} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dfce7b0 com.android.internal.emulation.pixel_3a_xl/10050} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5667629 com.android.internal.emulation.pixel_6_pro/10038} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{156fdae com.android.internal.emulation.pixel_7_pro/10019} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5e9374f com.android.internal.emulation.pixel_8_pro/10037} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{940cedc com.android.internal.emulation.pixel_9_pro/10006} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9c74be5 com.android.internal.emulation.pixel_3a/10040} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b1946ba com.android.internal.emulation.pixel_4a/10052} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b2bf96b com.android.internal.emulation.pixel_6a/10048} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b79fcc8 com.android.internal.emulation.pixel_7a/10066} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{8a5c161 com.android.internal.emulation.pixel_8a/10007} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1851486 com.google.android.overlay.googlewebview/10034} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{518d1fe com.google.android.apps.safetyhub/10135} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{400fd5f com.google.android.hotspot2.osulogin/10205} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{81903ac com.android.simappdialog/10120} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{48df312 com.android.internal.display.cutout.emulation.hole/10030} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{26c2ae3 com.android.internal.display.cutout.emulation.tall/10021} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{bb19ce0 com.android.internal.systemui.navbar.threebutton/10081} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6284efc com.leeheesun.meteordodge/10207} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4cd2875 com.android.camera2/10153} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dd42e5e com.android.internal.ranchu.commonoverlay/10060} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{42c923f com.android.systemui.auto_generated_rro_vendor__/10090} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d2c100a com.google.android.deskclock/10151} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3fbf855 com.android.internal.systemui.navbar.twobutton/10062} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a62107b com.google.android.as/10132} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6e8ae98 com.google.android.gm/10166} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{40a27f8 com.android.systemui.emulation.pixel_3/10002} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{250c4d1 com.android.systemui.emulation.pixel_4/10070} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{301ab36 com.android.systemui.emulation.pixel_5/10063} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ba48a37 com.android.systemui.emulation.pixel_6/10005} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4b5cba4 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a4bdd0d com.android.systemui.emulation.pixel_8/10077} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4b544c2 com.android.systemui.emulation.pixel_9/10055} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7d4d6f1 com.android.printspooler/10113} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{455fe10 com.google.android.connectivity.resources.goldfish.overlay/10086} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e8322d6 com.android.dreams.basic/10127} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c16eb0e com.google.android.networkstack.tethering.emulator/10018} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c34892f com.android.providers.settings.auto_generated_rro_product__/10056} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9f73957 com.google.android.as.oss/10142} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{daca0c5 com.android.traceur.auto_generated_rro_product__/10016} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{8daaa1a com.android.internal.emulation.pixel_9_pro_fold/10043} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2061c44 com.google.android.devicelockcontroller/10195} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9cef12d com.google.android.dialer/10133} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d3b8441 com.android.internal.emulation.pixel_3/10061} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fe94de6 com.android.internal.emulation.pixel_4/10051} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1f66f27 com.android.internal.emulation.pixel_5/10000} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{af565d4 com.android.internal.emulation.pixel_6/10031} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{57b237d com.android.internal.emulation.pixel_7/10078} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9ec6272 com.android.internal.emulation.pixel_8/10020} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5d0d6c3 com.android.internal.emulation.pixel_9/10010} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{669662 com.google.android.captiveportallogin/10111} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{51b7a79 android.auto_generated_characteristics_rro/10009} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f4c13f3 com.google.android.appsearch.apk/10202} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{26ab8b0 com.android.musicfx/10093} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3d67329 com.google.android.apps.docs/10158} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3dbff96 com.google.android.apps.maps/10157} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{41bb6ae com.google.android.markup/10155} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a09fc4f com.google.android.rkpdapp/10184} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{53aafdc com.google.android.contacts/10156} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ef90258 com.android.server.telecom.auto_generated_rro_product__/10029} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6ccffb1 com.android.phone.auto_generated_characteristics_rro/10075} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f16fc96 com.google.android.overlay.googleconfig/10053} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{bba18e5 com.android.chrome/10145} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b27ec04 com.android.bips.auto_generated_rro_product__/10012} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7f08fba com.google.android.apps.customization.pixel/10165} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1140e6b com.google.android.tag/10098} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{984f6b3 com.google.android.overlay.permissioncontroller/10035} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3b0edc8 com.google.android.partnersetup/10131} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b785e61 com.google.android.apps.wallpaper.nexus/10146} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f07ed86 com.google.android.apps.nexuslauncher/10178} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ce4b0f com.android.theme.font.notoserifsource/10011} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c632647 com.google.android.safetycenter.resources/10185} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f1de5a5 com.android.internal.display.cutout.emulation.waterfall/10023} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e513d7a com.android.internal.systemui.navbar.transparent/10001} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dcb1e74 com.google.android.connectivity.resources/10192} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d5db188 com.android.providers.contacts.auto_generated_rro_product__/10074} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{47b7f9d com.google.android.feedback/10174} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9e55c12 com.google.android.printservice.recommendation/10122} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a1dfe3 com.google.android.apps.photos/10168} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{62ca0ca com.google.android.calendar/10161} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3b5ade0 com.google.android.documentsui/10108} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{574245d com.android.systemui.emulation.pixel_3a_xl/10033} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{27601d2 com.android.systemui.emulation.pixel_6_pro/10024} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b38f2a3 com.android.systemui.emulation.pixel_7_pro/10022} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e3f29a0 com.android.systemui.emulation.pixel_8_pro/10036} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{153a959 com.android.systemui.emulation.pixel_9_pro/10057} BLOCKED
+10-05 18:39:38.156 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{20e691e com.android.carrierconfig.auto_generated_rro_product__/10084} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f5e15ff com.android.devicediagnostics.auto_generated_rro_product__/10025} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a957899 com.android.providers.partnerbookmarks/10125} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{bb9275e com.android.wallpaper.livepicker/10104} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a33f92a com.android.providers.telephony.auto_generated_rro_product__/10004} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e88131b com.android.phone.auto_generated_rro_vendor__/10087} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{888973f com.android.imsserviceentitlement/10141} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2402a91 com.android.internal.emulation.pixel_9_pro_xl/10073} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9f7c80c com.google.android.healthconnect.controller/10199} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b8ac5f7 com.android.internal.emulation.pixel_2_xl/10017} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{671bc64 com.android.internal.emulation.pixel_3_xl/10044} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f2bdecd com.android.internal.emulation.pixel_4_xl/10083} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{31e8382 com.android.internal.emulation.pixel_fold/10065} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2bc0555 com.android.bookmarkprovider/10118} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2c03ad0 com.google.android.overlay.pixelconfigcommon/10028} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{aa49ac9 com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10080} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fb555ce com.android.systemui.emulation.pixel_3a/10069} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{bae7cef com.android.systemui.emulation.pixel_4a/10042} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{33633fc com.android.systemui.emulation.pixel_6a/10049} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2d31a85 com.android.systemui.emulation.pixel_7a/10032} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dd500da com.android.systemui.emulation.pixel_8a/10041} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{86c5b6a com.google.android.settings.intelligence/10138} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f844c2a com.google.android.projection.gearhead/10136} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7f9685b com.google.android.uwb.resources/10193} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d056a1b com.android.cts.ctsshim/10190} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{45f58f8 com.google.android.wifi.resources/10204} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{184a1d1 com.google.android.wifi.dialog/10206} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{76cc436 com.android.wallpaper/10175} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4dc2f37 com.google.android.apps.wallpaper/10181} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3ad0ca4 com.google.android.odad/10128} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{382d132 com.android.settings.auto_generated_rro_product__/10027} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{91c7e83 com.android.systemui.emulation.pixel_9_pro_xl/10067} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{bfff800 com.android.companiondevicemanager.auto_generated_characteristics_rro/10058} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{98cc839 com.android.internal.systemui.navbar.gestural/10059} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5608a0d com.google.android.apps.youtube.music/10159} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{738edc2 com.android.bluetoothmidiservice/10110} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e6c942c com.android.storagemanager.auto_generated_rro_product__/10082} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1ba87d3 com.google.android.cellbroadcastreceiver/10191} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b5f548a com.android.phone.auto_generated_rro_product__/10054} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{153afb com.android.systemui.emulation.pixel_9_pro_fold/10046} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a24c718 android.auto_generated_rro_product__/10071} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2004f10 com.google.android.inputmethod.latin/10163} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9e62f56 android.auto_generated_rro_vendor__/10088} BLOCKED
+10-05 18:39:38.157 I/AppsFilter(  568): interaction: PackageSetting{7185af0 com.angalle.sunmoonshuttle/10208} -> PackageSetting{898ba09 com.google.android.apps.restore/10134} BLOCKED
+10-05 18:39:38.164 I/cr_WVCFactoryProvider( 7780): Loaded version=124.0.6367.219 minSdkVersion=29 isBundle=false multiprocess=true packageId=2
+10-05 18:39:38.177 D/nativeloader( 7780): Load /data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk!/lib/arm64-v8a/libmonochrome_64.so using ns clns-9 from class loader (caller=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk): ok
+10-05 18:39:38.178 D/nativeloader( 7780): Load /system/lib64/libwebviewchromium_plat_support.so using ns clns-9 from class loader (caller=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk): ok
+10-05 18:39:38.185 I/cr_LibraryLoader( 7780): Successfully loaded native library
+10-05 18:39:38.185 I/cr_CachingUmaRecorder( 7780): Flushed 6 samples from 6 histograms, 0 samples were dropped.
+10-05 18:39:38.186 I/cr_VariationsUtils( 7780): Loaded seed with age 28396s
+10-05 18:39:38.187 I/cr_CombinedPProvider( 7780): #registerProvider() provider:WV.V7@37346c3 isPolicyCacheEnabled:false policyProvidersSize:0
+10-05 18:39:38.187 I/cr_PolicyProvider( 7780): #setManagerAndSource() 0
+10-05 18:39:38.196 I/cr_CombinedPProvider( 7780): #linkNativeInternal() 1
+10-05 18:39:38.196 I/cr_AppResProvider( 7780): #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+10-05 18:39:38.196 I/cr_PolicyProvider( 7780): #notifySettingsAvailable() 0
+10-05 18:39:38.196 I/cr_CombinedPProvider( 7780): #onSettingsAvailable() 0
+10-05 18:39:38.196 I/cr_CombinedPProvider( 7780): #flushPolicies()
+10-05 18:39:38.212 D/ActivityManager(  568): sync unfroze 1499 com.google.android.gms for 6
+10-05 18:39:38.214 D/ActivityThread( 1499): Package [com.angalle.sunmoonshuttle] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-05 18:39:38.214 V/GrammaticalInflectionUtils(  568): AttributionSource: AttributionSource { uid = 99006, packageName = null, attributionTag = null, token = android.os.Binder@577ea3a, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+10-05 18:39:38.216 D/BoundBrokerSvc( 1499): onBind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+10-05 18:39:38.216 D/BoundBrokerSvc( 1499): Loading bound service for intent: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+10-05 18:39:38.218 D/Zygote  (  867): Forked child process 7812
+10-05 18:39:38.219 I/ActivityManager(  568): Start proc 7812:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i6 for  {com.angalle.sunmoonshuttle/org.chromium.content.app.SandboxedProcessService0:0}
+10-05 18:39:38.220 E/libc    ( 7812): SetHeapTaggingLevel: re-enabling tagging after it was disabled is not supported
+10-05 18:39:38.220 I/ocessService0:0( 7812): Using CollectorTypeCMC GC.
+10-05 18:39:38.221 E/ocessService0:0( 7812): Not starting debugger since process cannot load the jdwp agent.
+10-05 18:39:38.222 D/nativeloader( 7812): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+10-05 18:39:38.224 D/CompatChangeReporter( 7812): Compat change id reported: 242716250; UID 99006; state: ENABLED
+10-05 18:39:38.226 D/ApplicationLoaders( 7812): Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+10-05 18:39:38.228 W/servicemanager(  161): Isolated app with UID 99006 requested 'network_management', but the service is not allowed for isolated apps.
+10-05 18:39:38.227 I/LoadedApk( 7812): No resource references to update in package com.google.android.trichromelibrary
+10-05 18:39:38.229 W/servicemanager(  161): Isolated app with UID 99006 requested 'connectivity', but the service is not allowed for isolated apps.
+10-05 18:39:38.230 W/MediaProvider( 1327): WorkProfileOwnerApps cache is empty
+10-05 18:39:38.231 D/PickerSyncLockManager( 1327): Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:39:38.231 I/GsaVoiceInteractionSrv( 1352): (REDACTED) O received %s
+10-05 18:39:38.231 D/ControlsListingControllerImpl(  825): ServiceConfig reloaded, count: 0
+10-05 18:39:38.232 D/CloseableReentrantLock( 1327): Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Locked by thread main]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:39:38.232 D/CloseableReentrantLock( 1327): Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:39:38.233 D/ControlsListingControllerImpl(  825): ServiceConfig reloaded, count: 0
+10-05 18:39:38.233 D/ControlsListingControllerImpl(  825): ServiceConfig reloaded, count: 0
+10-05 18:39:38.234 D/ActivityManager(  568): sync unfroze 6437 com.google.android.googlequicksearchbox:search for 6
+10-05 18:39:38.235 D/ActivityThread( 6437): Package [com.angalle.sunmoonshuttle] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-05 18:39:38.239 I/cr_WebViewApkApp( 7812): Launched version=124.0.6367.219 minSdkVersion=29 isBundle=false processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+10-05 18:39:38.242 E/A       ( 6437): (REDACTED) Trace %s timed out after %d ms. Complete trace: %s
+10-05 18:39:38.242 E/A       ( 6437): com.google.apps.tiktok.tracing.gb: 
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.Write com.google.android.libraries.search.googleapp.user#com.google.android.googlequicksearchbox(Started After:0)
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.Update com.google.android.libraries.search.googleapp.user#com.google.android.googlequicksearchbox(Started After:0)
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.ConsistencyTierState.setNewValues(Started After:0)
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.Fetching experiments for account(Started After:0)
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.Updating experiments(Started After:0)
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.handleBroadcast(Started After:0)
+10-05 18:39:38.242 E/A       ( 6437): 	at tk_trace.Broadcast to com.google.apps.tiktok.experiments.phenotype.ConfigurationUpdatedReceiver_Receiver com.google.android.gms.phenotype.UPDATE(Started After:0)
+10-05 18:39:38.243 I/GsaVoiceInteractionSrv( 1352): (REDACTED) O received %s
+10-05 18:39:38.244 I/GsaVoiceInteractionSrv( 1352): (REDACTED) O received %s
+10-05 18:39:38.243 E/A       ( 6437): (REDACTED) Trace %s timed out after %d ms. Complete trace: %s
+10-05 18:39:38.243 E/A       ( 6437): com.google.apps.tiktok.tracing.gb: 
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.Read ManagerLanguagePackRequestState(Started After:0)
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.Get ManagerLanguagePackRequestState(Started After:0)
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.Synclet: LanguagePackAutoUpdateSynclet(Started After:0)
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.NoAccountWorkerFactory startWork()(Started After:0)
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.com.google.apps.tiktok.sync.impl.workmanager.SyncWorker startWork()(Started After:0)
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.com.google.apps.tiktok.sync.impl.workmanager.SyncWorker startWork()(Started After:0)
+10-05 18:39:38.243 E/A       ( 6437): 	at tk_trace.WorkManager:TikTokListenableWorker startWork(Started After:0)
+10-05 18:39:38.248 I/cr_ChildProcessService( 7812): Creating new ChildProcessService pid=7812
+10-05 18:39:38.251 W/chromium( 7780): [WARNING:dns_config_service_android.cc(81)] Failed to read DnsConfig.
+10-05 18:39:38.251 W/servicemanager(  161): Isolated app with UID 99006 requested 'content_capture', but the service is not allowed for isolated apps.
+10-05 18:39:38.262 D/CompatChangeReporter(  568): Compat change id reported: 261072174; UID 10152; state: ENABLED
+10-05 18:39:38.263 D/ActivityManager(  568): sync unfroze 7548 com.google.android.webview:webview_service for 6
+10-05 18:39:38.264 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:39:38.274 D/ActivityThread( 7548): Package [com.angalle.sunmoonshuttle] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-05 18:39:38.282 I/ProximityAuth( 1068): [RecentAppsMediator] Package added: (user=UserHandle{0}) com.angalle.sunmoonshuttle
+10-05 18:39:38.287 I/Fitness ( 1068): FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_REMOVED [CONTEXT service_id=17 ]
+10-05 18:39:38.289 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.291 I/A       ( 6437): NGA enabled in interactor.
+10-05 18:39:38.293 I/Auth    ( 1499): [SupervisedAccountIntentOperation] onHandleIntent(): android.intent.action.PACKAGE_ADDED
+10-05 18:39:38.293 V/Backup  ( 1499): [PhotosPackagedAddedIO] Flag is disabled.
+10-05 18:39:38.293 I/FontLog ( 1068): Package com.angalle.sunmoonshuttle has no metadata [CONTEXT service_id=132 ]
+10-05 18:39:38.295 W/SearchServiceCore( 6437): Abort, client detached.
+10-05 18:39:38.295 W/SearchServiceCore( 6437): Abort, client detached.
+10-05 18:39:38.295 W/SearchServiceCore( 6437): Abort, client detached.
+10-05 18:39:38.306 I/A       ( 6437): NGA enabled in interactor.
+10-05 18:39:38.307 D/BoundBrokerSvc( 1499): onBind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+10-05 18:39:38.307 D/BoundBrokerSvc( 1499): Loading bound service for intent: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+10-05 18:39:38.307 I/A       ( 6437): NGA enabled in interactor.
+10-05 18:39:38.308 I/A       ( 6437): NGA enabled in interactor.
+10-05 18:39:38.311 W/SQLiteLog( 1499): (28) double-quoted string literal: "com.angalle.sunmoonshuttle"
+10-05 18:39:38.315 I/hbox:interactor( 1352): JIT allocated 60KB for compiled code of java.lang.Object com.google.android.apps.gsa.binaries.satin.app.awf.s()
+10-05 18:39:38.315 I/hbox:interactor( 1352): Compiler allocated 5730KB to compile java.lang.Object com.google.android.apps.gsa.binaries.satin.app.awf.s()
+10-05 18:39:38.318 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.327 D/Capacitor( 7780): Starting BridgeActivity
+10-05 18:39:38.331 D/BoundBrokerSvc( 1499): onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+10-05 18:39:38.331 D/BoundBrokerSvc( 1499): Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+10-05 18:39:38.334 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.335 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.337 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.339 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.340 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.341 D/Capacitor( 7780): Registering plugin instance: CapacitorCookies
+10-05 18:39:38.341 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.342 I/AiAiTextClassifier( 1337): [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-05 18:39:38.346 D/Capacitor( 7780): Registering plugin instance: WebView
+10-05 18:39:38.347 D/Capacitor( 7780): Registering plugin instance: CapacitorHttp
+10-05 18:39:38.356 W/Capacitor( 7780): Unable to read file at path public/plugins
+10-05 18:39:38.358 D/Capacitor( 7780): Loading app at https://localhost
+10-05 18:39:38.365 W/cr_media( 7780): BLUETOOTH_CONNECT permission is missing.
+10-05 18:39:38.365 W/cr_media( 7780): registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+10-05 18:39:38.366 I/EGL_emulation( 7780): Opening libGLESv1_CM_emulation.so
+10-05 18:39:38.367 I/EGL_emulation( 7780): Opening libGLESv2_emulation.so
+10-05 18:39:38.374 I/cr_LibraryLoader( 7812): Successfully loaded native library
+10-05 18:39:38.375 I/cr_CachingUmaRecorder( 7812): Flushed 2 samples from 2 histograms, 0 samples were dropped.
+10-05 18:39:38.376 D/Capacitor( 7780): App started
+10-05 18:39:38.377 D/Capacitor( 7780): App resumed
+10-05 18:39:38.380 W/HWUI    ( 7780): Unknown dataspace 0
+10-05 18:39:38.381 W/SystemServiceRegistry( 7812): No service published for: uimode
+10-05 18:39:38.383 W/servicemanager(  161): Isolated app with UID 99006 requested 'uimode', but the service is not allowed for isolated apps.
+10-05 18:39:38.392 W/chromium( 7812): [WARNING:runtime_features.cc(694)] SharedStorage for M118+ cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI,SharedStorageAPIM118 in addition.
+10-05 18:39:38.401 D/CoreBackPreview(  568): Window{cc0a35 u0 com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@df1c504, mPriority=0, mIsAnimationCallback=false}
+10-05 18:39:38.409 W/HWUI    ( 7780): Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+10-05 18:39:38.409 I/FontLog ( 1068): Received query name=Google Sans&weight=700&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-05 18:39:38.409 W/HWUI    ( 7780): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+10-05 18:39:38.409 I/FontLog ( 1068): Query [name=Google Sans&weight=700&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.413 I/FontLog ( 1068): Font PFD returned from cache for {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.413 I/FontLog ( 1068): Fetch {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/YouTube/YouTube.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationCorner/DisplayCutoutEmulationCornerOverlay.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.extservices/priv-app/GoogleExtServices@350820300/GoogleExtServices.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationDouble/DisplayCutoutEmulationDoubleOverlay.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/TelephonyProvider/TelephonyProvider.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/TelephonyProvider__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DynamicSystemInstallationService/DynamicSystemInstallationService.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/Velvet/Velvet.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CalendarProvider/CalendarProvider.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleOneTimeInitializer/GoogleOneTimeInitializer.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/GoogleExtShared/GoogleExtShared.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk' with 1 weak references
+10-05 18:39:38.416 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/HTMLViewer/HTMLViewer.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CompanionDeviceManager/CompanionDeviceManager.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProvider/DownloadProvider.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PrebuiltBugle/PrebuiltBugle.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/SoundPickerPrebuilt/SoundPickerPrebuilt.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.mediaprovider/priv-app/MediaProviderGoogle@350820300/MediaProviderGoogle.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/SafetyHubPrebuilt/SafetyHubPrebuilt.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProviderUi/DownloadProviderUi.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.wifi/app/OsuLoginGoogle@350820300/OsuLoginGoogle.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/PacProcessor/PacProcessor.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/SimAppDialog/SimAppDialog.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/SimAppDialog__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.adservices/priv-app/AdServicesApkGoogle@350820260/AdServicesApkGoogle.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/base.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationHole/DisplayCutoutEmulationHoleOverlay.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationTall/DisplayCutoutEmulationTallOverlay.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CertInstaller/CertInstaller.apk' with 1 weak references
+10-05 18:39:38.417 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarMode3Button/NavigationBarMode3ButtonOverlay.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~8VX8b8vnpYHJDqttN-gLlg==/com.leeheesun.meteordodge-L2bsV_-u3E696IPEtjO16w==/base.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Camera2/Camera2.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/EasterEgg/EasterEgg.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/MtpService/MtpService.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@AE3A.240806.043/NfcNciApexGoogle.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/Stk/Stk.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltDeskClockGoogle/PrebuiltDeskClockGoogle.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarMode2Button/NavigationBarMode2ButtonOverlay.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/DevicePersonalizationPrebuiltPixel2021-aiai_20240329.00_RC16/DevicePersonalizationPrebuiltPixel2021-aiai_20240329.00_RC16.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGmail/PrebuiltGmail.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.permission/priv-app/GooglePermissionController@350820360/GooglePermissionController.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/GooglePermissionControllerOverlay.apk' with 1 weak references
+10-05 18:39:38.418 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.btservices/app/BluetoothGoogle@342010060/BluetoothGoogle.apk' with 1 weak references
+10-05 18:39:38.423 I/FontLog ( 1068): Pulling font file for id = 42, cache size = 6 [CONTEXT service_id=132 ]
+10-05 18:39:38.423 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/SettingsProvider/SettingsProvider.apk' with 1 weak references
+10-05 18:39:38.423 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/LargeScreenSettingsProviderOverlay.apk' with 1 weak references
+10-05 18:39:38.424 I/hwservicemanager(  162): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-05 18:39:38.424 I/Gralloc4( 7780): mapper 4.x is not supported
+10-05 18:39:38.424 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/SettingsProvider__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/PrintSpooler/PrintSpooler.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/BasicDreams/BasicDreams.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/DeviceIntelligenceNetworkPrebuilt-astrea_20240329.00_RC02/DeviceIntelligenceNetworkPrebuilt-astrea_20240329.00_RC02.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/InputDevices/InputDevices.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.devicelock/priv-app/DeviceLockControllerGoogle@AE3A.240806.043/DeviceLockControllerGoogle.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleDialer/GoogleDialer.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/BuiltInPrintService/BuiltInPrintService.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/BuiltInPrintService__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CaptivePortalLoginGoogle/CaptivePortalLoginGoogle.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/MusicFX/MusicFX.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Drive/Drive.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Maps/Maps.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/ModuleMetadataGoogle/ModuleMetadataGoogle.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationEmu01/DisplayCutoutEmulationEmu01Overlay.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/AvatarPickerGoogle/AvatarPickerGoogle.apk' with 1 weak references
+10-05 18:39:38.425 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/MarkupGoogle_v2/MarkupGoogle_v2.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/NetworkStackGoogle/NetworkStackGoogle.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.rkpd/priv-app/rkpdapp.google@350820300/rkpdapp.google.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleContacts/GoogleContacts.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/Telecom/Telecom.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/Telecom__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/KeyChain/KeyChain.apk' with 1 weak references
+10-05 18:39:38.426 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~l9s_Hbzf7a_LaUZJH4tRqQ==/com.android.chrome-K4Q89Hb0g7_dTirgqECxeg==/Chrome.apk' with 1 weak references
+10-05 18:39:38.426 I/servicemanager(  161): Caller(pid=7780,uid=10208,sid=u:r:untrusted_app:s0:c208,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/GooglePackageInstaller/GooglePackageInstaller.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PixelThemesStub/PixelThemesStub.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/GoogleServicesFramework/GoogleServicesFramework.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/TagGoogle/TagGoogle.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleTTS/GoogleTTS.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CallLogBackup/CallLogBackup.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PartnerSetupPrebuilt/PartnerSetupPrebuilt.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CameraExtensionsProxy/CameraExtensionsProxy.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/NexusWallpapersStubPrebuilt2018/NexusWallpapersStubPrebuilt2018.apk' with 1 weak references
+10-05 18:39:38.427 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/NexusLauncherRelease/NexusLauncherRelease.apk' with 1 weak references
+10-05 18:39:38.428 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CarrierDefaultApp/CarrierDefaultApp.apk' with 1 weak references
+10-05 18:39:38.429 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CredentialManager/CredentialManager.apk' with 1 weak references
+10-05 18:39:38.429 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/FontNotoSerifSource/FontNotoSerifSourceOverlay.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DeviceAsWebcam/DeviceAsWebcam.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ProxyHandler/ProxyHandler.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.permission/priv-app/GoogleSafetyCenterResources@350820360/GoogleSafetyCenterResources.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationWaterfall/DisplayCutoutEmulationWaterfallOverlay.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/IntentResolver/IntentResolver.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/TransparentNavigationBar/TransparentNavigationBarOverlay.apk' with 1 weak references
+10-05 18:39:38.430 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/E2eeContactKeysProvider/E2eeContactKeysProvider.apk' with 1 weak references
+10-05 18:39:38.431 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.tethering/priv-app/ServiceConnectivityResourcesGoogle@350820300/ServiceConnectivityResourcesGoogle.apk' with 1 weak references
+10-05 18:39:38.431 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/goldfish_overlay_connectivity_google.apk' with 1 weak references
+10-05 18:39:38.431 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/GoogleFeedback/GoogleFeedback.apk' with 1 weak references
+10-05 18:39:38.434 I/FontLog ( 1068): Received query name=Noto Color Emoji Compat&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-05 18:39:38.435 I/FontLog ( 1068): Query [name=Noto Color Emoji Compat&weight=400&besteffort=false] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.440 I/FontLog ( 1068): Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-05 18:39:38.440 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/GooglePrintRecommendationService/GooglePrintRecommendationService.apk' with 1 weak references
+10-05 18:39:38.440 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Photos/Photos.apk' with 1 weak references
+10-05 18:39:38.440 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/CalendarGooglePrebuilt/CalendarGooglePrebuilt.apk' with 1 weak references
+10-05 18:39:38.440 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ManagedProvisioning/ManagedProvisioning.apk' with 1 weak references
+10-05 18:39:38.441 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/SoundPicker/SoundPicker.apk' with 1 weak references
+10-05 18:39:38.441 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DocumentsUIGoogle/DocumentsUIGoogle.apk' with 1 weak references
+10-05 18:39:38.441 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGoogleTelemetryTvp/PrebuiltGoogleTelemetryTvp.apk' with 1 weak references
+10-05 18:39:38.441 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/MultiDisplayProvider/MultiDisplayProvider.apk' with 1 weak references
+10-05 18:39:38.441 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DeviceDiagnostics/DeviceDiagnostics.apk' with 1 weak references
+10-05 18:39:38.441 W/.apps.wellbeing( 6729): ApkAssets: Deleting an ApkAssets object '/product/overlay/DeviceDiagnostics__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+10-05 18:39:38.442 I/FontLog ( 1068): Pulling font file for id = 43, cache size = 5 [CONTEXT service_id=132 ]
+10-05 18:39:38.445 I/FontLog ( 1068): Received query name=Google Sans&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-05 18:39:38.445 I/FontLog ( 1068): Query [name=Google Sans&weight=400&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.446 I/FontLog ( 1068): Font PFD returned from cache for {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.446 I/FontLog ( 1068): Fetch {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-05 18:39:38.447 I/FontLog ( 1068): Pulling font file for id = 44, cache size = 6 [CONTEXT service_id=132 ]
+10-05 18:39:38.449 I/FontLog ( 1068): Received query name=Google Sans&weight=500&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-05 18:39:38.449 I/FontLog ( 1068): Query [name=Google Sans&weight=500&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.450 I/FontLog ( 1068): Font PFD returned from cache for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.450 I/FontLog ( 1068): Fetch {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-05 18:39:38.451 I/FontLog ( 1068): Pulling font file for id = 45, cache size = 7 [CONTEXT service_id=132 ]
+10-05 18:39:38.456 I/SQLiteConnectionPool( 1068): The connection pool for /data/user/0/com.google.android.gms/databases/metadata.db has been closed but there are still 1 connections in use.  They will be closed as they are released back to the pool.
+10-05 18:39:38.456 W/FontLog ( 1068): Error updating last accessed time for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}. [CONTEXT service_id=132 ]
+10-05 18:39:38.456 W/FontLog ( 1068): java.lang.IllegalStateException: Cannot perform this operation because the connection pool has been closed.
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteConnectionPool.throwIfClosedLocked(SQLiteConnectionPool.java:1103)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteConnectionPool.waitForConnection(SQLiteConnectionPool.java:794)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteConnectionPool.acquireConnection(SQLiteConnectionPool.java:399)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteSession.acquireConnection(SQLiteSession.java:920)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteSession.executeForChangedRowCount(SQLiteSession.java:778)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteStatement.executeUpdateDelete(SQLiteStatement.java:67)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteDatabase.executeSql(SQLiteDatabase.java:2207)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:2183)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at bbkg.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):57)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at angs.c(:com.google.android.gms@242335038@24.23.35 (190400-646585959):50)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at angs.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):76)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at anmg.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):8)
+10-05 18:39:38.456 W/FontLog ( 1068): 	at java.lang.Thread.run(Thread.java:1012)
+10-05 18:39:38.466 W/ziparchive(  568): Unable to open '/data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/base.dm': No such file or directory
+10-05 18:39:38.468 I/ActivityTaskManager(  568): Displayed com.angalle.sunmoonshuttle/.MainActivity for user 0: +527ms
+10-05 18:39:38.487 D/Capacitor( 7780): Handling local request: https://localhost/
+10-05 18:39:38.495 V/WindowManagerShell(  825): Transition animation finished (aborted=false), notifying core (#28) android.os.BinderProxy@7fcabf9@0
+10-05 18:39:38.496 V/WindowManager(  568): Finish Transition (#28): created at 10-05 18:39:37.940 collect-started=0.011ms request-sent=1.982ms started=2.552ms ready=29.028ms sent=29.65ms finished=556.087ms
+10-05 18:39:38.500 V/WindowManagerShell(  825): Track 0 became idle
+10-05 18:39:38.500 V/WindowManagerShell(  825): All active transition animations finished
+10-05 18:39:38.501 D/VRI[MainActivity]( 4325): visibilityChanged oldVisibility=true newVisibility=false
+10-05 18:39:38.503 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:39:38.504 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:39:38.508 D/Capacitor( 7780): Handling local request: https://localhost/assets/index-hbcy5NfT.js
+10-05 18:39:38.509 D/Capacitor( 4325): App stopped
+10-05 18:39:38.510 D/Capacitor( 4325): Saving instance state!
+10-05 18:39:38.516 I/chromium( 7812): [INFO:viewport_data.cc(133)] E2E_Used ViewportFitCover
+10-05 18:39:38.518 I/Capacitor/Console( 4325): File: https://localhost/assets/index-BskXc97p.js - Line 1 - Msg: [meteor-dodge] lifecycle hidden: status paused — 전이 없음
+10-05 18:39:38.526 I/ImeTracker(  568): com.angalle.sunmoonshuttle:8c204f47: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-05 18:39:38.526 I/ImeTracker(  568): com.angalle.sunmoonshuttle:8c204f47: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-05 18:39:38.529 I/GoogleInputMethodService( 1277): GoogleInputMethodService.onFinishInput():3157 
+10-05 18:39:38.530 I/GoogleInputMethodService( 1277): GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 0, locked = false
+10-05 18:39:38.530 I/GoogleInputMethodService( 1277): GoogleInputMethodService.onStartInput():1986 onStartInput(EditorInfo{EditorInfo{packageName=com.angalle.sunmoonshuttle, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=12000000, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-05 18:39:38.531 I/GoogleInputMethodService( 1277): GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 1, locked = false
+10-05 18:39:38.531 I/AndroidIME( 1277): InputBundleManager.loadActiveInputBundleId():450 loadActiveInputBundleId: und-Latn-x-password, password
+10-05 18:39:38.531 W/PackageConfigPersister(  568): App-specific configuration not found for packageName: com.angalle.sunmoonshuttle and userId: 0
+10-05 18:39:38.650 D/Capacitor( 7780): Handling local request: https://localhost/assets/index-BET44E-c.css
+10-05 18:39:38.654 I/chromium( 7812): [INFO:document_style_environment_variables.cc(104)] E2E_Used SafeAreaInsetBottom
+10-05 18:39:38.669 D/Capacitor( 7780): Handling local request: https://localhost/sw.js
+10-05 18:39:38.674 D/Capacitor( 7780): Handling local request: https://localhost/icons/favicon-32.png
+10-05 18:39:38.675 D/Capacitor( 7780): Handling local request: https://localhost/favicon.svg
+10-05 18:39:38.675 D/Capacitor( 7780): Handling local request: https://localhost/data/timetable.json
+10-05 18:39:38.689 I/.sunmoonshuttle( 7780): Compiler allocated 5250KB to compile void android.view.ViewRootImpl.performTraversals()
+10-05 18:39:38.829 W/WindowOnBackDispatcher(  825): sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@113abf0
+10-05 18:39:38.829 W/InputManager-JNI(  568): Input channel object 'f007afa Splash Screen com.angalle.sunmoonshuttle (client)' was disposed without first being removed with the input manager!
+10-05 18:39:38.829 D/CoreBackPreview(  568): Window{f007afa u0 Splash Screen com.angalle.sunmoonshuttle EXITING}: Setting back callback null
+10-05 18:39:38.856 I/netd    (  373): tetherGetStats() -> {[]} <0.29ms>
+10-05 18:39:38.879 I/FontLog ( 1068): Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-05 18:39:38.879 I/FontLog ( 1068): Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-05 18:39:38.879 I/FontLog ( 1068): Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-05 18:39:38.880 I/FontLog ( 1068): Pulling font file for id = 46, cache size = 8 [CONTEXT service_id=132 ]
+10-05 18:39:38.882 I/FontLog ( 1068): Pulling font file for id = 46, cache size = 8 [CONTEXT service_id=132 ]
+10-05 18:39:39.014 D/EGL_emulation(  825): app_time_stats: avg=101.97ms min=9.99ms max=883.64ms count=10
+10-05 18:39:40.000 D/EGL_emulation( 7780): app_time_stats: avg=256.39ms min=12.22ms max=1213.72ms count=6
+10-05 18:39:40.481 D/Capacitor( 7780): Handling local request: https://localhost/sw.js
+10-05 18:39:41.716 E/TaskPersister(  568): File error accessing recents directory (directory doesn't exist?).
+10-05 18:39:41.932 D/EGL_emulation(  825): app_time_stats: avg=291.86ms min=15.38ms max=2769.93ms count=10
+10-05 18:39:43.239 I/IPCThreadState( 6437): oneway function results for code 2 on binder at 0xb40000710693f4c0 will be dropped but finished with status UNKNOWN_TRANSACTION
+10-05 18:39:43.498 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:43.498 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:43.498 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={10152} in 0ms
+10-05 18:39:43.498 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:43.498 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:43.498 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={20152} in 1ms
+10-05 18:39:43.509 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:43.509 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:43.509 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={10207} in 0ms
+10-05 18:39:43.509 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:43.510 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:43.510 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={20207} in 1ms
+10-05 18:39:44.367 D/ProfileInstaller( 7780): Installing profile for com.angalle.sunmoonshuttle
+10-05 18:39:44.453 I/netd    (  373): tetherGetStats() -> {[]} <0.76ms>
+10-05 18:39:47.143 W/BpBinder( 7896): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-05 18:39:47.143 W/ProcessState( 7896): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-05 18:39:47.149 I/hwservicemanager(  162): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-05 18:39:47.149 I/Gralloc4( 7896): mapper 4.x is not supported
+10-05 18:39:47.152 I/servicemanager(  161): Caller(pid=7896,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-05 18:39:47.217 I/ActivityManager(  568): Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+10-05 18:39:47.218 I/ActivityManager(  568): Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+10-05 18:39:47.218 W/JobInfo (  568): Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+10-05 18:39:47.219 I/ActivityManager(  568): Broadcast completed: result=0
+10-05 18:39:47.220 I/MediaProvider( 1327): Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+10-05 18:39:47.227 I/MediaProvider( 1327): End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+10-05 18:39:47.234 I/NetworkScheduler.Stats( 1068): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 15810 [CONTEXT service_id=218 ]
+10-05 18:39:47.235 I/NetworkScheduler.Stats( 1068): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 2 uptime_millis: 2 exec_start_elapsed_seconds: 15810 [CONTEXT service_id=218 ]
+10-05 18:39:47.599 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:39:47.599 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:39:47.600 I/BugleRcsEngine( 1372): handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[6368daca-937e]>Handler" thread_id=63 ]
+10-05 18:39:47.601 I/BugleRcsEngine( 1372): Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=58 ]
+10-05 18:39:47.602 I/ChimeraSrvcProxy( 1068): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+10-05 18:39:47.602 W/.gms.persistent( 1068): Large reply transaction of 1056768 bytes, interface descriptor , code 1
+10-05 18:39:47.884 I/netd    (  373): tetherGetStats() -> {[]} <0.47ms>
+10-05 18:39:48.349 D/ActivityManager(  568): freezing 6437 com.google.android.googlequicksearchbox:search
+10-05 18:39:48.486 D/ActivityManager(  568): freezing 7548 com.google.android.webview:webview_service
+10-05 18:39:48.486 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:48.486 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:48.486 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={10152} in 1ms
+10-05 18:39:48.560 W/.sunmoonshuttle( 7780): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk' with 2 weak references
+10-05 18:39:49.434 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:49.435 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:49.435 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={10140} in 1ms
+10-05 18:39:49.435 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:49.435 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:49.435 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={20140} in 1ms
+10-05 18:39:53.334 D/BoundBrokerSvc( 1499): onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+10-05 18:39:53.334 W/ProcessStats(  568): Tracking association SourceState{2cee5eb com.angalle.sunmoonshuttle/10208 BTop #5848} whose proc state 2 is better than process ProcessState{42c407e com.google.android.gms/10144 pkg=com.google.android.gms} proc state 14 (46 skipped)
+10-05 18:39:53.535 D/BoundBrokerSvc( 1499): onUnbind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+10-05 18:39:53.559 I/netd    (  373): tetherGetStats() -> {[]} <0.44ms>
+10-05 18:39:53.569 W/gle.android.gms( 1499): ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~bM6v8sK1rTLhUOpteqeGqg==/com.angalle.sunmoonshuttle-JzTGheRuuD1dN9kRax4_1w==/base.apk' with 1 weak references
+10-05 18:39:57.897 D/ActivityManager(  568): freezing 6765 com.google.android.permissioncontroller
+10-05 18:39:57.900 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-05 18:39:57.900 D/InetDiagMessage(  568): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-05 18:39:57.900 D/InetDiagMessage(  568): Destroyed live tcp sockets for uids={10186} in 2ms
+10-05 18:40:00.004 I/AiAiEcho( 1337): Predicting[0]:  [CONTEXT sampling_count=5 ]
+10-05 18:40:00.004 I/AiAiEcho( 1337): EchoTargets: 
+10-05 18:40:00.004 I/AiAiEcho( 1337): Filtered by AiAi flag check: 
+10-05 18:40:00.004 I/AiAiEcho( 1337): [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:40:00.004 I/AiAiEcho( 1337): Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:40:00.004 I/AiAiEcho( 1337): #remoteViewsTwiddler: feature disabled.
+10-05 18:40:00.004 I/AiAiEcho( 1337): Predicting[0]:  [CONTEXT sampling_count=5 ]
+10-05 18:40:00.004 I/AiAiEcho( 1337): EchoTargets: 
+10-05 18:40:00.004 I/AiAiEcho( 1337): Filtered by AiAi flag check: 
+10-05 18:40:00.004 I/AiAiEcho( 1337): [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:40:00.004 I/AiAiEcho( 1337): Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:40:00.005 I/AiAiEcho( 1337): #remoteViewsTwiddler: feature disabled.
+10-05 18:40:00.005 I/AiAiEcho( 1337): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+10-05 18:40:00.005 I/AiAiEcho( 1337): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+10-05 18:40:00.016 W/PageIndicator(  825): Total number of pages invalid: 0. Assuming 1 page.
+10-05 18:40:00.029 D/EGL_emulation(  825): app_time_stats: avg=18096.31ms min=18096.31ms max=18096.31ms count=1
+10-05 18:40:03.561 D/ActivityManager(  568): freezing 1499 com.google.android.gms
+10-05 18:40:05.948 W/TimedProcessReaper( 1372): Memory state is: 125
+10-05 18:40:05.948 D/TimedProcessReaper( 1372): Attempted to reap process, but was too important
+10-05 18:40:11.959 D/EGL_emulation(  825): app_time_stats: avg=11930.72ms min=11930.72ms max=11930.72ms count=1
+10-05 18:40:17.678 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.678 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.678 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.679 I/BugleRcsEngine( 1372): Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=58 ]
+10-05 18:40:17.679 I/BugleRcsEngine( 1372): handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[6368daca-937e]>Handler" thread_id=63 ]
+10-05 18:40:17.679 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.679 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.679 I/ChimeraSrvcProxy( 1068): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+10-05 18:40:17.679 W/.gms.persistent( 1068): Large reply transaction of 1056768 bytes, interface descriptor , code 1
+10-05 18:40:17.679 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.679 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:17.794 D/ActivityManager(  568): freezing 7754 com.android.keychain
+10-05 18:40:17.795 D/ActivityManager(  568): freezing 991 com.android.settings
+10-05 18:40:22.917 W/healthd (  385): battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-05 18:40:25.999 D/EGL_emulation( 7780): app_time_stats: avg=2874.93ms min=13.94ms max=45752.77ms count=16
+10-05 18:40:26.240 D/WifiNl80211Manager(  568): Scan result ready event
+10-05 18:40:26.240 D/WifiNative(  568): Scan result ready event
+10-05 18:40:26.245 I/HalDevMgr(  568): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+10-05 18:40:26.692 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.692 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.692 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.692 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.692 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.693 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.693 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:26.694 I/BugleRcsEngine( 1372): Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=58 ]
+10-05 18:40:26.694 I/ChimeraSrvcProxy( 1068): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+10-05 18:40:26.694 W/.gms.persistent( 1068): Large reply transaction of 1056768 bytes, interface descriptor , code 1
+10-05 18:40:26.695 I/BugleRcsEngine( 1372): handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[6368daca-937e]>Handler" thread_id=63 ]
+10-05 18:40:26.847 I/BistoHotwordHelper( 1352): (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+10-05 18:40:28.204 D/EGL_emulation( 7780): app_time_stats: avg=1102.73ms min=15.02ms max=2190.43ms count=2
+10-05 18:40:29.451 D/EGL_emulation( 7780): app_time_stats: avg=23.97ms min=11.14ms max=404.82ms count=52
+10-05 18:40:30.463 D/EGL_emulation( 7780): app_time_stats: avg=16.86ms min=11.21ms max=35.29ms count=60
+10-05 18:40:32.327 W/BpBinder( 7919): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-05 18:40:32.327 W/ProcessState( 7919): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-05 18:40:32.332 I/hwservicemanager(  162): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-05 18:40:32.332 I/Gralloc4( 7919): mapper 4.x is not supported
+10-05 18:40:32.334 I/servicemanager(  161): Caller(pid=7919,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-05 18:40:32.339 W/MediaProvider( 1327): isAppCloneUserPair for user 0: false
+10-05 18:40:32.349 D/ActivityManager(  568): sync unfroze 1499 com.google.android.gms for 6
+10-05 18:40:32.351 W/ProcessStats(  568): Tracking association SourceState{fe9af53 com.google.android.gms.persistent/10144 ImpBg #5861} whose proc state 6 is better than process ProcessState{42c407e com.google.android.gms/10144 pkg=com.google.android.gms} proc state 14 (1 skipped)
+10-05 18:40:32.352 I/NetworkScheduler.Stats( 1068): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 15855 [CONTEXT service_id=218 ]
+10-05 18:40:32.354 I/GmscoreIpa( 1499): Starting mediastore instant index [CONTEXT service_id=255 ]
+10-05 18:40:32.355 I/NetworkScheduler.Stats( 1068): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 15855 [CONTEXT service_id=218 ]
+10-05 18:40:32.445 I/ActivityManager(  568): Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+10-05 18:40:32.445 I/ActivityManager(  568): Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+10-05 18:40:32.445 W/JobInfo (  568): Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+10-05 18:40:32.446 I/ActivityManager(  568): Broadcast completed: result=0
+10-05 18:40:32.447 I/MediaProvider( 1327): Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+10-05 18:40:32.448 I/MediaProvider( 1327): End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+10-05 18:40:32.453 D/WM-SystemJobScheduler( 1327): Scheduling work ID a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6Job ID 4
+10-05 18:40:32.455 D/WM-GreedyScheduler( 1327): Ignoring {WorkSpec: 816a0d3e-5feb-4236-8034-32be79966bdd}. Requires device idle.
+10-05 18:40:32.455 D/WM-GreedyScheduler( 1327): Ignoring {WorkSpec: 5dfafafe-31ac-4523-81fd-14a8d167b694}. Requires device idle.
+10-05 18:40:32.459 I/NetworkScheduler.Stats( 1068): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 15855 [CONTEXT service_id=218 ]
+10-05 18:40:32.460 I/NetworkScheduler.Stats( 1068): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 3 uptime_millis: 3 exec_start_elapsed_seconds: 15855 [CONTEXT service_id=218 ]
+10-05 18:40:32.515 I/logd    (  165): logdr: UID=2000 GID=2000 PID=7932 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+10-05 18:40:32.531 I/logd    (  165): logdr: UID=2000 GID=2000 PID=7935 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+10-05 18:40:33.950 D/WM-DelayedWorkTracker( 1327): Scheduling work a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6
+10-05 18:40:33.950 D/WM-GreedyScheduler( 1327): Starting tracking for a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6
+10-05 18:40:33.953 D/WM-ConstraintTracker( 1327): BatteryNotLowTracker: initial state = true
+10-05 18:40:33.953 D/WM-BrdcstRcvrCnstrntTrc( 1327): BatteryNotLowTracker: registering receiver
+10-05 18:40:33.953 D/WM-GreedyScheduler( 1327): Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6, generation=0)
+10-05 18:40:33.954 D/WM-Processor( 1327): Processor: processing WorkGenerationalId(workSpecId=a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6, generation=0)
+10-05 18:40:33.955 D/WM-SystemJobService( 1327): onStartJob for WorkGenerationalId(workSpecId=a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6, generation=0)
+10-05 18:40:33.955 D/WM-WorkerWrapper( 1327): Starting work for com.android.providers.media.photopicker.sync.ProactiveSyncWorker
+10-05 18:40:33.956 I/PSyncWorker( 1327): Starting proactive picker sync from sync source: 1
+10-05 18:40:33.956 D/WM-Processor( 1327): Work WorkGenerationalId(workSpecId=a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6, generation=0) is already enqueued for processing
+10-05 18:40:33.956 I/PickerSyncTracker( 1327): Created new sync future java.util.concurrent.CompletableFuture@a7b994[Not completed, 1 dependents]. Future map: {a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6=java.util.concurrent.CompletableFuture@a7b994[Not completed, 1 dependents]}
+10-05 18:40:33.960 D/PickerSyncController( 1327): syncAllMediaFromProvider() LOCAL, auth=com.android.providers.media.photopicker, retry=true
+10-05 18:40:33.960 D/PickerSyncController( 1327): getSyncRequestParams() LOCAL, auth=com.android.providers.media.photopicker
+10-05 18:40:33.961 D/PickerSyncController( 1327):    Latest ID/Gen=1409:1d1e00ee-ed82-48a5-beba-7704d9a8bcd8:external_primary/21
+10-05 18:40:33.961 D/PickerSyncController( 1327):    Cached ID/Gen=1409:1d1e00ee-ed82-48a5-beba-7704d9a8bcd8:external_primary/11
+10-05 18:40:33.961 D/PickerSyncController( 1327):    RESULT=SyncRequestParams{type=MEDIA_INCREMENTAL, gen=11, latest=Bundle[{last_media_sync_generation=21, media_collection_id=1409:1d1e00ee-ed82-48a5-beba-7704d9a8bcd8:external_primary}], pageSize=1000}
+10-05 18:40:33.961 I/PickerSyncController( 1327): Executing SyncAdd. isLocal: true. authority: com.android.providers.media.photopicker
+10-05 18:40:33.961 D/PickerSyncLockManager( 1327): Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+10-05 18:40:33.961 D/CloseableReentrantLock( 1327): Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Locked by thread pool-3-thread-2]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.961 D/CloseableReentrantLock( 1327): Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.961 D/ExternalDbFacade( 1327): Token received for queryMedia = null
+10-05 18:40:33.965 V/PickerDbFacade( 1327): Failed to insert picker db media. ContentValues: standard_mime_type_extension=0 size_bytes=262244 orientation=0 height=2400 date_taken_ms=1791193187000 duration_ms=0 sync_generation=18 mime_type=image/png width=1080 is_favorite=0 local_id=1000000019 is_visible=1
+10-05 18:40:33.965 V/PickerDbFacade( 1327): android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: media.local_id, media.is_visible (code 2067 SQLITE_CONSTRAINT_UNIQUE)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at android.database.sqlite.SQLiteConnection.nativeExecuteForLastInsertedRowId(Native Method)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at android.database.sqlite.SQLiteConnection.executeForLastInsertedRowId(SQLiteConnection.java:974)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at android.database.sqlite.SQLiteSession.executeForLastInsertedRowId(SQLiteSession.java:814)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at android.database.sqlite.SQLiteStatement.executeInsert(SQLiteStatement.java:89)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at android.database.DatabaseUtils.executeInsert(DatabaseUtils.java:212)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at android.database.sqlite.SQLiteQueryBuilder.insert(SQLiteQueryBuilder.java:638)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.data.PickerDbFacade$AddMediaOperation.insertMedia(PickerDbFacade.java:520)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.data.PickerDbFacade$AddMediaOperation.upsertMedia(PickerDbFacade.java:534)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.data.PickerDbFacade$AddMediaOperation.executeInternal(PickerDbFacade.java:492)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.data.PickerDbFacade$DbWriteOperation.execute(PickerDbFacade.java:360)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.PickerSyncController.executePagedSync(PickerSyncController.java:1493)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.PickerSyncController.executePagedSync(PickerSyncController.java:1412)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.PickerSyncController.executeSyncAdd(PickerSyncController.java:941)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.PickerSyncController.syncAllMediaFromProvider(PickerSyncController.java:789)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.PickerSyncController.syncAllMediaFromLocalProvider(PickerSyncController.java:299)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at com.android.providers.media.photopicker.sync.ProactiveSyncWorker.doWork(ProactiveSyncWorker.java:89)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at androidx.work.Worker$startWork$1.invoke(Worker.kt:64)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at androidx.work.Worker$startWork$1.invoke(Worker.kt:64)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at androidx.work.WorkerKt.future$lambda$2$lambda$1(Worker.kt:100)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at androidx.work.WorkerKt.$r8$lambda$06LNzu7McnKR6G06fSbfQ2BCegc(Worker.kt:0)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at androidx.work.WorkerKt$$ExternalSyntheticLambda2.run(R8$$SyntheticClass:0)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-05 18:40:33.965 V/PickerDbFacade( 1327): 	at java.lang.Thread.run(Thread.java:1012)
+10-05 18:40:33.968 V/PickerDbFacade( 1327): Retrying failed insert as update. ContentValues: standard_mime_type_extension=0 size_bytes=262244 orientation=0 height=2400 date_taken_ms=1791193187000 duration_ms=0 sync_generation=18 mime_type=image/png width=1080 is_favorite=0 local_id=1000000019 is_visible=1
+10-05 18:40:33.968 D/PickerSyncLockManager( 1327): Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+10-05 18:40:33.968 D/CloseableReentrantLock( 1327): Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Locked by thread pool-3-thread-2]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.968 D/PickerSyncController( 1327): Saving next page token: 1791193187000|1000000019 for key: local_provider:media_add:resume
+10-05 18:40:33.968 D/CloseableReentrantLock( 1327): Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.969 D/PickerNotificationSender( 1327): Sending a notification for media update
+10-05 18:40:33.969 D/PickerNotificationSender( 1327): Sending a notification for merged album media update Favorites
+10-05 18:40:33.969 D/PickerNotificationSender( 1327): Sending a notification for album media update Favorites
+10-05 18:40:33.970 D/PickerNotificationSender( 1327): Sending a notification for merged album media update Videos
+10-05 18:40:33.970 D/PickerNotificationSender( 1327): Sending a notification for album media update Videos
+10-05 18:40:33.970 D/ExternalDbFacade( 1327): Token received for queryMedia = 1791193187000|1000000019
+10-05 18:40:33.971 D/PickerSyncLockManager( 1327): Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+10-05 18:40:33.971 D/CloseableReentrantLock( 1327): Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Locked by thread pool-3-thread-2]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.971 D/PickerSyncController( 1327): Clearing next page token for key: local_provider:media_add:resume
+10-05 18:40:33.971 D/CloseableReentrantLock( 1327): Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.971 D/PickerNotificationSender( 1327): Sending a notification for media update
+10-05 18:40:33.971 D/PickerNotificationSender( 1327): Sending a notification for merged album media update Favorites
+10-05 18:40:33.971 D/PickerNotificationSender( 1327): Sending a notification for album media update Favorites
+10-05 18:40:33.972 D/PickerNotificationSender( 1327): Sending a notification for merged album media update Videos
+10-05 18:40:33.972 D/PickerNotificationSender( 1327): Sending a notification for album media update Videos
+10-05 18:40:33.972 I/PickerSyncController( 1327): Paged sync successful. QueryArgs: Bundle[{android.provider.extra.PAGE_TOKEN=1791193187000|1000000019, android.provider.extra.SYNC_GENERATION=11, android.provider.extra.PAGE_SIZE=1000}] Total Rows: 2
+10-05 18:40:33.972 I/PickerSyncController( 1327): Executing SyncRemove. isLocal: true. authority: com.android.providers.media.photopicker
+10-05 18:40:33.972 D/PickerSyncLockManager( 1327): Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+10-05 18:40:33.972 D/CloseableReentrantLock( 1327): Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Locked by thread pool-3-thread-2]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.972 D/CloseableReentrantLock( 1327): Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.973 D/PickerSyncLockManager( 1327): Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+10-05 18:40:33.973 D/CloseableReentrantLock( 1327): Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Locked by thread pool-3-thread-2]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.973 D/PickerSyncController( 1327): Clearing next page token for key: local_provider:media_remove:resume
+10-05 18:40:33.973 D/CloseableReentrantLock( 1327): Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@d5fad98[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-05 18:40:33.973 D/PickerNotificationSender( 1327): Sending a notification for media update
+10-05 18:40:33.973 D/PickerNotificationSender( 1327): Sending a notification for merged album media update Favorites
+10-05 18:40:33.973 D/PickerNotificationSender( 1327): Sending a notification for album media update Favorites
+10-05 18:40:33.974 D/PickerNotificationSender( 1327): Sending a notification for merged album media update Videos
+10-05 18:40:33.974 D/PickerNotificationSender( 1327): Sending a notification for album media update Videos
+10-05 18:40:33.975 I/PickerSyncController( 1327): Paged sync successful. QueryArgs: Bundle[{android.provider.extra.PAGE_TOKEN=1791193187000|1000000019, android.provider.extra.SYNC_GENERATION=11, android.provider.extra.PAGE_SIZE=1000}] Total Rows: 0
+10-05 18:40:33.975 I/PickerSyncTracker( 1327): Marked sync future complete for work id: a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6. Future map: {}
+10-05 18:40:33.975 I/PSyncWorker( 1327): Completed picker proactive sync complete from local provider.
+10-05 18:40:33.976 I/WM-WorkerWrapper( 1327): Worker result SUCCESS for Work [ id=a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-05 18:40:33.976 D/WM-Processor( 1327): Processor a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6 executed; reschedule = false
+10-05 18:40:33.976 D/WM-GreedyScheduler( 1327): Stopping tracking for WorkGenerationalId(workSpecId=a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6, generation=0)
+10-05 18:40:33.977 D/WM-SystemJobService( 1327): a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6 executed on JobScheduler
+10-05 18:40:33.979 D/WM-GreedyScheduler( 1327): Cancelling work ID a5605149-95f7-4e53-b9d6-bc3b8fbbf9b6
+10-05 18:40:33.981 D/WM-GreedyScheduler( 1327): Ignoring {WorkSpec: 816a0d3e-5feb-4236-8034-32be79966bdd}. Requires device idle.
+10-05 18:40:33.981 D/WM-GreedyScheduler( 1327): Ignoring {WorkSpec: 5dfafafe-31ac-4523-81fd-14a8d167b694}. Requires device idle.
+10-05 18:40:33.981 D/WM-BrdcstRcvrCnstrntTrc( 1327): BatteryNotLowTracker: unregistering receiver
+10-05 18:40:33.985 W/FuseDaemon( 1327): Reducing the number of considered missed Gc histogram windows from 1583 to 100
+10-05 18:40:38.333 D/BoundBrokerSvc( 1499): onUnbind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+10-05 18:40:38.723 D/EGL_emulation( 7780): app_time_stats: avg=359.11ms min=13.93ms max=7509.91ms count=23
+10-05 18:40:49.363 D/ActivityManager(  568): freezing 1499 com.google.android.gms
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 W/IPCThreadState(  568): Sending oneway calls to frozen process.
+10-05 18:40:59.768 I/ChimeraSrvcProxy( 1068): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+10-05 18:40:59.768 W/.gms.persistent( 1068): Large reply transaction of 1056768 bytes, interface descriptor , code 1
+10-05 18:40:59.769 I/BugleRcsEngine( 1372): handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[6368daca-937e]>Handler" thread_id=63 ]
+10-05 18:40:59.769 I/BugleRcsEngine( 1372): Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=58 ]
+10-05 18:41:00.003 I/AiAiEcho( 1337): Predicting[0]:  [CONTEXT sampling_count=5 ]
+10-05 18:41:00.003 I/AiAiEcho( 1337): EchoTargets: 
+10-05 18:41:00.003 I/AiAiEcho( 1337): Filtered by AiAi flag check: 
+10-05 18:41:00.003 I/AiAiEcho( 1337): [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:41:00.003 I/AiAiEcho( 1337): Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:41:00.004 I/AiAiEcho( 1337): #remoteViewsTwiddler: feature disabled.
+10-05 18:41:00.004 I/AiAiEcho( 1337): Predicting[0]:  [CONTEXT sampling_count=5 ]
+10-05 18:41:00.004 I/AiAiEcho( 1337): EchoTargets: 
+10-05 18:41:00.004 I/AiAiEcho( 1337): Filtered by AiAi flag check: 
+10-05 18:41:00.004 I/AiAiEcho( 1337): [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:41:00.004 I/AiAiEcho( 1337): Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+10-05 18:41:00.004 I/AiAiEcho( 1337): #remoteViewsTwiddler: feature disabled.
+10-05 18:41:00.004 I/AiAiEcho( 1337): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+10-05 18:41:00.004 I/AiAiEcho( 1337): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+10-05 18:41:00.012 W/PageIndicator(  825): Total number of pages invalid: 0. Assuming 1 page.
+10-05 18:41:00.023 D/EGL_emulation(  825): app_time_stats: avg=48063.20ms min=48063.20ms max=48063.20ms count=1
+10-05 18:41:12.349 I/StylusModule( 1277): StylusModule.onUpdateToolType():770 Update tool type = 0
+10-05 18:41:12.351 D/AutofillManagerService(  568): onBackKeyPressed()
+10-05 18:41:12.354 V/WindowManagerShell(  825): Transition requested (#29): android.os.BinderProxy@89bdc5 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=68 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} numActivities=0 lastActiveTime=15801562 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@dd6031a} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 29 }
+10-05 18:41:12.355 I/TopTaskTracker( 1092): onTaskMovedToFront: (moved taskInfo to front) taskId=66, baseIntent=Intent { flg=0x10000000 cmp=com.leeheesun.meteordodge/.MainActivity }
+10-05 18:41:12.355 D/Capacitor( 7780): App paused
+10-05 18:41:12.357 D/Capacitor( 4325): App restarted
+10-05 18:41:12.358 I/ActivityManager(  568): Killing 6712:com.google.android.cellbroadcastreceiver/u0a191 (adj 985): empty #17
+10-05 18:41:12.358 D/Capacitor( 4325): App started
+10-05 18:41:12.358 W/WindowOnBackDispatcher( 4325): OnBackInvokedCallback is not enabled for the application.
+10-05 18:41:12.358 W/WindowOnBackDispatcher( 4325): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+10-05 18:41:12.359 D/Capacitor( 4325): App resumed
+10-05 18:41:12.361 I/BpBinder(  422): onLastStrongRef automatically unlinking death recipients: 
+10-05 18:41:12.367 I/binder  (   62): undelivered transaction 7976215, process died.
+10-05 18:41:12.364 I/Zygote  (  374): Process 6712 exited due to signal 9 (Killed)
+10-05 18:41:12.367 I/binder  (   62): undelivered transaction 7976104, process died.
+10-05 18:41:12.367 D/DisplayManagerService(  568): Drop pending events for gone uid 10191
+10-05 18:41:12.369 I/BpBinder(  422): onLastStrongRef automatically unlinking death recipients: 
+10-05 18:41:12.375 I/netd    (  373): tetherGetStats() -> {[]} <0.26ms>
+10-05 18:41:12.375 I/libprocessgroup(  568): Removed cgroup /sys/fs/cgroup/uid_10191/pid_6712
+10-05 18:41:12.378 V/WindowManagerShell(  825): onTransitionReady(transaction=2439541425128)
+10-05 18:41:12.378 V/WindowManagerShell(  825): onTransitionReady (#29) android.os.BinderProxy@89bdc5: {id=29 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@bc136e6} m=TO_FRONT f=NONE leash=Surface(name=Task=66)/@0x92d6e4b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@be2a427} m=CLOSE f=NONE leash=Surface(name=Task=68)/@0x8f50028 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-05 18:41:12.378 V/WindowManagerShell(  825): Playing animation for (#29) android.os.BinderProxy@89bdc5@0
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.transition.DefaultMixedHandler@81644e3
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@50aaee0
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.pip.PipTransition@814e599
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@c30905e
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.recents.RecentsTransitionHandler@35e4c3f
+10-05 18:41:12.379 V/ShellRecents(  825): RecentsTransitionHandler.startAnimation: no controller found
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.splitscreen.StageCoordinator@21bd90c
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.transition.RemoteTransitionHandler@d454255
+10-05 18:41:12.379 V/WindowManagerShell(  825): Transition doesn't have explicit remote, search filters for match for {id=29 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@bc136e6} m=TO_FRONT f=NONE leash=Surface(name=Task=66)/@0x92d6e4b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@be2a427} m=CLOSE f=NONE leash=Surface(name=Task=68)/@0x8f50028 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-05 18:41:12.379 V/WindowManagerShell(  825):  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[OPEN,TO_FRONT] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@50755f8, appThread = android.app.IApplicationThread$Stub$Proxy@6215ad1, debugName = OverlaySwipeBack }}
+10-05 18:41:12.379 V/WindowManagerShell(  825):  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@4858936, appThread = android.app.IApplicationThread$Stub$Proxy@26e1037, debugName = LauncherToDream }}
+10-05 18:41:12.379 V/WindowManagerShell(  825):  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@357d9a4, appThread = android.app.IApplicationThread$Stub$Proxy@98fd30d, debugName = QuickstepLaunchHome }}
+10-05 18:41:12.379 V/WindowManagerShell(  825):  Delegate animation for (#29) to null
+10-05 18:41:12.379 V/WindowManagerShell(  825):  try handler com.android.wm.shell.transition.DefaultTransitionHandler@8223da4
+10-05 18:41:12.379 V/WindowManagerShell(  825): start default transition animation, info = {id=29 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@bc136e6} m=TO_FRONT f=NONE leash=Surface(name=Task=66)/@0x92d6e4b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@be2a427} m=CLOSE f=NONE leash=Surface(name=Task=68)/@0x8f50028 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-05 18:41:12.379 V/WindowManagerShell(  825): loadAnimation: anim=android.view.animation.AnimationSet@93ee07d animAttr=0xb type=CLOSE isEntrance=false
+10-05 18:41:12.380 V/WindowManagerShell(  825): loadAnimation: anim=android.view.animation.AnimationSet@acb5bc3 animAttr=0xa type=CLOSE isEntrance=true
+10-05 18:41:12.381 I/Capacitor/Console( 4325): File: https://localhost/assets/index-BskXc97p.js - Line 1 - Msg: [meteor-dodge] lifecycle visible: 자동 재개 없음 — 탭 대기
+10-05 18:41:12.381 V/WindowManagerShell(  825):  animated by com.android.wm.shell.transition.DefaultTransitionHandler@8223da4
+10-05 18:41:12.382 V/WindowManager(  568): Sent Transition (#29) createdAt=10-05 18:41:12.354 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=68 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} numActivities=0 lastActiveTime=15801562 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{550d7dd Task{b4d7f69 #68 type=standard A=10208:com.angalle.sunmoonshuttle}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 29 }
+10-05 18:41:12.382 V/WindowManager(  568):     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+10-05 18:41:12.382 V/WindowManager(  568):     info={id=29 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+10-05 18:41:12.382 V/WindowManager(  568):         {WCT{RemoteToken{3213b74 Task{b216a57 #66 type=standard A=10207:com.leeheesun.meteordodge}}} m=TO_FRONT f=NONE leash=Surface(name=Task=66)/@0xfe78286 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},
+10-05 18:41:12.382 V/WindowManager(  568):         {WCT{RemoteToken{550d7dd Task{b4d7f69 #68 type=standard A=10208:com.angalle.sunmoonshuttle}}} m=CLOSE f=NONE leash=Surface(name=Task=68)/@0x8983487 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}
+10-05 18:41:12.382 V/WindowManager(  568):     ]}
+10-05 18:41:12.384 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:41:12.395 I/RanchuHwc(  397): logCompositionFallbackIfChanged: layer 57 CompositionType fallback from 3 to 1
+10-05 18:41:12.400 I/ImeTracker(  568): com.leeheesun.meteordodge:161c4d92: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-05 18:41:12.400 I/ImeTracker(  568): com.leeheesun.meteordodge:161c4d92: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-05 18:41:12.402 I/GoogleInputMethodService( 1277): GoogleInputMethodService.onFinishInput():3157 
+10-05 18:41:12.402 I/GoogleInputMethodService( 1277): GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 0, locked = false
+10-05 18:41:12.402 I/GoogleInputMethodService( 1277): GoogleInputMethodService.onStartInput():1986 onStartInput(EditorInfo{EditorInfo{packageName=com.leeheesun.meteordodge, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=2131230911, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-05 18:41:12.403 I/GoogleInputMethodService( 1277): GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 1, locked = false
+10-05 18:41:12.404 I/AndroidIME( 1277): InputBundleManager.loadActiveInputBundleId():450 loadActiveInputBundleId: und-Latn-x-password, password
+10-05 18:41:12.404 W/PackageConfigPersister(  568): App-specific configuration not found for packageName: com.leeheesun.meteordodge and userId: 0
+10-05 18:41:12.896 V/WindowManagerShell(  825): Transition animation finished (aborted=false), notifying core (#29) android.os.BinderProxy@89bdc5@0
+10-05 18:41:12.898 V/WindowManager(  568): Finish Transition (#29): created at 10-05 18:41:12.354 collect-started=0.015ms request-sent=0.042ms started=1.028ms ready=2.68ms sent=23.951ms finished=543.832ms
+10-05 18:41:12.899 V/WindowManagerShell(  825): Track 0 became idle
+10-05 18:41:12.899 V/WindowManagerShell(  825): All active transition animations finished
+10-05 18:41:12.900 I/ActivityManager(  568): Killing 6738:com.google.android.healthconnect.controller/u0a199 (adj 975): empty #17
+10-05 18:41:12.900 D/VRI[MainActivity]( 7780): visibilityChanged oldVisibility=true newVisibility=false
+10-05 18:41:12.900 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:41:12.900 W/UserManagerService(  568): Requested status bar icon for non-badged user 0
+10-05 18:41:12.901 D/Capacitor( 7780): App stopped
+10-05 18:41:12.903 D/Capacitor( 7780): App destroyed
+10-05 18:41:12.903 W/WindowOnBackDispatcher( 7780): sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@513c99d
+10-05 18:41:12.904 D/CoreBackPreview(  568): Window{cc0a35 u0 com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity}: Setting back callback null
+10-05 18:41:12.905 I/Zygote  (  374): Process 6738 exited due to signal 9 (Killed)
+10-05 18:41:12.906 D/DisplayManagerService(  568): Drop pending events for gone uid 10199
+10-05 18:41:12.907 I/binder  ( 7751): undelivered transaction 7976214, process died.
+10-05 18:41:12.907 I/binder  ( 7751): undelivered transaction 7976103, process died.
+10-05 18:41:12.912 W/InputManager-JNI(  568): Input channel object 'cc0a35 com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity (client)' was disposed without first being removed with the input manager!
+10-05 18:41:12.916 E/chromium( 7780): [ERROR:aw_browser_terminator.cc(154)] Renderer process (7812) crash detected (code -1).
+10-05 18:41:12.917 I/ActivityManager(  568): Killing 7812:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a208i6 (adj 0): isolated not needed
+10-05 18:41:12.918 I/TopTaskTracker( 1092): onTaskRemoved: taskId=68
+10-05 18:41:12.918 I/TopTaskTracker( 1092): onTaskRemoved: taskId=68
+10-05 18:41:12.923 I/libprocessgroup(  568): Removed cgroup /sys/fs/cgroup/uid_10199/pid_6738
+10-05 18:41:12.925 I/libprocessgroup(  568): Removed cgroup /sys/fs/cgroup/uid_99006/pid_7812
+10-05 18:41:12.925 I/Zygote  (  867): Process 7812 exited due to signal 9 (Killed)
+10-05 18:41:12.926 D/DisplayManagerService(  568): Drop pending events for gone uid 99006
+10-05 18:41:13.382 D/EGL_emulation( 4325): app_time_stats: avg=16.49ms min=5.18ms max=24.78ms count=61
+10-05 18:41:14.383 D/EGL_emulation( 4325): app_time_stats: avg=16.68ms min=11.35ms max=24.71ms count=60
+10-05 18:41:15.398 D/EGL_emulation( 4325): app_time_stats: avg=16.63ms min=13.85ms max=21.11ms count=61
