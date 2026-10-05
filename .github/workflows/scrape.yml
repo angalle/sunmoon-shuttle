@@ -1,0 +1,128 @@
+# scrape.yml — 원본 스냅샷 반입 파이프라인 (T3 · infraprojectcreator)
+#
+# ⚠️ schedule:(cron) 을 절대 넣지 않는다 — 의도적이다.
+#    lily.sunmoon.ac.kr/robots.txt 의 `Disallow: /Page` 는 접두사 규칙이라 `/Page2/…`(우리 시간표 URL 전부)를
+#    포함해 차단한다(실측, docs/01-architecture.md §8). 자동 크롤은 학교 허락 전 금지(결정 D5·D7).
+#    정본 = **사람이 브라우저로 저장한 HTML 스냅샷을 data/raw/ 에 커밋 → 이 워크플로가 파싱·검증·반영**.
+#    (자동 수집 경로를 코드에 남기지 않는다. 파서는 `--local` 로만 동작한다.)
+#
+# 흐름: workflow_dispatch(수동 트리거) → npm ci → 스냅샷 파싱(--local) → 계약 JSON 최소 검증 → 테스트
+#       → 변경 감지(무변경이면 커밋 0건) → commit 또는 PR
+# 불변식: 검증/테스트 실패 → **워크플로 실패**(조용한 통과 금지) · data/timetable.json 은 변경 시에만 커밋.
+name: scrape
+
+on:
+  workflow_dispatch:
+    inputs:
+      raw_glob:
+        description: '원본 스냅샷 경로(글롭). 사람이 저장해 커밋한 HTML'
+        required: true
+        default: 'data/raw/*.html'
+      mode:
+        description: '결과 반영 방식 (commit=main 에 직접 커밋 / pr=검토용 PR)'
+        type: choice
+        options: [commit, pr]
+        default: commit
+      reason:
+        description: '반입 사유(커밋·PR 제목에 들어감)'
+        required: false
+        default: '수동 스냅샷 반입'
+  # schedule: 없음(위 주석 참조). cron 을 추가하지 말 것.
+
+permissions:
+  contents: write          # 커밋/브랜치 push
+  pull-requests: write     # mode=pr
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    name: "scrape (--local → 검증 → 반영)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      # 원격 fetch 없음. 로컬 스냅샷만 파싱한다(자동 크롤 금지 — 파일 상단 주석).
+      # 글롭은 셸에서 파일 목록으로 확장해 파서에 넘긴다(문서화된 사용법: npm run scrape -- --local data/raw/*.html).
+      # 빈 매칭이면 조용히 넘어가지 않고 즉시 실패한다. while+read 로 파일명 공백/한글에도 안전(bash 3.2 호환).
+      - name: 스냅샷 파싱 (--local)
+        env:
+          RAW_GLOB: ${{ inputs.raw_glob }}
+        run: |
+          set -euo pipefail
+          files=()
+          while IFS= read -r f; do
+            files+=("$f")
+          done < <(compgen -G "$RAW_GLOB" || true)
+          echo "매칭된 스냅샷: ${#files[@]}개"
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "::error title=스냅샷 없음::${RAW_GLOB} 에 매칭되는 파일이 없다."
+            exit 1
+          fi
+          printf ' - %s\n' "${files[@]}"
+          npm run scrape -- --local "${files[@]}"
+
+      # 계약 JSON **최소** 검증(docs/02 M3). 정밀 스키마·골든 검증은 파서(T2)·골든 테스트가 담당한다.
+      - name: 계약 JSON 최소 검증
+        run: node .github/scripts/verify_contract.mjs data/timetable.json
+
+      - name: 테스트 (골든 포함 — 깨진 스냅샷이면 여기서 실패)
+        run: npm run test
+
+      - name: 변경 감지 (무변경이면 커밋 0건)
+        id: diff
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- data/timetable.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data/timetable.json 변경 없음 → 커밋 0건(파싱은 성공)"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "data/timetable.json 변경 감지"
+          fi
+
+      - name: 반영 — main 커밋 (mode=commit)
+        if: steps.diff.outputs.changed == 'true' && inputs.mode == 'commit'
+        env:
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+          SUMMARY="$(node .github/scripts/summarize.mjs data/timetable.json)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/timetable.json
+          git commit -m "data: 스냅샷 반영 — ${SUMMARY} (${REASON})"
+          git push
+          echo "커밋·push 완료: ${SUMMARY}"
+
+      - name: 반영 — 검토용 PR (mode=pr)
+        if: steps.diff.outputs.changed == 'true' && inputs.mode == 'pr'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REASON: ${{ inputs.reason }}
+          RAW_GLOB: ${{ inputs.raw_glob }}
+        run: |
+          set -euo pipefail
+          SUMMARY="$(node .github/scripts/summarize.mjs data/timetable.json)"
+          BR="data/snapshot-$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          git add data/timetable.json
+          git commit -m "data: 스냅샷 반영 — ${SUMMARY} (${REASON})"
+          git push -u origin "$BR"
+          gh pr create --base main --head "$BR" \
+            --title "data: 스냅샷 반영 — ${SUMMARY}" \
+            --body "수동 스냅샷 반입(workflow_dispatch, mode=pr). 사유: ${REASON} / 입력: ${RAW_GLOB} / 요약: ${SUMMARY}"

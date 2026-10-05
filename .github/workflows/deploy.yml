@@ -1,0 +1,85 @@
+# deploy.yml — GitHub Pages 배포 파이프라인 (T3 · infraprojectcreator)
+#
+# 계약: docs/01-architecture.md §6(배포) · docs/02-monitoring.md §5(배포 전 스모크)
+# 흐름: main push → npm ci → 경계 검사 → 테스트 → 빌드 → Pages(공식 Actions) 배포
+# 불변식: **테스트(또는 경계 검사)가 실패하면 배포 잡은 실행되지 않는다** — 깨진 데이터/앱 배포 금지.
+#         (build 잡이 실패하면 needs: build 로 deploy 잡이 skipped 된다.)
+# 비용: public 저장소의 표준 러너·Pages 는 0원(docs/02-monitoring.md §7).
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # 비상 재배포(수동). 배포만 수동으로 다시 돌리고 싶을 때.
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Pages 는 배포 동시성 그룹이 하나다. 진행 중 배포를 끊지 않는다(중간 상태 노출 방지).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: "build (경계 → test → build)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: "Node 설정 (package.json engines: node >=26)"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+
+      - name: 의존성 설치 (잠금파일 고정)
+        run: npm ci
+
+      - name: 헥사고날 경계 검사 (src/domain 순수성 · application→adapters 금지)
+        run: npm run lint:boundary
+
+      # ↓ 이 스텝이 실패하면 build 잡이 실패하고 deploy 잡은 skipped 된다(배포 중단).
+      - name: 테스트 (단위·골든)
+        run: npm run test
+
+      - name: 정적 빌드
+        run: npm run build
+
+      # 앱이 읽는 계약 데이터를 배포 산출물에 넣는다(docs/01 §1: Pages 가 앱 번들 + data/timetable.json 을 서빙).
+      # T2(파서) 이전에는 파일이 없을 수 있다 → 경고만 남기고 앱 번들은 배포한다(배포 자체를 막지 않는다).
+      - name: 계약 데이터 동봉 (data/timetable.json, 있으면)
+        run: |
+          set -euo pipefail
+          if [ -f data/timetable.json ]; then
+            mkdir -p dist/data
+            cp data/timetable.json dist/data/timetable.json
+            echo "동봉: dist/data/timetable.json ($(wc -c < dist/data/timetable.json) bytes)"
+          else
+            echo "::warning title=계약 데이터 없음::data/timetable.json 미존재(T2 진행 중) — 앱 번들만 배포한다."
+          fi
+
+      - name: Pages 설정 (최초 실행 시 사이트 자동 활성화)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: 배포 아티팩트 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: "deploy (github-pages)"
+    needs: build          # ← build 가 실패하면 이 잡은 실행되지 않는다
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
