@@ -69,6 +69,13 @@ export const UI_TEXT = {
   dataErrorTitle: '데이터를 불러오지 못했습니다',
   dataErrorRetry: '다시 시도',
   dataErrorDetailPrefix: '원인',
+
+  // 오프라인/캐시 폴백 안내(T6 · AC-5·AC-6) — 캐시로 그린 화면임을 **문구로** 알린다(조용한 노후 금지).
+  offlineNoticeTitle: '오프라인 — 마지막으로 받은 데이터를 표시합니다',
+  offlineNoticeReasonPrefix: '최신 데이터를 받지 못했습니다',
+  offlineNoticeAgePrefix: '마지막으로 받은 시각',
+  offlineNoticeAgeUnknown: '알 수 없음',
+  offlineNoticeStale: '이 캐시는 24시간이 지났습니다 — 최신 시간표인지 확인이 필요합니다.',
 } as const;
 
 /**

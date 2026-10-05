@@ -10,6 +10,7 @@
  */
 import { el, replaceChildren } from '../../../shared/lib/dom';
 import { button } from '../../../shared/ui/atoms/Button';
+import { formatCacheAge } from '../../../../../../application/cache/timetableCachePolicy';
 import { DAY_TYPES } from '../../../../../../domain/entities/DayType';
 import { dayTypeFromDate, dayTypeLabel } from '../../../../../../domain/rules/dayType';
 import {
@@ -51,6 +52,7 @@ export function createSchedulePage(
 ): () => void {
   const bannerHost = el('div', { dataset: { testid: 'banner' } });
   const tabsHost = el('div', { dataset: { testid: 'tabs-host' } });
+  const installHost = el('div', { dataset: { testid: 'install-host' } });
   const panelHost = el('div', { dataset: { testid: 'panel-host' } });
   const nextBusHost = el('div', { dataset: { testid: 'next-bus-host' } });
   const timetableHost = el('div', { dataset: { testid: 'timetable-host' } });
@@ -218,6 +220,10 @@ export function createSchedulePage(
       state.routeId ?? '',
       state.model?.source.fetchedAt ?? '',
       state.errorMessage ?? '',
+      // 캐시 폴백 여부가 바뀌면 배너를 다시 그려야 한다(T6 — 오프라인 안내).
+      state.dataSource ?? '',
+      state.offlineReason ?? '',
+      state.cacheAgeMs ?? '',
       state.model?.routes.length ?? 0,
       todayKey(state.nowMs),
     ].join('|');
@@ -260,7 +266,35 @@ function renderBanner(state: ScheduleState, options: SchedulePageOptions): HTMLE
       ],
     );
   }
-  return null;
+  return renderOfflineNotice(state);
+}
+
+/**
+ * 오프라인/캐시 폴백 안내(T6 · AC-5·AC-6) — 캐시로 그린 화면임을 숨기지 않는다.
+ * `cache-expired`(캐시 나이 ≥ 24h)면 노후 경고를 한 줄 더 붙인다.
+ */
+function renderOfflineNotice(state: ScheduleState): HTMLElement | null {
+  if (state.status !== 'ready' || state.dataSource === null || state.dataSource === 'network') return null;
+  const age =
+    state.cacheAgeMs === null
+      ? UI_TEXT.offlineNoticeAgeUnknown
+      : `${formatCacheAge(state.cacheAgeMs)}${state.dataSource === 'cache-expired' ? ' (24시간 초과)' : ''}`;
+  return el(
+    'div',
+    {
+      class: 'shuttle-banner shuttle-banner--warn',
+      attrs: { role: 'status' },
+      dataset: { testid: 'offline-notice', source: state.dataSource },
+    },
+    [
+      el('p', {}, [el('strong', { text: UI_TEXT.offlineNoticeTitle })]),
+      state.offlineReason === null
+        ? null
+        : el('p', { text: `${UI_TEXT.offlineNoticeReasonPrefix}: ${state.offlineReason}` }),
+      el('p', { text: `${UI_TEXT.offlineNoticeAgePrefix}: ${age}` }),
+      state.dataSource === 'cache-expired' ? el('p', { text: UI_TEXT.offlineNoticeStale }) : null,
+    ],
+  );
 }
 
 /** 오늘(KST) 요일 구분 — 도메인 규칙 사용(자정 넘어가면 탭 구조가 바뀌므로 키에 포함). */

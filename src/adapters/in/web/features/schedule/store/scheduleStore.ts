@@ -9,15 +9,31 @@ import type { TimetableModel } from '../types/model';
 
 export type ScheduleStatus = 'loading' | 'ready' | 'error';
 
+/** 데이터 출처 — 캐시로 폴백했는지 화면이 알아야 오프라인 안내를 띄운다(AC-5·AC-6). */
+export type ScheduleDataSource = 'network' | 'cache' | 'cache-expired';
+
 export interface ScheduleState {
   readonly status: ScheduleStatus;
   readonly model: TimetableModel | null;
   /** 사용자에게 보여줄 오류 원인(빈 화면 금지 — F8) */
   readonly errorMessage: string | null;
+  /** 마지막 성공 로딩의 출처. 아직 로딩 전이면 null */
+  readonly dataSource: ScheduleDataSource | null;
+  /** 캐시로 폴백했을 때의 캐시 나이(ms) — 화면이 "언제 받은 데이터인지" 알린다 */
+  readonly cacheAgeMs: number | null;
+  /** 캐시로 폴백한 원인(네트워크 실패 메시지) — 오프라인 안내 문구에 쓴다 */
+  readonly offlineReason: string | null;
   readonly dayType: DayType;
   readonly routeId: string | null;
   /** 주입된 clock 에서 읽은 현재 시각(ms). 60초마다 화면 계층이 갱신한다. */
   readonly nowMs: number;
+}
+
+/** `setModel` 부가 정보 — 캐시 폴백일 때만 값이 들어온다(네트워크 성공은 기본값). */
+export interface ModelLoadMeta {
+  readonly dataSource?: ScheduleDataSource | undefined;
+  readonly cacheAgeMs?: number | null | undefined;
+  readonly offlineReason?: string | null | undefined;
 }
 
 export type StateListener = (state: ScheduleState) => void;
@@ -51,9 +67,19 @@ export class ScheduleStore {
   }
 
   /** 데이터 로드 성공. 이전 선택이 없거나 이 요일에 표가 없으면 유효한 노선으로 맞춘다. */
-  public setModel(model: TimetableModel): void {
+  public setModel(model: TimetableModel, meta: ModelLoadMeta = {}): void {
     const routeId = this.resolveRouteId(model, this.state.dayType, this.state.routeId);
-    this.patch({ status: 'ready', model, errorMessage: null, routeId });
+    const dataSource = meta.dataSource ?? 'network';
+    this.patch({
+      status: 'ready',
+      model,
+      errorMessage: null,
+      routeId,
+      dataSource,
+      cacheAgeMs: dataSource === 'network' ? null : (meta.cacheAgeMs ?? null),
+      // 네트워크 성공이면 오프라인 안내를 지운다(캐시 폴백일 때만 원인을 남긴다).
+      offlineReason: dataSource === 'network' ? null : (meta.offlineReason ?? null),
+    });
   }
 
   /** 요일 탭 선택 — 그 요일 표가 없는 노선이면 표가 있는 노선으로 옮긴다. */

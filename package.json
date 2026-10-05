@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "verify:offline": "node scripts/offline_smoke.mjs",
     "scrape": "tsx tools/scraper/index.ts",
     "lint:boundary": "bash scripts/boundary.sh"
   },

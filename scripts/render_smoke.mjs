@@ -40,6 +40,13 @@ const BASE = normalizeBase(args.get('base') ?? '/sunmoon-shuttle/');
 const NOW = args.get('now') ?? '2026-10-05T14:40:00+09:00';
 const CHROME = process.env['CHROME_PATH'] ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
+/**
+ * `true` 면 정적 서버가 `sw.js` 를 404 로 답한다(T6 이후 추가).
+ * 오류 UI(F8) 검증 단계는 **캐시가 전혀 없는 상태**를 만들어야 하는데, 앱은 페이지를 열 때마다 SW 를 다시 등록하므로
+ * SW 스크립트 자체를 내려서 개입을 배제한다(상세: scripts/offline_smoke.mjs 의 같은 이름 플래그).
+ */
+let blockSwScripts = false;
+
 const failures = [];
 const notes = [];
 let cdp = null;
@@ -76,6 +83,10 @@ function startStaticServer(port, base) {
     // favicon 404 는 스모크 서버 산출물 문제이지 앱 결함이 아니다 → 204 로 응답해 콘솔 오류에서 제외.
     if (pathname.endsWith('/favicon.ico')) {
       res.writeHead(204).end();
+      return;
+    }
+    if (blockSwScripts && pathname.endsWith('/sw.js')) {
+      res.writeHead(404).end('sw.js disabled for this phase');
       return;
     }
     if (!pathname.startsWith(base)) {
@@ -374,6 +385,24 @@ async function main() {
     const suspendedPath = await capture('T5-3-운행중단노선.png');
 
     // ── 데이터 로드 실패 시 오류 UI(조용한 실패 금지) — CDP 로 요청을 실제로 실패시켜 확인 ──
+    // ⚠️ T6 이후: 캐시(SW·IndexedDB)가 채워져 있으면 실패해도 **마지막 정상 데이터**가 뜨는 게 정상 동작이다
+    //    (그 검증은 scripts/offline_smoke.mjs 의 AC-5 단계가 한다). 여기서 확인하는 것은 "캐시가 전혀 없을 때"의
+    //    F8 오류 UI 이므로, 먼저 SW 등록을 해제하고 SW 캐시·IndexedDB 를 비우고, 재등록되지 않게 sw.js 를 404 로 내린다.
+    const clearedStorage = await evaluate(`
+      const unregister = navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())).then(() => registrations.length));
+      const dropCaches = caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))).then(() => keys));
+      const dropIdb = new Promise((resolve) => {
+        const request = indexedDB.deleteDatabase('sunmoon-shuttle');
+        request.onsuccess = () => resolve('deleted');
+        request.onerror = () => resolve('error');
+        request.onblocked = () => resolve('blocked');
+      });
+      return Promise.all([unregister, dropCaches, dropIdb]).then(([registrations, caches2, idb]) => ({ registrations, caches: caches2, idb }));
+    `);
+    blockSwScripts = true;
+    notes.push(`  INFO  실패 주입 전 캐시 비우기(T6): ${JSON.stringify(clearedStorage)}`);
     const consoleErrorsBeforeOffline = consoleErrors.length;
     cdp.on((message) => {
       if (message.method === 'Fetch.requestPaused') {
