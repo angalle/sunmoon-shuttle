@@ -24,18 +24,24 @@ import {
 import type { ScheduleState, ScheduleStore } from '../store/scheduleStore';
 import { UI_TEXT, FALLBACK_SOURCE_URL } from '../types/texts';
 import { dayTabs as dayTabsMolecule, dayTabId } from '../components/molecules/DayTabs';
+import { installHint } from '../components/molecules/InstallHint';
 import { routeList } from '../components/molecules/RouteList';
 import { freshnessPanel } from '../components/organisms/FreshnessPanel';
 import { nextBusCard } from '../components/organisms/NextBusCard';
 import { noticePanel } from '../components/organisms/NoticePanel';
 import { sourceFooter } from '../components/organisms/SourceFooter';
 import { timetablePanel } from '../components/organisms/TimetablePanel';
+import type { InstallHintPlatform } from '../api/installHintApi';
 
 const TAB_ID_PREFIX = 'shuttle-day';
 const TAB_PANEL_ID = 'shuttle-day-panel';
+const INSTALL_HEADING_ID = 'shuttle-install-heading';
 
 export interface SchedulePageOptions {
   readonly onRetry: () => void;
+  /** 설치 안내에 쓸 플랫폼 문구 — null 이면 안내를 띄우지 않는다(이미 설치됨·닫음). */
+  readonly installHint: InstallHintPlatform | null;
+  readonly onDismissInstallHint: () => void;
 }
 
 export function createSchedulePage(
@@ -58,10 +64,12 @@ export function createSchedulePage(
       el('header', { class: 'shuttle-header' }, [
         el('h1', { class: 'shuttle-header__title', text: UI_TEXT.appTitle }),
         el('p', { class: 'shuttle-header__subtitle', text: UI_TEXT.appSubtitle }),
+        el('p', { class: 'shuttle-header__subtitle', attrs: { lang: 'en' }, text: UI_TEXT.appSubtitleEn }),
       ]),
       el('main', { class: 'shuttle-main', attrs: { id: 'shuttle-main', tabindex: '-1' } }, [
         bannerHost,
         tabsHost,
+        installHost,
         el(
           'div',
           {
@@ -77,6 +85,29 @@ export function createSchedulePage(
   ]);
 
   let lastStructureKey = '';
+
+  /**
+   * 설치 안내(T7) — 표시 여부는 **페이지가 지역 상태로** 갖는다(스토어와 무관한 UI 안내).
+   * 닫으면 지역 상태를 내리고 `onDismissInstallHint` 로 저장(1회 표시)을 위임한다.
+   */
+  let installVisible = options.installHint !== null;
+  const renderInstall = (): void => {
+    const platform = options.installHint;
+    replaceChildren(installHost, [
+      platform === null || !installVisible
+        ? null
+        : installHint({
+            platform,
+            headingId: INSTALL_HEADING_ID,
+            onDismiss: () => {
+              installVisible = false;
+              options.onDismissInstallHint();
+              renderInstall();
+            },
+          }),
+    ]);
+  };
+  renderInstall();
 
   /**
    * 재렌더로 포커스를 잃지 않게 한다 — 탭/노선 버튼은 키보드 사용자의 현재 위치다.

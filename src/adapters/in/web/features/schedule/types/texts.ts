@@ -9,8 +9,19 @@
 export const UI_TEXT = {
   appTitle: '선문대 셔틀버스 시간표',
   appSubtitle: '비공식 앱 — 아래 원본 시간표를 그대로 보여줍니다',
+  /** 한/영 병기(T7) — 영어 문장은 화면에서 `lang="en"` 으로 표시한다. */
+  appSubtitleEn: 'Unofficial PWA — the original timetable is shown as-is.',
   skipToContent: '본문으로 건너뛰기',
   loading: '시간표를 불러오는 중…',
+
+  /* 설치 안내(홈 화면 추가) — 카드 지시⑤: 과하지 않게 1회만 */
+  installHintTitle: '홈 화면에 추가하면 앱처럼 전체화면으로 열립니다',
+  installHintIos: 'Safari 하단의 공유 버튼 → “홈 화면에 추가”를 선택하세요.',
+  installHintAndroid: 'Chrome 오른쪽 위 ⋮ 메뉴 → “홈 화면에 추가”(앱 설치)를 선택하세요.',
+  installHintOther: '브라우저 메뉴에서 “홈 화면에 추가”(앱 설치)를 선택하세요.',
+  installHintEn: 'Add to Home Screen to open it fullscreen like an app.',
+  installHintNote: '이 안내는 한 번만 표시됩니다.',
+  installHintDismiss: '닫기',
 
   dayTabLegend: '요일 선택',
   routeLegend: '노선 선택',

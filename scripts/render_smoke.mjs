@@ -63,8 +63,10 @@ const MIME = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
+  // T7 추가: manifest·SVG 아이콘은 브라우저가 MIME 을 검사한다(octet-stream 이면 콘솔 오류로 잡힌다).
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
 };
 
 function startStaticServer(port, base) {

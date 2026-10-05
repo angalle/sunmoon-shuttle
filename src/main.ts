@@ -5,8 +5,12 @@
 import './adapters/in/web/shared/ui/styles/tokens.css';
 import './adapters/in/web/shared/ui/styles/app.css';
 import { mountScheduleApp } from './adapters/in/web/app/mount';
+import { initThemeColor } from './adapters/in/web/shared/lib/theme';
 
 const root = document.querySelector<HTMLDivElement>('#app');
+
+// 브라우저 UI 색(theme-color)은 토큰에서 읽어 채운다 — 라이트/다크 전환도 따라간다(T7).
+initThemeColor();
 
 if (root !== null) {
   mountScheduleApp(root);

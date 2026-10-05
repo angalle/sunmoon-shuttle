@@ -2,8 +2,24 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: 홈 화면 설치(standalone)에서 노치·홈 인디케이터 영역까지 쓰고, CSS safe-area-inset 으로 보정한다(T7) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
+    <!-- theme-color 는 tokens.css 의 --color-bg 를 shared/lib/theme.ts 가 읽어 채운다(색 하드코딩 금지) -->
+    <meta name="theme-color" content="" />
+    <meta
+      name="description"
+      content="선문대학교 셔틀버스 시간표(비공식) — 노선·요일별 시간표와 다음 버스까지 남은 시간. Sunmoon University shuttle bus timetable (unofficial)."
+    />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="./icons/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- standalone 상단 상태바는 불투명(default) — 다크/라이트 어느 쪽에서도 글자 대비를 깨지 않는다 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="셔틀버스" />
     <title>선문대 셔틀버스 시간표</title>
   </head>
   <body>

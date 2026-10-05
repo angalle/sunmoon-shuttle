@@ -16,6 +16,9 @@ html {
 body {
   margin: 0;
   padding: 0;
+  /* 전체화면(홈 화면 설치)에서 배경이 짧아 보이지 않게 — dvh 는 주소창 변동까지 반영 */
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-family-base);
@@ -26,6 +29,16 @@ body {
 :focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: 2px;
+}
+
+/*
+ * 터치 타깃 ≥ 48px (docs/00 §4) — 본문 안의 링크도 예외가 아니다.
+ * 인라인 링크는 flex 로 최소 높이만 확보하고 글자 정렬·줄바꿈은 그대로 둔다.
+ */
+.shuttle-app a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
 }
 
 .shuttle-sr-only {
@@ -42,9 +55,12 @@ body {
 
 .shuttle-skip-link {
   position: absolute;
-  left: var(--space-3);
+  left: max(var(--space-3), var(--safe-area-left));
   top: calc(-1 * var(--space-7));
   z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
   padding: var(--space-2) var(--space-3);
   background: var(--color-accent);
   color: var(--color-on-accent);
@@ -53,15 +69,20 @@ body {
 }
 
 .shuttle-skip-link:focus {
-  top: var(--space-3);
+  top: max(var(--space-3), var(--safe-area-top));
 }
 
 /* ───────────────────────── 레이아웃 ───────────────────────── */
 
+/*
+ * 전체화면 PWA 여백 — 안전영역(노치·홈 인디케이터)과 기존 여백 중 **큰 쪽**을 쓴다.
+ * (index.html 의 viewport-fit=cover + tokens.css 의 --safe-area-* 조합 · T7)
+ */
 .shuttle-app {
   max-width: 64rem;
   margin: 0 auto;
-  padding: var(--space-4) var(--space-3) var(--space-7);
+  padding: max(var(--space-4), var(--safe-area-top)) max(var(--space-3), var(--safe-area-right))
+    max(var(--space-7), var(--safe-area-bottom)) max(var(--space-3), var(--safe-area-left));
 }
 
 .shuttle-header {
@@ -258,7 +279,8 @@ body {
 
 .shuttle-table thead th {
   position: sticky;
-  top: 0;
+  /* sticky 는 스크롤포트(뷰포트) 기준이라 전체화면에서는 노치를 피해야 한다(T7) */
+  top: var(--safe-area-top);
   background: var(--color-surface-alt);
   color: var(--color-text);
   font-size: var(--font-size-xs);
@@ -441,10 +463,56 @@ body {
 
 @media (min-width: 48rem) {
   .shuttle-app {
-    padding: var(--space-5) var(--space-5) var(--space-7);
+    padding: max(var(--space-5), var(--safe-area-top)) max(var(--space-5), var(--safe-area-right))
+      max(var(--space-7), var(--safe-area-bottom)) max(var(--space-5), var(--safe-area-left));
   }
 
   .shuttle-header__title {
     font-size: var(--font-size-2xl);
   }
+}
+
+/* ───────────────────────── 설치 안내 (T7) ───────────────────────── */
+
+/*
+ * 홈 화면 추가 안내 — 카드 지시⑤: 과하지 않게, 1회.
+ * 정보 톤(info 토큰)만 쓰고 모서리·간격도 토큰에서 온다(다크모드 자동 대응).
+ */
+.shuttle-install {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-info-border);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.shuttle-install__title {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.shuttle-install__body {
+  margin: 0;
+}
+
+.shuttle-install__en {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.shuttle-install__note {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* 닫기도 터치 타깃 48px 규칙을 따른다(버튼 원자의 공통 규칙 + 여기서는 대비 보정). */
+.shuttle-install .shuttle-button {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-info-border);
 }

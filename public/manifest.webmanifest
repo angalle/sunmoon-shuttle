@@ -1,0 +1,41 @@
+{
+  "id": "./",
+  "name": "선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus",
+  "short_name": "셔틀버스 Shuttle",
+  "description": "선문대학교 셔틀버스 시간표(비공식) — 노선·요일별 시간표와 다음 버스까지 남은 시간. Sunmoon University shuttle bus timetable (unofficial).",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0b5497",
+  "background_color": "#f4f6f9",
+  "categories": ["travel", "navigation", "utilities"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
