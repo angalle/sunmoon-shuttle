@@ -7,8 +7,8 @@
  *  - 다음 출발:   `nextDepartures`            (domain/rules/nextDeparture)
  *  - 표시 문자열: shared/lib/format (KST 변환은 domain/rules/kst 사용)
  */
-import { dayTypeFromDate, dayTypeLabel } from '../../../../../../domain/rules/dayType';
-import { addKstDays, formatIsoDate, kstDayFromInstant, type KstDay } from '../../../../../../domain/rules/kst';
+import { dayTypeFromDate, dayTypeFromWeekday, dayTypeLabel } from '../../../../../../domain/rules/dayType';
+import { addKstDays, formatIsoDate, kstDayFromInstant, kstInstantOf, parseHhMm, type KstDay } from '../../../../../../domain/rules/kst';
 import { isDayType, type DayType, type WeekdayCode } from '../../../../../../domain/entities/DayType';
 import {
   DEFAULT_NEXT_DEPARTURE_COUNT,
@@ -976,4 +976,140 @@ function countServiceTrips(model: TimetableModel, day: KstDay, dayType: DayType)
     }
   }
   return total;
+}
+
+/* ───────────────────── [전체] 화면 — 전체 편 목록 (T24 · docs/07 §4-2) ─────────────────────
+ * [지금]("오늘 남은 편")과 달리, 요일 탭이 고른 **그 요일의 전체 회차**(지난 편 포함)를 보여준다.
+ * 판정(운행 여부·사유)은 도메인만 한다 — 여기서는 도메인 함수를 호출해 **표시 값으로 옮기기만** 한다:
+ *   · 운행 여부: `resolveTripService(trip, day).runs`  (serviceDay)
+ *   · 사유 코드: `tripStatus(trip, day, context)`      (tripStatus — T22 계약)
+ *   · 출발 시각: `tripDepartureTime(trip)`              (Trip)
+ * 기준일(`referenceDate`)은 "선택한 요일이 다음으로 돌아오는 날"이다(오늘이 그 요일이면 오늘).
+ * 그래야 사유 배지가 **그 요일 기준**으로 맞는다(예: 월요일 기준 `금요일 운행 없음`).
+ */
+
+/** 전체 목록의 편 1건 — 값은 도메인/JSON 에서만 온다(화면 계산 금지). */
+export interface FullTripView {
+  readonly key: string;
+  readonly routeId: string;
+  readonly routeName: string;
+  readonly departure: string;
+  readonly arrival: string | null;
+  readonly direction: DepartureDirection;
+  readonly directionLabel: string;
+  /** 조건 없는 방향별 소요시간만(`약 15분 소요`) — 조건부는 앱이 고르지 않는다(T17) */
+  readonly durationNote: string | null;
+  /** 사유·조건 배지(도메인 `tripStatus` 결과) + 원본 특이사항 */
+  readonly badges: readonly string[];
+  /** 기준일의 현재 시각보다 이른 출발인가(지난 편) */
+  readonly isPast: boolean;
+}
+
+export interface FullDayView {
+  readonly dayType: DayType;
+  readonly dayLabel: string;
+  /** 사유 판정 기준일(`YYYY-MM-DD`) — 증거·검증용 */
+  readonly referenceDate: string;
+  /** 방향 필터가 적용된 목록 */
+  readonly trips: readonly FullTripView[];
+  /** 필터 전 전체 편수 */
+  readonly total: number;
+  readonly counts: Readonly<Record<DirectionFilter, number>>;
+}
+
+export function fullDayView(state: ScheduleState, filter: DirectionFilter = 'all'): FullDayView {
+  const dayType = state.dayType;
+  const model = state.model;
+  if (model === null) {
+    return {
+      dayType,
+      dayLabel: dayTypeLabel(dayType),
+      referenceDate: '',
+      trips: [],
+      total: 0,
+      counts: { all: 0, out: 0, in: 0 },
+    };
+  }
+
+  const day = referenceDay(state, dayType);
+  const all: FullTripView[] = [];
+  for (const route of model.routes) {
+    // 운행 중단 노선은 전체 목록에도 올리지 않는다(상태·사유는 이용 안내가 원문으로 보여준다).
+    if (route.status === 'suspended') continue;
+    const table = route.byDay[dayType];
+    if (table === null) continue;
+    const domainRoute = model.schedule.routes.find((candidate) => candidate.id === route.id);
+    for (const trip of domainRoute?.byDay[dayType] ?? []) {
+      const departure = tripDepartureTime(trip);
+      if (departure === null) continue;
+      if (!resolveTripService(trip, day).runs) continue;
+      const row = rowBySeq(table, trip.seq);
+      const direction: DepartureDirection = cellText(row, ['depCampus']) === null ? 'in' : 'out';
+      const arrival =
+        direction === 'out' ? cellText(row, ['depStation', 'depTerminal']) : cellText(row, ['arrCampus']);
+      const status = tripStatus(trip, day, { dateRules: model.dateRules, terms: model.terms });
+      all.push({
+        key: `${route.id}:${String(trip.seq)}`,
+        routeId: route.id,
+        routeName: route.name,
+        departure,
+        arrival,
+        direction,
+        directionLabel: direction === 'out' ? UI_TEXT.boardDirectionOut : UI_TEXT.boardDirectionIn,
+        durationNote: durationNoteFor(route, direction, row),
+        badges: uniqueNotes([...conditionBadges(trip, status, row)]),
+        isPast: isPastDeparture(departure, day, state.nowMs),
+      });
+    }
+  }
+  all.sort(compareFullTrips);
+
+  const counts = {
+    all: all.length,
+    out: all.filter((trip) => trip.direction === 'out').length,
+    in: all.filter((trip) => trip.direction === 'in').length,
+  };
+  return {
+    dayType,
+    dayLabel: dayTypeLabel(dayType),
+    referenceDate: formatIsoDate(day),
+    trips: filter === 'all' ? all : all.filter((trip) => trip.direction === filter),
+    total: all.length,
+    counts,
+  };
+}
+
+/**
+ * 사유 판정 기준일 — 선택한 요일이 **다음으로 돌아오는 날**(오늘이 그 요일이면 오늘).
+ * 달력 산술만 쓴다(도메인 `addKstDays`·`dayTypeFromWeekday`) — 운행 판정은 하지 않는다.
+ */
+function referenceDay(state: ScheduleState, dayType: DayType): KstDay {
+  const today = kstDayFromInstant(new Date(state.nowMs));
+  for (let offset = 0; offset < 7; offset += 1) {
+    const day = addKstDays(today, offset);
+    if (dayTypeFromWeekday(day.weekday) === dayType) return day;
+  }
+  return today;
+}
+
+/** 그 요일 표에서 순번으로 회차 행을 찾는다(없으면 null — 추측하지 않는다). */
+function rowBySeq(table: DayTableView, seq: number): TripRow | null {
+  for (const row of table.rows) {
+    if (Number(row['seq']) === seq) return row;
+  }
+  return null;
+}
+
+/** 기준일의 그 시각이 지났는가 — 달력 비교만 한다(운행 판정 아님). */
+function isPastDeparture(departure: string, day: KstDay, nowMs: number): boolean {
+  const parsed = parseHhMm(departure);
+  if (parsed === null) return false;
+  return kstInstantOf(day, parsed.hour, parsed.minute).getTime() < nowMs;
+}
+
+/** 출발 시각 오름차순(같으면 노선 id) — 전체 목록의 단일 정렬 기준. */
+function compareFullTrips(a: FullTripView, b: FullTripView): number {
+  if (a.departure !== b.departure) return a.departure < b.departure ? -1 : 1;
+  if (a.routeId !== b.routeId) return a.routeId < b.routeId ? -1 : 1;
+  return a.key < b.key ? -1 : a.key === b.key ? 0 : 1;
 }

@@ -15,12 +15,42 @@ import type { WeekdayCode } from '../../../../../../domain/entities/DayType';
 
 export const UI_TEXT = {
   appTitle: '선문대 셔틀버스 시간표',
+  /**
+   * 앱바 제목(T24 · docs/07 §2) — 홈 화면 설치 앱처럼 보이도록 **짧은 이름**을 쓴다.
+   * (문서 제목·매니페스트의 정식 이름은 `appTitle` 그대로다.)
+   */
+  appBarTitle: '선문대 셔틀',
   /** T14 — 앱이 하는 일을 그대로 말한다(옛 문구: `비공식 앱 — 아래 원본 시간표를 그대로 보여줍니다`). */
   appSubtitle: '지금 탈 수 있는 셔틀버스를 바로 보여줍니다',
   /** 한/영 병기(T7) — 영어 문장은 화면에서 `lang="en"` 으로 표시한다. */
   appSubtitleEn: 'Shows the shuttle you can take right now.',
   skipToContent: '본문으로 건너뛰기',
   loading: '시간표를 불러오는 중…',
+
+  /* ── 앱 셸·스플래시·탭 (T24 · docs/07 §2~§3) ── */
+  /** 스플래시 진행 문구 — 로고·앱 이름과 함께 `role="status"` 로 읽힌다 */
+  splashMessage: '시간표 불러오는 중',
+  /** 앱바 새로고침 버튼(수동 갱신) */
+  refreshLabel: '새로고침',
+  refreshBusyLabel: '시간표를 다시 불러오는 중',
+  /** 하단 탭바(화면 분리: 지금 / 전체) */
+  appTabLegend: '화면 선택',
+  appTabNow: '지금',
+  appTabAll: '전체',
+  /** 바로가기 카드 — [지금] 화면에서 전체/안내로 이동한다(접힘 대신 별도 화면, docs/07 §4-1 ④) */
+  shortcutTitle: '바로가기',
+  shortcutAll: '전체 시간표 보기',
+  shortcutGuide: '이용 안내',
+  /** 이용 안내 시트(정차창·요금·지연 안내·방학 링크·비공식 고지) */
+  guideTitle: '이용 안내',
+  guideClose: '닫기',
+  /** [전체] 화면의 전체 편 목록 제목 */
+  fullListTitle: '전체 시간표',
+  fullListEmpty: '이 시간표에 안내할 회차가 없습니다',
+  fullListTotalPrefix: '총',
+  fullListPastBadge: '지난 편',
+  /** 스켈레톤(로딩 자리) — 화면 낭독기용 안내(빈 화면 금지) */
+  skeletonLabel: '시간표를 불러오는 중…',
 
   /* 설치 안내(홈 화면 추가) — 카드 지시⑤: 과하지 않게 1회만 */
   installHintTitle: '홈 화면에 추가하면 앱처럼 전체화면으로 열립니다',

@@ -22,6 +22,8 @@ export function dayTabs(props: DayTabsProps): HTMLDivElement {
   const container = el('div', {
     class: 'shuttle-daytabs',
     attrs: { role: 'tablist', 'aria-label': UI_TEXT.dayTabLegend },
+    // 스모크가 **요일 탭**만 골라 읽을 수 있게 표식을 둔다(T24 — 앱 탭바가 생기며 `[role="tab"]` 이 늘었다).
+    dataset: { testid: 'day-tabs' },
   });
 
   const move = (from: number, delta: number | 'home' | 'end'): void => {

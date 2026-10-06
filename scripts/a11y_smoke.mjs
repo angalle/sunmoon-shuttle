@@ -271,6 +271,9 @@ const TARGET_PROBE = `
     const style = getComputedStyle(node);
     if (style.display === 'none' || style.visibility === 'hidden') continue;
     const rect = node.getBoundingClientRect();
+    // T24 — 앱 셸은 화면이 나뉘어 있어 숨은 화면([전체] 탭·이용 안내 시트)의 컨트롤은 0×0 으로 잡힌다.
+    // 렌더되지 않는 요소는 터치 타깃이 아니므로 여기서 빼고, 그 화면들은 auditTargets 가 실제로 열어 측정한다.
+    if (rect.width === 0 && rect.height === 0) continue;
     const className = typeof node.className === 'string' && node.className !== '' ? '.' + node.className.split(' ').join('.') : '';
     rows.push({
       label: node.tagName.toLowerCase() + className,
@@ -281,6 +284,34 @@ const TARGET_PROBE = `
   }
   return rows;
 `;
+
+/**
+ * T24 — 터치 타깃은 화면별로 측정한다. 앱 셸이 [지금]/[전체]/이용 안내 시트로 나뉘어 있어 한 화면만 보면
+ * 나머지 컨트롤(요일 탭·방향 칩·시트 버튼)은 렌더되지 않아 측정에서 빠진다(= 검증 대상이 줄어든다).
+ * 세 화면을 실제로 열어 합집합으로 판정하고, 끝나면 기본 상태([지금])로 되돌린다.
+ */
+async function auditTargets() {
+  const click = async (selector) => {
+    await evaluate(`const node = document.querySelector(${JSON.stringify(selector)}); if (node !== null) node.click(); return true;`);
+    await delay(250);
+  };
+  const rows = [...(await evaluate(TARGET_PROBE))]; // [지금](기본 탭)
+  await click('[data-testid="shortcut-guide"]'); // 이용 안내 시트 열기(숨은 화면)
+  rows.push(...(await evaluate(TARGET_PROBE)));
+  await click('[data-testid="guide-close"]');
+  await click('#shuttle-tab-all'); // [전체] — 요일 탭·방향 칩·전체 목록
+  rows.push(...(await evaluate(TARGET_PROBE)));
+  await click('#shuttle-tab-now'); // 기본 상태 복원
+  // 앞선 클릭이 남긴 포커스를 지운다 — 뒤따르는 포커스 검사(첫 Tab → 스킵 링크)가 오염되지 않게.
+  await evaluate(`if (document.activeElement !== null && document.activeElement !== document.body) document.activeElement.blur(); return true;`);
+  const seen = new Set();
+  return rows.filter((row) => {
+    const key = `${row.label}|${row.text}|${String(row.width)}x${String(row.height)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 const TOKEN_PROBE = `
   const root = getComputedStyle(document.documentElement);
@@ -405,7 +436,7 @@ async function main() {
     const auditTheme = async (theme) => {
       const tokens = await evaluate(TOKEN_PROBE);
       const contrast = await evaluate(CONTRAST_PROBE);
-      const targets = await evaluate(TARGET_PROBE);
+      const targets = await auditTargets();
       const layout = await evaluate(`
         const root = document.documentElement;
         const offenders = [];
@@ -468,7 +499,17 @@ async function main() {
     const lightShot = await capture('T7-light.png');
 
     // ── 키보드 포커스 가시성(스킵 링크) ──────────────────────────────
-    await evaluate(`document.body.focus(); return true;`);
+    // T24 — 앞선 검사(터치 타깃 실측이 이용 안내 시트·[전체] 탭을 실제로 연다)가 포커스와 함께
+    // **순차 포커스 시작점**을 남긴다. blur() 만으로는 시작점이 그대로라 Tab 이 그 다음 요소로 간다.
+    // body 를 포커스 대상(tabIndex=-1)으로 만들어 시작점을 문서 처음으로 되돌린 뒤 첫 Tab 을 누른다
+    // — "키보드로 앱에 처음 진입한 상태" 와 같은 조건을 만든다.
+    await evaluate(`
+      document.body.tabIndex = -1;
+      document.body.style.outline = 'none';
+      document.body.focus();
+      return document.activeElement === document.body;
+    `);
+    await delay(80);
     await cdp.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
     await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
     await delay(150);

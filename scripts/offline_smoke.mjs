@@ -215,6 +215,21 @@ async function clickTab(dayType) {
   return ok;
 }
 
+/**
+ * T24 — 앱 셸 탭 전환. 요일 탭은 [전체] 화면에 있으므로, 요일 전환을 검증할 때는 먼저 [전체] 탭을 연다
+ * (숨겨진 패널만 바꾸면 증거 스크린샷이 실제 화면과 어긋난다).
+ */
+async function showAppTab(tab) {
+  const ok = await evaluate(`
+    const node = document.querySelector('#shuttle-tab-${tab}');
+    if (node === null) return false;
+    if (node.getAttribute('aria-selected') !== 'true') node.click();
+    return true;
+  `);
+  await delay(200);
+  return ok;
+}
+
 async function capture(fileName, selector = null) {
   if (!WANT_SHOTS) return null;
   let clip = null;
@@ -261,7 +276,8 @@ const READ_STATE = `
   const card = document.querySelector('[data-testid="next-bus-card"]');
   const listCard = document.querySelector('[data-testid="departure-list-card"]');
   const notice = document.querySelector('[data-testid="offline-notice"]');
-  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  // T24 — 앱 셸 탭바가 생기며 [role=tab] 이 두 종류가 됐다. 여기서 보는 것은 **요일 탭**이다.
+  const tabs = [...document.querySelectorAll('[data-testid="day-tabs"] [role="tab"]')];
   const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
   return {
     hasApp: document.querySelector('.shuttle-app') !== null,
@@ -467,7 +483,7 @@ async function main() {
     check('오프라인: 다음 버스 카운트다운 표시', String(offlineFirst.heroTime ?? '').length > 0 && String(offlineFirst.remaining ?? '').length > 0, `hero=${String(offlineFirst.heroTime)} remaining=${String(offlineFirst.remaining)}`);
     const firstShot = await capture('T6-1-오프라인-첫화면.png');
 
-    check('오프라인: 요일 탭(토요일) 전환', await clickTab('saturday'));
+    check('오프라인: 요일 탭(토요일) 전환', (await showAppTab('all')) && (await clickTab('saturday')));
     const saturday = await evaluate(READ_STATE);
     check(
       '오프라인: 토요일 탭 전환 후에도 보드가 데이터로 그려진다',
@@ -477,6 +493,7 @@ async function main() {
     const saturdayShot = await capture('T6-2-오프라인-요일전환.png');
 
     await clickTab('weekday');
+    await showAppTab('now');
     await delay(200);
     const countdownShot = await capture('T6-3-오프라인-카운트다운.png', '[data-testid="next-bus-card"]');
     const backToWeekday = await evaluate(READ_STATE);

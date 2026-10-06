@@ -15,15 +15,21 @@ export interface TabButtonProps {
   readonly selected: boolean;
   /** roving tabindex — 선택된 탭만 0 */
   readonly tabIndex: number;
+  /**
+   * 시각 변형 — `day`(요일 탭, 기본) | `app`(앱 셸 하단 탭바, T24).
+   * 표현만 바꾼다(props 계약은 동일) — 클래스만 다르고 역할·이벤트는 같다.
+   */
+  readonly variant?: 'day' | 'app';
   readonly onSelect: () => void;
   readonly onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 export function tabButton(props: TabButtonProps): HTMLButtonElement {
+  const variant = props.variant ?? 'day';
   const node = el(
     'button',
     {
-      class: 'shuttle-tab',
+      class: variant === 'app' ? 'shuttle-tab shuttle-tab--app' : 'shuttle-tab',
       attrs: {
         type: 'button',
         role: 'tab',

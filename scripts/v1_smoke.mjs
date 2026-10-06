@@ -223,6 +223,12 @@ const READ = `
   const rows = [...document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]')];
   const restRows = [...document.querySelectorAll('[data-testid="departure-rest"] [data-testid="departure-row"]')];
   const chips = [...document.querySelectorAll('[data-testid="direction-chip"]')];
+  // T24 — 화면 분리로 방향 칩은 [전체] 탭(전체 시간표)에 있다. 첫 화면([지금])에 칩이 없어야 한다.
+  const nowChips = [...document.querySelectorAll('[data-testid="tabpanel-now"] [data-testid="direction-chip"]')];
+  const allChips = [...document.querySelectorAll('[data-testid="tabpanel-all"] [data-testid="direction-chip"]')];
+  // T24 — 전체 목록([전체] 탭) 행. 방향 칩 클릭의 반영은 **이 목록**에서 확인한다.
+  const fullRows = [...document.querySelectorAll('[data-testid="full-list"] [data-testid="full-row"]')];
+  const fullTime = (row) => { const t = row.querySelector('.shuttle-departure__time'); return t === null ? null : (t.textContent || '').trim(); };
   const clock = document.querySelector('[data-testid="app-clock"]');
   const notice = document.querySelector('[data-testid="board-notice"]');
   const counts = document.querySelector('[data-testid="board-counts"]');
@@ -249,6 +255,12 @@ const READ = `
     countsText: counts === null ? null : (counts.textContent || '').trim(),
     todayOver: document.querySelector('[data-testid="board-today-over"]') === null ? null : document.querySelector('[data-testid="board-today-over"]').textContent.trim(),
     chips: chips.map((chip) => ({ direction: chip.dataset.direction ?? null, pressed: chip.getAttribute('aria-pressed'), text: (chip.textContent || '').replace(/\\s+/g, ' ').trim() })),
+    // T24 화면 분리 — [지금] 화면 칩 0 · [전체] 화면 칩 3(방향 필터는 전체 시간표의 도구다)
+    nowPanelChipCount: nowChips.length,
+    allPanelChipCount: allChips.length,
+    // T24 — [전체] 탭의 전체 목록(방향 칩 클릭 반영 확인용)
+    fullRowCount: fullRows.length,
+    fullRows: fullRows.map((row) => ({ direction: row.dataset.direction ?? null, time: fullTime(row) })),
     listRows: rows.length,
     restRows: restRows.length,
     times: [...rows, ...restRows].map((row) => { const t = row.querySelector('.shuttle-departure__time'); return t === null ? null : (t.textContent || '').trim(); }),
@@ -404,6 +416,8 @@ async function main() {
     await clickChip('all', '전체');
     const s1Back = await evaluate(READ);
     check('④ 방향 칩(전체) 복귀', s1Back.chips[0]?.pressed === 'true' && s1Back.listRows === 5, JSON.stringify(s1Back.chips[0]));
+    // T24 — 탭 상태는 localStorage 에 남는다. 이후 시나리오(새 페이지 로드)가 [지금] 첫 화면이 되도록 되돌린다.
+    check('④ 앱 탭: [지금]으로 복귀(첫 화면 유지)', await showAppTab('now'));
 
     // ── 시나리오 ②: 개천절 대체휴일 10:00 (2026-10-05 월 · 일요일 시간표) ────────
     const s2Now = '2026-10-05T10:00:00+09:00';
@@ -503,9 +517,17 @@ async function main() {
           state.notice?.kind === 'no-service' && String(state.noServiceHeadline).includes('오늘은 운행이 없습니다') && String(state.noServiceHeadline).includes('다음 운행: 내일'),
           `notice=${JSON.stringify(state.notice)} headline=${String(state.noServiceHeadline)}`,
         );
-        check(`${testCase.label}: 목록 행 0 + 편수(총 N편)·방향 칩 숨김`, state.listRowCount === 0 && state.listCardCountsVisible === false && state.chips.length === 0, `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} chips=${String(state.chips.length)}`);
+        check(
+          `${testCase.label}: 목록 행 0 + 편수(총 N편) 숨김 + 첫 화면([지금])에 방향 칩 없음`,
+          state.listRowCount === 0 && state.listCardCountsVisible === false && state.nowPanelChipCount === 0,
+          `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} 지금화면칩=${String(state.nowPanelChipCount)}`,
+        );
       } else {
-        check(`${testCase.label}: 목록 5편 + 편수·방향 칩 표시`, state.listRowCount === 5 && state.listCardCountsVisible === true && state.chips.length === 3, `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} chips=${String(state.chips.length)}`);
+        check(
+          `${testCase.label}: 목록 5편 + 편수·방향 칩 표시([전체] 탭 칩 3개)`,
+          state.listRowCount === 5 && state.listCardCountsVisible === true && state.allPanelChipCount === 3,
+          `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} 전체탭칩=${String(state.allPanelChipCount)}`,
+        );
         check(`${testCase.label}: 배너 없음(안내문 없는 날)`, state.notice === null, JSON.stringify(state.notice));
       }
       t13Shots.push(await captureViewport(testCase.shot));
@@ -584,8 +606,28 @@ function s1InExpected(counts) {
   return `in 필터: 남은 ${String(counts.remaining)}편 중 상위 3편`;
 }
 
-/** 방향 칩을 누르고 그 방향만 남는지 확인한다(즉시 반영 검증). */
+/**
+ * T24 — 앱 셸 탭 전환([지금]/[전체]). 탭 상태는 localStorage 에 남으므로, 스모크가 탭을 바꾼 뒤에는
+ * **원래 탭으로 되돌려야** 다음 시나리오(새 페이지 로드)의 첫 화면이 [지금]으로 유지된다.
+ */
+async function showAppTab(tab) {
+  const clicked = await evaluate(`
+    const node = document.querySelector('#shuttle-tab-${tab}');
+    if (node === null) return false;
+    if (node.getAttribute('aria-selected') === 'true') return true;
+    node.click();
+    return true;
+  `);
+  await delay(150);
+  return clicked === true;
+}
+
+/**
+ * 방향 칩을 누르고 그 방향만 남는지 확인한다(즉시 반영 검증).
+ * T24 — 칩은 [전체] 탭에 있고, 반영 대상은 **전체 목록**(`full-list`)이다.
+ */
 async function clickChip(direction, label) {
+  await showAppTab('all');
   const clicked = await evaluate(`
     const chip = document.querySelector('[data-testid="direction-chip"][data-direction="${direction}"]');
     if (chip === null) return false;
@@ -596,10 +638,13 @@ async function clickChip(direction, label) {
   await delay(200);
   const state = await evaluate(READ);
   const chip = state.chips.find((entry) => entry.direction === direction);
-  const rows = [...state.directions];
-  const allSame = rows.length === 0 || rows.every((value) => value === direction);
-  const ok = chip?.pressed === 'true' && allSame && state.listRows <= 12;
-  return { ok, detail: `${label} — pressed=${String(chip?.pressed)} rows=${String(state.listRows)}+${String(state.restRows)} 방향=${JSON.stringify(rows.slice(0, 4))}` };
+  const rows = state.fullRows.map((row) => row.direction);
+  const allSame = rows.length > 0 && rows.every((value) => value === direction);
+  const ok = chip?.pressed === 'true' && allSame;
+  return {
+    ok,
+    detail: `${label} — pressed=${String(chip?.pressed)} 전체목록=${String(state.fullRowCount)}행 방향=${JSON.stringify([...new Set(rows)].slice(0, 3))}`,
+  };
 }
 
 function kstNow() {

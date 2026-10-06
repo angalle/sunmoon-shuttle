@@ -1,0 +1,147 @@
+
+> sunmoon-shuttle@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+
+ ❯ tests/extract/ai-acceptance.test.ts (16 tests | 6 failed) 174ms
+   ❯ T26-① 노선 폐지·중단은 dateRule 이 아니다 (4)
+     × 규칙 파서는 폐지 문장을 routes[].routeNotes 로 남긴다(status=suspended 와 짝) 3ms
+   ❯ T26-② scope 근거 강제 (5)
+     × 근거가 없는데 전 노선으로 넓히면 폐기된다(사유 로그) 1ms
+     × 원문이 말하지 않은 노선을 scope 에 넣으면 **치명**이다 1ms
+   ❯ T26-③ dayTypes: [] 금지 (4)
+     × 요일 의미가 있으면 그대로 담는다 0ms
+     × AI 규칙에 dayTypes: [] 가 들어 있으면 검증기가 **치명**으로 막는다(조용한 통과 금지) 0ms
+   ❯ T26-④ 실제 발행물 정정(픽스처 회귀) (3)
+     × 빌드된 본문에서 routeNotes 인용이 원문 부분문자열로 검증된다(규칙 전용 발행은 문제 0건) 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/extract/ai-acceptance.test.ts > T26-① 노선 폐지·중단은 dateRule 이 아니다 > 규칙 파서는 폐지 문장을 routes[].routeNotes 로 남긴다(status=suspended 와 짝)
+AssertionError: expected undefined to deeply equal [ Array(1) ]
+
+- Expected:
+[
+  "천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)",
+]
+
++ Received:
+undefined
+
+ ❯ tests/extract/ai-acceptance.test.ts:157:51
+    155|
+    156|     const note = rules.routeNotes.find((entry) => entry.routeId === 'c…
+    157|     expect(note?.notes.map((item) => item.quote)).toEqual([SUSPENSION_…
+       |                                                   ^
+    158|     expect(note?.notes[0]?.note).toContain('routeNotes');
+    159|     // 같은 사실이 날짜 규칙으로 새지 않는다
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/extract/ai-acceptance.test.ts > T26-② scope 근거 강제 > 근거가 없는데 전 노선으로 넓히면 폐기된다(사유 로그)
+AssertionError: expected 'no-service 인데 원문에 날짜가 없다' to contain 'scope 근거 없음'
+
+Expected: "scope 근거 없음"
+Received: "no-service 인데 원문에 날짜가 없다"
+
+ ❯ tests/extract/ai-acceptance.test.ts:210:39
+    208|     expect(result.accepted).toBe(0);
+    209|     expect(result.dropped).toHaveLength(1);
+    210|     expect(result.dropped[0]?.reason).toContain('scope 근거 없음');
+       |                                       ^
+    211|   });
+    212|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/extract/ai-acceptance.test.ts > T26-② scope 근거 강제 > 원문이 말하지 않은 노선을 scope 에 넣으면 **치명**이다
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/extract/ai-acceptance.test.ts:224:119
+    222|     const issues = messagesOf(withRule(base, { sourceQuote: NO_BASIS_S…
+    223|
+    224|     expect(issues.some((message) => message.startsWith('FATAL') && mes…
+       |                                                                                                                       ^
+    225|   });
+    226| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/extract/ai-acceptance.test.ts > T26-③ dayTypes: [] 금지 > 요일 의미가 있으면 그대로 담는다
+AssertionError: expected undefined to deeply equal [ 'weekday' ]
+
+- Expected:
+[
+  "weekday",
+]
+
++ Received:
+undefined
+
+ ❯ tests/extract/ai-acceptance.test.ts:241:28
+    239|
+    240|     const rule = result.dateRules.find((item) => item.sourceQuote === …
+    241|     expect(rule?.dayTypes).toEqual(['weekday']);
+       |                            ^
+    242|   });
+    243|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/extract/ai-acceptance.test.ts > T26-③ dayTypes: [] 금지 > AI 규칙에 dayTypes: [] 가 들어 있으면 검증기가 **치명**으로 막는다(조용한 통과 금지)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/extract/ai-acceptance.test.ts:248:139
+    246|     const issues = messagesOf(withRule(base, { dayTypes: [] }), base);
+    247|
+    248|     expect(issues.some((message) => message.startsWith('FATAL') && mes…
+       |                                                                                                                                           ^
+    249|   });
+    250|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/extract/ai-acceptance.test.ts > T26-④ 실제 발행물 정정(픽스처 회귀) > 빌드된 본문에서 routeNotes 인용이 원문 부분문자열로 검증된다(규칙 전용 발행은 문제 0건)
+AssertionError: expected [] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+- [
+-   "천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)",
+- ]
++ []
+
+ ❯ tests/extract/ai-acceptance.test.ts:275:56
+    273|     const { base, sources, termSources, enriched } = loadFixture();
+    274|     const hall = enriched.routes.find((route) => route.id === 'cheonan…
+    275|     expect(hall?.routeNotes.map((item) => item.quote)).toEqual(['천안캠퍼스…
+       |                                                        ^
+    276|     expect(validateEnriched(enriched, { baseline: base, sources, termS…
+    277|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed | 33 passed (34)
+      Tests  6 failed | 490 passed (496)
+   Start at  13:08:23
+   Duration  1.07s (tests 64%, transform 23%, import 11%, worker 2%)
+
+    Isolate  34 workers spawned · ~103ms startup each (spawn + environment, per file)
+             at least ~287ms faster with isolate: false — reuses workers across files instead of one per file
+

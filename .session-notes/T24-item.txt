@@ -1,0 +1,48 @@
+
+검사 결과:
+  PASS  AC-U1 스플래시가 진입 시 표시된다 — "선문대 셔틀시간표 불러오는 중"
+  PASS  AC-U1 스플래시 내용 — 로고(src) + 앱 이름 + 진행 표시 + `시간표 불러오는 중` — {"logo":"./icons/icon-192.png","spinner":true,"text":"선문대 셔틀시간표 불러오는 중"}
+  PASS  AC-U1 접근성 — role="status" + aria-live="polite" — role=status live=polite
+  PASS  AC-U1 스플래시가 화면을 덮는다(전체화면 진입 경험) — covers=true
+  PASS  AC-U1 본문 전환(보드 카드 렌더)
+  PASS  AC-U1 본문 전환 스크린샷 + [지금] 화면(히어로 카드 + 지금 탈 수 있는 편) — .session-notes/T24-2-지금화면-390x844.png
+  PASS  AC-U2 탭 2개(지금/전체) + role=tablist — ["지금","전체"]
+  PASS  AC-U2 role=tab/tabpanel · aria-controls↔aria-labelledby 연결 · 비활성 패널 hidden — [{"id":"shuttle-tabpanel-now","role":"tabpanel","hidden":false,"labelledby":"shuttle-tab-now"},{"id":"shuttle-tabpanel-all","role":"tabpanel","hidden":true,"labelledby":"shuttle-tab-all"}]
+  PASS  AC-U2 roving tabindex(선택 탭만 0) — ["0","-1"]
+  PASS  AC-U2 키보드 ←/→ 이동·선택(포커스도 함께 이동) — {"afterLeft":{"active":"shuttle-tab-now","allSelected":"false"},"afterRight":{"active":"shuttle-tab-all","allSelected":"true","nowSelected":"false","nowHidden":true}}
+  PASS  AC-U2 마지막 탭 유지(재로드 후 [전체]) — {"stored":"all","allSelected":"true","allHidden":false,"nowHidden":true}
+  PASS  AC-U3 390×844(iPhone) · [지금] 가로 스크롤 0 — scrollWidth=390 clientWidth=390 scrollLeft→0
+  PASS  AC-U3 390×844(iPhone) · [전체] 가로 스크롤 0 — scrollWidth=390 clientWidth=390 scrollLeft→0
+  PASS  AC-U3 360×800(Android) · [지금] 가로 스크롤 0 — scrollWidth=360 clientWidth=360 scrollLeft→0
+  PASS  AC-U3 360×800(Android) · [전체] 가로 스크롤 0 — scrollWidth=360 clientWidth=360 scrollLeft→0
+  INFO  AC-U3 스크린샷: .session-notes/T24-3-지금-390x844.png · .session-notes/T24-3-전체-390x844.png · .session-notes/T24-3-지금-360x800.png · .session-notes/T24-3-전체-360x800.png
+  PASS  AC-U4 노치·홈인디케이터(47/34px)만큼 셸이 여백을 확보한다(앱바·탭바가 잘리지 않음) — {"appPaddingTop":47,"appPaddingBottom":48,"appbarTop":47,"appbarHeight":57,"tabbarBottom":796,"tabbarHeight":56,"innerHeight":844,"scrollHeight":636}
+  INFO  AC-U4 safe-area: CDP inset 주입 미지원(토큰 주입으로 실측)
+  PASS  AC-U5 지연 해제 후 본문 렌더(스켈레톤→본문)
+  INFO  AC-U5 스켈레톤 스크린샷: .session-notes/T24-5-스켈레톤.png
+  PASS  AC-U6 prefers-reduced-motion: reduce 에서 전환 애니메이션 0(계산값) — {"reduced":true,"panelAnimation":"0s","splashTransition":"0s","spinnerAnimation":"none"}
+  INFO  AC-U6 대조군(일반 모드): panel animation=0.18s · splash transition=0.2s → reduce: panel=0s · splash=0s
+  PASS  회귀: 화면 `원본` 0회 · 학교 링크 ≤1 · 원본표 0개 (T14 계약 유지) — {"innerTextSource":0,"domSource":0,"schoolLinks":1,"sourceDetails":0,"elements":1838,"sheetHidden":true,"stopWindowInSheet":true,"refreshLine":true,"sourceLine":true}
+  PASS  화면 분리: [전체] 탭이 출처·데이터 갱신·이용 안내 시트(정차창)를 갖는다 — {"innerTextSource":0,"domSource":0,"schoolLinks":1,"sourceDetails":0,"elements":1838,"sheetHidden":true,"stopWindowInSheet":true,"refreshLine":true,"sourceLine":true}
+  PASS  회귀: 콘솔 오류 0
+  PASS  회귀: 셸이 비어 있지 않다(화면 요소 200개 초과) — elements=1838
+  INFO  스플래시 스크린샷: .session-notes/T24-1-스플래시.png · .session-notes/T24-4-safe-area-390x844.png
+  INFO  지금/전체: .session-notes/T24-2-지금화면-390x844.png
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-1-스플래시.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-2-지금화면-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-3-지금-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-3-전체-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-3-지금-360x800.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-3-전체-360x800.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-4-safe-area-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-5-스켈레톤.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T24-6-reduced-motion-전체.png
+
+실패:
+  FAIL  AC-U1 표시 시간 실측 400ms ≤ t ≤ 2.5s (하한: 깜빡임 방지) — t=-1ms (shownAt=21 hiddenAt=-1 reason=null)
+  FAIL  AC-U1 스플래시 노드가 사라진다(전환 완료) — present=true
+  FAIL  AC-U5 스플래시 2.5s 상한 실측(초과 시 스켈레톤으로 진행) — t=409ms reason=data
+  FAIL  AC-U5 캐시 없는 첫 실행에서 스켈레톤 카드 3장(빈 화면·텍스트만 아님) — {"present":false,"cards":0,"bars":0,"role":null,"boardCard":true,"splash":false}
+  FAIL  AC-U6 reduced-motion 에서도 스플래시 하한(400ms)은 지킨다(즉시 페이드아웃) — t=-1ms
