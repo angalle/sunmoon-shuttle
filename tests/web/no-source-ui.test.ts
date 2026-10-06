@@ -18,6 +18,7 @@ const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const read = (relative: string): string => readFileSync(join(ROOT, relative), 'utf8');
 
 const PAGE_PATH = 'src/adapters/in/web/features/schedule/pages/SchedulePage.ts';
+const SHEET_PATH = 'src/adapters/in/web/features/schedule/components/organisms/GuideSheet.ts';
 const FOOTER_PATH = 'src/adapters/in/web/features/schedule/components/organisms/SourceFooter.ts';
 const REFRESH_PATH = 'src/adapters/in/web/features/schedule/components/organisms/DataRefreshLine.ts';
 const SMOKE_PATH = 'scripts/v1_smoke.mjs';
@@ -93,11 +94,27 @@ describe('T14 ③ 홈 조립 — 원본표·노선 선택을 렌더하지 않는
     expect(page).not.toContain('freshnessPanel(');
   });
 
-  it('대신 앱 기준 요소를 조립한다 — 오늘 남은 출발 · 최신 데이터 1줄 · 출처 1줄', () => {
-    expect(page).toContain('upcomingBoardCard(');
-    expect(page).toContain('departureList(');
-    expect(page).toContain('dataRefreshLine(');
-    expect(page).toContain('sourceFooter(');
+  /**
+   * T27 — 본문은 **시간표 하나**다(§9-1). 히어로 카드·탭바·소개문구를 본문에서 걷어내고,
+   * 출처·데이터 갱신·요금 안내는 **정보 시트(ⓘ)** 가 맡는다(§9-5).
+   */
+  it('본문은 시간표 하나 + 상단 1줄 안내만 조립한다(히어로 카드·탭바 없음)', () => {
+    expect(page).toContain('dailyTimetable(');
+    expect(page).toContain('dayNotice(');
+    expect(page).not.toContain('appTabs(');
+    expect(page).not.toContain('upcomingBoardCard(');
+    expect(page).not.toContain('departureList(');
+    expect(page).not.toContain('shortcutCard(');
+    // 히어로 카드·요일별 변동·데이터 갱신은 본문 조립에 없다(시트로 이동).
+    expect(page).not.toContain('sourceFooter(');
+    expect(page).not.toContain('dataRefreshLine(');
+  });
+
+  it('정보 시트가 출처·데이터 갱신·변동을 조립한다(§9-5 목적지)', () => {
+    const sheet = stripComments(read(SHEET_PATH));
+    expect(sheet).toContain('sourceFooter(');
+    expect(sheet).toContain('noticePanel(');
+    expect(sheet).toContain('upcomingChangeBanner(');
     expect(read(REFRESH_PATH)).toContain("testid: 'data-refresh'");
   });
 });

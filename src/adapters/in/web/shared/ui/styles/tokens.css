@@ -22,6 +22,10 @@
   --color-text: #0f1720;          /* on surface 18.05:1 */
   --color-text-muted: #5a6b7c;    /* on surface  5.48:1 / on surface-alt 5.16:1 */
   --color-text-subtle: #5a6b7c;   /* on surface-alt 5.16:1 */
+  /* T27 §9-3 — 요일 조건이 걸린 편(한 단계 더 흐림). 표면 5.03:1 / 보조표면 4.73:1 / 강조배경 위는 쓰지 않는다 */
+  --color-text-dim: #5f7183;
+  /* T27 §9-3 — 다음 출발 행의 배경 톤 한 단계(본문 글자 대비 16.3:1 · 보조글자 4.95:1) */
+  --color-highlight: #eef4fb;
 
   /* 강조·링크 */
   --color-accent: #0b5497;        /* on surface 7.69:1 (T13 재실측) */
@@ -66,6 +70,8 @@
   --tabbar-height: 56px;
   --card-radius: 1rem; /* 카드 radius 16px (docs/07 §5) */
   --hairline: 1px; /* 얇은 테두리 1px · 그림자 금지(라이트 톤 유지) */
+  /* T27 — 본문 시간표의 강조/흐림(§9-3). 다음 출발 행의 좌측 액센트 라인 두께 */
+  --highlight-accent-width: 3px;
   --splash-logo-size: 96px;
   --spinner-ring-width: 3px;
   --tab-indicator-width: 3px;
@@ -127,6 +133,9 @@
     --color-text: #eef2f6;        /* on surface 13.6:1 */
     --color-text-muted: #b9c3ce;  /* on surface 8.5:1 */
     --color-text-subtle: #aab5c0;
+    /* T27 — 라이트와 같은 이름을 정의한다: dim 글자 7.33:1(배경)/6.54:1(표면) · 강조 배경(7.28:1 on 보조글자) */
+    --color-text-dim: #9aa6b2;
+    --color-highlight: #263241;
 
     --color-accent: #7cb6f0;      /* on surface 7.6:1 */
     --color-accent-hover: #a3cbf6;

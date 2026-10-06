@@ -138,57 +138,88 @@ body {
   background: var(--color-bg);
 }
 
-.shuttle-appbar__lead {
+/* ─────────────── 상단 바 (56px + safe-area top, 스크롤해도 고정) ───────────────
+ * T27 §9-2: 현재 날짜·시각(크게) + ⓘ(정보 시트) + 새로고침. 앱 이름·로고는 두지 않는다.
+ * 좁은 화면(360px)에서 시계와 버튼이 한 줄에 안 들어가면 **줄바꿈**되게 둔다(가로 스크롤 금지).
+ */
+.shuttle-appbar {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
-  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--appbar-height);
+  padding-bottom: var(--space-2);
+  border-bottom: var(--hairline) solid var(--color-border);
+  background: var(--color-bg);
 }
 
-.shuttle-appbar__title {
+.shuttle-appbar__clock {
   margin: 0;
-  font-size: var(--font-size-lg);
-  line-height: 1.15;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
+.shuttle-appbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.shuttle-appbar__info,
 .shuttle-appbar__refresh {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  font-size: var(--font-size-sm);
 }
 
-/* ─────────────── 하단 탭바 (56px + safe-area bottom) ─────────────── */
-.shuttle-tabbar {
+/* ─────────────── 상단 바 아래 최소 1줄 (안내 · 오류 · 오프라인) ─────────────── */
+.shuttle-stripbar {
   flex: 0 0 auto;
   display: flex;
-  min-height: var(--tabbar-height);
-  border-top: var(--hairline) solid var(--color-border);
-  background: var(--color-surface);
-}
-
-/* 탭바 버튼 — 기존 `.shuttle-tab`(요일 탭) 규칙을 덮어써 앱 탭 모양으로 만든다 */
-.shuttle-tab.shuttle-tab--app {
-  flex: 1 1 0;
-  display: inline-flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--touch-target-min);
-  padding: var(--space-2);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--color-text-muted);
-  font: inherit;
-  font-weight: var(--font-weight-bold);
-  cursor: pointer;
+  gap: var(--space-1);
 }
 
-.shuttle-tab.shuttle-tab--app[aria-selected='true'] {
-  background: transparent;
-  border-color: transparent;
-  color: var(--color-accent);
-  box-shadow: inset 0 calc(-1 * var(--tab-indicator-width)) 0 0 var(--color-accent);
+.shuttle-stripbar:empty {
+  display: none;
+}
+
+.shuttle-strip {
+  padding: var(--space-1) var(--space-3);
+  border-left: var(--highlight-accent-width) solid var(--color-border-strong);
+  background: var(--color-surface-alt);
+  font-size: var(--font-size-sm);
+}
+
+.shuttle-strip--warn {
+  border-left-color: var(--color-warn-border);
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+}
+
+.shuttle-strip--info {
+  border-left-color: var(--color-info-border);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.shuttle-strip__line {
+  margin: 0;
+}
+
+/* 요일 탭·방향 필터(시간표의 축) — 본문 맨 위, 스크롤과 함께 움직인다 */
+.shuttle-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
 }
 
 /* ─────────────── 스피너 (원자) ─────────────── */
@@ -986,4 +1017,52 @@ body {
   flex-wrap: wrap;
   gap: var(--space-1);
   margin-left: auto;
+}
+
+/* ───────────────────────── T27 — 본문 = 시간표 하나 (docs/07 §9-1 · §9-3) ─────────────────────────
+ * 행은 터치 타깃(≥48px)을 지키고, 상태 구분은 **색·굵기 토큰**으로 한다(정보는 언제나 문구와 함께 —
+ * 지난 편·다음 출발은 화면 낭독기용 문구가 붙는다). 강조는 좌측 라인 + 배경 톤 하나뿐이다.
+ */
+.shuttle-timetable {
+  display: block;
+}
+
+.shuttle-departure {
+  min-height: var(--touch-target-min);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  /* 자동 스크롤 목표가 상단 바에 가려지지 않게 한다(§9-3) */
+  scroll-margin-top: var(--appbar-height);
+}
+
+/* 지나간 편 — dim(색·굵기를 낮춘다) */
+.shuttle-departure--past {
+  color: var(--color-text-muted);
+}
+
+.shuttle-departure--past .shuttle-departure__time {
+  font-weight: var(--font-weight-normal);
+}
+
+/* 요일 조건이 걸린 편 — 한 단계 더 흐리게(+ 짧은 토큰 1개) */
+.shuttle-departure--limited {
+  color: var(--color-text-dim);
+}
+
+/* 다음 출발 행 — **좌측 3px 액센트 라인 + 배경 톤 한 단계**만(테두리 박스·배지·문구 금지, §9-3) */
+.shuttle-departure--next {
+  background: var(--color-highlight);
+  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-accent);
+}
+
+.shuttle-departure--next .shuttle-departure__time {
+  color: var(--color-accent);
+}
+
+.shuttle-departure__token {
+  margin-left: auto;
+  color: var(--color-text-dim);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
 }

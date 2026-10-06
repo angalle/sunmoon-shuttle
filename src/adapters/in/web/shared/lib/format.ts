@@ -29,6 +29,13 @@ export function formatKstClockLabel(nowMs: number): string {
   return `${String(parts.month)}월 ${String(parts.day)}일 (${weekday}) ${pad2(parts.hour)}:${pad2(parts.minute)}`;
 }
 
+/** 인스턴트 → `10월 6일 (화) · 14:23` (KST) — 고정 상단 바(T27 · docs/07 §9-2). */
+export function formatKstHeaderClock(nowMs: number): string {
+  const parts = toKstParts(new Date(nowMs));
+  const weekday = WEEKDAY_LABELS[parts.weekday] ?? '';
+  return `${String(parts.month)}월 ${String(parts.day)}일 (${weekday}) · ${pad2(parts.hour)}:${pad2(parts.minute)}`;
+}
+
 /** 인스턴트 → `10월 5일 (월)` (KST) — 접힘 제목(T13)처럼 시각 없이 날짜·요일만 필요할 때. */
 export function formatKstMonthDayWeekday(nowMs: number): string {
   const parts = toKstParts(new Date(nowMs));

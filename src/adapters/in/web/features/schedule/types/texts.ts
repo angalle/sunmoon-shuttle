@@ -61,6 +61,25 @@ export const UI_TEXT = {
   installHintNote: '이 안내는 한 번만 표시됩니다.',
   installHintDismiss: '닫기',
 
+  /* ── T27 — 시간표 중심 단순화 (docs/07 §9) ──
+   * 본문은 시간표 하나다: 잡텍스트(소개문구·히어로·변동·출처·요금 안내)는 정보 시트(ⓘ)로 옮긴다.
+   * 행에 붙는 것은 **짧은 토큰 1개 이하**뿐이고(긴 사유 문구 금지), 강조는 좌측 라인 + 배경 톤만 쓴다.
+   */
+  /** 시간표 목록의 접근성 제목(화면에는 보이지 않는다 — `shuttle-sr-only`) */
+  timetableTitle: '시간표',
+  /** 강조 행(다음 출발)에 붙는 화면 낭독기용 표시 — 색·배경만으로 알리지 않는다 */
+  srNextDeparture: '다음 출발',
+  /** 지나간 행에 붙는 화면 낭독기용 표시 */
+  srPastDeparture: '지난 편',
+  /** 요일 조건 토큰 — `금` + `휴` = `금 휴` (그 요일은 이 편이 뜨지 않는다) */
+  tokenHolidaySuffix: '휴',
+  /** 대수 토큰 — `2` + `대` */
+  tokenVehicleSuffix: '대',
+  /** 상단 바 정보 시트(ⓘ) 버튼의 접근성 이름 */
+  infoOpenLabel: '이용 안내 열기',
+  /** 시간표가 빈 경우(그 요일 표에 안내할 회차가 없음) */
+  timetableEmptyDay: '이 시간표에 안내할 회차가 없습니다',
+
   dayTabLegend: '요일 선택',
   routeLegend: '노선 선택',
   routeStatusSuspended: '운행 중단',

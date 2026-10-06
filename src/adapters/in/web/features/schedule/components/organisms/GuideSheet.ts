@@ -14,9 +14,27 @@
 import { el } from '../../../../shared/lib/dom';
 import { button } from '../../../../shared/ui/atoms/Button';
 import type { BusRef } from '../../types/contract';
-import type { NoticeGroupsView, StopWindowLineView, VacationView } from '../../store/selectors';
+import type {
+  FreshnessView,
+  NoticeGroupsView,
+  StopWindowLineView,
+  UpcomingChangesView,
+  VacationView,
+} from '../../store/selectors';
+import type { TimetableModel } from '../../types/model';
 import { UI_TEXT } from '../../types/texts';
+import { dataRefreshLine } from './DataRefreshLine';
 import { noticePanel } from './NoticePanel';
+import { sourceFooter } from './SourceFooter';
+import { upcomingChangeBanner } from './UpcomingChanges';
+
+/** 출처·고지 블록(§9-5) — 모델이 있을 때만 온다. */
+export interface GuideSheetSourceProps {
+  readonly model: TimetableModel;
+  readonly headingId: string;
+  /** 방학 시간표 링크가 시트에 있으면 대표 출처 앵커는 접는다(학교 링크 ≤1 계약) */
+  readonly hideSourceLink: boolean;
+}
 
 export interface GuideSheetProps {
   readonly headingId: string;
@@ -26,6 +44,14 @@ export interface GuideSheetProps {
   readonly stopWindows: readonly StopWindowLineView[];
   /** 방학 시간표 링크를 **여기서** 그릴 때만 값이 온다(아니면 null — T14 학교 링크 1개 유지) */
   readonly vacation: VacationView | null;
+  /** `데이터 갱신: <시각>` 한 줄(T27 §9-5) — 모델이 있을 때만 */
+  readonly freshness: FreshnessView | null;
+  /** 출처·고지 · 개인정보처리방침(T27 §9-5) — 모델이 있을 때만 */
+  readonly source: GuideSheetSourceProps | null;
+  /** 미해석 표기 안내 1줄(내부 경고 — §9-5). 없으면 null */
+  readonly warningsNotice: string | null;
+  /** 다가오는 운행 변동(14일 내) — §9-1 로 본문에서 걷어내 시트로 옮긴 블록 */
+  readonly upcoming: UpcomingChangesView;
   readonly onClose: () => void;
 }
 
@@ -59,6 +85,29 @@ export function guideSheet(props: GuideSheetProps): HTMLElement {
           stopWindows: props.stopWindows,
           headingId: props.noticeHeadingId,
         }),
+        // 미해석 표기 안내(내부) — 사용자 판단에 영향을 주는 경고만, 본문이 아니라 여기서만 보여준다(§9-5).
+        props.warningsNotice === null
+          ? null
+          : el('p', {
+              class: 'shuttle-board__warn',
+              attrs: { role: 'status' },
+              dataset: { testid: 'guide-warnings' },
+              text: props.warningsNotice,
+            }),
+        // 다가오는 운행 변동(14일 내 최대 2줄) — §9-1 로 본문에서 걷어낸 블록(값은 dateRules[] 에서만).
+        upcomingChangeBanner({ view: props.upcoming, headingId: `${props.headingId}-upcoming` }),
+        // `데이터 갱신: <시각>` — 본문에서 걷어낸 1줄(§9-5).
+        props.freshness === null
+          ? null
+          : dataRefreshLine({ view: props.freshness, headingId: `${props.headingId}-freshness` }),
+        // 출처·고지(학교 안내 페이지 링크 1개 · 비공식 고지 · 개인정보처리방침) — 화면의 유일한 학교 링크(§9-5).
+        props.source === null
+          ? null
+          : sourceFooter({
+              model: props.source.model,
+              headingId: props.source.headingId,
+              hideSourceLink: props.source.hideSourceLink,
+            }),
         props.vacation === null || props.vacation.sourceUrl === null
           ? null
           : el('section', { class: 'shuttle-card', dataset: { testid: 'guide-vacation' } }, [

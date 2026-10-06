@@ -15,7 +15,6 @@ import type { TimetableCachePort } from '../../../../ports/timetable_cache';
 import { IndexedDbTimetableCache } from '../../../out/storage/indexedDbTimetableCache';
 import { loadTimetableModel, type LoadedTimetable } from '../features/schedule/api/timetableApi';
 import { createWebClock, readInitialSelection } from '../features/schedule/data/urlParams';
-import { readAppTab, writeAppTab } from '../features/schedule/data/appTab';
 import {
   dismissInstallHint,
   installHintPlatform,
@@ -97,13 +96,8 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
 
   const disposePage = createSchedulePage(root, store, {
     onRetry: reload,
-    // 앱바 새로고침(T24) — 같은 로더를 다시 돌린다(스피너는 status='loading' 으로 표시된다).
+    // 상단 바 새로고침(T24·T27) — 같은 로더를 다시 돌린다(스피너는 status='loading' 으로 표시된다).
     onRefresh: reload,
-    // 마지막 탭 유지(T24) — 저장소 읽기/쓰기도 이 조립 지점에서만 한다.
-    initialTab: readAppTab(installStorage),
-    onTabChange: (tab) => {
-      writeAppTab(installStorage, tab);
-    },
     installHint: installHintKind,
     onDismissInstallHint: () => {
       dismissInstallHint(installStorage);
@@ -113,6 +107,15 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
   const timer = window.setInterval(() => {
     store.tick(nowMs());
   }, options.intervalMs ?? REFRESH_INTERVAL_MS);
+
+  // 스모크 계측 훅 — 주입 시계(`?now=`)는 고정이라 분 단위 갱신을 실시간으로 볼 수 없다.
+  // 주입 경로에서만 노출한다(프로덕션에는 훅이 없다): `window.__shuttleTick(<ISO>)` → 시각 한 번 이동.
+  if (new URLSearchParams(search).has('now')) {
+    (window as unknown as { __shuttleTick?: (iso: string) => void }).__shuttleTick = (iso: string) => {
+      const parsed = Date.parse(iso);
+      if (!Number.isNaN(parsed)) store.tick(parsed);
+    };
+  }
 
   // 탭 복귀 시 즉시 재계산(백그라운드 타이머 지연 보정).
   document.addEventListener('visibilitychange', () => {

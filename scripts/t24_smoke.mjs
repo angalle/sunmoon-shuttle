@@ -1,21 +1,25 @@
 #!/usr/bin/env node
 /**
- * T24 모바일 앱 셸 스모크 — **헤드리스 Chrome CDP**, 의존성 0(v1_smoke.mjs 와 같은 방식).
+ * T27 — 시간표 중심 화면 스모크(구 T24 앱 셸 스모크) · **헤드리스 Chrome CDP**, 의존성 0.
  *
- * 검증하는 것 (`docs/07-mobile-ux.md` §7 수용 기준 AC-U1~U6 + T14 계약 유지)
- *  AC-U1 **스플래시**: ① 진입 시 표시(스크린샷 · `role=status`/`aria-live` · 로고+앱이름+진행+문구)
- *        ② 표시 시간 실측 **400ms ≤ t ≤ 2.5s**(페이지가 남긴 `window.__shuttleSplash` 계측값)
- *        ③ 본문 전환(보드 카드 렌더 + 스플래시 노드 제거) · 전환 스크린샷
- *  AC-U2 **탭 2개**(지금/전체) · `role=tablist`/`tab`/`tabpanel` · 키보드(←/→) 이동 · **마지막 탭 유지**(재로드 후)
- *  AC-U3 [지금]/[전체] 스크린샷 각 1장 + **390×844 · 360×800** 두 크기에서 **가로 스크롤 0**(실측 수치)
- *  AC-U4 **safe-area**: 노치·홈 인디케이터(47/34px 주입)에서 앱바·탭바가 잘리지 않는다(기하 실측 + 스크린샷)
- *  AC-U5 **스켈레톤**: 캐시 없는 첫 실행(데이터 응답 3s 지연)에서 스켈레톤 카드 3장(스크린샷) ·
- *        스플래시가 **2.5s 상한**에서 스스로 빠져나온다(계측 reason='timeout')
- *  AC-U6 `prefers-reduced-motion: reduce` 에서 전환 애니메이션 **0**(계산값 실측) — 일반 모드 값과 대조
- *  회귀 화면 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 콘솔 오류 0
+ * 검증하는 것 (`docs/07-mobile-ux.md` §9 수용 기준 AC-U9 + 유지되는 T24 셸 계약)
+ *  AC-U1  **스플래시**(T24 유지): ① 진입 시 표시(로고+앱이름+진행+문구 · `role=status`) ② 표시 시간 실측 400ms≤t≤2.5s
+ *         ③ 본문 전환(시간표 행 렌더 + 스플래시 노드 제거)
+ *  AC-U9-1 상단 바에 **현재 날짜·시각**(`10월 6일 (화) · 08:00`) + 분 단위 갱신 실측(`window.__shuttleTick`) ·
+ *          진입 시 **다음 출발 행이 보이는 상태**(기하 실측 + `window.__shuttleScroll` 계측값)
+ *  AC-U9-2 본문(`[data-testid="day-panel"]`) 텍스트에 제거 대상 문구 **0건**(소개문구·`데이터 갱신`·출처·요금·변동)
+ *  AC-U9-3 강조는 **좌측 라인 + 배경 톤만**(테두리 0 · 배지 0 · 강조 행 토큰 0) · 지난 행 dim(계산색 실측) ·
+ *          조건 토큰은 행당 **1개 이하**
+ *  AC-U9-4 자동 스크롤이 **가려짐 없이** 동작(행 y ≥ 상단 바 하단 · `scroll-margin-top` 실측) ·
+ *          사용자 스크롤 뒤 **3초** 재스크롤 0회, 3초 뒤에는 다시 맞춘다
+ *  AC-U3  두 크기(390×844 · 360×800)에서 **가로 스크롤 0**(실측) + 스크린샷
+ *  AC-U4  safe-area: 노치·홈 인디케이터(47/34px 주입)에서 상단 바·본문이 잘리지 않는다
+ *  AC-U5  **스켈레톤**(캐시 없는 첫 실행 · 카드 3장) · 스플래시가 **2.5s 상한**에서 스스로 빠져나온다
+ *  AC-U6  `prefers-reduced-motion: reduce` 에서 전환 애니메이션 **0**(계산값 실측 — 일반 모드와 대조)
+ *  회귀   화면 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 정보 시트가 출처·데이터 갱신·정차창을 갖는다 · 콘솔 오류 0
  *
  * 사용: node scripts/t24_smoke.mjs [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
- * 산출물: .session-notes/T24-*.png
+ * 산출물: .session-notes/T27-*.png
  * 종료코드: 검사 하나라도 실패하면 1.
  */
 import { spawn } from 'node:child_process';
@@ -39,6 +43,28 @@ const args = new Map(
 );
 const BASE = normalizeBase(args.get('base') ?? '/sunmoon-shuttle/');
 const NOW = args.get('now') ?? '2026-10-06T08:00:00+09:00';
+
+/** `?now=`(KST ISO) → 상단 바 기대 문구(`10월 6일 (화) · 08:00`) — 시각은 KST 로 읽는다. */
+const KST_WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
+const pad2 = (value) => String(value).padStart(2, '0');
+function kstClockText(iso, addMinutes = 0) {
+  const kst = new Date(new Date(iso).getTime() + 9 * 60 * 60 * 1000 + addMinutes * 60 * 1000);
+  return `${String(kst.getUTCMonth() + 1)}월 ${String(kst.getUTCDate())}일 (${KST_WEEKDAY[kst.getUTCDay()]}) · ${pad2(kst.getUTCHours())}:${pad2(kst.getUTCMinutes())}`;
+}
+const EXPECTED_CLOCK = kstClockText(NOW);
+const EXPECTED_CLOCK_TICKED = kstClockText(NOW, 1);
+
+/** 본문에 남아 있으면 안 되는 문구(§9-1 · §9-5 — 정보 시트로 옮긴 것들) */
+const BODY_FORBIDDEN = [
+  '지금 탈 수 있는 셔틀버스를 바로 보여줍니다',
+  'Shows the shuttle',
+  '데이터 갱신',
+  '출처',
+  '요금',
+  '다가오는 운행 변동',
+  '정차 시간 안내',
+  '원본',
+];
 
 const failures = [];
 const notes = [];
@@ -193,29 +219,31 @@ async function capture(fileName, width = 390, height = 844) {
   return path;
 }
 
-/** 앱 탭 전환 + (선택) 지연. */
-async function showAppTab(tab) {
-  return (
-    (await evaluate(`
-      const node = document.querySelector('#shuttle-tab-${tab}');
-      if (node === null) return false;
-      if (node.getAttribute('aria-selected') !== 'true') node.click();
-      return true;
-    `)) === true
-  );
-}
-
-/** 데이터 준비(스켈레톤 제거 + 보드 카드 등장)까지 대기. */
+/** 데이터 준비(스켈레톤 제거 + 시간표 본문 등장)까지 대기. */
 async function waitReady(timeoutMs = 20_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     const ready = await evaluate(
-      `return document.querySelector('[data-testid="loading"]') === null && document.querySelector('[data-testid="next-bus-card"]') !== null;`,
+      `const loading = document.querySelector('[data-testid="loading"]') === null;
+       const body = document.querySelector('[data-testid="timetable-list"]') !== null || document.querySelector('[data-testid="timetable-empty"]') !== null;
+       return loading && body;`,
     );
     if (ready === true) return true;
     await delay(150);
   }
   return false;
+}
+
+/** 요일 탭 선택(이미 선택돼 있으면 아무 일도 하지 않는다). */
+async function showDayTab(dayType) {
+  return (
+    (await evaluate(`
+      const node = document.querySelector('#shuttle-day-tab-${dayType}');
+      if (node === null) return false;
+      if (node.getAttribute('aria-selected') !== 'true') node.click();
+      return true;
+    `)) === true
+  );
 }
 
 /**
@@ -234,19 +262,22 @@ async function waitSplashGone(timeoutMs = 5_000) {
   return probe;
 }
 
-/** 가로 스크롤 실측 — 스크롤포트를 끝까지 밀어 실제 이동량을 본다(a11y_smoke 와 같은 방식). */
+/** 가로 스크롤 실측 — 스크롤포트를 끝까지 밀어 실제 이동량을 본다. */
 const HORIZONTAL_PROBE = `
   const scroller = document.scrollingElement ?? document.documentElement;
   const before = scroller.scrollLeft;
   scroller.scrollLeft = 99999;
   const after = scroller.scrollLeft;
   scroller.scrollLeft = before;
+  const main = document.querySelector('.shuttle-scroll');
   return {
     canScrollHorizontally: after > 0,
     scrollLeftAfter: after,
     scrollWidth: scroller.scrollWidth,
     clientWidth: scroller.clientWidth,
     innerWidth: window.innerWidth,
+    listScrollWidth: main === null ? 0 : main.scrollWidth,
+    listClientWidth: main === null ? 0 : main.clientWidth,
   };
 `;
 
@@ -267,6 +298,56 @@ const SPLASH_PROBE = `
   };
 `;
 
+/** 상단 바·시간표·강조·스크롤 계측을 한 번에 읽는다(증거·검사 공용). */
+const BODY_PROBE = `
+  const rows = [...document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]')];
+  const next = rows.find((row) => row.dataset.next === 'true') ?? null;
+  const firstPast = rows.find((row) => row.dataset.past === 'true') ?? null;
+  const scroller = document.querySelector('.shuttle-scroll');
+  const appbar = document.querySelector('.shuttle-appbar').getBoundingClientRect();
+  const rect = next === null ? null : next.getBoundingClientRect();
+  const styleOf = (node) => {
+    const s = getComputedStyle(node);
+    return {
+      color: s.color,
+      background: s.backgroundColor,
+      boxShadow: s.boxShadow,
+      borderTop: s.borderTopWidth,
+      borderLeft: s.borderLeftWidth,
+      borderRight: s.borderRightWidth,
+    };
+  };
+  const tokensOf = (row) => [...row.querySelectorAll('[data-testid="row-token"]')].map((node) => (node.textContent || '').trim());
+  const panel = document.querySelector('[data-testid="day-panel"]');
+  const panelText = panel === null ? '' : panel.innerText || '';
+  return {
+    count: rows.length,
+    pastCount: rows.filter((row) => row.dataset.past === 'true').length,
+    nextCount: rows.filter((row) => row.dataset.next === 'true').length,
+    nextKey: next === null ? null : next.dataset.key,
+    nextTime: next === null ? null : (next.querySelector('.shuttle-departure__time')?.textContent ?? '').trim(),
+    nextBadges: next === null ? 0 : next.querySelectorAll('.shuttle-badge').length,
+    nextTokens: next === null ? 0 : tokensOf(next).length,
+    nextStyle: next === null ? null : styleOf(next),
+    normalStyle: rows.length === 0 ? null : styleOf(rows[rows.length - 1]),
+    pastStyle: firstPast === null ? null : styleOf(firstPast),
+    tokenRows: rows.filter((row) => (row.dataset.token ?? '') !== '').length,
+    maxTokensPerRow: rows.reduce((max, row) => Math.max(max, tokensOf(row).length), 0),
+    maxTokenLength: rows.reduce((max, row) => tokensOf(row).reduce((inner, text) => Math.max(inner, text.length), max), 0),
+    longestToken: rows.reduce((longest, row) => tokensOf(row).reduce((inner, text) => (text.length > inner.length ? text : inner), longest), ''),
+    nextTop: rect === null ? null : Math.round(rect.top),
+    nextBottom: rect === null ? null : Math.round(rect.bottom),
+    appbarBottom: Math.round(appbar.bottom),
+    innerHeight: window.innerHeight,
+    scrollTop: scroller === null ? null : Math.round(scroller.scrollTop),
+    scrollMarginTop: rows.length === 0 ? null : parseFloat(getComputedStyle(rows[0]).scrollMarginTop),
+    scrollBar: window.__shuttleScroll ?? null,
+    legacyNodes: ['next-bus-card', 'shortcut-card', 'app-tabs', 'source-footer', 'data-refresh', 'source-details']
+      .filter((id) => document.querySelector('#shuttle-main [data-testid="' + id + '"]') !== null),
+    panelText,
+  };
+`;
+
 async function main() {
   if (!existsSync(CHROME)) throw new Error(`Chrome 실행 파일을 찾지 못했습니다: ${CHROME}`);
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
@@ -279,7 +360,7 @@ async function main() {
   const webPort = await freePort();
   const debugPort = await freePort();
   const server = await startStaticServer(webPort, BASE);
-  const profileDir = join(tmpdir(), `t24-shell-${String(process.pid)}`);
+  const profileDir = join(tmpdir(), `t27-shell-${String(process.pid)}`);
   const urlFor = (now) => `http://127.0.0.1:${String(webPort)}${BASE}?now=${encodeURIComponent(now)}`;
   const url = urlFor(NOW);
 
@@ -319,7 +400,7 @@ async function main() {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
 
-    /* ── AC-U1 스플래시 ─────────────────────────────────────────────── */
+    /* ── AC-U1 스플래시 (T24 계약 유지) ─────────────────────────────── */
     await cdp.send('Page.navigate', { url });
     let splashSeen = false;
     const splashDeadline = Date.now() + 4_000;
@@ -336,9 +417,9 @@ async function main() {
     );
     check('AC-U1 접근성 — role="status" + aria-live="polite"', splash.role === 'status' && splash.live === 'polite', `role=${String(splash.role)} live=${String(splash.live)}`);
     check('AC-U1 스플래시가 화면을 덮는다(전체화면 진입 경험)', splash.covers === true, `covers=${String(splash.covers)}`);
-    const splashShot = await capture('T24-1-스플래시.png');
+    const splashShot = await capture('T27-1-스플래시.png');
 
-    check('AC-U1 본문 전환(보드 카드 렌더)', await waitReady());
+    check('AC-U1 본문 전환(시간표 렌더)', await waitReady());
     // 본문이 먼저 렌더돼도 스플래시는 하한(400ms)+페이드(200ms)만큼 남는다 — 제거까지 기다린 뒤 계측한다.
     const splashAfter = await waitSplashGone();
     const metric = splashAfter.metric ?? {};
@@ -349,96 +430,173 @@ async function main() {
       `t=${String(displayMs)}ms (shownAt=${String(Math.round(metric.shownAt ?? -1))} hiddenAt=${String(Math.round(metric.hiddenAt ?? -1))} reason=${String(metric.reason)})`,
     );
     check('AC-U1 스플래시 노드가 사라진다(전환 완료)', splashAfter.present === false, `present=${String(splashAfter.present)}`);
-    const nowShot = await capture('T24-2-지금화면-390x844.png');
+    const bodyShot = await capture('T27-2-본문-390x844.png');
+    const body = await evaluate(BODY_PROBE);
+    check('AC-U1 본문 전환 스크린샷 + 시간표 행 렌더', body.count > 0 && typeof bodyShot === 'string', `rows=${String(body.count)}`);
+
+    /* ── AC-U9-1 상단 바 현재 날짜·시각 + 분 단위 갱신 ──────────────── */
+    const clock0 = await evaluate(`
+      const node = document.querySelector('[data-testid="app-clock"]');
+      if (node === null) return null;
+      return { text: (node.textContent || '').replace(/\\s+/g, ' ').trim(), datetime: node.getAttribute('datetime'), fontSize: getComputedStyle(node).fontSize, weight: getComputedStyle(node).fontWeight };
+    `);
     check(
-      'AC-U1 본문 전환 스크린샷 + [지금] 화면(히어로 카드 + 지금 탈 수 있는 편)',
-      (await evaluate(`return document.querySelector('[data-testid="next-bus-time"]') !== null && document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length > 0;`)) === true,
-      nowShot.slice(ROOT.length),
+      'AC-U9-1 상단 바에 현재 날짜·시각이 `10월 6일 (화) · 08:00` 형식으로 있다',
+      clock0 !== null &&
+        /^\d{1,2}월 \d{1,2}일 \([일월화수목금토]\) · \d{2}:\d{2}$/.test(String(clock0.text)) &&
+        String(clock0.text) === EXPECTED_CLOCK,
+      JSON.stringify({ clock: clock0, expected: EXPECTED_CLOCK }),
+    );
+    // 분 단위 갱신 실측 — 주입 시계는 고정이라 계측 훅으로 1분 이동시킨다(`window.__shuttleTick`).
+    const tickIso = new Date(new Date(NOW).getTime() + 60_000).toISOString();
+    const ticked = await evaluate(`
+      if (typeof window.__shuttleTick !== 'function') return null;
+      window.__shuttleTick(${JSON.stringify(tickIso)});
+      const node = document.querySelector('[data-testid="app-clock"]');
+      return (node.textContent || '').replace(/\\s+/g, ' ').trim();
+    `);
+    check(
+      'AC-U9-1 시각이 분 단위로 갱신된다(+1분 실측)',
+      String(ticked) === EXPECTED_CLOCK_TICKED,
+      `got=${String(ticked)} expected=${EXPECTED_CLOCK_TICKED}`,
+    );
+    await evaluate(
+      `if (typeof window.__shuttleTick === 'function') window.__shuttleTick(${JSON.stringify(NOW)}); return true;`,
     );
 
-    /* ── AC-U2 탭 2개 · ARIA · 키보드 · 마지막 탭 유지 ──────────────── */
-    const tabs = await evaluate(`
-      const bar = document.querySelector('[data-testid="app-tabs"]');
-      const nodes = [...document.querySelectorAll('.shuttle-tabbar [role="tab"]')];
-      const panels = nodes.map((node) => {
-        const panel = document.getElementById(node.getAttribute('aria-controls'));
-        return panel === null ? null : { id: panel.id, role: panel.getAttribute('role'), hidden: panel.hasAttribute('hidden'), labelledby: panel.getAttribute('aria-labelledby') };
-      });
+    /* ── AC-U9-1/9-3/9-4 본문 시간표 = 다음 출발이 보이는 상태 ──────── */
+    const first = await evaluate(BODY_PROBE);
+    check(
+      'AC-U9-1 진입 시 "다음 출발" 행이 정확히 하나 있고(가장 가까운 남은 편) 그 행이 화면에 보인다',
+      first.nextCount === 1 &&
+        first.nextTime !== null &&
+        first.nextTop !== null &&
+        first.nextBottom !== null &&
+        first.nextTop >= first.appbarBottom - 2 &&
+        first.nextBottom <= first.innerHeight + 1,
+      JSON.stringify({
+        nextTime: first.nextTime,
+        nextTop: first.nextTop,
+        nextBottom: first.nextBottom,
+        appbarBottom: first.appbarBottom,
+        innerHeight: first.innerHeight,
+      }),
+    );
+    check(
+      'AC-U9-1/9-4 자동 스크롤 계측값 + `scroll-margin-top` 적용(상단 바 높이)',
+      first.scrollBar !== null && first.scrollBar.autoScrolls >= 1 && first.scrollBar.lastTargetKey === first.nextKey && typeof first.scrollBar.lastOffset === 'number' && first.scrollMarginTop !== null && first.scrollMarginTop >= 56,
+      JSON.stringify({ scroll: first.scrollBar, scrollMarginTop: first.scrollMarginTop, nextKey: first.nextKey }),
+    );
+    check(
+      'AC-U9-3 강조는 좌측 라인 + 배경 톤만 — 테두리 0 · 배지 0 · 강조 행 토큰 0',
+      first.nextStyle !== null &&
+        first.normalStyle !== null &&
+        first.nextStyle.borderLeft === '0px' &&
+        first.nextStyle.borderTop === '0px' &&
+        first.nextStyle.borderRight === '0px' &&
+        first.nextStyle.background !== first.normalStyle.background &&
+        /inset/.test(first.nextStyle.boxShadow) &&
+        first.nextBadges === 0 &&
+        first.nextTokens === 0,
+      JSON.stringify({ next: first.nextStyle, normal: first.normalStyle, badges: first.nextBadges, tokens: first.nextTokens }),
+    );
+    check(
+      'AC-U9-3 지나간 행은 dim(계산색 실측) — 지난 편 수 > 0',
+      first.pastCount > 0 && first.pastStyle !== null && first.pastStyle.color !== first.normalStyle.color,
+      JSON.stringify({ pastCount: first.pastCount, pastColor: first.pastStyle?.color, normalColor: first.normalStyle?.color }),
+    );
+    check(
+      'AC-U9-3 조건 토큰은 행당 1개 이하 · 짧다(긴 사유 문구 금지 — 8자 이하 실측)',
+      first.maxTokensPerRow <= 1 && first.maxTokenLength <= 8,
+      JSON.stringify({ tokenRows: first.tokenRows, maxPerRow: first.maxTokensPerRow, maxLength: first.maxTokenLength, longest: first.longestToken }),
+    );
+    const nextShot = await capture('T27-3-다음출발-자동스크롤.png');
+    info(`AC-U9-1 스크린샷(다음 출발 강조): ${nextShot.slice(ROOT.length)}`);
+
+    /* ── AC-U9-2 본문에 잡텍스트 0건 ───────────────────────────────── */
+    const forbidden = BODY_FORBIDDEN.map((phrase) => ({ phrase, count: (first.panelText.match(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) ?? []).length }));
+    check(
+      'AC-U9-2 본문 텍스트에 제거 대상 문구 0건(소개문구·데이터 갱신·출처·요금·변동·원본)',
+      forbidden.every((entry) => entry.count === 0),
+      JSON.stringify(forbidden),
+    );
+    check(
+      'AC-U9-2 히어로 카드·바로가기·앱 탭·원본표 노드 0개',
+      first.legacyNodes.length === 0,
+      JSON.stringify(first.legacyNodes),
+    );
+
+    /* ── 요일 탭(시간표의 축) 계약 — T24 의 [지금]/[전체] 탭을 대신한다 ── */
+    const dayTabs = await evaluate(`
+      const bar = document.querySelector('[data-testid="day-tabs"]');
+      const nodes = [...bar.querySelectorAll('[role="tab"]')];
       return {
-        barRole: bar === null ? null : bar.getAttribute('role'),
-        labels: nodes.map((node) => node.textContent.trim()),
+        role: bar === null ? null : bar.getAttribute('role'),
+        labels: nodes.map((node) => (node.textContent || '').trim()),
         selected: nodes.map((node) => node.getAttribute('aria-selected')),
         tabIndexes: nodes.map((node) => node.getAttribute('tabindex')),
-        panels,
-      };
-    `);
-    check('AC-U2 탭 2개(지금/전체) + role=tablist', tabs.barRole === 'tablist' && tabs.labels.length === 2 && tabs.labels.join('|') === '지금|전체', JSON.stringify(tabs.labels));
-    check(
-      'AC-U2 role=tab/tabpanel · aria-controls↔aria-labelledby 연결 · 비활성 패널 hidden',
-      tabs.panels.every((panel) => panel !== null && panel.role === 'tabpanel') &&
-        tabs.panels[0].hidden === false &&
-        tabs.panels[1].hidden === true &&
-        tabs.panels[0].labelledby === 'shuttle-tab-now',
-      JSON.stringify(tabs.panels),
-    );
-    check('AC-U2 roving tabindex(선택 탭만 0)', tabs.tabIndexes.join('|') === '0|-1', JSON.stringify(tabs.tabIndexes));
-    // 키보드: [전체] 로 초점 이동 후 ←/→
-    const keyboard = await evaluate(`
-      const all = document.querySelector('#shuttle-tab-all');
-      all.focus();
-      all.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }));
-      const afterLeft = { active: document.activeElement.id, allSelected: all.getAttribute('aria-selected') };
-      const now = document.querySelector('#shuttle-tab-now');
-      now.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
-      return {
-        afterLeft,
-        afterRight: { active: document.activeElement.id, allSelected: all.getAttribute('aria-selected'), nowSelected: now.getAttribute('aria-selected'), nowHidden: document.querySelector('#shuttle-tabpanel-now').hasAttribute('hidden') },
+        hiddenPanels: [...document.querySelectorAll('.shuttle-tabpanel[hidden]')].length,
       };
     `);
     check(
-      'AC-U2 키보드 ←/→ 이동·선택(포커스도 함께 이동)',
-      keyboard.afterLeft.active === 'shuttle-tab-now' && keyboard.afterLeft.allSelected === 'false' && keyboard.afterRight.active === 'shuttle-tab-all' && keyboard.afterRight.allSelected === 'true' && keyboard.afterRight.nowHidden === true,
-      JSON.stringify(keyboard),
-    );
-    // 마지막 탭 유지: [전체] 로 두고 재로드
-    await showAppTab('all');
-    await cdp.send('Page.reload', { ignoreCache: false });
-    await waitReady();
-    const persisted = await evaluate(`
-      return {
-        stored: window.localStorage.getItem('sunmoon-shuttle:app-tab:v1'),
-        allSelected: document.querySelector('#shuttle-tab-all').getAttribute('aria-selected'),
-        allHidden: document.querySelector('#shuttle-tabpanel-all').hasAttribute('hidden'),
-        nowHidden: document.querySelector('#shuttle-tabpanel-now').hasAttribute('hidden'),
-      };
-    `);
-    check(
-      'AC-U2 마지막 탭 유지(재로드 후 [전체])',
-      persisted.stored === 'all' && persisted.allSelected === 'true' && persisted.allHidden === false && persisted.nowHidden === true,
-      JSON.stringify(persisted),
+      '요일 전환 컨트롤 유지 — role=tablist · 3개(평일/토/일) · roving tabindex · 화면은 하나(숨은 패널 0)',
+      dayTabs.role === 'tablist' && dayTabs.labels.length === 3 && dayTabs.tabIndexes.join('|') === '0|-1|-1' && dayTabs.hiddenPanels === 0,
+      JSON.stringify(dayTabs),
     );
 
-    /* ── AC-U3 두 크기에서 가로 스크롤 0 + 뷰 스크린샷 ────────────── */
+    /* ── AC-U9-4 사용자 스크롤 3초 재스크롤 금지 → 3초 뒤 다시 맞춘다 ── */
+    const cooldown = await evaluate(`
+      const scroller = document.querySelector('.shuttle-scroll');
+      scroller.scrollTop = 400;                    // 사용자 스크롤(프로그램 스크롤 아님)
+      return { scrollTop: Math.round(scroller.scrollTop), auto: (window.__shuttleScroll ?? {}).autoScrolls ?? -1 };
+    `);
+    await delay(120);
+    await showDayTab('saturday');
+    await delay(200);
+    await showDayTab('weekday');
+    const during = await evaluate(`return { auto: (window.__shuttleScroll ?? {}).autoScrolls ?? -1, skipped: (window.__shuttleScroll ?? {}).skipped ?? -1 };`);
+    check(
+      'AC-U9-4 사용자가 스크롤한 뒤 3초 안에는 자동 스크롤하지 않는다(스킵 실측)',
+      during.auto === cooldown.auto && during.skipped >= 1,
+      JSON.stringify({ before: cooldown, during }),
+    );
+    await delay(3200);
+    await showDayTab('saturday');
+    await delay(200);
+    await showDayTab('weekday');
+    await delay(200);
+    const after = await evaluate(`return { auto: (window.__shuttleScroll ?? {}).autoScrolls ?? -1, scrollTop: Math.round(document.querySelector('.shuttle-scroll').scrollTop) };`);
+    check(
+      'AC-U9-4 3초가 지나면 다시 다음 출발로 맞춘다(재스크롤 허용)',
+      after.auto > during.auto,
+      JSON.stringify({ during, after }),
+    );
+    const scrolled = await evaluate(BODY_PROBE);
+    check(
+      'AC-U9-4 자동 스크롤이 가려지지 않는다(다음 출발 행 y ≥ 상단 바 하단)',
+      scrolled.nextTop !== null && scrolled.nextTop >= scrolled.appbarBottom - 2,
+      JSON.stringify({ nextTop: scrolled.nextTop, appbarBottom: scrolled.appbarBottom }),
+    );
+
+    /* ── AC-U3 두 크기에서 가로 스크롤 0 + 스크린샷 ────────────────── */
     const sizes = [
       { label: '390×844(iPhone)', width: 390, height: 844 },
       { label: '360×800(Android)', width: 360, height: 800 },
     ];
     for (const size of sizes) {
       await cdp.send('Emulation.setDeviceMetricsOverride', { width: size.width, height: size.height, deviceScaleFactor: 2, mobile: true });
-      await delay(150);
-      for (const tab of ['now', 'all']) {
-        await showAppTab(tab);
-        await delay(250);
-        const horiz = await evaluate(HORIZONTAL_PROBE);
-        check(
-          `AC-U3 ${size.label} · [${tab === 'now' ? '지금' : '전체'}] 가로 스크롤 0`,
-          horiz.canScrollHorizontally === false && horiz.scrollWidth <= horiz.clientWidth + 1,
-          `scrollWidth=${String(horiz.scrollWidth)} clientWidth=${String(horiz.clientWidth)} scrollLeft→${String(horiz.scrollLeftAfter)}`,
-        );
-        await capture(`T24-3-${tab === 'now' ? '지금' : '전체'}-${String(size.width)}x${String(size.height)}.png`, size.width, size.height);
-      }
+      await delay(200);
+      const horiz = await evaluate(HORIZONTAL_PROBE);
+      check(
+        `AC-U3 ${size.label} 가로 스크롤 0(문서·본문 스크롤포트 둘 다)`,
+        horiz.canScrollHorizontally === false &&
+          horiz.scrollWidth <= horiz.clientWidth + 1 &&
+          horiz.listScrollWidth <= horiz.listClientWidth + 1,
+        `scrollWidth=${String(horiz.scrollWidth)} clientWidth=${String(horiz.clientWidth)} list=${String(horiz.listScrollWidth)}/${String(horiz.listClientWidth)}`,
+      );
+      await capture(`T27-4-본문-${String(size.width)}x${String(size.height)}.png`, size.width, size.height);
     }
-    info(`AC-U3 스크린샷: ${shots.filter((path) => path.includes('T24-3')).map((path) => path.slice(ROOT.length)).join(' · ')}`);
+    info(`AC-U3 스크린샷: ${shots.filter((path) => path.includes('T27-4')).map((path) => path.slice(ROOT.length)).join(' · ')}`);
 
     /* ── AC-U4 safe-area(노치 47 · 홈 인디케이터 34) ───────────────── */
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
@@ -456,33 +614,29 @@ async function main() {
       root.style.setProperty('--safe-area-bottom', '34px');
       const app = document.querySelector('.shuttle-app');
       const appbar = document.querySelector('.shuttle-appbar').getBoundingClientRect();
-      const tabbar = document.querySelector('.shuttle-tabbar').getBoundingClientRect();
-      const scroll = document.querySelector('.shuttle-scroll');
+      const scroll = document.querySelector('.shuttle-scroll').getBoundingClientRect();
       return {
         appPaddingTop: parseFloat(getComputedStyle(app).paddingTop),
         appPaddingBottom: parseFloat(getComputedStyle(app).paddingBottom),
         appbarTop: Math.round(appbar.top),
         appbarHeight: Math.round(appbar.height),
-        tabbarBottom: Math.round(tabbar.bottom),
-        tabbarHeight: Math.round(tabbar.height),
+        scrollBottom: Math.round(scroll.bottom),
         innerHeight: window.innerHeight,
-        scrollHeight: Math.round(scroll.getBoundingClientRect().height),
       };
     `);
     check(
-      'AC-U4 노치·홈인디케이터(47/34px)만큼 셸이 여백을 확보한다(앱바·탭바가 잘리지 않음)',
-      safe.appPaddingTop >= 47 && safe.appPaddingBottom >= 34 && safe.appbarTop >= 0 && safe.tabbarBottom <= safe.innerHeight + 1 && safe.appbarHeight >= 56 && safe.tabbarHeight >= 56,
+      'AC-U4 노치·홈인디케이터(47/34px)만큼 셸이 여백을 확보한다(상단 바·본문이 잘리지 않음)',
+      safe.appPaddingTop >= 47 && safe.appPaddingBottom >= 34 && safe.appbarTop >= 0 && safe.appbarHeight >= 56 && safe.scrollBottom <= safe.innerHeight + 1,
       JSON.stringify(safe),
     );
     info(`AC-U4 safe-area: CDP inset 주입 ${insetsSupported ? '지원' : '미지원(토큰 주입으로 실측)'}`);
-    const safeShot = await capture('T24-4-safe-area-390x844.png');
+    const safeShot = await capture('T27-5-safe-area-390x844.png');
     await evaluate(`document.documentElement.style.removeProperty('--safe-area-top'); document.documentElement.style.removeProperty('--safe-area-bottom'); return true;`);
 
     /* ── AC-U5 스켈레톤(캐시 없는 첫 실행) + 2.5s 상한 ─────────────── */
     dataDelayMs = 4000;
-    // **캐시 없는 첫 실행**을 실제로 만든다 — 직전 단계들이 채워 둔 IndexedDB(앱 캐시)와
-    // Cache Storage(SW·data/timetable.json 캐시 우선)를 지우지 않으면 데이터가 즉시 준비돼
-    // 스플래시가 하한(400ms)만에 'data' 로 빠지고 스켈레톤도 스쳐 지나간다(그러면 AC-U5 가 무의미해진다).
+    // **캐시 없는 첫 실행**을 실제로 만든다 — 앱 캐시(IndexedDB)와 Cache Storage 를 지우지 않으면
+    // 데이터가 즉시 준비돼 스플래시가 하한(400ms)만에 'data' 로 빠지고 스켈레톤도 스쳐 지나간다.
     await cdp.send('Storage.clearDataForOrigin', {
       origin: `http://127.0.0.1:${String(webPort)}`,
       storageTypes: 'all',
@@ -513,16 +667,16 @@ async function main() {
         cards: node === null ? 0 : node.querySelectorAll('.shuttle-skeleton__card').length,
         bars: node === null ? 0 : node.querySelectorAll('.shuttle-skeleton__bar').length,
         role: node === null ? null : node.getAttribute('role'),
-        boardCard: document.querySelector('[data-testid="next-bus-card"]') !== null,
+        rows: document.querySelectorAll('[data-testid="timetable-row"]').length,
         splash: document.querySelector('[data-testid="splash"]') !== null,
       };
     `);
     check(
       'AC-U5 캐시 없는 첫 실행에서 스켈레톤 카드 3장(빈 화면·텍스트만 아님)',
-      skeleton.present === true && skeleton.cards === 3 && skeleton.bars === 9 && skeleton.splash === false,
+      skeleton.present === true && skeleton.cards === 3 && skeleton.bars === 9 && skeleton.rows === 0 && skeleton.splash === false,
       JSON.stringify(skeleton),
     );
-    const skeletonShot = await capture('T24-5-스켈레톤.png');
+    const skeletonShot = await capture('T27-6-스켈레톤.png');
     dataDelayMs = 0;
     check('AC-U5 지연 해제 후 본문 렌더(스켈레톤→본문)', await waitReady());
     info(`AC-U5 스켈레톤 스크린샷: ${skeletonShot.slice(ROOT.length)}`);
@@ -531,10 +685,7 @@ async function main() {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     // (a) 일반 모드 값 — 대조군
     const normalMotion = await evaluate(`
-      const all = document.querySelector('#shuttle-tab-all');
-      document.querySelector('#shuttle-tab-now').click();
-      all.click();
-      const panel = document.querySelector('#shuttle-tabpanel-all');
+      const panel = document.querySelector('[data-testid="day-panel"]');
       const splash = document.createElement('div');
       splash.className = 'shuttle-splash';
       document.body.appendChild(splash);
@@ -553,10 +704,7 @@ async function main() {
     const reducedSplash = await waitSplashGone();
     const reducedMetric = reducedSplash.metric ?? null;
     const reducedMotion = await evaluate(`
-      const all = document.querySelector('#shuttle-tab-all');
-      document.querySelector('#shuttle-tab-now').click();
-      all.click();
-      const panel = document.querySelector('#shuttle-tabpanel-all');
+      const panel = document.querySelector('[data-testid="day-panel"]');
       const splash = document.createElement('div');
       splash.className = 'shuttle-splash';
       document.body.appendChild(splash);
@@ -590,11 +738,10 @@ async function main() {
       reducedFadeMs >= 400 && reducedFadeMs <= 2500,
       `t=${String(reducedFadeMs)}ms`,
     );
-    await capture('T24-6-reduced-motion-전체.png');
+    await capture('T27-7-reduced-motion-본문.png');
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
 
-    /* ── 회귀: T14 계약 + 콘솔 ─────────────────────────────────────── */
-    await showAppTab('all');
+    /* ── 회귀: T14 계약 + 정보 시트(§9-5) + 콘솔 ───────────────────── */
     await delay(200);
     const regression = await evaluate(`
       return {
@@ -604,9 +751,6 @@ async function main() {
         sourceDetails: document.querySelectorAll('[data-testid="source-details"]').length,
         elements: document.querySelectorAll('.shuttle-app *').length,
         sheetHidden: document.querySelector('[data-testid="guide-sheet"]').hasAttribute('hidden'),
-        stopWindowInSheet: document.querySelector('[data-testid="guide-sheet"] [data-testid="stop-window-details"]') !== null,
-        refreshLine: document.querySelector('[data-testid="data-refresh-line"]') !== null,
-        sourceLine: document.querySelector('[data-testid="source-line"]') !== null,
       };
     `);
     check(
@@ -614,15 +758,31 @@ async function main() {
       regression.innerTextSource === 0 && regression.domSource === 0 && regression.schoolLinks <= 1 && regression.sourceDetails === 0,
       JSON.stringify(regression),
     );
+    check('정보 시트(ⓘ)는 기본 숨김이다', regression.sheetHidden === true, JSON.stringify(regression));
+    // ⓘ 열기 → 출처·데이터 갱신·정차창이 시트 안에 있다(§9-5 목적지).
+    await evaluate(`document.querySelector('[data-testid="app-info"]').click(); return true;`);
+    await delay(200);
+    const sheet = await evaluate(`
+      const sheet = document.querySelector('[data-testid="guide-sheet"]');
+      return {
+        open: sheet.hasAttribute('hidden') === false,
+        sourceLine: sheet.querySelector('[data-testid="source-line"]') !== null,
+        refreshLine: sheet.querySelector('[data-testid="data-refresh-line"]') !== null,
+        stopWindow: sheet.querySelector('[data-testid="stop-window-details"]') !== null,
+        noticePanel: sheet.querySelector('[data-testid="notice-panel"]') !== null,
+        bodyText: (document.querySelector('[data-testid="day-panel"]').innerText || '').includes('데이터 갱신'),
+      };
+    `);
     check(
-      '화면 분리: [전체] 탭이 출처·데이터 갱신·이용 안내 시트(정차창)를 갖는다',
-      regression.refreshLine === true && regression.sourceLine === true && regression.stopWindowInSheet === true,
-      JSON.stringify(regression),
+      '정보 시트(ⓘ): 출처·데이터 갱신·요금/정차창이 본문이 아니라 시트 안에 있다(§9-5)',
+      sheet.open === true && sheet.sourceLine === true && sheet.refreshLine === true && sheet.stopWindow === true && sheet.noticePanel === true && sheet.bodyText === false,
+      JSON.stringify(sheet),
     );
+    await evaluate(`document.querySelector('[data-testid="guide-close"]').click(); return true;`);
+    await delay(150);
     check('회귀: 콘솔 오류 0', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
     check('회귀: 셸이 비어 있지 않다(화면 요소 200개 초과)', regression.elements > 200, `elements=${String(regression.elements)}`);
-    info(`스플래시 스크린샷: ${splashShot.slice(ROOT.length)} · ${safeShot.slice(ROOT.length)}`);
-    info(`지금/전체: ${nowShot.slice(ROOT.length)}`);
+    info(`스플래시 스크린샷: ${splashShot.slice(ROOT.length)} · ${safeShot.slice(ROOT.length)} · ${bodyShot.slice(ROOT.length)}`);
 
     console.log('\n검사 결과:');
     for (const line of notes) console.log(line);
@@ -648,12 +808,12 @@ async function main() {
     for (const line of failures) console.log(line);
     process.exitCode = 1;
   } else {
-    console.log('\nT24 SMOKE: PASS');
+    console.log('\nT27 SMOKE: PASS');
   }
 }
 
 main().catch((error) => {
-  console.error(`T24 SMOKE: ERROR — ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`T27 SMOKE: ERROR — ${error instanceof Error ? error.message : String(error)}`);
   console.log('\n여기까지의 검사 결과:');
   for (const line of notes) console.log(line);
   for (const line of failures) console.log(line);

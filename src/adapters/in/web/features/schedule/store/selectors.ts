@@ -1017,8 +1017,23 @@ export interface FullDayView {
   readonly counts: Readonly<Record<DirectionFilter, number>>;
 }
 
-export function fullDayView(state: ScheduleState, filter: DirectionFilter = 'all'): FullDayView {
-  const dayType = state.dayType;
+export interface FullDayOptions {
+  /** 표를 그릴 요일 구분(기본: 선택된 요일). 대체 시간표 날에는 **적용 시간표**가 온다 */
+  readonly dayType: DayType;
+  /**
+   * 사유 판정·지난 편 판정의 기준일(기본: 선택한 요일이 돌아오는 날).
+   * 오늘 화면에서는 **오늘**이 온다 — 대체 시간표 날(예: 개천절대체휴일 → 일요일 시간표)에도
+   * "지금 시각 기준 지난 편/다음 출발" 판정이 오늘을 기준으로 맞아야 하기 때문이다.
+   */
+  readonly referenceDay: KstDay;
+}
+
+export function fullDayView(
+  state: ScheduleState,
+  filter: DirectionFilter = 'all',
+  options?: FullDayOptions,
+): FullDayView {
+  const dayType = options?.dayType ?? state.dayType;
   const model = state.model;
   if (model === null) {
     return {
@@ -1031,7 +1046,7 @@ export function fullDayView(state: ScheduleState, filter: DirectionFilter = 'all
     };
   }
 
-  const day = referenceDay(state, dayType);
+  const day = options?.referenceDay ?? referenceDay(state, dayType);
   const all: FullTripView[] = [];
   for (const route of model.routes) {
     // 운행 중단 노선은 전체 목록에도 올리지 않는다(상태·사유는 이용 안내가 원문으로 보여준다).
@@ -1112,4 +1127,164 @@ function compareFullTrips(a: FullTripView, b: FullTripView): number {
   if (a.departure !== b.departure) return a.departure < b.departure ? -1 : 1;
   if (a.routeId !== b.routeId) return a.routeId < b.routeId ? -1 : 1;
   return a.key < b.key ? -1 : a.key === b.key ? 0 : 1;
+}
+
+/* ───────────────────── 본문 = 시간표 하나 (T27 · docs/07 §9) ─────────────────────
+ * 화면의 주인공은 시간표다(§9-1). 본문은 **선택한 요일의 전체 회차 목록 하나**이고,
+ *  - 이미 지난 편은 dim(`isPast`)
+ *  - 지금 시각 기준 **다음 출발 편 하나**만 살짝 강조(`isNext`) — 좌측 라인 + 배경 톤
+ *  - 요일 조건이 걸린 편은 **짧은 토큰 1개 이하**(`token`) — 긴 사유 문구·배지 나열 금지(§9-3)
+ * 판정(운행 여부·사유 코드)은 전부 도메인(`resolveTripService`·`tripStatus`)이 하고 여기서는
+ * `fullDayView` 가 만든 값에 **표시용 요약(토큰)·강조 위치**만 얹는다(재계산 없음).
+ */
+
+/** 본문 시간표 행 — `FullTripView` + 화면 강조용 값. */
+export interface TimetableRowView extends FullTripView {
+  /** 요일 조건 요약 토큰(최대 1개) — `금 휴` · `월·화` · `2대`. 없으면 null */
+  readonly token: string | null;
+  /** 다음 출발 행인가(강조 대상 — 오늘 시간표일 때만 하나뿐) */
+  readonly isNext: boolean;
+}
+
+export interface TimetableView {
+  readonly dayType: DayType;
+  readonly dayLabel: string;
+  /** 사유 판정 기준일(`YYYY-MM-DD`) — 증거·검증용 */
+  readonly referenceDate: string;
+  /** 선택한 요일이 **오늘**인가(강조·자동 스크롤은 오늘일 때만 의미가 있다) */
+  readonly isToday: boolean;
+  readonly total: number;
+  readonly counts: Readonly<Record<DirectionFilter, number>>;
+  readonly rows: readonly TimetableRowView[];
+  /** 강조(다음 출발) 행 key — 없으면 null */
+  readonly nextKey: string | null;
+}
+
+/**
+ * 본문 시간표 뷰(§9-1·§9-3) — `fullDayView`(그 요일 실제 운행 편) 위에
+ * **다음 출발 행 하나**와 **짧은 조건 토큰**만 얹는다. 오늘이 아닌 요일 탭([토]/[일] 미리보기)에는
+ * 강조할 "다음 출발"이 없다(오늘 기준 지난 편 판정이 의미를 갖지 않는다).
+ *
+ * 오늘 화면의 두 가지 계약(T13·T22 유지):
+ *  - **운행 없는 날**(공휴일 등)에는 시간표 행을 그리지 않는다 — 상단 바 아래 1줄이 "다음 운행"을 안내한다.
+ *  - **대체 시간표 날**에는 **적용 시간표**(예: 일요일)를 그린다(캘린더 요일 표가 아니다).
+ */
+export function timetableView(state: ScheduleState, filter: DirectionFilter = 'all'): TimetableView {
+  const now = new Date(state.nowMs);
+  const today = kstDayFromInstant(now);
+  const todayDayType = dayTypeFromDate(now);
+  const selectedIsToday = state.dayType === todayDayType;
+  const model = state.model;
+  const service = model === null ? null : resolveDayService(today, model.schedule.notices);
+  const noService = selectedIsToday && service !== null && !service.serviceOn;
+  const effectiveDayType: DayType =
+    selectedIsToday && service !== null && service.serviceOn ? service.effectiveDayType : state.dayType;
+
+  // 오늘 화면이면 적용 요일 + 기준일=오늘, 미리보기 탭이면 그 요일이 돌아오는 날을 기준으로 판정한다.
+  const full = fullDayView(
+    state,
+    filter,
+    selectedIsToday ? { dayType: effectiveDayType, referenceDay: today } : undefined,
+  );
+  const isToday = selectedIsToday && !noService;
+  const trips = noService ? [] : full.trips;
+
+  let nextKey: string | null = null;
+  const rows = trips.map((trip): TimetableRowView => {
+    const isNext = isToday && nextKey === null && !trip.isPast;
+    if (isNext) nextKey = trip.key;
+    return { ...trip, token: shortTripToken(trip.badges), isNext };
+  });
+  return {
+    dayType: full.dayType,
+    dayLabel: full.dayLabel,
+    referenceDate: noService ? formatIsoDate(today) : full.referenceDate,
+    isToday,
+    total: noService ? 0 : full.total,
+    counts: noService ? { all: 0, out: 0, in: 0 } : full.counts,
+    rows,
+    nextKey,
+  };
+}
+
+/**
+ * 사유 배지(도메인 문구) → **짧은 토큰 하나**(§9-3: 긴 사유 문구 금지).
+ *  - `금요일 운행 없음` → `금 휴`   (그 요일에는 이 편이 뜨지 않는다 — 한 눈에)
+ *  - `월·화만 운행`    → `월·화`
+ *  - `2대 운행`        → `2대`      (요일 범위와 함께면 `월·화 2대`)
+ *  - 그 밖(데이터에서 온 표기, 예 `중간노선 전용`)은 그대로 쓴다(지어내지 않는다).
+ * 우선순위: 요일 휴무 > 요일 범위(+대수) > 대수 > 데이터 표기. 결과는 항상 1개(또는 null).
+ */
+export function shortTripToken(badges: readonly string[]): string | null {
+  let scope: string | null = null;
+  let count: string | null = null;
+  let label: string | null = null;
+  for (const raw of badges) {
+    const text = raw.trim();
+    if (text === '') continue;
+    const excluded = /^(.+)요일 운행 없음$/.exec(text);
+    if (excluded !== null) return `${compressWeekdayScope(excluded[1] ?? '')} ${UI_TEXT.tokenHolidaySuffix}`;
+    const scoped = /^(.+)만 운행$/.exec(text);
+    if (scoped !== null) {
+      scope = compressWeekdayScope(scoped[1] ?? '');
+      continue;
+    }
+    const vehicles = /^(\d+)대 운행$/.exec(text);
+    if (vehicles !== null) {
+      count = `${vehicles[1] ?? ''}${UI_TEXT.tokenVehicleSuffix}`;
+      continue;
+    }
+    if (label === null) label = text;
+  }
+  if (scope !== null) return count === null ? scope : `${scope} ${count}`;
+  return count ?? label;
+}
+
+/**
+ * 요일 목록을 **짧은 토큰**으로 줄인다 — 3일 이상 연속이면 `월·화·수·목` → `월~목`.
+ * (§9-3 "짧은 토큰 하나" — 한글 요일 4개 + 대수까지 붙으면 토큰이 문구가 된다.)
+ */
+function compressWeekdayScope(days: string): string {
+  const parts = days.split('·').filter((part) => part.trim() !== '');
+  if (parts.length < 3) return days;
+  const first = parts[0];
+  const last = parts.at(-1);
+  if (first === undefined || last === undefined) return days;
+  return `${first}~${last}`;
+}
+
+/* ───────────────────── 상단 바 아래 최소 1줄 (T27 · docs/07 §9-4) ─────────────────────
+ * §9-1 로 본문에서 걷어낸 안내 중 **스크롤 대상이 없거나 사용자가 반드시 알아야 하는** 것만
+ * 상단 바 아래 **얇은 한 줄**로 남긴다(동시에 최대 1줄). 우선순위: 운행없음 > 대체 > 방학.
+ * (T13 계약인 "오늘 운행 종료" 안내도 같은 슬롯을 쓴다 — 다음 출발 행이 없는 상태를 알린다.)
+ */
+
+export type DayNoticeKind = 'no-service' | 'alternate' | 'vacation' | 'today-over';
+
+export interface DayNoticeLine {
+  readonly kind: DayNoticeKind;
+  /** 화면에 그대로 쓰는 한 줄 */
+  readonly text: string;
+}
+
+export function dayNoticeLine(state: ScheduleState): DayNoticeLine | null {
+  const notice = serviceNoticeView(state);
+  if (notice !== null && notice.kind === 'no-service') {
+    // 다음 운행 시각을 함께 알린다(§9-4 ①) — 값은 도메인 `nextDepartures` 결과에서만 온다.
+    const board = todayBoardView(state);
+    const next = board.next.at(0);
+    const nextPart =
+      next === undefined
+        ? ''
+        : ` · ${UI_TEXT.boardNextServicePrefix}: ${next.dayLabel} ${next.departure}`;
+    return { kind: 'no-service', text: `${notice.title} · ${notice.detail}${nextPart}` };
+  }
+  if (notice !== null) return { kind: 'alternate', text: `${notice.title} · ${notice.detail}` };
+  const vacation = vacationNotice(state);
+  if (vacation !== null) return { kind: 'vacation', text: vacation.text };
+  const board = todayBoardView(state);
+  if (board.listHeadlineKind === 'today-over' && board.listHeadline !== null) {
+    return { kind: 'today-over', text: board.listHeadline };
+  }
+  return null;
 }

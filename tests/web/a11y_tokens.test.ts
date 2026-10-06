@@ -24,6 +24,11 @@ const PAIRS: readonly (readonly [string, string, string, number])[] = [
   ['보조글자/표면', 'color-text-muted', 'color-surface', 4.5],
   ['보조글자/보조표면', 'color-text-muted', 'color-surface-alt', 4.5],
   ['약한글자/보조표면', 'color-text-subtle', 'color-surface-alt', 4.5],
+  // T27 — 본문 시간표의 흐림(dim)·강조 배경(§9-3): 흐려도 본문 대비(4.5)는 지킨다.
+  ['흐린글자/표면', 'color-text-dim', 'color-surface', 4.5],
+  ['흐린글자/보조표면', 'color-text-dim', 'color-surface-alt', 4.5],
+  ['보조글자/강조배경', 'color-text-muted', 'color-highlight', 4.5],
+  ['본문글자/강조배경', 'color-text', 'color-highlight', 4.5],
   ['강조색/표면(링크)', 'color-accent', 'color-surface', 4.5],
   ['강조 위 글자(버튼)', 'color-on-accent', 'color-accent', 4.5],
   ['정상 배지', 'color-ok-text', 'color-ok-bg', 4.5],
