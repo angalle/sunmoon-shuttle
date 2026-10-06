@@ -86,7 +86,7 @@
 | **T22 앱 판정·표시** — `tripStatus`(오늘 운행 편만)·사유 배지·`약 N분 소요`·방학 배너 + 금요일 스크린샷 | `t_88a65081` | frontendprojectcreator | **완료(done)** — 금요일 115→55편(감소 60=미운행 60 일치)·사유 배지·약 N분 소요·450 tests·스모크 PASS |
 
 | **T23 🚨 AI 경로 발행 중단 수정** — 중복 term/dateRules 는 병합·폐기(치명 아님) + 실 DeepSeek 1회 end-to-end 발행 성공 | `t_6801878b` | apiprojectcreator | **발행(ready)** — 총괄이 실 DeepSeek 키로 실행해 발견(중복 term → 치명 → 발행 중단). 환각 폐기·발행중단은 정상 작동 확인 |
-| **T24 모바일 앱 셸·스플래시** — 스플래시·하단 탭(지금/전체)·스켈레톤·앱바·safe-area + 화면 분리 | `t_fc242158` | frontendprojectcreator | **발행(ready·최우선 P13)** — 계약 `docs/07-mobile-ux.md`, AC-U1~U7 |
+| **T24 모바일 앱 셸·스플래시** — 스플래시·하단 탭(지금/전체)·스켈레톤·앱바·safe-area + 화면 분리 | `t_fc242158` | frontendprojectcreator | **완료(done)** — t24_smoke 28/0·479 tests·build 성공(스플래시 412ms·가로 스크롤 0) |
 | **T25 네이티브 스플래시·아이콘 정합** — Capacitor 스플래시/상태바/아이콘 + AAB 재빌드·서명검증·에뮬 스모크 | `t_f5832339` | infraprojectcreator | todo(부모 T24) |
 
 | **T26 AI 초안 수용 규칙 강화** — 노선 폐지는 dateRule 금지(routes.status+routeNotes)·전노선 scope 근거 강제·`dayTypes:[]` 금지·기존 표현 중복 폐기·검증기 반영 | `t_68a7bf57` | apiprojectcreator | **발행(ready)** — 실 DeepSeek 실행에서 AI 가 천안캠퍼스 폐지를 '전 노선 no-service'로 오표현(앱 영향 없음 확인). 계약 `docs/06 §8` |
