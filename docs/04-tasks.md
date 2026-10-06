@@ -91,6 +91,8 @@
 
 | **T26 AI 초안 수용 규칙 강화** — 노선 폐지는 dateRule 금지(routes.status+routeNotes)·전노선 scope 근거 강제·`dayTypes:[]` 금지·기존 표현 중복 폐기·검증기 반영 | `t_68a7bf57` | apiprojectcreator | **완료(done)** — 노선폐지→routeNotes 이관·scope/dayTypes 규칙·발행본 정정(dateRules 9)·496 tests·실DeepSeek exit 0 |
 
+| **T27 시간표 중심 단순화** — 본문=시간표·잡텍스트 제거, 고정 상단바(현재 날짜·시각), 다음 출발 행 자동 스크롤 + 살짝 하이라이트 | `t_40edf460` | frontendprojectcreator | **발행(ready·최우선 P14)** — 계약 `docs/07 §9`, AC-U9-1~5 |
+
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
 - **배포 주의**: 최신 배포본은 T5 시점(run `37270216029`, 커밋 `0ab0501`) — T6~T9(오프라인·PWA·접근성)는 **아직 미배포**. `main` 은 origin 보다 **12커밋 앞**이며 push(=배포 트리거)는 **사용자 승인 사안**.
