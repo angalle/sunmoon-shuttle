@@ -450,39 +450,66 @@ body {
   color: var(--color-info-text);
 }
 
+/* ─────────────── 요일 세그먼트(§12-2 · T30) ───────────────
+ * 탭 3개가 **줄 전체를 등폭 3분할**한다(개별 알약 금지). 줄 전체가 하나의 컨트롤처럼 보이게
+ * 둥근 배경 1개 위에 얹고, 선택 상태는 **배경 톤 + 굵기 600 + 하단 2px 라인**으로 전달한다
+ * (색만으로 전달 금지 · 대비 4.5:1 유지). 높이는 토큰 44px — 컨트롤 밖으로 넘치지 않는다.
+ */
 .shuttle-tab {
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-bottom: none;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  background: var(--color-surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--today-dot-gap);
+  height: 100%;
+  min-width: 0;
+  padding: 0 var(--space-2);
+  border: none;
+  /* 상태가 바뀌어도 레이아웃이 흔들리지 않게 라인 자리를 항상 잡아 둔다(투명 → 선택 시 색) */
+  border-bottom: var(--day-tab-indicator) solid transparent;
+  background: transparent;
   color: var(--color-text);
   font: inherit;
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-row-meta);
+  font-weight: var(--font-weight-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
 }
 
 .shuttle-tab[aria-selected='true'] {
-  background: var(--color-surface);
+  background: var(--color-highlight);
   color: var(--color-accent);
-  border-color: var(--color-border-strong);
+  border-bottom-color: var(--color-accent);
+  /* §12-2 — 선택 상태의 굵기 600(700 아님) */
+  font-weight: 600;
 }
 
-.shuttle-tab__note {
-  display: block;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-muted);
+/* 라벨 — 부가 텍스트 없이 문자열 하나(§12-2) */
+.shuttle-tab__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 오늘 표시 — **점 하나**(지름 4px). 화면 텍스트가 없고 `aria-label="오늘"` 만 갖는다(§12-2) */
+.shuttle-tab__today {
+  flex: 0 0 auto;
+  width: var(--today-dot-size);
+  height: var(--today-dot-size);
+  border-radius: 50%;
+  background: var(--color-accent);
 }
 
 /* ───────────────────────── 분자 ───────────────────────── */
 
+/* 요일 세그먼트 컨트롤의 **트랙** — 등폭 3분할(§12-2). 높이 44px, 좌우 여백은 셸(12px)이 갖는다. */
 .shuttle-daytabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  border-bottom: 1px solid var(--color-border-strong);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: var(--day-tab-height);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .shuttle-routelist {
@@ -901,12 +928,13 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
-/* ④ 방향 필터 칩 (T29 §11-1 — 상단 고정 3줄의 마지막 줄) */
+/* ④ 방향 필터 칩 (T29 §11-1 — 상단 고정 3줄의 마지막 줄 · T30 §12-3 — 규격 정리) */
 .shuttle-chips {
   display: flex;
   /* 3개가 한 줄에 안 들어가면 **가로 스크롤**한다 — 줄바꿈으로 고정 영역 높이를 늘리지 않는다(§11-1) */
   flex-wrap: nowrap;
-  gap: var(--space-1);
+  /* 칩 사이 8px(§12-3) — 좌우 여백 12px 는 셸(.shuttle-app)이 갖는다(3줄이 같은 축) */
+  gap: var(--space-2);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
@@ -916,16 +944,17 @@ body {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  /* 터치 타깃 48px + 칩이 줄어들지 않게(가로 스크롤의 전제) */
+  /* 칩이 줄어들지 않게(가로 스크롤의 전제) · 폭은 내용에 맞춤(등폭 아님, §12-3) */
   flex: 0 0 auto;
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-3);
+  /* 높이 40px(§12-3) — 가로는 ≥48px 를 유지한다(AC-U12-4) */
+  min-height: var(--chip-height);
+  padding: 0 var(--space-3);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  /* 라벨 13px(보조 크기 — §10-2 토큰) · 편수는 11px 캡션 토큰 */
+  /* 라벨 13px(보조 크기 — §10-2 토큰) · 편수는 11px 캡션 토큰(§12-3) */
   font-size: var(--font-size-row-meta);
   white-space: nowrap;
   cursor: pointer;

@@ -1,7 +1,11 @@
 /**
  * 분자: 요일 탭 (features/schedule/components/molecules)
  * WAI-ARIA tabs 패턴 — ←/→/Home/End 로 이동·선택, 선택된 탭만 tabindex=0(roving).
- * 도메인 계산 없음(표시 + 이벤트 위임만). 요일 라벨/노선 수는 props 로 받는다.
+ * 도메인 계산 없음(표시 + 이벤트 위임만). 요일 라벨은 props 로 받는다.
+ *
+ * T30 §12-2 — **등폭 세그먼트 컨트롤**: 탭 3개가 한 줄을 3등분한다(폭은 CSS grid 가 맞춘다).
+ * 라벨은 `평일`·`토요일`·`일요일` 만이고 **부가 텍스트(`(오늘)`, `노선 N/M개`)를 붙이지 않는다**.
+ * 오늘 표시는 라벨 오른쪽 **작은 점 하나**(화면 텍스트 아님 · `aria-label="오늘"`)로만 한다.
  */
 import { el } from '../../../../shared/lib/dom';
 import { tabButton } from '../../../../shared/ui/atoms/TabButton';
@@ -45,16 +49,13 @@ export function dayTabs(props: DayTabsProps): HTMLDivElement {
 
   props.tabs.forEach((tab, index) => {
     const selected = tab.dayType === props.selected;
-    const note =
-      tab.routeTotal === 0
-        ? undefined
-        : `노선 ${String(tab.routesWithTable)}/${String(tab.routeTotal)}개`;
     container.appendChild(
       tabButton({
         id: dayTabId(props.tabIdPrefix, tab.dayType),
         controls: props.panelId,
-        label: tab.isToday ? `${tab.label} (오늘)` : tab.label,
-        ...(note === undefined ? {} : { note }),
+        // §12-2 — 라벨만 남긴다(오늘 여부는 점으로만 · 노선 수는 화면에서 뺐다).
+        label: tab.label,
+        ...(tab.isToday ? { todayDotLabel: UI_TEXT.dayTabTodayDot } : {}),
         selected,
         tabIndex: selected ? 0 : -1,
         onSelect: () => {

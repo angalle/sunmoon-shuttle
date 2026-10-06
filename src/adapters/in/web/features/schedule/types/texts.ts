@@ -113,6 +113,11 @@ export const UI_TEXT = {
   moveNowTodayOverNoNext: '오늘 남은 편이 없습니다',
 
   dayTabLegend: '요일 선택',
+  /**
+   * T30 §12-2 — 오늘 요일 탭의 **작은 점**이 낭독기에만 갖는 이름.
+   * 화면 텍스트로 "오늘"을 쓰지 않는다(점 하나만) — 그래서 이 문구는 `aria-label` 로만 나간다.
+   */
+  dayTabTodayDot: '오늘',
   routeLegend: '노선 선택',
   routeStatusSuspended: '운행 중단',
   routeOffDay: '이 요일 운행 없음',
