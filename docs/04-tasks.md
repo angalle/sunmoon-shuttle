@@ -80,7 +80,7 @@
 | **T18 🚨 회귀 수정** — 수집 실패 시 캐시 폴백 복구 + 만료 캐시 안내 | `t_74a9348b` | frontendprojectcreator | **완료(done)** — `verify:offline` FAIL 5건(총괄 실측). 수정 후 exit 0 + 회귀 스모크 4종 PASS 필요. **회귀 닫힘**(원인=캐시 스키마 게이트 v1 고정 → 지원목록 v1·v2) — verify:offline PASS·334 tests. **push 대기 중** |
 
 | **T19 AI 계층 API 모드** — OpenAI 호환(`AI_BASE_URL`/`AI_MODEL`/`AI_API_KEY`) + 키 없음·실패 시 규칙 전용 폴백 + 비용 가드·모의서버 테스트 | `t_89869521` | apiprojectcreator | **완료(done)** — API 어댑터+모드 CLI+폴백·비용가드, 363 tests·모의서버 28건(실 과금 0) |
-| **T20 extract.yml 호스티드 러너 전환** — `ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트, self-hosted·Ollama 의존 제거 | `t_8322b6e9` | infraprojectcreator | todo(부모 T19) — **CI 실측은 main push 보류로 미실측** |
+| **T20 extract.yml 호스티드 러너 전환** — `ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트, self-hosted·Ollama 의존 제거 | `t_8322b6e9` | infraprojectcreator | **완료(done)** — actionlint 0·호스티드 러너·시크릿 env 주입·변경시만 발행·아티팩트. **CI 실측은 push 보류로 미실측** |
 
 | **T21 스키마 v3 (편별 요일 조건 구조화)** — `금(X)` 59행→`excludedDays:["fri"]`·`월~화 2대`→`dayScope`·`0:15`→`durationMinutes`·방학 기간 수집·게이트 목록화 | `t_6e8253fc` | apiprojectcreator | todo(부모 T19) — **계약: `docs/06-data-model.md`** |
 | **T22 앱 판정·표시** — `tripStatus`(오늘 운행 편만)·사유 배지·`약 N분 소요`·방학 배너 + 금요일 스크린샷 | `t_88a65081` | frontendprojectcreator | todo(부모 T21) — docs/06 §2·§5 구현 |
