@@ -1,20 +1,23 @@
 /**
- * `tools/extract` 공용 타입 — **스키마 v2**(`docs` 01 부록 A) 구현.
+ * `tools/extract` 공용 타입 — **스키마 v3**(`docs/06-data-model.md` §3) 구현.
  *
- * v1(`tools/scraper/types.ts`, `schemaVersion: 1`)은 **그대로 유지**한다 — 이 단계는 v1 필드를
- * 하나도 바꾸지 않고 **추가 필드만** 얹는다(앱 무중단).
+ * v1(`tools/scraper/types.ts`, `schemaVersion: 1`)의 표·시각·순번은 **그대로** 유지한다 — 이 단계는
+ * v1 필드를 값까지 바꾸지 않고 **추가 필드만** 얹는다(앱 무중단). 예외는 하나뿐이다:
+ * `routes[].byDay[*].trips[].note` — 원문 표기가 구조화되면 **비운다**(v3 계약, 중복 표현 금지).
  *
  * 추가되는 것:
  *  - `dateRules[]`  : 날짜·기간·조건 규칙(갭 ①③⑤⑥) — `kind` 별 필수 필드가 다르다
- *  - `terms[]`      : 학기/방학 구간 + 그 기간에 적용되는 시간표 소스(갭 ④)
+ *  - `terms[]`      : 학기/방학 구간 + 그 기간에 적용되는 시간표 소스(갭 ④) + `periodSearch`(v3)
  *  - `routes[].tripNotes[]`  : 방향별 소요시간(갭 ②)
  *  - `routes[].stopWindows[]`: 시간창 조건부 정차(갭 ③)
+ *  - `routes[].byDay[*].trips[].service`·`durationMinutes`·`unknownNote`·`needsReview` (v3 편별 조건)
+ *  - `source.extraction.schemaVersion`·`termSources` (v3 실행 메타)
  *
- * **계약(모든 v2 항목 공통)**: `sourceQuote` 는 원본 스냅샷 문장의 **부분문자열**이어야 하고,
+ * **계약(모든 v2·v3 항목 공통)**: `sourceQuote` 는 원본 스냅샷 문장의 **부분문자열**이어야 하고,
  * `extractedBy` 로 규칙/`ai` 출처를 구분한다.
  */
 
-import type { DayType, Notice, RouteData, SemesterPeriod, Timetable } from '../scraper/types.js';
+import type { DayType, Notice, RouteData, SemesterPeriod, Timetable, TripRow } from '../scraper/types.js';
 
 export type { DayType, Notice, RouteData, SemesterPeriod, Timetable };
 
@@ -67,6 +70,82 @@ export interface DateRule {
   readonly needsReview: boolean;
   /** 같은 기간의 중복 공지를 통합했을 때, 제거된 표기 원문(갭 ⑥) */
   readonly mergedQuotes?: readonly string[];
+}
+
+// ─────────────────────────── 편별 조건(스키마 v3) ───────────────────────────
+
+/**
+ * 편별 요일 조건(v3) — 원본 표의 `운행 특이사항` 열 표기를 **구조**로 옮긴 것.
+ * 수치는 규칙(`trips.ts`)이 만들고, `sourceQuote` 는 **원문 표기 그대로**다(표기 변형 금지).
+ */
+export type WeekdayCode = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export const WEEKDAY_CODES: readonly WeekdayCode[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+export function isWeekdayCode(value: string): value is WeekdayCode {
+  return (WEEKDAY_CODES as readonly string[]).includes(value);
+}
+
+export interface TripService {
+  /** 이 요일에는 운행하지 않는다(`금(X)` → `["fri"]`). 빈 배열 = 요일 제외 없음 */
+  readonly excludedDays: readonly WeekdayCode[];
+  /** 이 요일들에만 운행(`월~화 2대 운행` → `["mon","tue"]`). null = 요일 한정 없음 */
+  readonly dayScope: readonly WeekdayCode[] | null;
+  /** `dayScope` 와 함께 오는 대수(`월~화 2대 운행` → 2) */
+  readonly vehicleCount: number | null;
+  /** 표기 통일본(`중간노선 전용`) — 공백 차이만 정규화한다 */
+  readonly label: string | null;
+  /** ★ 원문 note 그대로(필수) — 이 값이 원본 표기의 진본이다 */
+  readonly sourceQuote: string;
+}
+
+/** 원문 note 1건의 해석 결과(결정적) */
+export interface TripConditionEntry {
+  readonly routeId: string;
+  readonly dayType: DayType;
+  readonly seq: number;
+  /** 원문 note(공백만 trim) — 인용 검증 대상 */
+  readonly sourceQuote: string;
+  /** 해석 결과: 구조화된 조건 / 소요시간 / 미해석 */
+  readonly outcome: 'service' | 'duration' | 'unknown';
+  readonly service: TripService | null;
+  readonly durationMinutes: number | null;
+  /** 미해석일 때만 원문 표기(= `sourceQuote`) */
+  readonly unknownNote: string | null;
+}
+
+/** v3 조건 필드 — **원문 note 가 있던 행에만** 붙는다(없던 행은 v1 그대로). */
+export interface TripConditionFields {
+  readonly service?: TripService | null;
+  readonly durationMinutes?: number | null;
+  readonly unknownNote?: string | null;
+  readonly needsReview?: boolean;
+}
+
+/** v3 여행 행 — v1 `TripRow` + 조건 필드(선택) */
+export type EnrichedTripRow = TripRow & TripConditionFields;
+
+// ─────────────────────────── 방학/학기 스냅샷(노선 표가 아닌 페이지) ───────────────────────────
+
+/**
+ * 노선 시간표가 **아닌** 안내 페이지 스냅샷(예: 방학 시간표 페이지).
+ * 파일명이 `<학기>-<노선>-<요일>` 규약 밖이라 노선 스냅샷과 섞이면 안 된다 → `data/raw/terms/` 하위에 둔다.
+ * 쓰임: 기간 문구(방학 기간) 수집 + 그 근거 인용 검증.
+ */
+export interface TermSource {
+  readonly file: string;
+  readonly html: string;
+  readonly text: string;
+}
+
+/** 기간(방학 등)을 어디서 찾았고 결과가 무엇인가 — 추측 금지 원칙의 기록 */
+export interface TermPeriodSearch {
+  /** 기간 문구를 찾은/못 찾은 스냅샷 파일 */
+  readonly file: string;
+  /** `found` = 기간 채움 · `not-found` = 페이지는 있으나 기간 문구 없음 · `not-provided` = 스냅샷 미포함 */
+  readonly result: 'found' | 'not-found' | 'not-provided';
+  /** 판정 근거가 된 **원문 문장**(부분문자열이어야 한다) */
+  readonly evidenceQuote: string | null;
 }
 
 // ─────────────────────────── 방향별 소요시간(갭 ②) ───────────────────────────
@@ -122,6 +201,8 @@ export interface Term {
   readonly end: string | null;
   /** 이 기간에 적용되는 시간표 페이지(원본 URL). 스냅샷에 없으면 null */
   readonly timetableSource: string | null;
+  /** v3: 기간(방학)을 어디서 찾았고 결과가 무엇인가 — 추측 금지의 기록 */
+  readonly periodSearch?: TermPeriodSearch | null;
   readonly note: string | null;
   readonly sourceQuote: string;
   readonly sourcePage: string;
@@ -242,6 +323,10 @@ export interface GapCoverage {
 export interface ExtractionMeta {
   /** 추출기 식별자 */
   readonly extractor: string;
+  /** 산출물 스키마 버전(추출기가 발행한 계약 버전) */
+  readonly schemaVersion: number;
+  /** 기간 수집용 스냅샷(노선 표가 아닌 페이지) 파일 목록 — v3 */
+  readonly termSources: readonly string[];
   readonly model: string | null;
   /** AI 를 실제로 어디서 받았는가(`api`|`ollama`|`rule-only`) — NFR-A4 */
   readonly provider: AiProvider;
@@ -273,11 +358,11 @@ export interface ExtractionMeta {
 }
 
 /**
- * v2 본문 — 추출 메타(`source.extraction`)를 붙이기 **전** 상태.
+ * v3 본문 — 추출 메타(`source.extraction`)를 붙이기 **전** 상태.
  * (검증 → 메타 부착 순서를 타입으로 강제한다: 메타의 `needsReview`·`reviewReasons` 는 검증 결과에서 나온다.)
  */
 export interface EnrichedTimetableBody extends Omit<Timetable, 'schemaVersion' | 'routes' | 'source'> {
-  readonly schemaVersion: 2;
+  readonly schemaVersion: 3;
   readonly routes: readonly EnrichedRouteData[];
   readonly dateRules: readonly DateRule[];
   readonly terms: readonly Term[];
@@ -300,6 +385,8 @@ export interface ValidationIssue {
 export interface RuleStructures {
   readonly dateRules: readonly DateRule[];
   readonly terms: readonly Term[];
+  /** v3: 편별 조건(원문 note 해석 결과) — 노선별 */
+  readonly tripConditions: readonly { readonly routeId: string; readonly entries: readonly TripConditionEntry[] }[];
   /** 중복 제거된 v1 안내문(그대로 v2 `notices` 로 발행된다) */
   readonly notices: readonly Notice[];
   readonly dedupedNotices: number;

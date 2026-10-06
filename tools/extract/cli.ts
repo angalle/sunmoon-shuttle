@@ -15,9 +15,10 @@ import { findRoute, parseSnapshotFileName } from '../scraper/routeMeta.js';
 import type { Snapshot, Timetable } from '../scraper/types.js';
 import { harvestCandidates, toSources } from './candidates.js';
 import { extractRuleStructures } from './rules.js';
+import { pageText } from './text.js';
 import { mergeAiDrafts } from './merge.js';
 import { buildPrompt, createDisabledStructurer, DEFAULT_MODEL, DEFAULT_TIMEOUT_MS, promptTemplateSha256 } from './ai.js';
-import type { AiStructurer } from './types.js';
+import type { AiStructurer, TermSource } from './types.js';
 import { buildEnrichedTimetable, withExtractionMeta } from './enrich.js';
 import { computeGapCoverage, countNeedsReview, hasFatal, validateEnriched } from './validate.js';
 import { ExtractError } from './types.js';
@@ -65,12 +66,16 @@ export interface ExtractDeps {
 export const DEFAULT_OUT = 'data/timetable.json';
 export const DEFAULT_LOG = '.session-notes/T16-extract-run.json';
 export const DEFAULT_RAW_DIR = 'data/raw';
-export const EXTRACTOR = 'tools/extract (schema v2)';
+/** 기간 수집용 스냅샷(노선 표가 아닌 페이지 — 예: 방학 시간표) 기본 위치 */
+export const DEFAULT_TERM_DIR = 'data/raw/terms';
+export const EXTRACTOR = 'tools/extract (schema v3)';
 
 export interface ExtractArgs {
   readonly files: readonly string[];
   readonly out: string;
   readonly logPath: string;
+  /** 기간 수집용 스냅샷 경로(`--term-page`, 반복 가능). 비어 있으면 `data/raw/terms/*.html` 를 쓴다 */
+  readonly termPages: readonly string[];
   /** `--ai=off`/`--no-ai` 와 동일(호환용 — 기존 로그·테스트 필드) */
   readonly noAi: boolean;
   /** AI 보강 모드(기본 `api` — OpenAI 호환 외부 API) */
@@ -84,7 +89,7 @@ export interface ExtractArgs {
 
 export const USAGE = [
   '사용법: npm run extract [-- --ai=api|ollama|off] [--local] [data/raw/*.html] [--out data/timetable.json]',
-  '          [--model=<이름>] [--dry-run] [--log .session-notes/T16-extract-run.json]',
+  '          [--model=<이름>] [--dry-run] [--log .session-notes/T16-extract-run.json] [--term-page <html>]…',
   '',
   '  --ai=api              OpenAI 호환 외부 API 로 AI 보강한다(기본. AI_BASE_URL·AI_MODEL·AI_API_KEY)',
   '  --ai=ollama           로컬 Ollama 로 AI 보강한다(대안. 기본 모델 ' + DEFAULT_MODEL + ')',
@@ -92,6 +97,7 @@ export const USAGE = [
   '  --no-ai               `--ai=off` 와 동일(호환 유지)',
   '  --local               로컬 스냅샷만 사용한다(원격 수집 없음 — robots.txt 차단, docs/01 §8)',
   '  --model=<이름>        모델명(비우면 ollama=기본 모델 · api=AI_MODEL env)',
+  '  --term-page <경로>    기간 수집용 스냅샷(예: 방학 시간표 페이지). 반복 지정 가능. 생략하면 ' + DEFAULT_TERM_DIR + '/*.html',
   '  --dry-run             발행 없이 검증만(파일 쓰기 0, 로그는 남긴다)',
   '  --out <경로>          출력 JSON 경로(기본 data/timetable.json)',
   '  --log <경로>          실행 로그 경로(기본 .session-notes/T16-extract-run.json)',
@@ -108,6 +114,7 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     files: string[];
     out: string;
     logPath: string;
+    termPages: string[];
     noAi: boolean;
     aiMode: AiMode;
     model: string;
@@ -118,6 +125,7 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     files: [],
     out: DEFAULT_OUT,
     logPath: DEFAULT_LOG,
+    termPages: [],
     noAi: false,
     aiMode: 'api',
     model: '',
@@ -159,11 +167,12 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
       if (inline === undefined) i += 1;
       continue;
     }
-    if (token === '--out' || token === '--log' || token === '--now') {
+    if (token === '--out' || token === '--log' || token === '--now' || token === '--term-page') {
       const value = argv[i + 1];
       if (value === undefined || value.startsWith('--')) throw new ExtractError(`${token} 뒤에 값이 필요합니다`);
       if (token === '--out') args.out = value;
       else if (token === '--log') args.logPath = value;
+      else if (token === '--term-page') args.termPages.push(value);
       else {
         if (!ISO_OFFSET_PATTERN.test(value)) throw new ExtractError(`--now 값이 ISO8601(+오프셋) 형식이 아닙니다 — "${value}"`);
         args.now = value;
@@ -179,6 +188,10 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
 
 interface RunRecord {
   generatedAt: string;
+  /** 발행 계약 스키마 버전(v3) */
+  schemaVersion: number;
+  /** 기간 스냅샷(방학 시간표 등) 경로 — 비어 있으면 기간 미수집 */
+  termPages: readonly string[];
   model: string;
   /** AI 를 실제로 어디서 받았는가(NFR-A4) */
   provider: AiProvider;
@@ -280,7 +293,23 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   const sources: SnapshotSource[] = toSources(snapshotInputs);
   const { candidates, rejected } = harvestCandidates(sources);
   const promptChars = buildPrompt(candidates).length;
-  const rules = extractRuleStructures({ sources, base, candidates });
+
+  // ②-b 기간 수집용 스냅샷(노선 표가 아닌 페이지 — 방학 시간표 등). 없으면 방학 기간은 null + 사유 기록.
+  const termFiles = resolveTermPages(args, deps);
+  const termSources: TermSource[] = [];
+  for (const file of termFiles) {
+    let html: string;
+    try {
+      html = deps.readTextFile(file);
+    } catch (error) {
+      deps.error(`[extract] 기간 스냅샷을 읽을 수 없습니다: ${file} — ${message(error)}`);
+      return 1;
+    }
+    termSources.push({ file, html, text: pageText(html) });
+  }
+  if (termSources.length > 0) deps.log(`[extract] 기간 스냅샷 ${String(termSources.length)}개: ${termFiles.join(', ')}`);
+
+  const rules = extractRuleStructures({ sources, base, candidates, termSources });
 
   // ③ AI 보강(선택)
   const structurer = args.noAi
@@ -317,6 +346,7 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     terms: merged.terms,
     tripNotes: rules.tripNotes,
     stopWindows: rules.stopWindows,
+    tripConditions: rules.tripConditions,
     notices: rules.notices,
     dedupedNotices: rules.dedupedNotices,
   };
@@ -327,7 +357,7 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   }
 
   // ⑥ 검증
-  const issues = validateEnriched(enriched, { baseline: base, sources });
+  const issues = validateEnriched(enriched, { baseline: base, sources, termSources });
   const fatalIssues = issues.filter((issue) => issue.fatal);
   const reviewReasons = issues.filter((issue) => !issue.fatal).map((issue) => `${issue.where}: ${issue.message}`);
   const needsReview = countNeedsReview(enriched);
@@ -336,6 +366,7 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     candidatesRejected: rejected,
     needsReview,
     promptChars,
+    termPages: termFiles,
   });
 
   if (fatalIssues.length > 0) {
@@ -348,6 +379,8 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   const gaps = computeGapCoverage(enriched);
   const meta: ExtractionMeta = {
     extractor: EXTRACTOR,
+    schemaVersion: 3,
+    termSources: [...termFiles],
     model: args.noAi || aiResult.model === '' ? null : aiResult.model,
     provider: effectiveProvider(args.aiMode, aiResult.status),
     promptTemplateSha256: promptTemplateSha256(),
@@ -389,8 +422,23 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     deps.error(`[extract] 출력 실패: ${args.out} — ${message(error)}`);
     return 1;
   }
-  deps.log(`[extract] 발행: ${args.out} (${new TextEncoder().encode(serialized).length} bytes) · schemaVersion=2 · ${final.source.contentHash}`);
+  deps.log(`[extract] 발행: ${args.out} (${new TextEncoder().encode(serialized).length} bytes) · schemaVersion=3 · ${final.source.contentHash}`);
   return 0;
+}
+
+/** 기간 스냅샷 경로 — `--term-page` 우선, 없으면 `data/raw/terms/*.html`(없으면 빈 목록) */
+export function resolveTermPages(args: ExtractArgs, deps: ExtractDeps): string[] {
+  if (args.termPages.length > 0) return [...args.termPages];
+  try {
+    return deps
+      .listFiles(DEFAULT_TERM_DIR)
+      .filter((file) => file.endsWith('.html'))
+      .map((file) => `${DEFAULT_TERM_DIR}/${file}`)
+      .sort();
+  } catch {
+    // 디렉터리가 없으면 "기간 스냅샷 없음" 이다(오류 아님 — 방학 기간은 null + 사유 기록)
+    return [];
+  }
 }
 
 function resolveFiles(args: ExtractArgs, deps: ExtractDeps): string[] {
@@ -432,10 +480,17 @@ function buildRecord(
   reviewReasons: readonly string[],
   allIssues: readonly ValidationIssue[],
   aborted: boolean,
-  extra?: { readonly candidatesRejected?: number; readonly needsReview?: number; readonly promptChars?: number },
+  extra?: {
+    readonly candidatesRejected?: number;
+    readonly needsReview?: number;
+    readonly promptChars?: number;
+    readonly termPages?: readonly string[];
+  },
 ): RunRecord {
   return {
     generatedAt: new Date().toISOString(),
+    schemaVersion: 3,
+    termPages: extra?.termPages ?? [],
     model: aiResult.model,
     provider: effectiveProvider(args.aiMode, aiResult.status),
     fallbackReason: resolveFallbackReason(args.aiMode, aiResult.status, aiResult.error),
@@ -501,9 +556,25 @@ function logSummary(
     deps.log(`[extract] 갭 ${String(gap.gap)} ${gap.name}: ${gap.count}건 — ${gap.where}`);
   }
   deps.log(`[extract] dateRules ${String(timetable.dateRules.length)}건 · terms ${String(timetable.terms.length)}건 · notices 중복 제거 ${String(timetable.source.extraction.dedupedNotices)}건`);
+  deps.log(
+    `[extract] 편별 조건 ${String(countTripConditions(timetable))}건(원문 note 구조화) · 기간 스냅샷 ${String(timetable.source.extraction.termSources.length)}개`,
+  );
   deps.log(`[extract] needsReview ${String(needsReview)}건${needsReview > 0 ? ` — ${reviewReasons.length}건의 검증 경고` : ''}`);
   for (const reason of reviewReasons) deps.log(`[extract]   ⚠️ ${reason}`);
-  deps.log('[extract] 검증 통과(치명 0) · schemaVersion=2 · v1 필드 보존 확인');
+  deps.log('[extract] 검증 통과(치명 0) · schemaVersion=3 · v1 표(행·시각·열) 보존 확인');
+}
+
+/** 산출물에서 편별 조건이 붙은 행 수를 센다(모니터링 로그용). */
+function countTripConditions(timetable: EnrichedTimetable): number {
+  let total = 0;
+  for (const route of timetable.routes) {
+    for (const dayType of ['weekday', 'saturday', 'sunday'] as const) {
+      for (const row of route.byDay[dayType].trips) {
+        if ('service' in row) total += 1;
+      }
+    }
+  }
+  return total;
 }
 
 function message(error: unknown): string {

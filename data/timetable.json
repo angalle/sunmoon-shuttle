@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "semester": {
     "title": "2026-2학기 셔틀버스 시간표(2026.9.1(화)~2026.12.14(월))",
     "label": "2026-2학기",
@@ -38,35 +38,83 @@
           "depCampus": "08:05",
           "depStation": "08:25",
           "arrCampus": "08:40",
-          "note": "0:15"
+          "note": null,
+          "service": null,
+          "durationMinutes": 15,
+          "needsReview": false
         },
         {
           "seq": 2,
           "depCampus": null,
           "depStation": "08:35",
           "arrCampus": "08:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 3,
           "depCampus": null,
           "depStation": "08:40",
           "arrCampus": "08:55",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 4,
           "depCampus": null,
           "depStation": "08:45",
           "arrCampus": "09:00",
-          "note": "월~화 2대 운행"
+          "note": null,
+          "service": {
+            "excludedDays": [],
+            "dayScope": [
+              "mon",
+              "tue"
+            ],
+            "vehicleCount": 2,
+            "label": null,
+            "sourceQuote": "월~화 2대 운행"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 5,
           "depCampus": null,
           "depStation": "08:50",
           "arrCampus": "09:05",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 6,
@@ -80,14 +128,39 @@
           "depCampus": null,
           "depStation": "09:00",
           "arrCampus": "09:15",
-          "note": "월~목 2대 운행"
+          "note": null,
+          "service": {
+            "excludedDays": [],
+            "dayScope": [
+              "mon",
+              "tue",
+              "wed",
+              "thu"
+            ],
+            "vehicleCount": 2,
+            "label": null,
+            "sourceQuote": "월~목 2대 운행"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 8,
           "depCampus": null,
           "depStation": "09:05",
           "arrCampus": "09:20",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 9,
@@ -101,7 +174,18 @@
           "depCampus": null,
           "depStation": "09:15",
           "arrCampus": "09:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 11,
@@ -122,14 +206,36 @@
           "depCampus": "10:20",
           "depStation": "10:40",
           "arrCampus": "10:55",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 14,
           "depCampus": "10:30",
           "depStation": "10:50",
           "arrCampus": "11:05",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 15,
@@ -143,14 +249,36 @@
           "depCampus": "10:55",
           "depStation": "11:15",
           "arrCampus": "11:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 17,
           "depCampus": "11:25",
           "depStation": "11:45",
           "arrCampus": "12:00",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 18,
@@ -164,14 +292,36 @@
           "depCampus": "12:15",
           "depStation": "12:35",
           "arrCampus": "12:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 20,
           "depCampus": "12:35",
           "depStation": "12:55",
           "arrCampus": "13:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 21,
@@ -192,7 +342,18 @@
           "depCampus": "13:50",
           "depStation": "14:10",
           "arrCampus": "14:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 24,
@@ -206,7 +367,18 @@
           "depCampus": "14:50",
           "depStation": "15:10",
           "arrCampus": "15:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 26,
@@ -220,7 +392,18 @@
           "depCampus": "15:35",
           "depStation": "15:55",
           "arrCampus": "16:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 28,
@@ -234,14 +417,36 @@
           "depCampus": "15:50",
           "depStation": "16:10",
           "arrCampus": "16:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 30,
           "depCampus": "16:30",
           "depStation": "16:50",
           "arrCampus": "17:05",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 31,
@@ -255,7 +460,18 @@
           "depCampus": "16:50",
           "depStation": "17:10",
           "arrCampus": "17:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 33,
@@ -269,7 +485,18 @@
           "depCampus": "17:30",
           "depStation": "17:50",
           "arrCampus": "18:05",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 35,
@@ -283,14 +510,36 @@
           "depCampus": "17:50",
           "depStation": "18:10",
           "arrCampus": "18:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 37,
           "depCampus": "18:15",
           "depStation": "18:35",
           "arrCampus": "18:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 38,
@@ -304,7 +553,18 @@
           "depCampus": "18:45",
           "depStation": "19:05",
           "arrCampus": "19:20",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 40,
@@ -350,35 +610,83 @@
               "depCampus": "08:05",
               "depStation": "08:25",
               "arrCampus": "08:40",
-              "note": "0:15"
+              "note": null,
+              "service": null,
+              "durationMinutes": 15,
+              "needsReview": false
             },
             {
               "seq": 2,
               "depCampus": null,
               "depStation": "08:35",
               "arrCampus": "08:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 3,
               "depCampus": null,
               "depStation": "08:40",
               "arrCampus": "08:55",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 4,
               "depCampus": null,
               "depStation": "08:45",
               "arrCampus": "09:00",
-              "note": "월~화 2대 운행"
+              "note": null,
+              "service": {
+                "excludedDays": [],
+                "dayScope": [
+                  "mon",
+                  "tue"
+                ],
+                "vehicleCount": 2,
+                "label": null,
+                "sourceQuote": "월~화 2대 운행"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 5,
               "depCampus": null,
               "depStation": "08:50",
               "arrCampus": "09:05",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 6,
@@ -392,14 +700,39 @@
               "depCampus": null,
               "depStation": "09:00",
               "arrCampus": "09:15",
-              "note": "월~목 2대 운행"
+              "note": null,
+              "service": {
+                "excludedDays": [],
+                "dayScope": [
+                  "mon",
+                  "tue",
+                  "wed",
+                  "thu"
+                ],
+                "vehicleCount": 2,
+                "label": null,
+                "sourceQuote": "월~목 2대 운행"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 8,
               "depCampus": null,
               "depStation": "09:05",
               "arrCampus": "09:20",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 9,
@@ -413,7 +746,18 @@
               "depCampus": null,
               "depStation": "09:15",
               "arrCampus": "09:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 11,
@@ -434,14 +778,36 @@
               "depCampus": "10:20",
               "depStation": "10:40",
               "arrCampus": "10:55",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 14,
               "depCampus": "10:30",
               "depStation": "10:50",
               "arrCampus": "11:05",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 15,
@@ -455,14 +821,36 @@
               "depCampus": "10:55",
               "depStation": "11:15",
               "arrCampus": "11:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 17,
               "depCampus": "11:25",
               "depStation": "11:45",
               "arrCampus": "12:00",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 18,
@@ -476,14 +864,36 @@
               "depCampus": "12:15",
               "depStation": "12:35",
               "arrCampus": "12:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 20,
               "depCampus": "12:35",
               "depStation": "12:55",
               "arrCampus": "13:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 21,
@@ -504,7 +914,18 @@
               "depCampus": "13:50",
               "depStation": "14:10",
               "arrCampus": "14:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 24,
@@ -518,7 +939,18 @@
               "depCampus": "14:50",
               "depStation": "15:10",
               "arrCampus": "15:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 26,
@@ -532,7 +964,18 @@
               "depCampus": "15:35",
               "depStation": "15:55",
               "arrCampus": "16:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 28,
@@ -546,14 +989,36 @@
               "depCampus": "15:50",
               "depStation": "16:10",
               "arrCampus": "16:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 30,
               "depCampus": "16:30",
               "depStation": "16:50",
               "arrCampus": "17:05",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 31,
@@ -567,7 +1032,18 @@
               "depCampus": "16:50",
               "depStation": "17:10",
               "arrCampus": "17:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 33,
@@ -581,7 +1057,18 @@
               "depCampus": "17:30",
               "depStation": "17:50",
               "arrCampus": "18:05",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 35,
@@ -595,14 +1082,36 @@
               "depCampus": "17:50",
               "depStation": "18:10",
               "arrCampus": "18:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 37,
               "depCampus": "18:15",
               "depStation": "18:35",
               "arrCampus": "18:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 38,
@@ -616,7 +1125,18 @@
               "depCampus": "18:45",
               "depStation": "19:05",
               "arrCampus": "19:20",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 40,
@@ -820,7 +1340,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "09:00",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 3,
@@ -838,7 +1369,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "09:15",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 5,
@@ -847,7 +1389,16 @@
           "viaHairexpa": "08:50",
           "viaYongam": "2분~5분 소요",
           "arrCampus": "09:05",
-          "note": "중간노선 전용"
+          "note": null,
+          "service": {
+            "excludedDays": [],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": "중간노선 전용",
+            "sourceQuote": "중간노선 전용"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 6,
@@ -865,7 +1416,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "09:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 8,
@@ -883,7 +1445,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "09:55",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 10,
@@ -901,7 +1474,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "10:55",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 12,
@@ -919,7 +1503,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "11:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 14,
@@ -937,7 +1532,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "12:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 16,
@@ -955,7 +1561,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "14:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 18,
@@ -973,7 +1590,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "15:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 20,
@@ -991,7 +1619,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "16:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 22,
@@ -1009,7 +1648,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "16:45",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 24,
@@ -1018,7 +1668,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "17:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 25,
@@ -1036,7 +1697,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "17:45",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 27,
@@ -1054,7 +1726,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "18:55",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 29,
@@ -1072,7 +1755,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "19:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 31,
@@ -1099,7 +1793,18 @@
           "viaHairexpa": "5분~10분 소요예상",
           "viaYongam": "5분~10분 소요예상",
           "arrCampus": "22:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         }
       ],
       "byDay": {
@@ -1139,7 +1844,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "09:00",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 3,
@@ -1157,7 +1873,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "09:15",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 5,
@@ -1166,7 +1893,16 @@
               "viaHairexpa": "08:50",
               "viaYongam": "2분~5분 소요",
               "arrCampus": "09:05",
-              "note": "중간노선 전용"
+              "note": null,
+              "service": {
+                "excludedDays": [],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": "중간노선 전용",
+                "sourceQuote": "중간노선 전용"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 6,
@@ -1184,7 +1920,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "09:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 8,
@@ -1202,7 +1949,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "09:55",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 10,
@@ -1220,7 +1978,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "10:55",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 12,
@@ -1238,7 +2007,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "11:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 14,
@@ -1256,7 +2036,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "12:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 16,
@@ -1274,7 +2065,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "14:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 18,
@@ -1292,7 +2094,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "15:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 20,
@@ -1310,7 +2123,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "16:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 22,
@@ -1328,7 +2152,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "16:45",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 24,
@@ -1337,7 +2172,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "17:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 25,
@@ -1355,7 +2201,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "17:45",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 27,
@@ -1373,7 +2230,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "18:55",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 29,
@@ -1391,7 +2259,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "19:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 31,
@@ -1418,7 +2297,18 @@
               "viaHairexpa": "5분~10분 소요예상",
               "viaYongam": "5분~10분 소요예상",
               "arrCampus": "22:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             }
           ]
         },
@@ -1630,7 +2520,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "08:55",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 3,
@@ -1650,7 +2551,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "09:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 5,
@@ -1670,7 +2582,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "09:20",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 7,
@@ -1690,7 +2613,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "09:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 9,
@@ -1700,7 +2634,16 @@
           "viaHomeMart": "5~10분 소요예상",
           "viaSeoulJeong": "5~10분 소요예상",
           "arrCampus": "09:10",
-          "note": "중간노선전용"
+          "note": null,
+          "service": {
+            "excludedDays": [],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": "중간노선 전용",
+            "sourceQuote": "중간노선전용"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 10,
@@ -1730,7 +2673,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "11:00",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 13,
@@ -1750,7 +2704,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "12:00",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 15,
@@ -1770,7 +2735,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "13:00",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 17,
@@ -1790,7 +2766,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "14:00",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 19,
@@ -1810,7 +2797,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "14:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 21,
@@ -1820,7 +2818,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "15:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 22,
@@ -1840,7 +2849,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "15:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 24,
@@ -1850,7 +2870,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "16:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 25,
@@ -1870,7 +2901,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "16:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 27,
@@ -1880,7 +2922,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "17:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 28,
@@ -1900,7 +2953,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "18:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 30,
@@ -1910,7 +2974,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "18:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 31,
@@ -1930,7 +3005,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "19:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 33,
@@ -1940,7 +3026,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "19:50",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 34,
@@ -1960,7 +3057,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "20:10",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 36,
@@ -1990,7 +3098,18 @@
           "viaHomeMart": "5분~20분 소요예상",
           "viaSeoulJeong": "5분~20분 소요예상",
           "arrCampus": "22:30",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         }
       ],
       "byDay": {
@@ -2034,7 +3153,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "08:55",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 3,
@@ -2054,7 +3184,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "09:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 5,
@@ -2074,7 +3215,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "09:20",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 7,
@@ -2094,7 +3246,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "09:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 9,
@@ -2104,7 +3267,16 @@
               "viaHomeMart": "5~10분 소요예상",
               "viaSeoulJeong": "5~10분 소요예상",
               "arrCampus": "09:10",
-              "note": "중간노선전용"
+              "note": null,
+              "service": {
+                "excludedDays": [],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": "중간노선 전용",
+                "sourceQuote": "중간노선전용"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 10,
@@ -2134,7 +3306,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "11:00",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 13,
@@ -2154,7 +3337,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "12:00",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 15,
@@ -2174,7 +3368,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "13:00",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 17,
@@ -2194,7 +3399,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "14:00",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 19,
@@ -2214,7 +3430,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "14:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 21,
@@ -2224,7 +3451,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "15:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 22,
@@ -2244,7 +3482,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "15:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 24,
@@ -2254,7 +3503,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "16:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 25,
@@ -2274,7 +3534,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "16:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 27,
@@ -2284,7 +3555,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "17:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 28,
@@ -2304,7 +3586,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "18:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 30,
@@ -2314,7 +3607,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "18:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 31,
@@ -2334,7 +3638,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "19:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 33,
@@ -2344,7 +3659,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "19:50",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 34,
@@ -2364,7 +3690,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "20:10",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 36,
@@ -2394,7 +3731,18 @@
               "viaHomeMart": "5분~20분 소요예상",
               "viaSeoulJeong": "5분~20분 소요예상",
               "arrCampus": "22:30",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             }
           ]
         },
@@ -2578,7 +3926,18 @@
           "viaAsanTerminal": "08:50",
           "viaGweongok": "경유",
           "arrCampus": "09:15",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 3,
@@ -2618,7 +3977,18 @@
           "viaAsanTerminal": "18:05",
           "viaGweongok": "경유",
           "arrCampus": "18:25",
-          "note": "금(X)"
+          "note": null,
+          "service": {
+            "excludedDays": [
+              "fri"
+            ],
+            "dayScope": null,
+            "vehicleCount": null,
+            "label": null,
+            "sourceQuote": "금(X)"
+          },
+          "durationMinutes": null,
+          "needsReview": false
         },
         {
           "seq": 7,
@@ -2672,7 +4042,18 @@
               "viaAsanTerminal": "08:50",
               "viaGweongok": "경유",
               "arrCampus": "09:15",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 3,
@@ -2712,7 +4093,18 @@
               "viaAsanTerminal": "18:05",
               "viaGweongok": "경유",
               "arrCampus": "18:25",
-              "note": "금(X)"
+              "note": null,
+              "service": {
+                "excludedDays": [
+                  "fri"
+                ],
+                "dayScope": null,
+                "vehicleCount": null,
+                "label": null,
+                "sourceQuote": "금(X)"
+              },
+              "durationMinutes": null,
+              "needsReview": false
             },
             {
               "seq": 7,
@@ -3026,7 +4418,12 @@
       "start": null,
       "end": null,
       "timetableSource": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_03_01_01.aspx",
-      "note": "원본 메뉴의 별도 페이지 — 이 스냅샷에는 방학 표 본문·기간 문구가 없다(기간 미기재)",
+      "periodSearch": {
+        "file": "data/raw/terms/2026-2학기-방학.html",
+        "result": "not-found",
+        "evidenceQuote": "방학 시간표 승강장 위치안내 통학버스 / 셔틀버스 / 시내버스 현재는 2026-2학기 시간표로 운행되고 있습니다. 학기중 시간표를 확인해주시기 바랍니다. 감사합니다. 게재된 자료의 내용 또는 운영에 대한 개선 사항이 있을 시 콘텐츠 관리 담당자에게 연락하시기 바랍니다. 콘텐츠 관리 담당 : 학생지원팀 Tel : 041-530-2152 최근 업데이트 : 20"
+      },
+      "note": "원본 방학 시간표 페이지(data/raw/terms/2026-2학기-방학.html) 본문에 기간 문구가 없다 — 기간 미채움(추측 금지)",
       "sourceQuote": "방학 시간표",
       "sourcePage": "data/raw/2026-2학기-asan-ktx-평일.html",
       "extractedBy": "rule",
@@ -3207,8 +4604,8 @@
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx",
     "sourceUpdatedAt": "2026-08-20",
-    "fetchedAt": "2026-10-06T09:00:00+09:00",
-    "contentHash": "sha256:a38d713a5d7dd9f79534e0ad1c36ab47cf3e905eb824326447b8f09b88673865",
+    "fetchedAt": "2026-10-06T09:52:08+09:00",
+    "contentHash": "sha256:d7594388e115a32172cef8aa9264fc062c77ba05873e044b1e95e5aabd9ef7f0",
     "pages": [
       {
         "routeId": "asan-ktx",
@@ -3278,12 +4675,23 @@
       }
     ],
     "extraction": {
-      "extractor": "tools/extract (schema v2)",
+      "extractor": "tools/extract (schema v3)",
+      "schemaVersion": 3,
+      "termSources": [
+        "data/raw/terms/2026-2학기-방학.html"
+      ],
       "model": null,
+      "provider": "rule-only",
       "promptTemplateSha256": "sha256:e86a2f83c952acff25e7ea60fbd38fe22a90059c750a98c660a6918f58a44a27",
       "promptChars": 1804,
       "aiStatus": "disabled",
       "aiError": null,
+      "calls": 0,
+      "truncated": 0,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "fallbackReason": null,
       "candidates": 25,
       "ruleEntries": 11,
       "aiDrafts": 0,

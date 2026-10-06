@@ -18,6 +18,7 @@ import type { Timetable } from '../scraper/types.js';
 import { ROUTES } from '../scraper/routeMeta.js';
 import { deriveDates, deriveDayTypes } from './dateparse.js';
 import { findExactQuote } from './text.js';
+import { structureTripConditions } from './trips.js';
 import type {
   Candidate,
   DateRule,
@@ -26,6 +27,8 @@ import type {
   SnapshotSource,
   StopWindow,
   Term,
+  TermPeriodSearch,
+  TermSource,
   TimeWindow,
   TripDirection,
   TripNote,
@@ -35,6 +38,8 @@ export interface RuleInput {
   readonly sources: readonly SnapshotSource[];
   readonly base: Timetable;
   readonly candidates: readonly Candidate[];
+  /** 기간 수집용 스냅샷(노선 표가 아닌 페이지 — 예: 방학 시간표). 없으면 방학 기간은 null + 사유 기록 */
+  readonly termSources?: readonly TermSource[];
 }
 
 const ORIGIN = 'https://lily.sunmoon.ac.kr';
@@ -421,6 +426,101 @@ export function dedupeNotices(notices: readonly DatedNotice[], sources: readonly
 const VACATION_MENU = '방학 시간표';
 const VACATION_HREF = /<a[^>]+href="([^"]+)"[^>]*>\s*방학\s*시간표\s*<\/a>/i;
 
+/**
+ * 기간 문구(날짜 범위) — `2026.12.15~2027.2.28` · `2026-12-15 ~ 2027-02-28` 형태.
+ * 끝에 연도가 없으면 시작 연도를 쓴다(`12.15~2.28`). **기간 문구가 없으면 만들지 않는다**(추측 금지).
+ */
+const PERIOD_RANGE_PATTERN =
+  /(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})\s*[~∼\-–—]\s*(?:(\d{4})\s*[.\-/]\s*)?(\d{1,2})\s*[.\-/]\s*(\d{1,2})/;
+
+/** 기간 문구를 찾을 때 보는 문맥 키워드(방학 페이지). 없으면 근거 문장만 남긴다. */
+const PERIOD_CONTEXT_KEYWORDS: readonly string[] = ['방학'];
+/** 페이지에 기간이 없을 때 "무엇이 적혀 있었나"의 근거로 삼는 문구(원문 그대로) */
+const PERIOD_ABSENCE_KEYWORDS: readonly string[] = ['방학', '운행되고 있습니다', '시간표'];
+
+const EVIDENCE_MAX_CHARS = 200;
+
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+/**
+ * 원문에서 키워드 **뒤쪽** 창(window)을 잘라 **부분문자열** 근거 문장을 만든다.
+ * 문장 경계(`. `)로 시작점을 잡으면 사이트 공통 내비게이션(모든 페이지에 같은 문구)이 섞여
+ * "어느 페이지의 인용인가"가 모호해진다 → 키워드 위치에서 시작해 `max` 자까지 자른다.
+ */
+export function evidenceWindow(text: string, keywords: readonly string[], max = EVIDENCE_MAX_CHARS): string | null {
+  for (const keyword of keywords) {
+    const at = text.indexOf(keyword);
+    if (at < 0) continue;
+    const window = text.slice(at, at + max).trim();
+    if (window !== '') return window;
+  }
+  return null;
+}
+
+/** 방학 페이지 본문 → 기간(찾으면 start/end + 근거, 못 찾으면 null + 근거). */
+export function findVacationPeriodInText(text: string): {
+  readonly start: string | null;
+  readonly end: string | null;
+  readonly evidenceQuote: string | null;
+} {
+  const context = evidenceWindow(text, PERIOD_CONTEXT_KEYWORDS, 400) ?? text.slice(0, 400);
+  const match = PERIOD_RANGE_PATTERN.exec(context);
+  if (match !== null) {
+    const [whole, y1, m1, d1, y2Raw, m2, d2] = match;
+    const year1 = Number(y1);
+    const year2 = y2Raw === undefined ? year1 : Number(y2Raw);
+    return {
+      start: `${String(year1)}-${pad2(Number(m1))}-${pad2(Number(d1))}`,
+      end: `${String(year2)}-${pad2(Number(m2))}-${pad2(Number(d2))}`,
+      evidenceQuote: whole,
+    };
+  }
+  return {
+    start: null,
+    end: null,
+    evidenceQuote: evidenceWindow(text, PERIOD_ABSENCE_KEYWORDS),
+  };
+}
+
+/**
+ * 방학 기간 수집(v3) — `data/raw/terms/*.html`(또는 `--term-page`) 로 반입한 원본 페이지에서만 읽는다.
+ * 페이지 자체가 없으면 `not-provided`, 페이지는 있으나 기간 문구가 없으면 `not-found`(+근거 문장).
+ * **추측 금지**: 어느 경우에도 `start/end` 를 만들어 내지 않는다.
+ */
+export function searchVacationPeriod(
+  termSources: readonly TermSource[],
+): { readonly periodSearch: TermPeriodSearch; readonly start: string | null; readonly end: string | null } {
+  if (termSources.length === 0) {
+    return {
+      periodSearch: { file: '', result: 'not-provided', evidenceQuote: null },
+      start: null,
+      end: null,
+    };
+  }
+  for (const source of termSources) {
+    const found = findVacationPeriodInText(source.text);
+    if (found.start !== null && found.end !== null) {
+      return {
+        periodSearch: { file: source.file, result: 'found', evidenceQuote: found.evidenceQuote },
+        start: found.start,
+        end: found.end,
+      };
+    }
+  }
+  const first = termSources[0];
+  return {
+    periodSearch: {
+      file: first?.file ?? '',
+      result: 'not-found',
+      evidenceQuote: first === undefined ? null : findVacationPeriodInText(first.text).evidenceQuote,
+    },
+    start: null,
+    end: null,
+  };
+}
+
 export function termStructures(
   input: RuleInput,
   index: CandidateIndex,
@@ -443,25 +543,34 @@ export function termStructures(
     needsReview: false,
   });
 
-  // 방학 시간표: 원본 메뉴에만 존재(별도 페이지) → 링크·문구를 인용으로 남긴다.
+  // 방학 시간표: 원본 메뉴에만 링크가 있고 표는 별도 페이지다 → 링크·문구를 인용으로 남기고,
+  // 별도 스냅샷(`data/raw/terms/*.html`)이 있으면 거기서 **기간 문구만** 읽는다(없으면 null + 사유).
   const vacationPage = input.sources.find((source) => source.text.includes(VACATION_MENU) || VACATION_HREF.test(source.html));
   const href = vacationPage === undefined ? null : (VACATION_HREF.exec(vacationPage.html)?.[1] ?? null);
   if (vacationPage !== undefined) {
     for (const candidate of index.byPage.get(vacationPage.file) ?? []) {
       if (candidate.text.includes('방학')) consumed.add(candidate.id);
     }
+    const searched = searchVacationPeriod(input.termSources ?? []);
+    const reason =
+      searched.periodSearch.result === 'found'
+        ? `원본 방학 시간표 페이지(${searched.periodSearch.file}) 본문에서 기간 문구를 읽었다`
+        : searched.periodSearch.result === 'not-found'
+          ? `원본 방학 시간표 페이지(${searched.periodSearch.file}) 본문에 기간 문구가 없다 — 기간 미채움(추측 금지)`
+          : '방학 시간표 페이지 스냅샷이 없어 기간을 확인하지 못했다(data/raw/terms/*.html 또는 --term-page) — 기간 미채움(추측 금지)';
     terms.push({
       kind: 'vacation',
       label: '방학',
-      start: null,
-      end: null,
+      start: searched.start,
+      end: searched.end,
       timetableSource: href === null ? null : `${ORIGIN}${href}`,
-      note: '원본 메뉴의 별도 페이지 — 이 스냅샷에는 방학 표 본문·기간 문구가 없다(기간 미기재)',
+      periodSearch: searched.periodSearch,
+      note: reason,
       sourceQuote: VACATION_MENU,
       sourcePage: vacationPage.file,
       extractedBy: 'rule',
-      confidence: 0.5,
-      needsReview: true,
+      confidence: searched.periodSearch.result === 'found' ? 1 : 0.5,
+      needsReview: searched.periodSearch.result !== 'found',
     });
   }
   return terms;
@@ -513,6 +622,7 @@ export function extractRuleStructures(input: RuleInput): RuleStructures {
   const noticeResult = dedupeNotices(input.base.notices as readonly DatedNotice[], input.sources);
   const durationEntries = durationNotes(input, index, consumed);
   const stopResult = stopWindowRules(input, index, consumed);
+  const tripConditions = structureTripConditions(input.base);
 
   const dateRules: DateRule[] = [
     ...noticeResult.dateRules,
@@ -535,6 +645,7 @@ export function extractRuleStructures(input: RuleInput): RuleStructures {
   return {
     dateRules,
     terms,
+    tripConditions,
     notices: noticeResult.notices,
     dedupedNotices: noticeResult.removed.length,
     dedupedQuotes: noticeResult.removed.map((entry) => entry.removed.raw),

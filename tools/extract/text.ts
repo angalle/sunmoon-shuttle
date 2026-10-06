@@ -10,8 +10,6 @@
  * 쓰고 ② 발행 문서의 `sourceQuote` 는 **정확한 부분문자열**만 허용한다.
  */
 
-import type { SnapshotSource } from './types.js';
-
 const NAMED_ENTITIES: Readonly<Record<string, string>> = {
   nbsp: ' ',
   amp: '&',
@@ -72,11 +70,17 @@ export interface QuoteHit {
   readonly pageText: string;
 }
 
+/** 인용 대조에 필요한 최소 계약 — 노선 스냅샷(`SnapshotSource`)과 기간 스냅샷(`TermSource`) 모두 만족한다. */
+export interface QuoteSource {
+  readonly file: string;
+  readonly text: string;
+}
+
 /**
  * 페이지 본문에서 **정확한 부분문자열**로 인용을 찾는다(없으면 null).
  * 여러 페이지에 있으면 ROUTES/DAY 순서로 넘어온 첫 페이지를 근거로 삼는다(결정적).
  */
-export function findExactQuote(quote: string, sources: readonly SnapshotSource[]): QuoteHit | null {
+export function findExactQuote(quote: string, sources: readonly QuoteSource[]): QuoteHit | null {
   if (quote.trim() === '') return null;
   for (const source of sources) {
     if (source.text.includes(quote)) return { file: source.file, pageText: source.text };
