@@ -1,0 +1,18 @@
+### npm run test
+
+> sunmoon-shuttle@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+
+
+ Test Files  38 passed (38)
+      Tests  538 passed (538)
+   Start at  19:38:12
+   Duration  1.07s (tests 63%, transform 24%, import 11%, worker 2%)
+
+    Isolate  38 workers spawned · ~101ms startup each (spawn + environment, per file)
+             at least ~326ms faster with isolate: false — reuses workers across files instead of one per file
+
+exit=0
