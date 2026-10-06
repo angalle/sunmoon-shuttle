@@ -21,10 +21,16 @@
  *         - AC-U10-2 `맨 위로` → `scrollTop = 0`
  *         - AC-U10-3 터치 ≥48×48 · `aria-label` · 키보드 포커스 · safe-area bottom+16px · 마지막 행 겹침 0
  *         - AC-U10-4 행 시각 15px · 보조 13px · 토큰 11px · 상단 바 15px · 11px 미만 0건 · 행 높이 48px 이상
+ *  AC-U11 T29 상단 고정 필터(3줄) + "오늘 아님" 안내 (§11)
+ *         - AC-U11-1 상단 고정 3줄(날짜·시각 / 요일 / 필터) · 스크롤 전/후 좌표 동일 · 요일·필터는 스크롤 영역 밖
+ *         - AC-U11-2 칩 라벨 `전체`·`학교 도착`·`터미널 도착` · ≥48px · 편수 표기 · 배경 톤+굵기(대비 ≥4.5:1)
+ *         - AC-U11-3 편수 대조(발행물 독립 계산 = 칩 = 목록 행) · 합 = 전체 · 토·일에서도 동작 · 재실행 유지
+ *         - AC-U11-4 요일·필터를 바꾼 뒤 `현재 시간으로` — 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0)
+ *         - AC-U11-5 오늘이 아닌 요일 → 토스트 문구 · `오늘 보기` 동작 · 3초 소멸 · 탭 즉시 닫힘 · 버튼 겹침 0
  *  회귀   화면 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 정보 시트가 출처·데이터 갱신·정차창을 갖는다 · 콘솔 오류 0
  *
  * 사용: node scripts/t24_smoke.mjs [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
- * 산출물: .session-notes/T27-*.png · .session-notes/T28-*.png
+ * 산출물: .session-notes/T27-*.png · .session-notes/T28-*.png · .session-notes/T29-*.png
  * 종료코드: 검사 하나라도 실패하면 1.
  */
 import { spawn } from 'node:child_process';
@@ -430,6 +436,144 @@ const MOVE_PROBE = `
   };
 `;
 
+/**
+ * T29 §11-1/§11-2 — 상단 고정 3줄 + 방향 필터 + 하단 안내 실측(증거·검사 공용).
+ * 요일·필터를 옮겨도 **좌표가 같은지**(고정) · **칩 규격** · **편수 대조** · **가려짐 0** 을 한 번에 읽는다.
+ */
+const FIXED_PROBE = `
+  const fixed = document.querySelector('[data-testid="fixed-header"]');
+  const chips = [...document.querySelectorAll('[data-testid="direction-chip"]')];
+  const rows = [...document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]')];
+  const scroller = document.querySelector('.shuttle-scroll');
+  const next = rows.find((row) => row.dataset.next === 'true') ?? null;
+  const rectOf = (node) => {
+    if (node === null) return null;
+    const r = node.getBoundingClientRect();
+    return { top: Math.round(r.top), bottom: Math.round(r.bottom), left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width), height: Math.round(r.height) };
+  };
+  const parseColor = (value) => {
+    const match = value.match(/rgba?\\(([^)]+)\\)/);
+    if (match === null) return null;
+    const parts = match[1].split(',').map((piece) => parseFloat(piece.trim()));
+    return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+  };
+  const channel = (value) => { const c = value / 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const lum = (color) => 0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b);
+  const ratio = (a, b) => { const la = lum(a), lb = lum(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+  const backgroundOf = (node) => {
+    let cursor = node;
+    while (cursor !== null) {
+      const bg = parseColor(getComputedStyle(cursor).backgroundColor);
+      if (bg !== null && bg.a >= 0.999) return bg;
+      cursor = cursor.parentElement;
+    }
+    return { r: 255, g: 255, b: 255, a: 1 };
+  };
+  const chipInfo = (chip) => {
+    const style = getComputedStyle(chip);
+    const fg = parseColor(style.color);
+    return {
+      direction: chip.dataset.direction ?? null,
+      count: Number(chip.dataset.count ?? '-1'),
+      text: (chip.textContent || '').replace(/\\s+/g, ' ').trim(),
+      label: (chip.querySelector('.shuttle-chip__label')?.textContent ?? '').trim(),
+      countText: (chip.querySelector('.shuttle-chip__count')?.textContent ?? '').trim(),
+      pressed: chip.getAttribute('aria-pressed'),
+      weight: style.fontWeight,
+      fontSize: parseFloat(style.fontSize),
+      background: style.backgroundColor,
+      contrast: fg === null ? null : Number(ratio(fg, backgroundOf(chip)).toFixed(2)),
+      rect: rectOf(chip),
+    };
+  };
+  const box = document.querySelector('.shuttle-chips');
+  const toast = document.querySelector('[data-testid="toast"]');
+  const toastAction = toast === null ? null : toast.querySelector('[data-testid="toast-action"]');
+  return {
+    fixedRect: rectOf(fixed),
+    fixedRowCount: fixed === null ? 0 : [...fixed.children].length,
+    dayRowRect: rectOf(document.querySelector('[data-testid="day-row"]')),
+    filterRowRect: rectOf(document.querySelector('[data-testid="filter-row"]')),
+    appbarRect: rectOf(document.querySelector('.shuttle-appbar')),
+    scrollerTop: scroller === null ? null : Math.round(scroller.getBoundingClientRect().top),
+    scrollTop: scroller === null ? null : Math.round(scroller.scrollTop),
+    fixedHeight: fixed === null ? null : Math.round(fixed.getBoundingClientRect().height),
+    scrollMarginTop: rows.length === 0 ? null : parseFloat(getComputedStyle(rows[0]).scrollMarginTop),
+    nextTop: next === null ? null : Math.round(next.getBoundingClientRect().top),
+    nextTime: next === null ? null : (next.querySelector('.shuttle-departure__time')?.textContent ?? '').trim(),
+    chips: chips.map(chipInfo),
+    chipsStyle: box === null ? null : { flexWrap: getComputedStyle(box).flexWrap, overflowX: getComputedStyle(box).overflowX },
+    directions: {
+      all: rows.length,
+      in: rows.filter((row) => row.dataset.direction === 'in').length,
+      out: rows.filter((row) => row.dataset.direction === 'out').length,
+    },
+    selectedTab: document.querySelector('[data-testid="day-tabs"] [role="tab"][aria-selected="true"]')?.id ?? null,
+    stackRect: rectOf(document.querySelector('[data-testid="move-buttons"]')),
+    toast: toast === null ? null : {
+      text: (toast.querySelector('[data-testid="toast-text"]')?.textContent ?? '').trim(),
+      role: toast.getAttribute('role'),
+      live: toast.getAttribute('aria-live'),
+      rect: rectOf(toast),
+      actionLabel: toastAction === null ? null : (toastAction.textContent || '').trim(),
+      actionRect: rectOf(toastAction),
+    },
+    storedPrefs: (() => { try { return window.localStorage.getItem('sunmoon-shuttle:ui-prefs:v1'); } catch { return null; } })(),
+    innerHeight: window.innerHeight,
+  };
+`;
+
+/** 방향 칩 클릭(T29 §11-1) — 실제 사용자 클릭 경로. */
+async function clickChip(direction) {
+  const clicked = await evaluate(`
+    const chip = document.querySelector('[data-testid="direction-chip"][data-direction="${direction}"]');
+    if (chip === null) return false;
+    chip.click();
+    return true;
+  `);
+  if (clicked !== true) return false;
+  await delay(220);
+  return true;
+}
+
+const WEEKDAY_CODES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+/** `YYYY-MM-DD` → 요일 코드(앱과 같은 규약) — 발행물 대조용. */
+function weekdayCodeOf(isoDate) {
+  const [year, month, day] = String(isoDate).split('-').map(Number);
+  return WEEKDAY_CODES[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+}
+
+/**
+ * 발행물에서 계산한 **방향별 기대 편수**(T29 §11-1 · AC-U11-3) — 앱과 같은 규칙으로 센다:
+ *  · 그 요일 표가 있는 노선(운행 중단 노선 제외) · 출발 시각이 있는 편 · 그 요일 운행하는 편(service 조건)
+ *  · `depCampus` 가 있으면 **터미널(역) 도착**, 없으면 **학교 도착**(데이터의 도착 열 기준)
+ */
+function expectedDirectionCountsOf(raw, dayType, weekdayCode) {
+  const hasDeparture = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
+  const offOn = (row) => {
+    const service = row['service'];
+    if (service === null || service === undefined) return false;
+    const excludedDays = service['excludedDays'] ?? [];
+    if (excludedDays.includes(weekdayCode)) return true;
+    const dayScope = service['dayScope'] ?? null;
+    return dayScope !== null && dayScope.length > 0 && !dayScope.includes(weekdayCode);
+  };
+  const counts = { all: 0, in: 0, out: 0 };
+  for (const route of raw.routes) {
+    if (route.status === 'suspended') continue;
+    const table = route.byDay?.[dayType];
+    if (table === null || table === undefined) continue;
+    for (const row of table.trips) {
+      if (!hasDeparture(row) || offOn(row)) continue;
+      counts.all += 1;
+      if ((row['depCampus'] ?? null) === null) counts.in += 1;
+      else counts.out += 1;
+    }
+  }
+  return counts;
+}
+
 async function main() {
   if (!existsSync(CHROME)) throw new Error(`Chrome 실행 파일을 찾지 못했습니다: ${CHROME}`);
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
@@ -801,6 +945,228 @@ async function main() {
       JSON.stringify({ minText: afterForce.minText, rowHeight: afterForce.rowHeight }),
     );
 
+    /* ── T29 상단 고정 필터(3줄) + "오늘 아님" 안내 (docs/07 §11 · AC-U11) ────────── */
+    const rawData = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
+    // 기준 상태로 맞춘다: 오늘(화요일) · 필터 `전체` · 스크롤 맨 위.
+    await clickChip('all');
+    await showDayTab('weekday');
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
+    await delay(250);
+
+    /* AC-U11-1 — 상단 고정 영역 3줄 · 스크롤 중에도 좌표 동일 */
+    const fixedTop = await evaluate(FIXED_PROBE);
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 999999; return true;`);
+    await delay(250);
+    const fixedScrolled = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-1 상단 고정 영역이 3줄(날짜·시각 / 요일 3 / 방향 필터 3)이다',
+      fixedTop.fixedRowCount === 3 &&
+        fixedTop.appbarRect !== null &&
+        fixedTop.dayRowRect !== null &&
+        fixedTop.filterRowRect !== null &&
+        fixedTop.appbarRect.bottom <= fixedTop.dayRowRect.top + 1 &&
+        fixedTop.dayRowRect.bottom <= fixedTop.filterRowRect.top + 1 &&
+        fixedTop.fixedHeight !== null &&
+        fixedTop.fixedHeight >= 56,
+      JSON.stringify({ rows: fixedTop.fixedRowCount, appbar: fixedTop.appbarRect, day: fixedTop.dayRowRect, filter: fixedTop.filterRowRect, fixedHeight: fixedTop.fixedHeight }),
+    );
+    check(
+      'AC-U11-1 스크롤 전/후 고정 영역 좌표가 같다(실측 수치)',
+      fixedScrolled.scrollTop > 0 &&
+        fixedTop.fixedRect !== null &&
+        fixedScrolled.fixedRect !== null &&
+        Math.abs(fixedTop.fixedRect.top - fixedScrolled.fixedRect.top) <= 1 &&
+        Math.abs(fixedTop.fixedRect.bottom - fixedScrolled.fixedRect.bottom) <= 1 &&
+        Math.abs(fixedTop.dayRowRect.top - fixedScrolled.dayRowRect.top) <= 1 &&
+        Math.abs(fixedTop.filterRowRect.top - fixedScrolled.filterRowRect.top) <= 1,
+      JSON.stringify({ before: fixedTop.fixedRect, after: fixedScrolled.fixedRect, scrollTop: fixedScrolled.scrollTop }),
+    );
+    check(
+      'AC-U11-1 요일·필터 줄은 스크롤 영역 **밖**(고정 영역 하단 ≤ 스크롤 영역 상단)',
+      fixedTop.fixedRect.bottom <= fixedTop.scrollerTop + 2,
+      JSON.stringify({ fixedBottom: fixedTop.fixedRect.bottom, scrollerTop: fixedTop.scrollerTop }),
+    );
+    const fixedShot = await capture('T29-1-상단고정-스크롤끝.png');
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
+    await delay(250);
+    const chipProbe = await evaluate(FIXED_PROBE);
+    const chipShot = await capture('T29-2-상단필터-편수.png');
+    info(`AC-U11-1/2 스크린샷: ${fixedShot.slice(ROOT.length)} · ${chipShot.slice(ROOT.length)}`);
+
+    /* AC-U11-2 — 칩 라벨·규격(≥48px·가로 스크롤)·편수·선택 상태 대비 */
+    const chipLabels = chipProbe.chips.map((chip) => chip.label);
+    check(
+      'AC-U11-2 칩 화면 텍스트가 정확히 `전체`·`학교 도착`·`터미널 도착`(표시 순서 포함)',
+      chipProbe.chips.length === 3 && chipLabels.join('|') === '전체|학교 도착|터미널 도착',
+      JSON.stringify(chipProbe.chips.map((chip) => ({ direction: chip.direction, text: chip.text, pressed: chip.pressed }))),
+    );
+    check(
+      'AC-U11-2 칩 높이 ≥48px · 칩마다 편수 표기(`N편`) · 줄바꿈 대신 가로 스크롤',
+      chipProbe.chips.every((chip) => chip.rect.height >= 48 && chip.rect.width >= 48 && /^\d+편$/.test(chip.countText)) &&
+        chipProbe.chipsStyle !== null &&
+        chipProbe.chipsStyle.flexWrap === 'nowrap' &&
+        chipProbe.chipsStyle.overflowX === 'auto',
+      JSON.stringify({ chips: chipProbe.chips.map((chip) => ({ h: chip.rect.height, w: chip.rect.width, count: chip.countText })), style: chipProbe.chipsStyle }),
+    );
+    const selectedChip = chipProbe.chips.find((chip) => chip.pressed === 'true') ?? null;
+    const idleChip = chipProbe.chips.find((chip) => chip.pressed !== 'true') ?? null;
+    check(
+      'AC-U11-2 선택 상태가 배경 톤 + 굵기이고 대비 ≥4.5:1(실측)',
+      selectedChip !== null &&
+        idleChip !== null &&
+        selectedChip.background !== idleChip.background &&
+        Number(selectedChip.weight) >= 700 &&
+        selectedChip.contrast !== null &&
+        selectedChip.contrast >= 4.5,
+      JSON.stringify({
+        selected: { text: selectedChip?.text, background: selectedChip?.background, weight: selectedChip?.weight, contrast: selectedChip?.contrast },
+        idle: { background: idleChip?.background, weight: idleChip?.weight, contrast: idleChip?.contrast, fontSize: idleChip?.fontSize },
+      }),
+    );
+
+    /* AC-U11-3 — 편수 대조(발행물 독립 계산) + 필터 동작 + 토·일 */
+    const weekdayCounts = expectedDirectionCountsOf(rawData, 'weekday', weekdayCodeOf('2026-10-06'));
+    check(
+      'AC-U11-3 `전체` 칩 편수 = 기존 목록 편수 = 발행물 판정 편수(수치)',
+      chipProbe.chips[0].count === weekdayCounts.all && chipProbe.directions.all === weekdayCounts.all && chipProbe.directions.all > 0,
+      JSON.stringify({ chip: chipProbe.chips[0].count, rows: chipProbe.directions.all, data: weekdayCounts.all }),
+    );
+    check(
+      'AC-U11-3 `학교 도착`·`터미널 도착` 칩 편수가 발행물 대조와 일치(수치) · 합 = 전체',
+      chipProbe.chips[1].count === weekdayCounts.in &&
+        chipProbe.chips[2].count === weekdayCounts.out &&
+        chipProbe.chips[1].count + chipProbe.chips[2].count === weekdayCounts.all,
+      JSON.stringify({ chips: { school: chipProbe.chips[1].count, terminal: chipProbe.chips[2].count }, data: { school: weekdayCounts.in, terminal: weekdayCounts.out } }),
+    );
+    await clickChip('in');
+    const schoolProbe = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-3 `학교 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수)',
+      schoolProbe.directions.all === weekdayCounts.in && schoolProbe.directions.out === 0 && schoolProbe.chips[1].pressed === 'true',
+      JSON.stringify({ rows: schoolProbe.directions, chip: schoolProbe.chips[1].count }),
+    );
+    await clickChip('out');
+    const terminalProbe = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-3 `터미널 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수)',
+      terminalProbe.directions.all === weekdayCounts.out && terminalProbe.directions.in === 0 && terminalProbe.chips[2].pressed === 'true',
+      JSON.stringify({ rows: terminalProbe.directions, chip: terminalProbe.chips[2].count }),
+    );
+    // §11-1 상태 저장 — 다시 열어도 요일·필터 선택이 유지된다
+    await cdp.send('Page.reload', { ignoreCache: false });
+    await waitReady();
+    await waitSplashGone();
+    await delay(150);
+    const restored = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-1(저장) 재실행(새로 열기)에도 요일·필터 선택이 유지된다',
+      restored.chips[2].pressed === 'true' && String(restored.storedPrefs ?? '').includes('"direction":"out"'),
+      JSON.stringify({ pressed: restored.chips.map((chip) => chip.pressed), stored: restored.storedPrefs, tab: restored.selectedTab }),
+    );
+    await clickChip('all');
+    await delay(150);
+    for (const [day, isoDate] of [['saturday', '2026-10-10'], ['sunday', '2026-10-11']]) {
+      await showDayTab(day);
+      await delay(200);
+      const weekend = await evaluate(FIXED_PROBE);
+      const expectedWeekend = expectedDirectionCountsOf(rawData, day, weekdayCodeOf(isoDate));
+      check(
+        `AC-U11-3 ${day} 탭에서도 칩 편수 = 목록 편수 = 발행물 대조(수치)`,
+        weekend.chips[0].count === expectedWeekend.all &&
+          weekend.directions.all === expectedWeekend.all &&
+          weekend.chips[1].count === expectedWeekend.in &&
+          weekend.chips[2].count === expectedWeekend.out &&
+          weekend.chips[1].count + weekend.chips[2].count === expectedWeekend.all,
+        JSON.stringify({ chips: weekend.chips.map((chip) => chip.count), data: expectedWeekend, rows: weekend.directions, tab: weekend.selectedTab }),
+      );
+    }
+    await showDayTab('weekday');
+    await delay(200);
+
+    /* AC-U11-4 — 고정 영역 높이가 오프셋에 반영(요일·필터 변경 후에도 가려짐 0) */
+    await clickChip('in');
+    await clickChip('all');
+    await delay(150);
+    await clickMove('move-now');
+    await delay(700);
+    const afterChange = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-4 요일·필터를 바꾼 뒤에도 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0, 수치)',
+      afterChange.nextTop !== null &&
+        afterChange.fixedRect !== null &&
+        afterChange.nextTop >= afterChange.fixedRect.bottom &&
+        afterChange.scrollMarginTop !== null &&
+        afterChange.fixedHeight !== null &&
+        afterChange.scrollMarginTop >= afterChange.fixedHeight - 1,
+      JSON.stringify({ nextTop: afterChange.nextTop, nextTime: afterChange.nextTime, fixedBottom: afterChange.fixedRect?.bottom, scrollMarginTop: afterChange.scrollMarginTop, fixedHeight: afterChange.fixedHeight, scrollTop: afterChange.scrollTop }),
+    );
+
+    /* AC-U11-5 — "오늘 아님" 안내(토스트) + `오늘 보기` */
+    await showDayTab('saturday');
+    await delay(250);
+    await clickMove('move-now');
+    await delay(250);
+    const toastState = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-5 오늘이 아닌 요일에서 `현재 시간으로` → 토스트 문구 표시(role=status·aria-live=polite)',
+      toastState.toast !== null &&
+        toastState.toast.text === '오늘은 화요일이 아닙니다 · 오늘(화요일) 시간표로 이동할까요?' &&
+        toastState.toast.role === 'status' &&
+        toastState.toast.live === 'polite' &&
+        toastState.toast.actionLabel === '오늘 보기',
+      JSON.stringify(toastState.toast),
+    );
+    check(
+      'AC-U11-5 토스트가 이동 버튼 스택과 겹치지 않는다(겹침 0 실측)',
+      toastState.toast !== null && toastState.stackRect !== null && toastState.toast.rect.bottom <= toastState.stackRect.top,
+      JSON.stringify({ toast: toastState.toast.rect, stack: toastState.stackRect, innerHeight: toastState.innerHeight }),
+    );
+    const toastShot = await capture('T29-3-오늘아님-토스트.png');
+    await evaluate(`const node = document.querySelector('[data-testid="toast-action"]'); if (node !== null) node.click(); return true;`);
+    await delay(800);
+    const afterToday = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-5 `오늘 보기` → 오늘 버킷 전환 + 다음 출발 행으로 스크롤(수치)',
+      afterToday.selectedTab === 'shuttle-day-tab-weekday' &&
+        afterToday.scrollTop > 0 &&
+        afterToday.nextTop !== null &&
+        afterToday.fixedRect !== null &&
+        afterToday.nextTop >= afterToday.fixedRect.bottom &&
+        afterToday.toast === null,
+      JSON.stringify({ tab: afterToday.selectedTab, scrollTop: afterToday.scrollTop, nextTop: afterToday.nextTop, fixedBottom: afterToday.fixedRect?.bottom }),
+    );
+    // 자동 3초 소멸 · 탭 즉시 닫힘
+    await showDayTab('sunday');
+    await delay(250);
+    await clickMove('move-now');
+    await delay(250);
+    const toastShown = (await evaluate(`return document.querySelector('[data-testid="toast"]') !== null;`)) === true;
+    await delay(3300);
+    const toastGone = (await evaluate(`return document.querySelector('[data-testid="toast"]') !== null;`)) === false;
+    check('AC-U11-5 토스트는 자동 3초 후 사라진다(실측)', toastShown && toastGone, `표시=${String(toastShown)} 3.3s후 사라짐=${String(toastGone)}`);
+    await clickMove('move-now');
+    await delay(250);
+    const beforeTap = (await evaluate(`return document.querySelector('[data-testid="toast"]') !== null;`)) === true;
+    await evaluate(`const node = document.querySelector('[data-testid="toast"]'); if (node !== null) node.click(); return true;`);
+    await delay(120);
+    const afterTap = (await evaluate(`return document.querySelector('[data-testid="toast"]') !== null;`)) === false;
+    check('AC-U11-5 토스트는 탭하면 즉시 닫힌다(실측)', beforeTap && afterTap, `탭 전=${String(beforeTap)} 탭 후=${String(afterTap)}`);
+    // 표 2행 — 오늘 & 남은 편이 있으면 안내 없이 바로 스크롤
+    await showDayTab('weekday');
+    await delay(250);
+    await clickChip('all');
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
+    await delay(200);
+    await clickMove('move-now');
+    await delay(700);
+    const noHint = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U11-5 오늘 & 남은 편이 있으면 안내 없이 다음 출발 행으로 스크롤한다(표 2행)',
+      noHint.toast === null && noHint.scrollTop > 0 && noHint.nextTop !== null && noHint.fixedRect !== null && noHint.nextTop >= noHint.fixedRect.bottom,
+      JSON.stringify({ toast: noHint.toast, scrollTop: noHint.scrollTop, nextTop: noHint.nextTop }),
+    );
+    info(`AC-U11-5 스크린샷(안내): ${toastShot.slice(ROOT.length)}`);
+
     /* ── AC-U3 두 크기에서 가로 스크롤 0 + 스크린샷 ────────────────── */
     const sizes = [
       { label: '390×844(iPhone)', width: 390, height: 844 },
@@ -1048,7 +1414,7 @@ async function main() {
     for (const line of failures) console.log(line);
     process.exitCode = 1;
   } else {
-    console.log('\nT27·T28 SMOKE: PASS');
+    console.log('\nT27·T28·T29 SMOKE: PASS');
   }
 }
 

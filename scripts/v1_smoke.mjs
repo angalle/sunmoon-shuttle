@@ -450,13 +450,20 @@ async function main() {
     // ── T27 §9-1: 앱 셸 탭([지금]/[전체]) 없음 = 화면 하나 ────────────────────
     check('④ 앱 셸 탭([지금]/[전체])이 없다 — 화면 하나(§9-1)', s1.appTabNodes === 0, `nodes=${String(s1.appTabNodes)} tabs=${JSON.stringify(s1.dayTabIds)}`);
     const s1Shot = await captureViewport('T14-1-아침0800.png');
-    // ④ 방향 칩 즉시 반영(시간표 목록이 그 방향만 남는다)
+    // ④ 방향 칩 즉시 반영(시간표 목록이 그 방향만 남는다) — 라벨은 T29 §11-1 의 새 문구(`학교 도착`/`터미널 도착`)
     const s1OutExpected = s1.chips.find((chip) => chip.direction === 'out')?.text ?? '';
+    const s1InExpected = s1.chips.find((chip) => chip.direction === 'in')?.text ?? '';
+    check(
+      '④ 방향 칩 라벨이 `전체`·`학교 도착`·`터미널 도착`(T29 §11-1 표시 순서)',
+      s1.chips.map((chip) => String(chip.text).replace(/ \d+편$/, '')).join('|') === '전체|학교 도착|터미널 도착',
+      JSON.stringify(s1.chips.map((chip) => chip.text)),
+    );
     const s1Out = await clickChip('out');
-    check('④ 방향 칩(학교에서 출발) 즉시 반영', s1Out.ok, s1Out.detail);
-    check('④ 방향 칩 편수 문구(학교에서 출발 N편)', /^학교에서 출발 \d+편$/.test(s1OutExpected), s1OutExpected);
+    check('④ 방향 칩(터미널 도착) 즉시 반영', s1Out.ok, s1Out.detail);
+    check('④ 방향 칩 편수 문구(터미널 도착 N편)', /^터미널 도착 \d+편$/.test(s1OutExpected), s1OutExpected);
+    check('④ 방향 칩 편수 문구(학교 도착 N편)', /^학교 도착 \d+편$/.test(s1InExpected), s1InExpected);
     const s1In = await clickChip('in');
-    check('④ 방향 칩(학교로 도착) 즉시 반영', s1In.ok, s1In.detail);
+    check('④ 방향 칩(학교 도착) 즉시 반영', s1In.ok, s1In.detail);
     const s1Back = await clickChip('all');
     check(
       '④ 방향 칩(전체) 복귀 — 전체 회차로 돌아온다',
