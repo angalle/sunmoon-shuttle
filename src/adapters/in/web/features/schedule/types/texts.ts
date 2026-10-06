@@ -11,6 +11,7 @@
  *    출처 표시는 대표 페이지 1줄(`sourceLinePrefix` + 링크 1개)로만 한다.
  *    (내부 주석·로그에서 `원본` 은 계속 쓴다 — 코드 추적용.)
  */
+import type { WeekdayCode } from '../../../../../../domain/entities/DayType';
 
 export const UI_TEXT = {
   appTitle: '선문대 셔틀버스 시간표',
@@ -157,7 +158,29 @@ export const UI_TEXT = {
   /** 다음 출발 카드·목록의 도착 예정 옆 보조 문구 — `약 15분 소요`(분 값은 tripNotes 에서) */
   durationNotePrefix: '약',
   durationNoteSuffix: '분 소요',
+
+  /* ── T22 — 편별 요일 조건(v3 trip.service) 사유 배지 ──
+   * 값(요일·대수·표기)은 데이터(`trip.service`)에서만 오고, 여기엔 **틀 문구**만 둔다.
+   * 사유 코드(`tripStatus.reason`)는 `docs/06 §2` 의 확정 enum 이다 — 문구는 코드에서 조립한다.
+   */
+  /** `금` + `요일 운행 없음` → `금요일 운행 없음` (매주 그 요일은 이 편이 뜨지 않는다) */
+  tripWeekdayExcludedSuffix: '요일 운행 없음',
+  /** `월·화` + `만 운행` → `월·화만 운행` (그 요일 범위에서만 운행) */
+  tripDayScopeSuffix: '만 운행',
+  /** `2` + `대 운행` → `2대 운행` */
+  tripVehicleCountSuffix: '대 운행',
 } as const;
+
+/** 요일 코드(JSON 표기) → 화면용 한 글자 — 사유 배지(`금요일 운행 없음`·`월·화만 운행`)를 만든다. */
+export const WEEKDAY_CODE_LABEL: Readonly<Record<WeekdayCode, string>> = {
+  sun: '일',
+  mon: '월',
+  tue: '화',
+  wed: '수',
+  thu: '목',
+  fri: '금',
+  sat: '토',
+};
 
 /**
  * 데이터를 못 읽었을 때 안내할 학교 안내 페이지(폴백).

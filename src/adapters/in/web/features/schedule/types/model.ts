@@ -33,6 +33,8 @@ export interface DateRuleView {
    * 뽑지 못하면 null 이고 화면은 날짜+상태만 보여준다(하드코딩 금지).
    */
   readonly label: string | null;
+  /** 판정 근거가 된 **원문 인용**(도메인 `tripStatus` 에 그대로 넘긴다 — 사유 코드의 근거). 없으면 null */
+  readonly sourceQuote: string | null;
   readonly needsReview: boolean;
 }
 

@@ -15,11 +15,11 @@
  * 파싱 실패는 **조용히 넘기지 않는다**: 원인 경로를 담은 `TimetableDataError` 를 던지고
  * 화면은 에러 배너를 띄운다(빈 화면·크래시 금지 — F8).
  */
-import { DAY_TYPES, isDayType, type DayType } from '../../../../../../domain/entities/DayType';
+import { DAY_TYPES, isDayType, weekdayCodesOf, type DayType } from '../../../../../../domain/entities/DayType';
 import type { Notice } from '../../../../../../domain/entities/Notice';
 import type { Route } from '../../../../../../domain/entities/Route';
 import type { Schedule } from '../../../../../../domain/entities/Schedule';
-import type { Trip } from '../../../../../../domain/entities/Trip';
+import type { Trip, TripServiceCondition } from '../../../../../../domain/entities/Trip';
 import type {
   BusRef,
   Contacts,
@@ -234,7 +234,7 @@ function parseDayTable(raw: unknown, path: string, dayType: DayType): ParsedDayT
   };
 }
 
-/** 원시 행 → 도메인 `Trip`(5필드 고정). 위 파일 주석의 열 별칭 규칙만 적용한다. */
+/** 원시 행 → 도메인 `Trip`(5필드 고정 + v3 조건 필드). 위 파일 주석의 열 별칭 규칙만 적용한다. */
 function toDomainTrip(row: TripRow, index: number): Trip {
   const rawSeq = row['seq'];
   const seq = typeof rawSeq === 'number' && Number.isFinite(rawSeq) ? rawSeq : index + 1;
@@ -244,7 +244,39 @@ function toDomainTrip(row: TripRow, index: number): Trip {
     depStation: cellText(row, DEPARTURE_KEY_ALIASES.depStation),
     arrCampus: cellText(row, ['arrCampus']),
     note: cellText(row, ['note']),
+    // v3(docs/06 §3) — 신규 필드. v1·v2 행에는 키가 없으므로 null/false 가 되고 판정은 기본 동작이다.
+    service: parseServiceCondition(row['service']),
+    durationMinutes: numberCell(row['durationMinutes']),
+    unknownNote: cellText(row, ['unknownNote']),
+    needsReview: booleanCell(row['needsReview']),
   };
+}
+
+/**
+ * v3 `trip.service`(구조) → 도메인 조건. 규약 밖 값은 **버리지 않고** 있는 것만 옮긴다
+ * (`docs/06 §3`: 원문은 `sourceQuote` 로 보존 — 판정은 `rules/tripStatus.ts` 가 한다).
+ */
+function parseServiceCondition(raw: unknown): TripServiceCondition | null {
+  const record = recordOrNull(raw);
+  if (record === null) return null;
+  const dayScopeRaw = record['dayScope'];
+  return {
+    excludedDays: weekdayCodesOf(record['excludedDays']),
+    dayScope: Array.isArray(dayScopeRaw) ? weekdayCodesOf(dayScopeRaw) : null,
+    vehicleCount: numberCell(record['vehicleCount']),
+    label: nullableString(record['label']),
+    sourceQuote: nullableString(record['sourceQuote']),
+  };
+}
+
+/** 셀 값(숫자) → number. 숫자가 아니면 null(추측하지 않는다). */
+function numberCell(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+/** 셀 값 → boolean. `true` 만 참으로 본다(v3 내부 플래그 `needsReview`). */
+function booleanCell(value: unknown): boolean {
+  return value === true;
 }
 
 /** 값 후보 키 중 **처음으로 값이 있는** 셀을 문자열로. 빈 문자열은 null(원본 Χ=null 과 같은 취급은 하지 않는다). */
@@ -418,6 +450,7 @@ function parseDateRules(raw: unknown): DateRuleView[] {
       scope: stringListOf(record['scope']),
       effect: recordOrNull(record['effect']) ?? {},
       label: typeof quote === 'string' ? dateRuleLabel(quote) : null,
+      sourceQuote: typeof quote === 'string' ? quote : null,
       needsReview: needsReviewOf(record),
     });
   }

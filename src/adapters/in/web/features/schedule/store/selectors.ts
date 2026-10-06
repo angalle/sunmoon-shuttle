@@ -9,7 +9,7 @@
  */
 import { dayTypeFromDate, dayTypeLabel } from '../../../../../../domain/rules/dayType';
 import { addKstDays, formatIsoDate, kstDayFromInstant, type KstDay } from '../../../../../../domain/rules/kst';
-import { isDayType, type DayType } from '../../../../../../domain/entities/DayType';
+import { isDayType, type DayType, type WeekdayCode } from '../../../../../../domain/entities/DayType';
 import {
   DEFAULT_NEXT_DEPARTURE_COUNT,
   nextDepartures,
@@ -17,7 +17,8 @@ import {
   type NextDepartureResult,
 } from '../../../../../../domain/rules/nextDeparture';
 import { resolveDayService, resolveTripService } from '../../../../../../domain/rules/serviceDay';
-import { tripDepartureTime } from '../../../../../../domain/entities/Trip';
+import { tripStatus, type TripStatus, type TripStatusContext } from '../../../../../../domain/rules/tripStatus';
+import { tripDepartureTime, type Trip } from '../../../../../../domain/entities/Trip';
 import {
   ageHours,
   formatAge,
@@ -29,7 +30,7 @@ import {
 } from '../../../shared/lib/format';
 import type { Notice, TripRow } from '../types/contract';
 import type { DateRuleView, DayTableView, RouteView, TimetableModel } from '../types/model';
-import { DAY_TAB_LABEL, UI_TEXT } from '../types/texts';
+import { DAY_TAB_LABEL, UI_TEXT, WEEKDAY_CODE_LABEL } from '../types/texts';
 import type { ScheduleState } from './scheduleStore';
 
 /** 48시간 — 신선도 경고 기준(docs/00 F5 · 카드 지시) */
@@ -693,7 +694,7 @@ export function todayBoardView(state: ScheduleState, filter: DirectionFilter = '
     });
     if (!('departures' in result)) continue;
     for (const warning of result.warnings) warnings.add(warning);
-    for (const departure of result.departures) upcoming.push(departureEvent(route, departure));
+    for (const departure of result.departures) upcoming.push(departureEvent(model, route, departure));
   }
   upcoming.sort(compareEvents);
 
@@ -784,7 +785,7 @@ function isJudgmentWarning(warning: string): boolean {
 }
 
 /** 도메인 반환 1편 + 원본 행(방향·도착·특이사항) → 화면 값. */
-function departureEvent(route: RouteView, departure: NextDeparture): DepartureEventView {
+function departureEvent(model: TimetableModel, route: RouteView, departure: NextDeparture): DepartureEventView {
   const table: DayTableView | null = route.byDay[departure.dayType];
   const row = findTripRow(table, departure);
   // 방향 판정은 도메인 `tripDepartureTime`(= depCampus ?? depStation) 규칙과 같은 축을 쓴다:
@@ -792,6 +793,9 @@ function departureEvent(route: RouteView, departure: NextDeparture): DepartureEv
   const direction: DepartureDirection = cellText(row, ['depCampus']) === null ? 'in' : 'out';
   const arrival =
     direction === 'out' ? cellText(row, ['depStation', 'depTerminal']) : cellText(row, ['arrCampus']);
+  // T22 — 사유 배지는 **도메인 판정 결과**에서만 만든다(표시 계층은 코드를 문구로 옮기기만 한다).
+  const trip = findDomainTrip(model.schedule, route.id, departure.dayType, departure.seq);
+  const status = tripStatusForDeparture(trip, departure, model);
   return {
     key: `${route.id}:${departure.date}:${String(departure.seq)}`,
     routeId: route.id,
@@ -805,27 +809,110 @@ function departureEvent(route: RouteView, departure: NextDeparture): DepartureEv
     departureAt: departure.departureAt,
     remainingMinutes: departure.remainingMinutes,
     remaining: formatRemaining(departure.remainingSeconds),
-    durationNote: durationNoteFor(route, direction),
-    notes: uniqueNotes([...rawNotes(row), ...departure.annotations]),
+    durationNote: durationNoteFor(route, direction, row),
+    notes: uniqueNotes([...conditionBadges(trip, status, row), ...departure.annotations]),
     dayType: departure.dayType,
   };
 }
 
 /**
- * 방향별 소요시간 문구(`약 15분 소요`, 지시 ③) — `routes[].tripNotes[]` 에서만 온다.
- *  - 방향이 맞고(또는 `both`) `minutes` 가 있으며 **조건 표기가 없는** 항목만 쓴다.
- *    조건부 소요시간(`교통정체` 08:00~9:00 / `이외 시간`)은 어느 값이 적용되는지 판정하려면
- *    기간·시각 해석이 필요한데, 앱은 그 판정을 하지 않는다(태스크: 판정 로직 신규 작성 금지) → 숨긴다.
- *  - 해당하는 항목이 없으면 null(문구를 그리지 않는다 — 추측 금지).
+ * 그 편의 사유 배지(v3 `trip.service` 기반).
+ *
+ * - 조건이 **구조화된 행**(v3)만 코드에서 문구를 만든다 — `금요일 운행 없음` · `월·화만 운행` ·
+ *   `2대 운행` · 데이터의 표기 통일본(`중간노선 전용`).
+ * - 구조화 이전 발행물(v1·v2)은 표 문자열(`note`)을 **그대로** 배지로 쓴다(기존 화면과 동일 — 하위호환).
+ * - `needsReview`(검수 필요) 행은 내부 플래그이므로 배지를 만들지 않는다(화면 미노출).
  */
-function durationNoteFor(route: RouteView, direction: DepartureDirection): string | null {
+function conditionBadges(trip: Trip | null, status: TripStatus | null, row: TripRow | null): readonly string[] {
+  // 검수 필요(`needsReview`) 행은 **내부 플래그**다 — 확인되지 않은 표기를 사유로 단정하지 않는다.
+  if (trip !== null && trip.needsReview === true) return [];
+  if (trip === null || status === null || trip.service == null) return rawNotes(row);
+  return [
+    ...excludedBadges(status.excludedDays),
+    ...dayScopeBadges(status),
+    ...(status.label === null ? [] : [status.label]),
+  ];
+}
+
+/** `금` → `금요일 운행 없음`, `월·화` → `월·화요일 운행 없음`. 조건 없으면 빈 배열. */
+function excludedBadges(codes: readonly WeekdayCode[]): readonly string[] {
+  if (codes.length === 0) return [];
+  const days = codes.map((code) => WEEKDAY_CODE_LABEL[code]).join('·');
+  return [`${days}${UI_TEXT.tripWeekdayExcludedSuffix}`];
+}
+
+/** `월·화만 운행` + (값이 있으면) `2대 운행` — 요일 범위 조건이 있는 편만. */
+function dayScopeBadges(status: TripStatus): readonly string[] {
+  const out: string[] = [];
+  if (status.dayScope !== null && status.dayScope.length > 0) {
+    const days = status.dayScope.map((code) => WEEKDAY_CODE_LABEL[code]).join('·');
+    out.push(`${days}${UI_TEXT.tripDayScopeSuffix}`);
+  }
+  if (status.vehicleCount !== null) out.push(`${String(status.vehicleCount)}${UI_TEXT.tripVehicleCountSuffix}`);
+  return out;
+}
+
+/**
+ * 편 1건의 도메인 판정 — **그 편의 날짜**(내일·모레 편이면 그 날)로 판정한다.
+ * 날짜 규칙·학기/방학 구간은 뷰모델(`dateRules`·`terms`)을 그대로 넘긴다(판정은 도메인 몫).
+ */
+function tripStatusForDeparture(trip: Trip | null, departure: NextDeparture, model: TimetableModel): TripStatus | null {
+  if (trip === null) return null;
+  const day = kstDayFromInstant(new Date(departure.departureAt));
+  const context: TripStatusContext = { dateRules: model.dateRules, terms: model.terms };
+  return tripStatus(trip, day, context);
+}
+
+/** 요일 구분 표에서 그 순번의 도메인 회차(조건 필드 포함)를 찾는다. */
+function findDomainTrip(
+  schedule: TimetableModel['schedule'],
+  routeId: string,
+  dayType: DayType,
+  seq: number,
+): Trip | null {
+  for (const route of schedule.routes) {
+    if (route.id !== routeId) continue;
+    for (const trip of route.byDay[dayType] ?? []) {
+      if (trip.seq === seq) return trip;
+    }
+    return null;
+  }
+  return null;
+}
+
+/**
+ * 방향별 소요시간 문구(`약 15분 소요`, 지시 ③) — 값의 출처는 두 곳이고 **더 구체적인 쪽이 이긴다**.
+ *  ① `routes[].tripNotes[]`(v2) — 방향이 맞고(또는 `both`) `minutes` 가 있으며 **조건 표기가 없는** 항목.
+ *     조건부 소요시간(`교통정체` 08:00~9:00 / `이외 시간`)은 어느 값이 적용되는지 판정하려면
+ *     기간·시각 해석이 필요한데, 앱은 그 판정을 하지 않는다(판정 로직 신규 작성 금지) → 숨긴다.
+ *  ② 그 회차 행의 `durationMinutes`(v3, `0:15` → 15) — ①이 없을 때만 쓴다.
+ *     (v2 실측: 아산KTX 는 ①이 등교 15·하교 20 을 이미 주고 있어 화면 값이 바뀌지 않는다.)
+ *  둘 다 없으면 null(문구를 그리지 않는다 — 추측 금지).
+ */
+function durationNoteFor(route: RouteView, direction: DepartureDirection, row: TripRow | null): string | null {
   const wanted = direction === 'out' ? 'outbound' : 'inbound';
   for (const tripNote of route.tripNotes) {
     if (tripNote.needsReview) continue;
     if (tripNote.minutes === null) continue;
     if (tripNote.conditions.length > 0) continue;
     if (tripNote.direction !== wanted && tripNote.direction !== 'both') continue;
-    return `${UI_TEXT.durationNotePrefix} ${String(tripNote.minutes)}${UI_TEXT.durationNoteSuffix}`;
+    return durationText(tripNote.minutes);
+  }
+  const minutes = numberCell(row, ['durationMinutes']);
+  return minutes === null ? null : durationText(minutes);
+}
+
+/** `약 15분 소요` — 틀 문구는 `UI_TEXT`, 숫자는 데이터 값. */
+function durationText(minutes: number): string {
+  return `${UI_TEXT.durationNotePrefix} ${String(minutes)}${UI_TEXT.durationNoteSuffix}`;
+}
+
+/** 원시 셀에서 숫자 값 하나를 꺼낸다(없거나 숫자가 아니면 null). */
+function numberCell(row: TripRow | null, keys: readonly string[]): number | null {
+  if (row === null) return null;
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
   }
   return null;
 }
