@@ -87,7 +87,7 @@
 
 | **T23 🚨 AI 경로 발행 중단 수정** — 중복 term/dateRules 는 병합·폐기(치명 아님) + 실 DeepSeek 1회 end-to-end 발행 성공 | `t_6801878b` | apiprojectcreator | **발행(ready)** — 총괄이 실 DeepSeek 키로 실행해 발견(중복 term → 치명 → 발행 중단). 환각 폐기·발행중단은 정상 작동 확인 |
 | **T24 모바일 앱 셸·스플래시** — 스플래시·하단 탭(지금/전체)·스켈레톤·앱바·safe-area + 화면 분리 | `t_fc242158` | frontendprojectcreator | **완료(done)** — t24_smoke 28/0·479 tests·build 성공(스플래시 412ms·가로 스크롤 0) |
-| **T25 네이티브 스플래시·아이콘 정합** — Capacitor 스플래시/상태바/아이콘 + AAB 재빌드·서명검증·에뮬 스모크 | `t_f5832339` | infraprojectcreator | todo(부모 T24) |
+| **T25 네이티브 스플래시·아이콘 정합** — Capacitor 스플래시/상태바/아이콘 + AAB 재빌드·서명검증·에뮬 스모크 | `t_f5832339` | infraprojectcreator | **완료(done)** — `1b16b64` · 에뮬 스모크 PASS(스플래시 52~457ms→본문 1056ms·logcat FATAL 0·오프라인 SSIM 0.999) · `jarsigner jar verified.` · 공백 1프레임(≈160ms)은 소견(웹 계층 필요) |
 
 | **T26 AI 초안 수용 규칙 강화** — 노선 폐지는 dateRule 금지(routes.status+routeNotes)·전노선 scope 근거 강제·`dayTypes:[]` 금지·기존 표현 중복 폐기·검증기 반영 | `t_68a7bf57` | apiprojectcreator | **완료(done)** — 노선폐지→routeNotes 이관·scope/dayTypes 규칙·발행본 정정(dateRules 9)·496 tests·실DeepSeek exit 0 |
 
