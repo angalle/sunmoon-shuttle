@@ -227,3 +227,7 @@ GitHub Actions(호스티드 ubuntu-latest, 스케줄 05:10/17:10 KST)
 앱(PWA/Capacitor) — 정적 JSON 만 읽음(변경 0)
 ```
 - self-hosted runner 절(이 맥 LaunchAgent·`~/actions-runner-sunmoon`)은 **폐기**. 재도입 시에만 참고.
+
+## 부록 B — 데이터 계약 v3
+
+스케줄 JSON 의 **구조 설계는 `docs/06-data-model.md`** 가 단일 계약이다(화면 질문 → 필드 순서로 설계, 판정 우선순위·버전/호환 전략·수용기준 포함). v2 는 편별 요일 조건이 `note` 문자열로 남아 앱이 판정하지 못했고(실측 64행), v3 에서 `trips[].service` 로 구조화한다.

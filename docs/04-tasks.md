@@ -82,6 +82,9 @@
 | **T19 AI 계층 API 모드** — OpenAI 호환(`AI_BASE_URL`/`AI_MODEL`/`AI_API_KEY`) + 키 없음·실패 시 규칙 전용 폴백 + 비용 가드·모의서버 테스트 | `t_89869521` | apiprojectcreator | **발행(ready)** — 결정 ③의 필수 선행 |
 | **T20 extract.yml 호스티드 러너 전환** — `ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트, self-hosted·Ollama 의존 제거 | `t_8322b6e9` | infraprojectcreator | todo(부모 T19) — **CI 실측은 main push 보류로 미실측** |
 
+| **T21 스키마 v3 (편별 요일 조건 구조화)** — `금(X)` 59행→`excludedDays:["fri"]`·`월~화 2대`→`dayScope`·`0:15`→`durationMinutes`·방학 기간 수집·게이트 목록화 | `t_6e8253fc` | apiprojectcreator | todo(부모 T19) — **계약: `docs/06-data-model.md`** |
+| **T22 앱 판정·표시** — `tripStatus`(오늘 운행 편만)·사유 배지·`약 N분 소요`·방학 배너 + 금요일 스크린샷 | `t_88a65081` | frontendprojectcreator | todo(부모 T21) — docs/06 §2·§5 구현 |
+
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
 - **배포 주의**: 최신 배포본은 T5 시점(run `37270216029`, 커밋 `0ab0501`) — T6~T9(오프라인·PWA·접근성)는 **아직 미배포**. `main` 은 origin 보다 **12커밋 앞**이며 push(=배포 트리거)는 **사용자 승인 사안**.
