@@ -296,12 +296,12 @@ async function auditTargets() {
     await delay(250);
   };
   const rows = [...(await evaluate(TARGET_PROBE))]; // [지금](기본 탭)
-  await click('[data-testid="shortcut-guide"]'); // 이용 안내 시트 열기(숨은 화면)
+  await click('[data-testid="app-info"]'); // 이용 안내 시트 열기(숨은 화면)
   rows.push(...(await evaluate(TARGET_PROBE)));
   await click('[data-testid="guide-close"]');
-  await click('#shuttle-tab-all'); // [전체] — 요일 탭·방향 칩·전체 목록
+  await click('#shuttle-day-tab-saturday'); // [전체] — 요일 탭·방향 칩·전체 목록
   rows.push(...(await evaluate(TARGET_PROBE)));
-  await click('#shuttle-tab-now'); // 기본 상태 복원
+  await click('#shuttle-day-tab-weekday'); // 기본 상태 복원
   // 앞선 클릭이 남긴 포커스를 지운다 — 뒤따르는 포커스 검사(첫 Tab → 스킵 링크)가 오염되지 않게.
   await evaluate(`if (document.activeElement !== null && document.activeElement !== document.body) document.activeElement.blur(); return true;`);
   const seen = new Set();
@@ -401,7 +401,7 @@ async function main() {
     const deadline = Date.now() + 20_000;
     let ready = false;
     while (Date.now() < deadline && !ready) {
-      ready = (await evaluate(`return document.querySelector('[data-testid="next-bus-card"]') !== null;`)) === true;
+      ready = (await evaluate(`return document.querySelector('[data-testid="timetable-list"]') !== null;`)) === true;
       if (!ready) await delay(250);
     }
     check('앱 렌더(다음 버스 카드)', ready);
@@ -568,7 +568,7 @@ async function main() {
     const darkDeadline = Date.now() + 20_000;
     let darkReady = false;
     while (Date.now() < darkDeadline && !darkReady) {
-      darkReady = (await evaluate(`return document.querySelector('[data-testid="next-bus-card"]') !== null;`)) === true;
+      darkReady = (await evaluate(`return document.querySelector('[data-testid="timetable-list"]') !== null;`)) === true;
       if (!darkReady) await delay(250);
     }
     check('다크 모드에서도 앱 렌더', darkReady);
@@ -640,7 +640,7 @@ async function main() {
         const appDeadline = Date.now() + 20_000;
         let appReady = false;
         while (Date.now() < appDeadline && !appReady) {
-          appReady = (await evaluate(`return document.querySelector('[data-testid="next-bus-card"]') !== null;`)) === true;
+          appReady = (await evaluate(`return document.querySelector('[data-testid="timetable-list"]') !== null;`)) === true;
           if (!appReady) await delay(250);
         }
         const standaloneState = await evaluate(TOKEN_PROBE);
@@ -732,7 +732,7 @@ async function main() {
       const backDeadline = Date.now() + 20_000;
       let backReady = false;
       while (Date.now() < backDeadline && !backReady) {
-        backReady = (await evaluate(`return document.querySelector('[data-testid="next-bus-card"]') !== null;`)) === true;
+        backReady = (await evaluate(`return document.querySelector('[data-testid="timetable-list"]') !== null;`)) === true;
         if (!backReady) await delay(250);
       }
       check('방침 페이지 → 앱 복귀 렌더', backReady);

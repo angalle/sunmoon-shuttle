@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 /**
- * T22 앱 판정·표시 스모크 — **헤드리스 Chrome CDP**, 의존성 0(v1_smoke.mjs 와 같은 방식).
+ * T22/T27 앱 판정·표시 스모크 — **헤드리스 Chrome CDP**, 의존성 0(v1_smoke.mjs 와 같은 방식).
  *
- * 검증하는 것 (태스크 T22 수용 기준 · `docs/06-data-model.md §5`)
+ * 검증하는 것 (T22 수용 기준 · `docs/06-data-model.md §5` · `docs/07-mobile-ux.md §9`)
  *  ① **금요일 주입**(`?now=` 2026-10-16 08:00): 금요일에 운행하지 않는 편(구조화 조건)이 목록에서 사라진다
- *     — 같은 데이터의 **월요일 주입**(2026-10-19 08:00)과 편수·행을 대조한다(사라짐의 증거).
- *  ② **사유 표시**: 월요일 목록의 아산(KTX)역 08:35 편에 `금요일 운행 없음` 배지가 붙는다
- *     (요일 범위 편은 `월·화만 운행` · `2대 운행`).
+ *     — 같은 데이터의 **월요일 주입**(2026-10-19 08:00)과 행 수·행 대조한다(사라짐의 증거).
+ *  ② **사유 표시**(T27 §9-3): 사유는 **짧은 토큰 1개**로만 나온다 — 월요일 목록의 아산(KTX)역 08:35 편에 `금 휴`,
+ *     요일 범위·대수 편은 `월·화` / `2대`(범위가 길면 `월~목 2대`). 긴 사유 문구는 화면에 없다.
  *  ③ 소요시간 `약 N분 소요`가 값이 있는 편에만 붙는다.
  *  ④ `needsReview`·`unknownNote` 같은 내부 플래그 문자가 화면 텍스트에 나오지 않는다.
  *  ⑤ T14 계약 유지 — 화면에 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 콘솔 오류 0.
  *  ⑥ 월요일·토요일·일요일·한글날(운행 없음)·개교기념일(운행 없음) 주입 화면 — **스크린샷 각 1장**.
+ *  ⑦ T27 — 상단 바에 현재 날짜·시각, 본문은 **시간표 목록 하나**(히어로 카드·탭바 없음), 다음 출발 행이 강조된다.
  *
  * 사용: node scripts/t22_smoke.mjs [--base=/sunmoon-shuttle/]
  * 산출물: .session-notes/T22-*.png (시나리오별 스크린샷 — 태스크 요구 5~6장)
@@ -181,32 +182,31 @@ async function captureViewport(fileName) {
 
 /** 화면 상태를 한 번에 읽는다(증거·검사 공용). */
 const READ = `
-  const text = (node) => (node === null ? null : (node.textContent || '').replace(/\\\\s+/g, ' ').trim());
-  const listCard = document.querySelector('[data-testid="departure-list-card"]');
-  const rows = [...document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]')];
-  const restRows = [...document.querySelectorAll('[data-testid="departure-rest"] [data-testid="departure-row"]')];
-  const allRows = [...rows, ...restRows];
+  const text = (node) => (node === null ? null : (node.textContent || '').replace(/\\s+/g, ' ').trim());
+  const rows = [...document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]')];
   const readRow = (row) => ({
     time: text(row.querySelector('.shuttle-departure__time')),
     route: text(row.querySelector('.shuttle-departure__route')),
     detail: text(row.querySelector('.shuttle-departure__dir')),
-    badges: [...row.querySelectorAll('.shuttle-badge')].map((badge) => (badge.textContent || '').trim()),
-    dayOffset: Number(row.dataset.dayOffset ?? '-1'),
+    tokens: [...row.querySelectorAll('[data-testid="row-token"]')].map((node) => (node.textContent || '').trim()),
+    past: row.dataset.past === 'true',
+    next: row.dataset.next === 'true',
   });
   const schoolLinks = [...document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]')];
+  const nextRow = rows.find((row) => row.dataset.next === 'true') ?? null;
   return {
     clockText: text(document.querySelector('[data-testid="app-clock"]')),
-    countsText: text(document.querySelector('[data-testid="board-counts"]')),
-    noticeKind: document.querySelector('[data-testid="board-notice"]')?.dataset.kind ?? null,
-    noticeText: text(document.querySelector('[data-testid="board-notice"]')),
-    headlineKind: document.querySelector('[data-testid="departure-no-service"]') !== null ? 'no-service'
-      : document.querySelector('[data-testid="board-today-over"]') !== null ? 'today-over'
-      : document.querySelector('[data-testid="departure-empty"]') !== null ? 'empty' : null,
-    headlineText: text(document.querySelector('[data-testid="departure-no-service"]') ?? document.querySelector('[data-testid="board-today-over"]')),
-    listCardText: text(listCard),
-    rows: allRows.map(readRow),
-    hero: text(document.querySelector('[data-testid="next-bus-time"]')),
-    heroDetail: text(document.querySelector('[data-testid="next-bus-remaining"]')),
+    rows: rows.map(readRow),
+    rowCount: rows.length,
+    pastCount: rows.filter((row) => row.dataset.past === 'true').length,
+    nextCount: rows.filter((row) => row.dataset.next === 'true').length,
+    nextTime: nextRow === null ? null : text(nextRow.querySelector('.shuttle-departure__time')),
+    emptyShown: document.querySelector('[data-testid="timetable-empty"]') !== null,
+    noticeKind: document.querySelector('[data-testid="day-notice"]')?.dataset.kind ?? null,
+    noticeText: text(document.querySelector('[data-testid="day-notice"]')),
+    vacationKind: document.querySelector('[data-testid="vacation-notice"]')?.dataset.kind ?? null,
+    legacyBody: ['next-bus-card', 'shortcut-card', 'app-tabs', 'departure-list-card']
+      .filter((id) => document.querySelector('#shuttle-main [data-testid="' + id + '"]') !== null),
     sourceDetailsCount: document.querySelectorAll('[data-testid="source-details"]').length,
     schoolLinkCount: schoolLinks.length,
     visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
@@ -223,7 +223,9 @@ async function open(url) {
   while (Date.now() < deadline && !ready) {
     ready =
       (await evaluate(
-        `return document.querySelector('[data-testid="loading"]') === null && document.querySelector('[data-testid="next-bus-card"]') !== null;`,
+        `const loading = document.querySelector('[data-testid="loading"]') === null;
+         const body = document.querySelector('[data-testid="timetable-list"]') !== null || document.querySelector('[data-testid="timetable-empty"]') !== null;
+         return loading && body;`,
       )) === true;
     if (!ready) await delay(250);
   }
@@ -243,7 +245,7 @@ function offOn(row, weekdayCode) {
   return dayScope !== null && dayScope.length > 0 && !dayScope.includes(weekdayCode);
 }
 
-/** 발행물에서 계산한 기대 편수(안내 시각이 있는 회차만 — 앱의 `총 N편` 과 같은 필터). */
+/** 발행물에서 계산한 기대 편수(안내 시각이 있는 회차만 — 앱의 행 수와 같은 필터). */
 function expectedTripTotal(raw, dayType, weekdayCode) {
   let total = 0;
   for (const route of raw.routes) {
@@ -277,15 +279,15 @@ const CASE = [
   {
     label: '① 금요일 2026-10-16 08:00 (금요일 주입 — 미운행 편이 사라진다)',
     now: '2026-10-16T08:00:00+09:00',
-    clock: '10월 16일 (금) 08:00',
+    clock: '10월 16일 (금) · 08:00',
     dayType: 'weekday',
     weekdayCode: 'fri',
     shot: 'T22-1-금요일0800.png',
   },
   {
-    label: '② 월요일 2026-10-19 08:00 (평일 대조 — 같은 편이 사유 배지와 함께 보인다)',
+    label: '② 월요일 2026-10-19 08:00 (평일 대조 — 같은 편이 짧은 토큰으로 보인다)',
     now: '2026-10-19T08:00:00+09:00',
-    clock: '10월 19일 (월) 08:00',
+    clock: '10월 19일 (월) · 08:00',
     dayType: 'weekday',
     weekdayCode: 'mon',
     shot: 'T22-2-월요일0800.png',
@@ -293,7 +295,7 @@ const CASE = [
   {
     label: '③ 토요일 2026-10-17 08:00',
     now: '2026-10-17T08:00:00+09:00',
-    clock: '10월 17일 (토) 08:00',
+    clock: '10월 17일 (토) · 08:00',
     dayType: 'saturday',
     weekdayCode: 'sat',
     shot: 'T22-3-토요일0800.png',
@@ -301,7 +303,7 @@ const CASE = [
   {
     label: '④ 일요일 2026-10-18 08:00',
     now: '2026-10-18T08:00:00+09:00',
-    clock: '10월 18일 (일) 08:00',
+    clock: '10월 18일 (일) · 08:00',
     dayType: 'sunday',
     weekdayCode: 'sun',
     shot: 'T22-4-일요일0800.png',
@@ -309,7 +311,7 @@ const CASE = [
   {
     label: '⑤ 한글날 2026-10-09 08:00 (공휴일 — 전 노선 운행 없음)',
     now: '2026-10-09T08:00:00+09:00',
-    clock: '10월 9일 (금) 08:00',
+    clock: '10월 9일 (금) · 08:00',
     dayType: 'weekday',
     weekdayCode: 'fri',
     shot: 'T22-5-한글날0800.png',
@@ -318,18 +320,13 @@ const CASE = [
   {
     label: '⑥ 개교기념일 2026-10-28 08:00 (공휴일 — 전 노선 운행 없음)',
     now: '2026-10-28T08:00:00+09:00',
-    clock: '10월 28일 (수) 08:00',
+    clock: '10월 28일 (수) · 08:00',
     dayType: 'weekday',
     weekdayCode: 'wed',
     shot: 'T22-6-개교기념일0800.png',
     noService: true,
   },
 ];
-
-const countsOf = (text) => {
-  const match = /총 (\d+)편(?: · 남은 (\d+)편)?/.exec(String(text ?? ''));
-  return match === null ? { total: -1, remaining: -1 } : { total: Number(match[1]), remaining: match[2] === undefined ? -1 : Number(match[2]) };
-};
 
 async function main() {
   if (!existsSync(CHROME)) throw new Error(`Chrome 실행 파일을 찾지 못했습니다: ${CHROME}`);
@@ -396,46 +393,52 @@ async function main() {
       check(`${testCase.label}: 페이지 렌더`, await open(urlFor(testCase.now)));
       const state = await evaluate(READ);
       states.set(testCase.label, state);
-      check(`${testCase.label}: 상태줄 = ${testCase.clock}`, String(state.clockText).includes(testCase.clock), String(state.clockText));
+      check(`${testCase.label}: 상단 바 = ${testCase.clock}`, String(state.clockText) === testCase.clock, String(state.clockText));
       check(
         `${testCase.label}: T14 계약 유지(원본 0회 · 원본표 0 · 학교 링크 ≤1 · 내부 플래그 0)`,
         state.visibleSourceCount === 0 && state.domSourceCount === 0 && state.sourceDetailsCount === 0 && state.schoolLinkCount <= 1 && state.internalFlagMentions === 0,
         JSON.stringify({ visible: state.visibleSourceCount, dom: state.domSourceCount, details: state.sourceDetailsCount, links: state.schoolLinkCount, internalFlags: state.internalFlagMentions }),
       );
+      check(
+        `${testCase.label}: T27 — 본문은 시간표 하나(히어로 카드·바로가기·앱 탭·보드 카드 0개)`,
+        state.legacyBody.length === 0,
+        JSON.stringify(state.legacyBody),
+      );
       if (testCase.noService === true) {
         check(
-          `${testCase.label}: 운행 없음 배너 + 목록 행 0`,
-          state.noticeKind === 'no-service' && state.headlineKind === 'no-service' && state.rows.length === 0 && state.countsText === null,
-          `notice=${String(state.noticeKind)} headline=${String(state.headlineKind)} rows=${String(state.rows.length)} counts=${String(state.countsText)}`,
+          `${testCase.label}: 운행 없음 1줄 + 시간표 행 0`,
+          state.noticeKind === 'no-service' && state.rowCount === 0 && state.emptyShown === true,
+          `notice=${String(state.noticeKind)} rows=${String(state.rowCount)} empty=${String(state.emptyShown)}`,
         );
       } else {
         const expected = expectedTripTotal(raw, testCase.dayType, testCase.weekdayCode);
-        const counts = countsOf(state.countsText);
         check(
-          `${testCase.label}: 목록·히어로는 그 날 실제 운행하는 편만 — 편수 = 발행물 조건 대조 ${String(expected)}편`,
-          counts.total === expected,
-          `화면=${String(counts.total)}편 · 발행물 대조=${String(expected)}편 (${String(state.countsText)})`,
+          `${testCase.label}: 시간표 행 = 그 날 실제 운행하는 편만 — 행 수 = 발행물 조건 대조 ${String(expected)}편`,
+          state.rowCount === expected,
+          `화면=${String(state.rowCount)}행 · 발행물 대조=${String(expected)}편`,
         );
-        check(`${testCase.label}: 소요시간 보조 문구가 값 있는 편에 붙는다(약 N분 소요)`, state.rows.every((row) => row.detail === null || !/약 \d+분 소요/.test(row.detail) || /· 약 \d+분 소요$/.test(row.detail)), JSON.stringify(state.rows.slice(0, 2).map((row) => row.detail)));
+        check(
+          `${testCase.label}: 소요시간 보조 문구가 값 있는 편에 붙는다(약 N분 소요)`,
+          state.rows.every((row) => row.detail === null || !/약 \d+분 소요/.test(row.detail) || /· 약 \d+분 소요$/.test(row.detail)),
+          JSON.stringify(state.rows.slice(0, 2).map((row) => row.detail)),
+        );
       }
       await captureViewport(testCase.shot);
       info(
-        `${testCase.label}: hero=${String(state.hero)} · counts=${String(state.countsText)} · headline=${String(state.headlineText)} · badges=${JSON.stringify(state.rows.flatMap((row) => row.badges).slice(0, 6))}`,
+        `${testCase.label}: rows=${String(state.rowCount)} · past=${String(state.pastCount)} · next=${String(state.nextTime)} · notice=${String(state.noticeKind)} · tokens=${JSON.stringify(state.rows.flatMap((row) => row.tokens).slice(0, 6))}`,
       );
     }
 
-    /* ── ①② 금요일 vs 월요일 — 사라짐과 사유 표시 ───────────────────────────── */
+    /* ── ①② 금요일 vs 월요일 — 사라짐과 사유 토큰 ───────────────────────────── */
     const friday = states.get(CASE[0].label);
     const monday = states.get(CASE[1].label);
-    const fridayCounts = countsOf(friday?.countsText);
-    const mondayCounts = countsOf(monday?.countsText);
     const fridayKeys = new Set((friday?.rows ?? []).map((row) => `${row.route}|${row.time}`));
     const mondayKeys = new Set((monday?.rows ?? []).map((row) => `${row.route}|${row.time}`));
 
     check(
-      '① 금요일 편수가 월요일 편수보다 정확히 "금요일 미운행 편수"만큼 적다',
-      mondayCounts.total - fridayCounts.total === excludedOnFriday.length && excludedOnFriday.length > 0,
-      `월=${String(mondayCounts.total)} 금=${String(fridayCounts.total)} 차이=${String(mondayCounts.total - fridayCounts.total)} · 발행물 금요일 미운행 편수=${String(excludedOnFriday.length)}`,
+      '① 금요일 행 수가 월요일보다 정확히 "금요일 미운행 편수"만큼 적다',
+      (monday?.rowCount ?? 0) - (friday?.rowCount ?? 0) === excludedOnFriday.length && excludedOnFriday.length > 0,
+      `월=${String(monday?.rowCount)} 금=${String(friday?.rowCount)} 차이=${String((monday?.rowCount ?? 0) - (friday?.rowCount ?? 0))} · 발행물 금요일 미운행 편수=${String(excludedOnFriday.length)}`,
     );
     check(
       '① 금요일 목록은 월요일 목록의 부분집합이다(다른 편이 새로 생기지 않는다)',
@@ -450,30 +453,46 @@ async function main() {
       `금요일 아산(KTX)역 편=${JSON.stringify((friday?.rows ?? []).filter((row) => row.route === '아산(KTX)역').map((row) => row.time))}`,
     );
     check(
-      '② 월요일: 같은 편이 목록에 있고 `금요일 운행 없음` 배지로 사유가 표시된다',
+      '② 월요일: 같은 편이 목록에 있고 `금 휴` 짧은 토큰으로 사유가 표시된다(§9-3)',
       mondayKeys.has('아산(KTX)역|08:35') &&
-        (monday?.rows ?? []).some((row) => row.time === '08:35' && row.route === '아산(KTX)역' && row.badges.includes('금요일 운행 없음')),
-      JSON.stringify((monday?.rows ?? []).filter((row) => row.badges.length > 0)),
+        (monday?.rows ?? []).some((row) => row.time === '08:35' && row.route === '아산(KTX)역' && row.tokens.includes('금 휴')),
+      JSON.stringify((monday?.rows ?? []).filter((row) => row.tokens.length > 0).slice(0, 4)),
     );
-    const scopeBadges = (monday?.rows ?? []).flatMap((row) => row.badges).filter((badge) => /만 운행|대 운행/.test(badge));
-    check('② 월요일: 요일 범위·대수 배지(`월·화만 운행` · `2대 운행`)도 표시된다', scopeBadges.includes('월·화만 운행') && scopeBadges.includes('2대 운행'), JSON.stringify(scopeBadges));
+    const scopeTokens = (monday?.rows ?? []).flatMap((row) => row.tokens).filter((token) => /만 운행|대 운행|요일 운행 없음|~/.test(token));
+    check(
+      '② 월요일: 요일 범위·대수도 짧은 토큰으로 표시된다(`월·화` · `2대` · 범위는 `월~목`)',
+      scopeTokens.every((token) => token.length <= 8) &&
+        scopeTokens.some((token) => token.includes('2대')) &&
+        scopeTokens.some((token) => token.includes('월')),
+      JSON.stringify(scopeTokens.slice(0, 6)),
+    );
+    check(
+      '② 긴 사유 문구는 화면에 없다(`…요일 운행 없음`·`…만 운행`·`…대 운행` 토큰 0건)',
+      (monday?.rows ?? []).every((row) => row.tokens.every((token) => !/요일 운행 없음|만 운행|대 운행/.test(token))),
+      JSON.stringify((monday?.rows ?? []).flatMap((row) => row.tokens).slice(0, 6)),
+    );
     check('③ 소요시간 문구가 실제로 화면에 보인다(약 N분 소요)', (monday?.rows ?? []).some((row) => /약 \d+분 소요/.test(String(row.detail))), JSON.stringify((monday?.rows ?? []).slice(0, 3).map((row) => row.detail)));
     check(
       '④ 내부 플래그(needsReview·unknownNote)는 화면 텍스트에 0회',
       friday?.internalFlagMentions === 0 && monday?.internalFlagMentions === 0,
       `금=${String(friday?.internalFlagMentions)} 월=${String(monday?.internalFlagMentions)}`,
     );
+    check(
+      '⑦ 다음 출발 행이 정확히 하나 강조된다(금·월·토·일)',
+      [CASE[0], CASE[1], CASE[2], CASE[3]].every((testCase) => states.get(testCase.label)?.nextCount === 1),
+      JSON.stringify([CASE[0], CASE[1], CASE[2], CASE[3]].map((testCase) => ({ label: testCase.label, next: states.get(testCase.label)?.nextTime, count: states.get(testCase.label)?.nextCount }))),
+    );
 
     /* ── ⑤ 공휴일 주입 화면 ─────────────────────────────────────────────── */
     const hangul = states.get(CASE[4].label);
     const anniversary = states.get(CASE[5].label);
     check(
-      '⑤ 한글날(공휴일): 운행 없음 배너 + 사유(안내문 원문) 표시',
+      '⑤ 한글날(공휴일): 운행 없음 1줄 + 사유(안내문 원문) 표시',
       hangul?.noticeKind === 'no-service' && String(hangul?.noticeText).includes('한글날'),
       JSON.stringify({ kind: hangul?.noticeKind, text: hangul?.noticeText }),
     );
     check(
-      '⑤ 개교기념일(공휴일): 운행 없음 배너 + 사유(안내문 원문) 표시',
+      '⑤ 개교기념일(공휴일): 운행 없음 1줄 + 사유(안내문 원문) 표시',
       anniversary?.noticeKind === 'no-service' && String(anniversary?.noticeText).includes('개교기념일'),
       JSON.stringify({ kind: anniversary?.noticeKind, text: anniversary?.noticeText }),
     );
@@ -482,9 +501,9 @@ async function main() {
     const saturday = states.get(CASE[2].label);
     const sunday = states.get(CASE[3].label);
     check(
-      '⑥ 토·일 주입: 그 요일 표로 목록이 그려진다(빈 화면 아님 · 모두 오늘 편)',
-      (saturday?.rows.length ?? 0) > 0 && (sunday?.rows.length ?? 0) > 0 && [...(saturday?.rows ?? []), ...(sunday?.rows ?? [])].every((row) => row.dayOffset === 0),
-      `토=${String(saturday?.countsText)} 일=${String(sunday?.countsText)}`,
+      '⑥ 토·일 주입: 그 요일 표로 목록이 그려진다(빈 화면 아님)',
+      (saturday?.rowCount ?? 0) > 0 && (sunday?.rowCount ?? 0) > 0,
+      `토=${String(saturday?.rowCount)}행 일=${String(sunday?.rowCount)}행`,
     );
 
     /* ── ⑦ 요청 출처·콘솔 ───────────────────────────────────────────────── */

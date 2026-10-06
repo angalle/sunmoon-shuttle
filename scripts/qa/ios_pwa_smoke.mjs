@@ -222,25 +222,35 @@ async function capture(cdp, fileName, selector = null) {
   return path;
 }
 
-/** 앱이 로딩을 끝낸 상태(데이터 성공이든 오류 UI 든). */
+/**
+ * 앱이 로딩을 끝낸 상태(데이터 성공이든 오류 UI 든).
+ * T27 §9-1 — 본문은 시간표 하나다(`[data-testid="timetable"]` 표는 T14 이후 UI 에 없다).
+ * 운행 없는 날은 목록 대신 빈 안내(`timetable-empty`)가 그 자리다.
+ */
 const READY =
-  'document.querySelector(\'[data-testid="loading"]\') === null && (document.querySelector(\'[data-testid="timetable"]\')?.dataset.rows !== undefined || document.querySelector(\'[data-testid="data-error"]\') !== null)';
+  '(() => {' +
+  ' const loading = document.querySelector(\'[data-testid="loading"]\') === null;' +
+  ' const body = document.querySelector(\'[data-testid="timetable-list"]\') !== null || document.querySelector(\'[data-testid="timetable-empty"]\') !== null;' +
+  ' const failed = document.querySelector(\'[data-testid="data-error"]\') !== null;' +
+  ' return loading && (body || failed);' +
+  ' })()';
 
 const READ_STATE = `
-  const table = document.querySelector('[data-testid="timetable"]');
-  const card = document.querySelector('[data-testid="next-bus-card"]');
+  const listCard = document.querySelector('[data-testid="timetable-section"]');
   const notice = document.querySelector('[data-testid="offline-notice"]');
   const hint = document.querySelector('[data-testid="install-hint"]');
-  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const tabs = [...document.querySelectorAll('[data-testid="day-tabs"] [role="tab"]')];
   const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
+  const nextRow = document.querySelector('[data-testid="timetable-row"][data-next="true"]');
   return {
     hasApp: document.querySelector('.shuttle-app') !== null,
-    hasCard: card !== null,
-    rows: table === null ? null : Number(table.dataset.rows),
-    tbodyRows: document.querySelectorAll('[data-testid="timetable"] tbody tr').length,
+    hasCard: listCard !== null,
+    // T27: 행 수가 곧 그 요일 판정 편수다 — 섹션이 없으면 null(오류 UI 등).
+    rows: listCard === null ? null : listCard.querySelectorAll('[data-testid="timetable-row"]').length,
+    listDay: listCard?.dataset.day ?? null,
+    emptyShown: document.querySelector('[data-testid="timetable-empty"]') !== null,
+    nextTime: nextRow === null ? null : (nextRow.querySelector('.shuttle-departure__time')?.textContent ?? null),
     selectedTab: selected?.id ?? null,
-    heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
-    remaining: document.querySelector('.shuttle-hero__remaining')?.textContent ?? null,
     offlineNotice: notice === null ? null : { source: notice.dataset.source ?? null, text: notice.textContent },
     installHint: hint === null ? null : { platform: hint.dataset.platform ?? null, text: hint.textContent },
     errorBanner: document.querySelector('[data-testid="data-error"]') !== null,
@@ -300,6 +310,17 @@ async function main() {
   const rowsOf = (routeId, dayType) => data.routes.find((route) => route.id === routeId)?.byDay?.[dayType]?.trips?.length ?? 0;
   const asanWeekday = rowsOf('asan-ktx', 'weekday');
   const asanSaturday = rowsOf('asan-ktx', 'saturday');
+  /**
+   * 발행물에서 계산한 **그 요일 기대 행 수** — 출발 시각이 있는 회차만(앱의 행 수와 같은 필터).
+   * T27 §9-1 로 본문이 `그 요일 전체 회차`가 됐으므로 행 수가 곧 그 요일 판정 편수다.
+   */
+  const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
+  const expectedRowsOf = (dayType) =>
+    data.routes.reduce((sum, route) => {
+      const table = route.byDay?.[dayType];
+      if (table === null || table === undefined) return sum;
+      return sum + table.trips.filter((row) => hasDepartureTime(row)).length;
+    }, 0);
   const manifest = JSON.parse(readFileSync(MANIFEST_FILE, 'utf8'));
 
   mkdirSync(join(DIST, 'data'), { recursive: true });
@@ -342,8 +363,14 @@ async function main() {
 
   check('A.render', 'iPhone 뷰포트(390x844)에서 첫 화면 렌더', await waitFor(cdp, READY, 25_000, 'A-ready'));
   const a = await evaluate(cdp, READ_STATE);
-  check('A.rows', '평일 표 행 수 = data/timetable.json', a.rows === asanWeekday && a.tbodyRows === asanWeekday, `rows=${String(a.rows)} tbody=${String(a.tbodyRows)} json=${String(asanWeekday)}`);
-  check('A.countdown', '다음 버스 카운트다운 표시', String(a.remaining ?? '').length > 0, `hero=${String(a.heroTime)} remaining=${String(a.remaining)}`);
+  // T27 §9-1: 본문이 그 요일 전체 회차 목록이 됐다 — 행 수를 발행물의 그 요일 편수와 대조한다.
+  check(
+    'A.rows',
+    '시간표 행 수 = data/timetable.json(그 요일 전체 회차)',
+    a.rows !== null && a.rows === expectedRowsOf(String(a.listDay)),
+    `day=${String(a.listDay)} rows=${String(a.rows)} json(그 요일)=${String(expectedRowsOf(String(a.listDay)))}`,
+  );
+  check('A.next-departure', '다음 출발 행이 강조되어 시각이 보인다', String(a.nextTime ?? '').length > 0, `next=${String(a.nextTime)}`);
   check('A.ua-ios-hint', 'iPhone UA → 설치 안내가 iOS 문구("홈 화면에 추가")', a.installHint?.platform === 'ios' && String(a.installHint?.text ?? '').includes('홈 화면에 추가'), JSON.stringify(a.installHint?.platform));
 
   const head = await evaluate(
@@ -353,6 +380,7 @@ async function main() {
      const link = (rel) => q('link[rel="' + rel + '"]')?.getAttribute('href') ?? null;
      return {
        themeColor: meta('theme-color'),
+       bgToken: getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim(),
        appleCapable: meta('apple-mobile-web-app-capable'),
        appleTitle: meta('apple-mobile-web-app-title'),
        viewport: meta('viewport'),
@@ -361,7 +389,30 @@ async function main() {
        manifestHrefResolved: q('link[rel="manifest"]')?.href ?? null,
      };`,
   );
-  check('A.theme-color-runtime', 'theme-color 가 토큰에서 실제로 채워진다(빈 값 아님)', /^#[0-9a-f]{6}$/i.test(String(head.themeColor)) || /^rgb/.test(String(head.themeColor)), `content="${String(head.themeColor)}"`);
+  // 빌드 CSS 는 hex 를 압축한다(`#ffffff` → `#fff`) — 그래서 "6자리 hex" 를 요구하지 않고
+  //   **--color-bg 토큰과 같은 색인지**로 본다(빈 값 아님 + 하드코딩 아님을 함께 확인).
+  const rgbOf = (value) => {
+    const text = String(value).trim();
+    const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(text);
+    if (hex !== null) {
+      const short = hex[1];
+      const full = short.length === 3 ? `${short[0]}${short[0]}${short[1]}${short[1]}${short[2]}${short[2]}` : short;
+      return `rgb(${String(parseInt(full.slice(0, 2), 16))}, ${String(parseInt(full.slice(2, 4), 16))}, ${String(parseInt(full.slice(4, 6), 16))})`;
+    }
+    const rgb = /^rgba?\(([^)]+)\)$/.exec(text);
+    if (rgb === null) return null;
+    return `rgb(${rgb[1]
+      .split(',')
+      .slice(0, 3)
+      .map((part) => String(Number(part.trim())))
+      .join(', ')})`;
+  };
+  check(
+    'A.theme-color-runtime',
+    'theme-color 가 --color-bg 토큰 값으로 실제로 채워진다(빈 값·하드코딩 아님)',
+    rgbOf(head.themeColor) !== null && rgbOf(head.themeColor) === rgbOf(head.bgToken),
+    `content="${String(head.themeColor)}" · 토큰 --color-bg=${String(head.bgToken)}`,
+  );
   check('A.apple-meta-runtime', 'apple-mobile-web-app-capable/title 이 DOM 에 있다', head.appleCapable === 'yes' && String(head.appleTitle ?? '').length > 0, `capable=${String(head.appleCapable)} title=${String(head.appleTitle)}`);
   check('A.viewport-runtime', 'viewport-fit=cover 가 실제로 적용', /viewport-fit\s*=\s*cover/.test(String(head.viewport)), String(head.viewport));
 
@@ -438,8 +489,13 @@ async function main() {
   const offlineReady = await waitFor(cdp, READY, 25_000, 'B-offline');
   check('B.offline-first-screen', '오프라인 새로고침 후 첫 화면', offlineReady);
   const b = await evaluate(cdp, READ_STATE);
-  check('B.offline-rows', '오프라인 평일 표 행 수 = 계약 JSON', b.rows === asanWeekday, `rows=${String(b.rows)} json=${String(asanWeekday)}`);
-  check('B.offline-countdown', '오프라인 카운트다운 동작', String(b.remaining ?? '').length > 0, `remaining=${String(b.remaining)}`);
+  check(
+    'B.offline-rows',
+    '오프라인 시간표 행 수 = 계약 JSON(그 요일 전체 회차)',
+    b.rows !== null && b.rows === expectedRowsOf(String(b.listDay)),
+    `day=${String(b.listDay)} rows=${String(b.rows)} json=${String(expectedRowsOf(String(b.listDay)))}`,
+  );
+  check('B.offline-next-departure', '오프라인에서도 다음 출발 행 강조가 동작', String(b.nextTime ?? '').length > 0, `next=${String(b.nextTime)}`);
   const offlineShot = await capture(cdp, 'T9-2-오프라인-첫화면.png');
   const tabClicked = await evaluate(
     cdp,
@@ -450,7 +506,7 @@ async function main() {
   );
   await delay(250);
   const saturday = await evaluate(cdp, READ_STATE);
-  check('B.offline-day-switch', '오프라인 요일 전환(토요일 행 수 = 계약 JSON)', tabClicked && saturday.selectedTab === 'shuttle-day-tab-saturday' && saturday.rows === asanSaturday, `selected=${String(saturday.selectedTab)} rows=${String(saturday.rows)} json=${String(asanSaturday)}`);
+  check('B.offline-day-switch', '오프라인 요일 전환(토요일 행 수 = 계약 JSON)', tabClicked && saturday.selectedTab === 'shuttle-day-tab-saturday' && saturday.rows === expectedRowsOf('saturday'), `selected=${String(saturday.selectedTab)} rows=${String(saturday.rows)} json=${String(expectedRowsOf('saturday'))}`);
   const saturdayShot = await capture(cdp, 'T9-3-오프라인-요일전환.png');
   check('B.console-errors', '오프라인에서 앱이 낸 콘솔 오류 0', appErrors.length === 0, appErrors.join(' | '));
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
@@ -474,7 +530,7 @@ async function main() {
   const noIdbReady = await waitFor(cdp, READY, 25_000, 'D-no-idb');
   check('D.no-idb-render', 'IndexedDB 없는 환경에서도 화면이 뜬다(예외 없음)', noIdbReady);
   const d = await evaluate(cdp, READ_STATE);
-  check('D.no-idb-rows', 'IndexedDB 없음 → 네트워크 경로로 데이터 표시(행 수 = 계약 JSON)', d.rows === asanWeekday, `rows=${String(d.rows)} json=${String(asanWeekday)}`);
+  check('D.no-idb-rows', 'IndexedDB 없음 → 네트워크 경로로 데이터 표시(행 수 = 계약 JSON)', d.rows !== null && d.rows === expectedRowsOf(String(d.listDay)), `day=${String(d.listDay)} rows=${String(d.rows)} json=${String(expectedRowsOf(String(d.listDay)))}`);
   check('D.no-idb-source', 'IndexedDB 없음 → 캐시 폴백 배너 없이 네트워크 성공으로 처리', d.offlineNotice === null, JSON.stringify(d.offlineNotice));
   check('D.no-idb-not-error-ui', '오류 UI(F8)로 가지 않는다 — 조용한 실패도 아니다', d.errorBanner === false);
   const noIdbIdb = await evaluate(cdp, READ_IDB);
@@ -491,15 +547,22 @@ async function main() {
   const standaloneReady = await waitFor(cdp2, READY, 25_000, 'C-standalone');
   const standalone = await evaluate(
     cdp2,
-    `return {
+    `const listCard = document.querySelector('[data-testid="timetable-section"]');
+     return {
        standalone: matchMedia('(display-mode: standalone)').matches,
        hint: document.querySelector('[data-testid="install-hint"]') === null ? null : document.querySelector('[data-testid="install-hint"]')?.dataset.platform ?? 'present',
        hasApp: document.querySelector('.shuttle-app') !== null,
-       rows: Number(document.querySelector('[data-testid="timetable"]')?.dataset.rows ?? -1),
+       listDay: listCard?.dataset.day ?? null,
+       rows: listCard === null ? -1 : listCard.querySelectorAll('[data-testid="timetable-row"]').length,
      };`,
   );
   check('C.standalone-mode', '홈 화면 실행 모사(--app=)에서 display-mode: standalone = true', standaloneReady && standalone.standalone === true, JSON.stringify(standalone));
-  check('C.standalone-rows', '전체화면에서도 표 렌더(행 수 = 계약 JSON)', standalone.rows === asanWeekday, `rows=${String(standalone.rows)} json=${String(asanWeekday)}`);
+  check(
+    'C.standalone-rows',
+    '전체화면에서도 시간표 렌더(행 수 = 계약 JSON)',
+    standalone.rows === expectedRowsOf(String(standalone.listDay)),
+    `day=${String(standalone.listDay)} rows=${String(standalone.rows)} json=${String(expectedRowsOf(String(standalone.listDay)))}`,
+  );
   check('C.standalone-no-hint', '이미 설치(standalone) 상태면 설치 안내를 띄우지 않는다', standalone.hint === null, `hint=${JSON.stringify(standalone.hint)}`);
   const standaloneShot = await capture(cdp2, 'T9-4-standalone-전체화면.png');
 

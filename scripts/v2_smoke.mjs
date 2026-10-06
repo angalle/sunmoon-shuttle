@@ -189,13 +189,13 @@ const READ = `
   const upcomingLines = [...document.querySelectorAll('[data-testid="upcoming-change-line"]')];
   const stopDetails = document.querySelector('[data-testid="stop-window-details"]');
   const stopLines = [...document.querySelectorAll('[data-testid="stop-window-list"] li')];
-  const dirCells = [...document.querySelectorAll('[data-testid="departure-row"] .shuttle-departure__dir')];
+  const dirCells = [...document.querySelectorAll('[data-testid="timetable-row"] .shuttle-departure__dir')];
   const hero = document.querySelector('[data-testid="next-bus-remaining"]');
   const schoolLinks = [...document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]')];
   return {
     clockText: text(clock),
-    notice: text(document.querySelector('[data-testid="board-notice"]')),
-    noticeKind: document.querySelector('[data-testid="board-notice"]')?.dataset.kind ?? null,
+    notice: text(document.querySelector('[data-testid="day-notice"]')),
+    noticeKind: document.querySelector('[data-testid="day-notice"]')?.dataset.kind ?? null,
     upcomingPresent: upcoming !== null,
     upcomingCount: upcoming === null ? null : upcoming.dataset.count ?? null,
     upcomingTotal: upcoming === null ? null : upcoming.dataset.total ?? null,
@@ -206,11 +206,11 @@ const READ = `
     stopLines: stopLines.map((li) => text(li)),
     durationCells: dirCells.map((cell) => text(cell)),
     heroRemaining: text(hero),
-    listRows: document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length,
+    listRows: document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]').length,
     schoolLinkCount: schoolLinks.length,
     visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
     domSourceCount: (document.body.textContent.match(/원본/g) ?? []).length,
-    listCardText: text(document.querySelector('[data-testid="departure-list-card"]')),
+    listCardText: text(document.querySelector('[data-testid="timetable-section"]')),
   };
 `;
 
@@ -221,7 +221,10 @@ async function open(url) {
   while (Date.now() < deadline && !ready) {
     ready =
       (await evaluate(
-        `return document.querySelector('[data-testid="loading"]') === null && document.querySelector('[data-testid="next-bus-card"]') !== null;`,
+        // T27 §9-1: 본문은 시간표 하나 — 운행 없는 날은 목록 대신 빈 안내(`timetable-empty`)가 그 자리다.
+        `const loading = document.querySelector('[data-testid="loading"]') === null;
+         const body = document.querySelector('[data-testid="timetable-list"]') !== null || document.querySelector('[data-testid="timetable-empty"]') !== null;
+         return loading && body;`,
       )) === true;
     if (!ready) await delay(250);
   }

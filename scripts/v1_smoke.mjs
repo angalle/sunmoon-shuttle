@@ -1,35 +1,30 @@
 #!/usr/bin/env node
 /**
- * V1 간편 홈 스모크 (T12) — **헤드리스 Chrome CDP**, 의존성 0(render_smoke.mjs 와 같은 방식).
+ * 간편 홈 스모크 (T12 → **T27 시간표 중심 단순화로 재기준**) — **헤드리스 Chrome CDP**, 의존성 0.
  *
- * 검증하는 것 (수용 기준 3·7 · 카드 지시 ①~⑧)
- *  ① V1 구조 4요소가 **실제 DOM 에** 있다
- *       - 상태줄 `[data-testid="app-clock"]`(오늘 날짜·현재 시각 KST)
- *       - 다음 출발 카드 `[data-testid="next-bus-card"]`(상위 3편)
- *       - 방향 필터 `[data-testid="direction-filter"]`(칩 3개 + aria-pressed)
- *       - 오늘 남은 출발 목록 `[data-testid="departure-list"]`(5편 + "더 보기")
- *       (T14: 접힘 원본표 `details[data-testid="source-details"]` 는 **없어야 한다** — 검사 대상)
- *  ② 공지 배너(조건부) — `resolveDayService` 결과: 대체 시간표 / 운행 없음
- *  ③ 노선 통합 상위 3편 정렬(오름차순) + 지난 편 제외(오늘 편은 모두 now 이상)
- *  ④ 방향 칩 즉시 반영(클릭 → 목록이 그 방향만)
- *  ⑤ 목록 잘림 — 목록 12편 + "더 보기"에 나머지, 합계 = 남은 편수
- *  ⑥ 자정 경계(23:59 → 00:01) — 상태줄·목록이 **다음 날로** 넘어간다
- *  ⑦ 오늘 실측(주입 없이 실제 시각) — 오늘 안내문이 있으면 배너, 대체휴일이면 일요일 편수
- *  ⑧ 콘솔 오류 0
- *  ── T13(밝은 톤·더 심플한 UI·결함 정정) ──
- *  ⑤~⑦ 평일·토·일 09:00 — 접힘 제목의 "오늘 요일" 표기 · 홈 1줄(미해석 요약) · 목록 5편
- *  ⑧ 한글날(운행 없음) 09:00 — **모순 문구 0**: 목록 영역에 "오늘 운행이 끝났습니다"가 없고
- *       "오늘은 운행이 없습니다 · 다음 운행: 내일 …" + 목록 행 0 + 편수 숨김
- *  ── T14(앱 UI 에서 "원본" 노출 제거) ──
- *  ⑨ **요청 출처 검사** — 앱이 낸 모든 리소스 요청이 **단일 출처(로컬 서버)** 이고
- *     학교 도메인(`lily.sunmoon.ac.kr`) 요청 **0건**(앱은 수집된 JSON 만 읽는다).
+ * 검증하는 것 (docs/07 §9 · 수용 기준 AC-U9 · T14 계약 유지)
+ *  ① **본문 = 시간표 하나** — `[data-testid="timetable-section"]` 안에 그 요일 **전체 회차**가
+ *     `[data-testid="timetable-row"]` 로 그려지고, 행 수 = 발행물에서 계산한 그 요일 판정 편수.
+ *     (T27 §9-1 로 히어로 카드·탭 분리·5편 잘림·"더 보기" 가 사라졌다 — 옛 V1 5편 잘림 검사는 폐기.)
+ *  ② **상단 바** — `[data-testid="app-clock"]` 오늘 날짜·현재 시각을 `10월 6일 (화) · 08:00` 형식으로.
+ *  ③ **다음 출발 행 강조** — `[data-testid="timetable-row"][data-next="true"]` 가 정확히 1개(§9-3).
+ *  ④ **지난 편 dim** — 기준 시각 이전 행은 `data-past="true"`, 강조 행은 첫 non-past 행(§9-3).
+ *  ⑤ **노선 통합 정렬** — 출발 시각 오름차순.
+ *  ⑥ **요일 조건은 짧은 토큰 1개**(`data-token`, 8자 이하 — 긴 사유 문구 금지).
+ *  ⑦ **공지 1줄(조건부)** — `resolveDayService` 결과: 대체 시간표 / 운행 없음 / 오늘 종료(§9-4).
+ *  ⑧ 자정 경계(23:59 → 00:01) — 상단 바·시간표·강조 행이 **다음 날로** 넘어간다.
+ *  ⑨ 오늘 실측(주입 없이 실제 시각) · 콘솔 오류 0 · 요청 출처 단일(학교 도메인 0건).
  *  ⑩ **원본 노출 0** — `details[data-testid="source-details"]` 0개, `[data-testid="timetable"]` 0개,
- *     `a[href*="lily.sunmoon.ac.kr"]` ≤ 1개(대표 출처 1줄), 화면 텍스트(innerText)에 `원본` 0회.
- *  ⑪ 새 소개문구(한/영) · `데이터 갱신: …` 1줄 · `출처: …` 1줄 표시
- *  ⑫ 미해석 표기 안내는 **판단에 영향 줄 때만** 홈 1줄(목록 `<li>` 없음)
+ *     `a[href*="lily.sunmoon.ac.kr"]` ≤ 1개, 화면 텍스트에 `원본` 0회.
+ *  ⑪ **§9-2/§9-5 이행** — 소개문구·앱 이름이 본문에 없고, `데이터 갱신`·`출처`·미해석 경고는
+ *     **정보 시트(ⓘ) 안**에 있다(본문 아님).
+ *
+ * 왜 재기준했나: T27 이 화면 구조를 바꿨다(사용자 지시). 검증 **의미**(판정 편수·자정 경계·요일 전환·
+ * 원본 0회)는 유지하고, 사라진 UI(히어로 카드·앱 탭·5편 잘림·dayOffset)에 묶인 검사만
+ * 새 구조의 동등 검사로 바꿨다 — 기대값을 낮춘 곳은 없다(행 수는 발행물과 대조한다).
  *
  * 사용: node scripts/v1_smoke.mjs [--base=/sunmoon-shuttle/]
- * 산출물: .session-notes/T12-*.png · .session-notes/T13-*.png (시나리오별 스크린샷)
+ * 산출물: .session-notes/T12-*.png · .session-notes/T14-*.png (시나리오별 스크린샷)
  * 종료코드: 검사 하나라도 실패하면 1.
  */
 import { spawn } from 'node:child_process';
@@ -217,79 +212,79 @@ async function captureViewport(fileName) {
   return path;
 }
 
-/** 화면 상태를 한 번에 읽는다(증거·검사 공용). */
+/** 화면 상태를 한 번에 읽는다(증거·검사 공용) — T27 구조: 본문 시간표 하나 + 상단 바 + 정보 시트. */
 const READ = `
-  const card = document.querySelector('[data-testid="next-bus-card"]');
-  const rows = [...document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]')];
-  const restRows = [...document.querySelectorAll('[data-testid="departure-rest"] [data-testid="departure-row"]')];
+  const listCard = document.querySelector('[data-testid="timetable-section"]');
+  const rows = [...document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]')];
+  const cellTime = (row) => { const t = row.querySelector('.shuttle-departure__time'); return t === null ? null : (t.textContent || '').trim(); };
+  const nextRow = rows.find((row) => row.dataset.next === 'true') ?? null;
   const chips = [...document.querySelectorAll('[data-testid="direction-chip"]')];
-  // T24 — 화면 분리로 방향 칩은 [전체] 탭(전체 시간표)에 있다. 첫 화면([지금])에 칩이 없어야 한다.
-  const nowChips = [...document.querySelectorAll('[data-testid="tabpanel-now"] [data-testid="direction-chip"]')];
-  const allChips = [...document.querySelectorAll('[data-testid="tabpanel-all"] [data-testid="direction-chip"]')];
-  // T24 — 전체 목록([전체] 탭) 행. 방향 칩 클릭의 반영은 **이 목록**에서 확인한다.
-  const fullRows = [...document.querySelectorAll('[data-testid="full-list"] [data-testid="full-row"]')];
-  const fullTime = (row) => { const t = row.querySelector('.shuttle-departure__time'); return t === null ? null : (t.textContent || '').trim(); };
   const clock = document.querySelector('[data-testid="app-clock"]');
-  const notice = document.querySelector('[data-testid="board-notice"]');
-  const counts = document.querySelector('[data-testid="board-counts"]');
-  const hero = document.querySelector('[data-testid="next-bus-time"]');
-  const noServiceHeadline = document.querySelector('[data-testid="departure-no-service"]');
-  const warn = document.querySelector('[data-testid="next-bus-warnings"]');
+  const notice = document.querySelector('[data-testid="day-notice"]');
+  const sheet = document.querySelector('[data-testid="guide-sheet"]');
+  const inSheet = (testid) => (sheet === null ? null : sheet.querySelector('[data-testid="' + testid + '"]'));
+  const textOf = (node) => (node === null ? null : (node.textContent || '').trim());
+  const warn = inSheet('guide-warnings');
+  const refresh = inSheet('data-refresh-line');
+  const sourceLine = inSheet('source-line');
   const sourceDetails = [...document.querySelectorAll('[data-testid="source-details"]')];
   const schoolLinks = [...document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]')];
-  const refresh = document.querySelector('[data-testid="data-refresh-line"]');
-  const sourceLine = document.querySelector('[data-testid="source-line"]');
-  const subtitleKo = document.querySelector('.shuttle-header__subtitle:not([lang])');
-  const subtitleEn = document.querySelector('.shuttle-header__subtitle[lang="en"]');
-  const listCard = document.querySelector('[data-testid="departure-list-card"]');
-  const clockText = clock === null ? null : (clock.textContent || '').trim();
+  const clockText = textOf(clock);
   return {
     hasApp: document.querySelector('.shuttle-app') !== null,
     clockText,
     clockDatetime: clock === null ? null : clock.getAttribute('datetime'),
     notice: notice === null ? null : { kind: notice.dataset.kind ?? null, text: (notice.textContent || '').trim() },
-    cardPresent: card !== null,
-    cardStatus: card === null ? null : (card.dataset.status ?? null),
-    cardRows: card === null ? -1 : card.querySelectorAll('[data-testid="next-bus-row"]').length,
-    heroText: hero === null ? null : (hero.textContent || '').trim(),
-    countsText: counts === null ? null : (counts.textContent || '').trim(),
-    todayOver: document.querySelector('[data-testid="board-today-over"]') === null ? null : document.querySelector('[data-testid="board-today-over"]').textContent.trim(),
-    chips: chips.map((chip) => ({ direction: chip.dataset.direction ?? null, pressed: chip.getAttribute('aria-pressed'), text: (chip.textContent || '').replace(/\\s+/g, ' ').trim() })),
-    // T24 화면 분리 — [지금] 화면 칩 0 · [전체] 화면 칩 3(방향 필터는 전체 시간표의 도구다)
-    nowPanelChipCount: nowChips.length,
-    allPanelChipCount: allChips.length,
-    // T24 — [전체] 탭의 전체 목록(방향 칩 클릭 반영 확인용)
-    fullRowCount: fullRows.length,
-    fullRows: fullRows.map((row) => ({ direction: row.dataset.direction ?? null, time: fullTime(row) })),
+    // ── 본문 시간표(§9-1) ──
+    listDay: listCard === null ? null : (listCard.dataset.day ?? null),
+    listIsToday: listCard === null ? null : (listCard.dataset.today ?? null),
     listRows: rows.length,
-    restRows: restRows.length,
-    times: [...rows, ...restRows].map((row) => { const t = row.querySelector('.shuttle-departure__time'); return t === null ? null : (t.textContent || '').trim(); }),
-    directions: [...rows, ...restRows].map((row) => row.dataset.direction ?? null),
-    dayOffsets: [...rows, ...restRows].map((row) => Number(row.dataset.dayOffset ?? '-1')),
-    // ── T14(앱 UI 에서 "원본" 노출 제거) 검사용 ──
+    emptyShown: document.querySelector('[data-testid="timetable-empty"]') !== null,
+    times: rows.map(cellTime),
+    directions: rows.map((row) => row.dataset.direction ?? null),
+    tokens: rows.map((row) => row.dataset.token ?? ''),
+    pastFlags: rows.map((row) => row.dataset.past === 'true'),
+    nextCount: rows.filter((row) => row.dataset.next === 'true').length,
+    nextTime: nextRow === null ? null : cellTime(nextRow),
+    nextIndex: nextRow === null ? -1 : rows.indexOf(nextRow),
+    // ── 상단 바·요일 탭 ──
+    dayTabIds: [...document.querySelectorAll('[data-testid="day-tabs"] [role="tab"]')].map((tab) => tab.id),
+    // T27 §9-1 — 앱 셸 [지금]/[전체] 탭은 없다(화면 하나).
+    appTabNodes: document.querySelectorAll('#shuttle-tab-now, #shuttle-tab-all, [data-testid="app-tabs"]').length,
+    // ── 방향 필터(시간표의 축) ──
+    chips: chips.map((chip) => ({ direction: chip.dataset.direction ?? null, pressed: chip.getAttribute('aria-pressed'), text: (chip.textContent || '').replace(/\\s+/g, ' ').trim() })),
+    // ── T14 계약: 원본 노출 0 · 출처는 시트 안 1줄 ──
     sourceDetailsCount: sourceDetails.length,
     detailsCount: document.querySelectorAll('details').length,
     timetablePresent: document.querySelector('[data-testid="timetable"]') !== null,
     schoolLinkCount: schoolLinks.length,
     schoolLinks: schoolLinks.map((anchor) => anchor.getAttribute('href')),
-    // 사용자에게 **보이는** 텍스트 기준(innerText)과 DOM 전체 기준(textContent)을 함께 센다.
     visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
     domSourceCount: (document.body.textContent.match(/원본/g) ?? []).length,
-    subtitleKo: subtitleKo === null ? null : (subtitleKo.textContent || '').trim(),
-    subtitleEn: subtitleEn === null ? null : (subtitleEn.textContent || '').trim(),
-    refreshLine: refresh === null ? null : (refresh.textContent || '').trim(),
-    sourceLine: sourceLine === null ? null : (sourceLine.textContent || '').replace(/\\s+/g, ' ').trim(),
-    // ── T13(밝은 톤·심플 UI·결함 정정) 검사용 ──
-    noServiceHeadline: noServiceHeadline === null ? null : (noServiceHeadline.textContent || '').trim(),
-    listCardText: listCard === null ? null : (listCard.textContent || '').replace(/\\s+/g, ' ').trim(),
-    listCardCountsVisible: document.querySelector('[data-testid="departure-list-card"] [data-testid="board-counts"]') !== null,
-    warnSummary: warn === null ? null : (warn.textContent || '').trim(),
+    // ── §9-2: 소개문구·앱 이름 없음 ──
+    subtitleKo: textOf(document.querySelector('.shuttle-header__subtitle:not([lang])')),
+    subtitleEn: textOf(document.querySelector('.shuttle-header__subtitle[lang="en"]')),
+    // 앱 이름은 낭독기용 제목(h1.shuttle-sr-only)으로만 남는다(§9-2 주석) — 화면에는 없다.
+    titleVisibility: (() => {
+      const h1 = document.querySelector('.shuttle-app h1');
+      if (h1 === null) return null;
+      return h1.classList.contains('shuttle-sr-only') ? 'sr-only' : 'visible';
+    })(),
+    bodyText: document.body.innerText.replace(/\\s+/g, ' ').trim(),
+    // ── §9-5: 데이터 갱신·출처·미해석 경고는 정보 시트 안 ──
+    refreshLine: textOf(refresh),
+    refreshInSheet: refresh !== null,
+    sourceLine: textOf(sourceLine),
+    sourceInSheet: sourceLine !== null,
+    warnSummary: textOf(warn),
     warnSummaryItems: warn === null ? 0 : warn.querySelectorAll('li').length,
-    listRowCount: rows.length,
+    warnInSheet: warn !== null,
+    warnInBody: document.querySelector('#shuttle-main [data-testid="guide-warnings"]') !== null,
+    listCardText: textOf(listCard),
   };
 `;
 
-/** 페이지를 열고 보드가 그려질 때까지 기다린다. */
+/** 페이지를 열고 본문(시간표 또는 빈 안내)이 그려질 때까지 기다린다. */
 async function open(url) {
   await cdp.send('Page.navigate', { url });
   const deadline = Date.now() + 25_000;
@@ -297,7 +292,9 @@ async function open(url) {
   while (Date.now() < deadline && !ready) {
     ready =
       (await evaluate(
-        `return document.querySelector('[data-testid="loading"]') === null && document.querySelector('[data-testid="next-bus-card"]') !== null;`,
+        `const loading = document.querySelector('[data-testid="loading"]') === null;
+         const body = document.querySelector('[data-testid="timetable-list"]') !== null || document.querySelector('[data-testid="timetable-empty"]') !== null;
+         return loading && body;`,
       )) === true;
     if (!ready) await delay(250);
   }
@@ -310,14 +307,38 @@ const minuteOf = (hhmm) => {
   return h * 60 + m;
 };
 
+/** 요일 코드 — 주입 날짜(`YYYY-MM-DD`)로만 계산한다(호스트 TZ 무관). */
+const WEEKDAY_CODES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const weekdayCodeOf = (isoDate) => {
+  const [year, month, day] = String(isoDate).split('-').map(Number);
+  return WEEKDAY_CODES[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+};
+
+/** 발행물에서 계산한 **그 요일 기대 행 수**(출발 시각이 있고 그 요일에 운행하는 편만 — 앱과 같은 필터). */
+function expectedRowsOf(raw, dayType, weekdayCode) {
+  const hasDeparture = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
+  const offOn = (row) => {
+    const service = row['service'];
+    if (service === null || service === undefined) return false;
+    const excludedDays = service['excludedDays'] ?? [];
+    if (excludedDays.includes(weekdayCode)) return true;
+    const dayScope = service['dayScope'] ?? null;
+    return dayScope !== null && dayScope.length > 0 && !dayScope.includes(weekdayCode);
+  };
+  return raw.routes.reduce((sum, route) => {
+    if (route.status === 'suspended') return sum;
+    const table = route.byDay?.[dayType];
+    if (table === null || table === undefined) return sum;
+    return sum + table.trips.filter((row) => hasDeparture(row) && !offOn(row)).length;
+  }, 0);
+}
+
 async function main() {
   if (!existsSync(CHROME)) throw new Error(`Chrome 실행 파일을 찾지 못했습니다: ${CHROME}`);
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
   if (!existsSync(DATA_FILE)) throw new Error('data/timetable.json 이 없습니다.');
 
   const raw = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
-  const activeRoutes = raw.routes.filter((route) => route.status === 'active');
-  const sundayTrips = activeRoutes.reduce((sum, route) => sum + (route.byDay?.sunday?.trips?.length ?? 0), 0);
 
   mkdirSync(join(DIST, 'data'), { recursive: true });
   copyFileSync(DATA_FILE, join(DIST, 'data', 'timetable.json'));
@@ -351,7 +372,6 @@ async function main() {
   try {
     cdp = await connectCdp(await waitForDebugger(debugPort));
     cdp.on((message) => {
-      // ⑨ 요청 출처 검사(T14) — 앱이 낸 모든 http(s) 요청을 모아 둔다.
       if (message.method === 'Network.requestWillBeSent') {
         const url = message.params?.request?.url ?? '';
         if (typeof url === 'string' && url.startsWith('http')) requestUrls.push(url);
@@ -377,18 +397,33 @@ async function main() {
 
     // ── 시나리오 ①: 평일 08:00 (2026-10-06 화) ──────────────────────────────
     const s1Now = '2026-10-06T08:00:00+09:00';
-    check('① 평일 08:00: 페이지 렌더(보드 카드)', await open(urlFor(s1Now)));
+    const s1Expected = expectedRowsOf(raw, 'weekday', weekdayCodeOf('2026-10-06'));
+    check('① 평일 08:00: 페이지 렌더(시간표 본문)', await open(urlFor(s1Now)));
     const s1 = await evaluate(READ);
-    check('① 상태줄: 오늘 날짜·현재 시각(KST)', String(s1.clockText).includes('10월 6일 (화) 08:00'), `clock=${String(s1.clockText)} datetime=${String(s1.clockDatetime)}`);
-    check('① 공지 배너 없음(안내문 없는 평일)', s1.notice === null, JSON.stringify(s1.notice));
+    check('① 상단 바: 오늘 날짜·현재 시각(KST, `·` 구분)', String(s1.clockText).includes('10월 6일 (화) · 08:00'), `clock=${String(s1.clockText)} datetime=${String(s1.clockDatetime)}`);
+    check('① 오늘 안내줄 없음(안내문 없는 평일)', s1.notice === null, JSON.stringify(s1.notice));
     check('① 방향 필터 칩 3개(전체 기본 선택)', s1.chips.length === 3 && s1.chips[0]?.direction === 'all' && s1.chips[0]?.pressed === 'true', JSON.stringify(s1.chips));
-    check('① 다음 출발 카드: 상위 3편 = 히어로 1 + 목록 2', s1.heroText !== null && s1.cardRows === 2, JSON.stringify({ hero: s1.heroText, cardRows: s1.cardRows }));
-    check('① 다음 출발 카드: 오늘 첫 출발 = 오늘 08:05 출발', s1.heroText === '오늘 08:05 출발', String(s1.heroText));
-    check('① 지난 편 제외: 오늘 편은 모두 기준 시각 이상', s1.dayOffsets.every((offset) => offset !== 0) || s1.times.every((time) => minuteOf(time) >= 8 * 60), `times=${JSON.stringify(s1.times.slice(0, 3))}`);
+    check(
+      '① 본문 = 그 요일 전체 회차 시간표(행 수 = 발행물 판정 편수)',
+      s1.listDay === 'weekday' && s1.listRows === s1Expected && s1.listRows > 0,
+      `day=${String(s1.listDay)} 화면=${String(s1.listRows)}행 · 발행물=${String(s1Expected)}편`,
+    );
+    check('① 방향 칩 편수도 발행물과 일치(전체 N편)', String(s1.chips[0]?.text ?? '').includes(`전체 ${String(s1Expected)}편`), String(s1.chips[0]?.text));
+    check('① 다음 출발 행이 정확히 하나 강조된다(§9-3)', s1.nextCount === 1, `count=${String(s1.nextCount)} next=${String(s1.nextTime)}`);
+    check('① 강조 행 = 08:00 이후 첫 편(08:05)', s1.nextTime === '08:05', String(s1.nextTime));
+    check(
+      '① 지난 편은 dim(data-past) — 강조 행이 첫 non-past 행이다',
+      s1.pastFlags.some((flag) => flag === true) === false || s1.pastFlags.indexOf(false) === s1.nextIndex,
+      `past=${JSON.stringify(s1.pastFlags.slice(0, 4))} nextIndex=${String(s1.nextIndex)}`,
+    );
+    check('① 기준 시각 이전 행은 모두 data-past=true 이고 그 뒤 행은 아니다', s1.pastFlags.every((flag, index) => flag === (minuteOf(s1.times[index] ?? '00:00') < 8 * 60)), JSON.stringify(s1.times.slice(0, 5)));
     check('① 노선 통합 정렬: 출발 시각 오름차순', ascending(s1.times), JSON.stringify(s1.times.slice(0, 5)));
-    const s1Counts = countsOf(s1.countsText);
-    check('① 목록 잘림: 목록 5편 + 더 보기 = 남은 편수', s1.listRows === 5 && s1.restRows > 0 && s1.listRows + s1.restRows === s1Counts.remaining, `list=${String(s1.listRows)} rest=${String(s1.restRows)} ${String(s1.countsText)}`);
-    // ── T14: 앱 UI 에서 "원본" 노출 제거(지시 1·2·3·5) ───────────────────────────
+    check(
+      '① 요일 조건은 짧은 토큰 1개 이하(긴 사유 문구 금지, §9-3)',
+      s1.tokens.every((token) => token.length <= 8),
+      `가장 긴 토큰=${JSON.stringify(s1.tokens.reduce((longest, token) => (token.length > longest.length ? token : longest), ''))}`,
+    );
+    // ── T14: 앱 UI 에서 "원본" 노출 제거 ───────────────────────────────────────
     check(
       '⑩ 원본표가 없다 — details[data-testid="source-details"] 0개 + TimetableTable 0개',
       s1.sourceDetailsCount === 0 && s1.timetablePresent === false,
@@ -400,138 +435,177 @@ async function main() {
       s1.visibleSourceCount === 0 && s1.domSourceCount === 0,
       `innerText=${String(s1.visibleSourceCount)}회 textContent=${String(s1.domSourceCount)}회`,
     );
+    // ── T27 §9-2: 소개문구·앱 이름을 본문에서 걷어냈다 ─────────────────────────
     check(
-      '⑪ 소개문구가 새 문구로 표시된다(한/영)',
-      s1.subtitleKo === '지금 탈 수 있는 셔틀버스를 바로 보여줍니다' && s1.subtitleEn === 'Shows the shuttle you can take right now.',
-      JSON.stringify({ ko: s1.subtitleKo, en: s1.subtitleEn }),
+      '⑪ 본문에 소개문구가 없고 앱 이름은 낭독기 전용(sr-only)만 남는다(§9-2)',
+      s1.subtitleKo === null &&
+        s1.subtitleEn === null &&
+        s1.titleVisibility === 'sr-only' &&
+        !String(s1.bodyText).includes('지금 탈 수 있는 셔틀버스를 바로 보여줍니다'),
+      JSON.stringify({ ko: s1.subtitleKo, en: s1.subtitleEn, title: s1.titleVisibility }),
     );
-    check('⑪ 데이터 갱신 1줄(앱 기준 반영 시각)', /^데이터 갱신: \d{4}-\d{2}-\d{2} \d{2}:\d{2} \(KST\) \(.+\)$/.test(String(s1.refreshLine)), String(s1.refreshLine));
-    check('⑪ 출처 1줄(대표 페이지)', /^출처: 선문대학교 셔틀버스 안내 페이지 — /.test(String(s1.sourceLine)), String(s1.sourceLine));
+    // ── T27 §9-5: 데이터 갱신·출처는 정보 시트(ⓘ) 안이다 ──────────────────────
+    check('⑪ 데이터 갱신 1줄이 정보 시트 안에 있다(§9-5)', s1.refreshInSheet === true && /^데이터 갱신: \d{4}-\d{2}-\d{2} \d{2}:\d{2} \(KST\) \(.+\)$/.test(String(s1.refreshLine)), `inSheet=${String(s1.refreshInSheet)} ${String(s1.refreshLine)}`);
+    check('⑪ 출처 1줄이 정보 시트 안에 있다(§9-5)', s1.sourceInSheet === true && /^출처: 선문대학교 셔틀버스 안내 페이지 — /.test(String(s1.sourceLine)), `inSheet=${String(s1.sourceInSheet)} ${String(s1.sourceLine)}`);
+    // ── T27 §9-1: 앱 셸 탭([지금]/[전체]) 없음 = 화면 하나 ────────────────────
+    check('④ 앱 셸 탭([지금]/[전체])이 없다 — 화면 하나(§9-1)', s1.appTabNodes === 0, `nodes=${String(s1.appTabNodes)} tabs=${JSON.stringify(s1.dayTabIds)}`);
     const s1Shot = await captureViewport('T14-1-아침0800.png');
-    // ④ 방향 칩 즉시 반영
-    const s1Out = await clickChip('out', s1OutExpected(s1Counts));
+    // ④ 방향 칩 즉시 반영(시간표 목록이 그 방향만 남는다)
+    const s1OutExpected = s1.chips.find((chip) => chip.direction === 'out')?.text ?? '';
+    const s1Out = await clickChip('out');
     check('④ 방향 칩(학교에서 출발) 즉시 반영', s1Out.ok, s1Out.detail);
-    const s1In = await clickChip('in', s1InExpected(s1Counts));
+    check('④ 방향 칩 편수 문구(학교에서 출발 N편)', /^학교에서 출발 \d+편$/.test(s1OutExpected), s1OutExpected);
+    const s1In = await clickChip('in');
     check('④ 방향 칩(학교로 도착) 즉시 반영', s1In.ok, s1In.detail);
-    await clickChip('all', '전체');
-    const s1Back = await evaluate(READ);
-    check('④ 방향 칩(전체) 복귀', s1Back.chips[0]?.pressed === 'true' && s1Back.listRows === 5, JSON.stringify(s1Back.chips[0]));
-    // T24 — 탭 상태는 localStorage 에 남는다. 이후 시나리오(새 페이지 로드)가 [지금] 첫 화면이 되도록 되돌린다.
-    check('④ 앱 탭: [지금]으로 복귀(첫 화면 유지)', await showAppTab('now'));
+    const s1Back = await clickChip('all');
+    check(
+      '④ 방향 칩(전체) 복귀 — 전체 회차로 돌아온다',
+      s1Back.chips?.[0]?.pressed === 'true' && s1Back.listRows === s1Expected,
+      `pressed=${String(s1Back.chips?.[0]?.pressed)} rows=${String(s1Back.listRows)} 기대=${String(s1Expected)}`,
+    );
 
     // ── 시나리오 ②: 개천절 대체휴일 10:00 (2026-10-05 월 · 일요일 시간표) ────────
     const s2Now = '2026-10-05T10:00:00+09:00';
+    const s2Expected = expectedRowsOf(raw, 'sunday', weekdayCodeOf('2026-10-05'));
     check('② 대체휴일 10:00: 페이지 렌더', await open(urlFor(s2Now)));
     const s2 = await evaluate(READ);
-    check('② 상태줄: 10월 5일 (월) 10:00', String(s2.clockText).includes('10월 5일 (월) 10:00'), String(s2.clockText));
+    check('② 상단 바: 10월 5일 (월) · 10:00', String(s2.clockText).includes('10월 5일 (월) · 10:00'), String(s2.clockText));
     check(
-      '② 공지 배너: "일요일 시간표로 운행" + 근거 안내문',
+      '② 안내줄: "일요일 시간표로 운행" + 근거 안내문',
       s2.notice !== null && s2.notice.kind === 'alternate' && String(s2.notice.text).includes('일요일 시간표로 운행합니다') && String(s2.notice.text).includes('개천절대체휴일'),
       JSON.stringify(s2.notice),
     );
-    check('② 적용 시간표(일요일) 편수 = JSON 일요일 합계', String(s2.countsText).includes(`총 ${String(sundayTrips)}편`), `${String(s2.countsText)} (JSON 일요일 합계=${String(sundayTrips)})`);
-    check('② 다음 출발: 일요일 첫 남은 편 = 오늘 12:00 출발', s2.heroText === '오늘 12:00 출발', String(s2.heroText));
-    check('② 지난 편 제외(09:00 편 없음)', s2.times.every((time) => minuteOf(time) >= 10 * 60), JSON.stringify(s2.times.slice(0, 3)));
+    check(
+      '② 적용 시간표(일요일) 행 수 = 발행물 일요일 판정 편수',
+      s2.listDay === 'sunday' && s2.listRows === s2Expected,
+      `day=${String(s2.listDay)} 화면=${String(s2.listRows)}행 · 발행물=${String(s2Expected)}편`,
+    );
+    check('② 다음 출발: 일요일 첫 남은 편 = 12:00', s2.nextTime === '12:00', String(s2.nextTime));
+    check(
+      '② 10:00 이전 편은 dim(data-past)·10:00 이후 편은 아니다',
+      s2.pastFlags.every((flag, index) => flag === (minuteOf(s2.times[index] ?? '00:00') < 10 * 60)),
+      JSON.stringify(s2.times.slice(0, 6)),
+    );
     const s2Shot = await capture('T12-2-대체휴일1000.png');
 
     // ── 시나리오 ③: 자정 경계 23:59 → 00:01 ─────────────────────────────────
     const s3aNow = '2026-10-05T23:59:00+09:00';
     check('③ 자정 경계 23:59: 페이지 렌더', await open(urlFor(s3aNow)));
     const s3a = await evaluate(READ);
-    check('③ 23:59 상태줄 = 10월 5일 (월)', String(s3a.clockText).includes('10월 5일 (월) 23:59'), String(s3a.clockText));
-    check('③ 23:59 오늘 운행 종료 안내 + 다음 운행 내일', s3a.todayOver !== null && String(s3a.todayOver).includes('내일'), String(s3a.todayOver));
-    check('③ 23:59 목록이 다음 날(내일) 편으로 넘어간다', s3a.dayOffsets.length > 0 && s3a.dayOffsets.every((offset) => offset === 1), JSON.stringify(s3a.dayOffsets.slice(0, 5)));
-    check('③ 23:59 카드 라벨 = 내일', String(s3a.heroText).includes('내일 '), String(s3a.heroText));
+    check('③ 23:59 상단 바 = 10월 5일 (월) · 23:59', String(s3a.clockText).includes('10월 5일 (월) · 23:59'), String(s3a.clockText));
+    // 23:59 에는 남은 편이 없다. 이 날은 대체 시간표라 얇은 1줄은 **대체 안내**(§9-4 우선순위: 운행없음 > 대체)이고,
+    //   "오늘 종료 + 다음 운행" 문구는 안내문이 없는 평일에 나온다(아래 ③c 에서 실측).
+    check(
+      '③ 23:59 남은 편 0 — 안내줄은 그 날의 우선순위(대체 시간표) 1줄',
+      s3a.notice !== null && s3a.notice.kind === 'alternate' && String(s3a.notice.text).includes('일요일 시간표로 운행합니다'),
+      JSON.stringify(s3a.notice),
+    );
+    check(
+      '③ 23:59 오늘 남은 편이 없다 — 강조 행 0개 · 모든 행이 지난 편(dim)',
+      s3a.nextCount === 0 && s3a.pastFlags.length > 0 && s3a.pastFlags.every((flag) => flag === true),
+      `next=${String(s3a.nextCount)} past=${JSON.stringify(s3a.pastFlags.slice(-3))} rows=${String(s3a.listRows)}`,
+    );
     const s3aShot = await capture('T12-3-자정경계-2359.png');
 
     const s3bNow = '2026-10-06T00:01:00+09:00';
+    const s3bExpected = expectedRowsOf(raw, 'weekday', weekdayCodeOf('2026-10-06'));
     check('③ 자정 경계 00:01: 페이지 렌더', await open(urlFor(s3bNow)));
     const s3b = await evaluate(READ);
-    check('③ 00:01 상태줄 = 10월 6일 (화) (다음 날로 바뀜)', String(s3b.clockText).includes('10월 6일 (화) 00:01'), String(s3b.clockText));
-    check('③ 00:01 공지 배너 없음(대체휴일 종료)', s3b.notice === null, JSON.stringify(s3b.notice));
-    check('③ 00:01 카드 라벨 = 오늘 (다음 날 목록으로 전환)', String(s3b.heroText).startsWith('오늘 '), String(s3b.heroText));
-    check('③ 00:01 목록이 모두 오늘(dayOffset 0)', s3b.dayOffsets.length > 0 && s3b.dayOffsets.every((offset) => offset === 0), JSON.stringify(s3b.dayOffsets.slice(0, 5)));
-    check('③ 00:01 지난 편 제외(00:01 이후만)', s3b.times.every((time) => minuteOf(time) >= 1), JSON.stringify(s3b.times.slice(0, 3)));
+    check('③ 00:01 상단 바 = 10월 6일 (화) · 00:01 (다음 날로 바뀜)', String(s3b.clockText).includes('10월 6일 (화) · 00:01'), String(s3b.clockText));
+    check('③ 00:01 안내줄 없음(대체휴일 종료)', s3b.notice === null, JSON.stringify(s3b.notice));
+    check(
+      '③ 00:01 시간표가 다음 날(평일)로 넘어간다 — 행 수 = 발행물 평일 판정 편수',
+      s3b.listDay === 'weekday' && s3b.listRows === s3bExpected,
+      `day=${String(s3b.listDay)} 화면=${String(s3b.listRows)}행 · 발행물=${String(s3bExpected)}편`,
+    );
+    check('③ 00:01 첫 남은 편(07:30)이 강조되고 지난 편이 없다', s3b.nextCount === 1 && s3b.nextTime === '07:30' && s3b.pastFlags.every((flag) => flag === false), `next=${String(s3b.nextTime)} past=${JSON.stringify(s3b.pastFlags.slice(0, 3))}`);
     const s3bShot = await capture('T12-4-자정경계-0001.png');
+
+    // ── ③c: 안내문 없는 평일 23:59 — 오늘 종료 안내 + 다음 운행(내일) ─────────────
+    check('③c 평일 23:59: 페이지 렌더', await open(urlFor('2026-10-06T23:59:00+09:00')));
+    const s3c = await evaluate(READ);
+    check(
+      '③c 23:59 오늘 운행 종료 안내 + 다음 운행 내일(§9-4)',
+      s3c.notice !== null && s3c.notice.kind === 'today-over' && String(s3c.notice.text).includes('다음 운행') && String(s3c.notice.text).includes('내일'),
+      JSON.stringify(s3c.notice),
+    );
+    check(
+      '③c 23:59 오늘 남은 편 0 — 강조 행 0개 · 모든 행이 지난 편(dim)',
+      s3c.nextCount === 0 && s3c.pastFlags.length > 0 && s3c.pastFlags.every((flag) => flag === true),
+      `next=${String(s3c.nextCount)} rows=${String(s3c.listRows)}`,
+    );
 
     // ── 시나리오 ④: 오늘 실측(주입 없이 실제 시각) ───────────────────────────
     check('④ 오늘 실측: 페이지 렌더(주입 없음)', await open(urlFor(null)));
     const s4 = await evaluate(READ);
     const nowKst = kstNow();
     const todayKey = `${nowKst.year}-${pad2(nowKst.month)}-${pad2(nowKst.day)}`;
+    const todayCode = weekdayCodeOf(todayKey);
     const noticeToday = raw.notices.find((notice) => notice.date === todayKey) ?? null;
-    check(`④ 오늘(${todayKey}) 상태줄이 실제 KST 날짜`, String(s4.clockText).includes(`${String(nowKst.month)}월 ${String(nowKst.day)}일 (`), String(s4.clockText));
+    check(`④ 오늘(${todayKey}) 상단 바가 실제 KST 날짜`, String(s4.clockText).includes(`${String(nowKst.month)}월 ${String(nowKst.day)}일 (`), String(s4.clockText));
     if (noticeToday === null) {
-      check('④ 오늘은 안내문이 없어 배너도 없다', s4.notice === null, JSON.stringify(s4.notice));
+      check('④ 오늘은 안내문이 없어 안내줄도 없다', s4.notice === null, JSON.stringify(s4.notice));
     } else {
       const expectKind = noticeToday.kind === 'no-service' ? 'no-service' : 'alternate';
       check(
-        `④ 오늘 안내문(${String(noticeToday.kind)})이 배너로 나온다`,
+        `④ 오늘 안내문(${String(noticeToday.kind)})이 얇은 1줄로 나온다`,
         s4.notice !== null && s4.notice.kind === expectKind,
         JSON.stringify(s4.notice),
       );
       if (expectKind === 'alternate') {
+        const expected = expectedRowsOf(raw, 'sunday', todayCode);
         check(
-          '④ 대체 시간표 → 배너 문구 + 일요일 편수',
-          String(s4.notice?.text ?? '').includes('일요일 시간표로 운행합니다') && String(s4.countsText).includes(`총 ${String(sundayTrips)}편`),
-          `${JSON.stringify(s4.notice)} · ${String(s4.countsText)}`,
+          '④ 대체 시간표 → 1줄 문구 + 일요일 판정 편수',
+          String(s4.notice?.text ?? '').includes('일요일 시간표로 운행합니다') && s4.listDay === 'sunday' && s4.listRows === expected,
+          `${JSON.stringify(s4.notice)} · day=${String(s4.listDay)} rows=${String(s4.listRows)} 기대=${String(expected)}`,
         );
       }
     }
     const s4Shot = await captureViewport('T14-2-오늘-실측.png');
 
-    // ── 시나리오 ⑤~⑧: T13 — 밝은 톤·더 심플한 UI·결함 정정 (평일/토/일/운행없는날 09:00) ──
-    //    요일 자동 판정은 총괄 실측으로 이미 확인됐고, 여기서는 **문구 모순 0**과
-    //    홈 1줄(미해석 요약)·접힘 제목(오늘 요일)을 실제 DOM 에서 확인한다.
+    // ── 시나리오 ⑤~⑧: 평일/토/일/운행없는날 09:00 (T13 계약 + T27 재기준) ──────
     const t13Cases = [
-      { label: '⑤ 평일 09:00', now: '2026-10-06T09:00:00+09:00', clock: '10월 6일 (화) 09:00', shot: 'T14-3-평일0900.png' },
-      { label: '⑥ 토요일 09:00', now: '2026-10-10T09:00:00+09:00', clock: '10월 10일 (토) 09:00', shot: 'T14-4-토0900.png' },
-      { label: '⑦ 일요일 09:00', now: '2026-10-11T09:00:00+09:00', clock: '10월 11일 (일) 09:00', shot: 'T14-5-일0900.png' },
-      { label: '⑧ 한글날 09:00(운행 없음)', now: '2026-10-09T09:00:00+09:00', clock: '10월 9일 (금) 09:00', shot: 'T14-6-한글날0900.png', noService: true },
+      { label: '⑤ 평일 09:00', now: '2026-10-06T09:00:00+09:00', clock: '10월 6일 (화) · 09:00', dayType: 'weekday', shot: 'T14-3-평일0900.png' },
+      { label: '⑥ 토요일 09:00', now: '2026-10-10T09:00:00+09:00', clock: '10월 10일 (토) · 09:00', dayType: 'saturday', shot: 'T14-4-토0900.png' },
+      { label: '⑦ 일요일 09:00', now: '2026-10-11T09:00:00+09:00', clock: '10월 11일 (일) · 09:00', dayType: 'sunday', shot: 'T14-5-일0900.png' },
+      { label: '⑧ 한글날 09:00(운행 없음)', now: '2026-10-09T09:00:00+09:00', clock: '10월 9일 (금) · 09:00', shot: 'T14-6-한글날0900.png', noService: true },
     ];
     const t13Shots = [];
     for (const testCase of t13Cases) {
       check(`${testCase.label}: 페이지 렌더`, await open(urlFor(testCase.now)));
       const state = await evaluate(READ);
-      check(`${testCase.label}: 상태줄 = ${testCase.clock}`, String(state.clockText).includes(testCase.clock), String(state.clockText));
+      check(`${testCase.label}: 상단 바 = ${testCase.clock}`, String(state.clockText).includes(testCase.clock), String(state.clockText));
       // T14: 원본 노출 0 — 원본표·원본 문구·학교 링크 목록이 화면에 없다.
       check(
         `${testCase.label}: 원본 노출 0(표 0 · 원본 문구 0회 · 학교 링크 ≤1)`,
         state.sourceDetailsCount === 0 && state.visibleSourceCount === 0 && state.schoolLinkCount <= 1,
         JSON.stringify({ sourceDetails: state.sourceDetailsCount, visible: state.visibleSourceCount, links: state.schoolLinkCount }),
       );
-      // 미해석 표기 안내는 **사용자 판단에 영향을 줄 때만** 홈 1줄이다(목록 `<li>` 는 없다).
-      const warnOk =
-        state.warnSummary === null ||
-        /^시각을 해석하지 못한 회차 \d+건은 목록에서 빠져 있을 수 있습니다 — 아래 출처의 학교 안내 페이지에서 확인해 주세요\.$/.test(String(state.warnSummary));
+      // 미해석 표기 안내는 **정보 시트 안**이다(§9-5) — 본문에 올라오지 않는다.
       check(
-        `${testCase.label}: 미해석 안내는 홈 1줄(목록 0)`,
-        warnOk && state.warnSummaryItems === 0,
-        `summary=${String(state.warnSummary)} items=${String(state.warnSummaryItems)}`,
+        `${testCase.label}: 미해석 안내가 본문에 없다(정보 시트 안, §9-5)`,
+        state.warnInBody === false && (state.warnInSheet === false || /^시각을 해석하지 못한 회차 \d+건은 목록에서 빠져 있을 수 있습니다/.test(String(state.warnSummary))),
+        `inSheet=${String(state.warnInSheet)} inBody=${String(state.warnInBody)} summary=${String(state.warnSummary)} items=${String(state.warnSummaryItems)}`,
       );
-      check(`${testCase.label}: 데이터 갱신 1줄`, /^데이터 갱신: /.test(String(state.refreshLine)), String(state.refreshLine));
+      check(`${testCase.label}: 데이터 갱신 1줄(정보 시트)`, state.refreshInSheet === true && /^데이터 갱신: /.test(String(state.refreshLine)), String(state.refreshLine));
       check(`${testCase.label}: "오늘 운행이 끝났습니다" 문구 없음(모순 0)`, String(state.listCardText).includes('끝났습니다') === false, String(state.listCardText).slice(0, 90));
       if (testCase.noService === true) {
         check(
-          `${testCase.label}: 운행 없음 배너 + 목록 문구(끝났습니다 아님)`,
-          state.notice?.kind === 'no-service' && String(state.noServiceHeadline).includes('오늘은 운행이 없습니다') && String(state.noServiceHeadline).includes('다음 운행: 내일'),
-          `notice=${JSON.stringify(state.notice)} headline=${String(state.noServiceHeadline)}`,
-        );
-        check(
-          `${testCase.label}: 목록 행 0 + 편수(총 N편) 숨김 + 첫 화면([지금])에 방향 칩 없음`,
-          state.listRowCount === 0 && state.listCardCountsVisible === false && state.nowPanelChipCount === 0,
-          `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} 지금화면칩=${String(state.nowPanelChipCount)}`,
+          `${testCase.label}: 운행 없음 1줄 + 시간표 빈 안내 + 행 0`,
+          state.notice?.kind === 'no-service' && String(state.notice?.text ?? '').includes('운행이 없습니다') && state.emptyShown === true && state.listRows === 0,
+          `notice=${JSON.stringify(state.notice)} empty=${String(state.emptyShown)} rows=${String(state.listRows)}`,
         );
       } else {
+        const expected = expectedRowsOf(raw, String(testCase.dayType), weekdayCodeOf(String(testCase.now).slice(0, 10)));
         check(
-          `${testCase.label}: 목록 5편 + 편수·방향 칩 표시([전체] 탭 칩 3개)`,
-          state.listRowCount === 5 && state.listCardCountsVisible === true && state.allPanelChipCount === 3,
-          `rows=${String(state.listRowCount)} counts=${String(state.listCardCountsVisible)} 전체탭칩=${String(state.allPanelChipCount)}`,
+          `${testCase.label}: 시간표 행 수 = 발행물 판정 편수 + 방향 칩 3개`,
+          state.listDay === testCase.dayType && state.listRows === expected && state.chips.length === 3,
+          `day=${String(state.listDay)} 화면=${String(state.listRows)}행 · 발행물=${String(expected)}편 chips=${String(state.chips.length)}`,
         );
-        check(`${testCase.label}: 배너 없음(안내문 없는 날)`, state.notice === null, JSON.stringify(state.notice));
+        check(`${testCase.label}: 안내줄 없음(안내문 없는 날)`, state.notice === null, JSON.stringify(state.notice));
       }
       t13Shots.push(await captureViewport(testCase.shot));
-      info(`${testCase.label}: clock=${String(state.clockText)} · headline=${String(state.noServiceHeadline)} · warn=${String(state.warnSummary)} · list=${String(state.listRowCount)}+${String(state.restRows)} ${String(state.countsText)}`);
+      info(`${testCase.label}: clock=${String(state.clockText)} · notice=${JSON.stringify(state.notice)} · warn=${String(state.warnSummary)} · rows=${String(state.listRows)} day=${String(state.listDay)}`);
     }
 
     // ── ⑨ 요청 출처 검사(T14) — 앱이 낸 요청은 전부 자기 오리진(로컬 서버)이고 학교 도메인은 0건 ──
@@ -553,10 +627,10 @@ async function main() {
 
     info(`시나리오 스크린샷: ${[s1Shot, s2Shot, s3aShot, s3bShot, s4Shot].map((path) => path.slice(ROOT.length)).join(' · ')}`);
     info(`T13 스크린샷: ${t13Shots.map((path) => path.slice(ROOT.length)).join(' · ')}`);
-    info(`평일 08:00 보드: ${JSON.stringify({ hero: s1.heroText, counts: s1.countsText, chips: s1.chips.map((chip) => chip.text) })}`);
-    info(`대체휴일 10:00 보드: ${JSON.stringify({ hero: s2.heroText, counts: s2.countsText, notice: s2.notice?.text })}`);
-    info(`자정 경계: 23:59=${JSON.stringify({ clock: s3a.clockText, hero: s3a.heroText, over: s3a.todayOver })} / 00:01=${JSON.stringify({ clock: s3b.clockText, hero: s3b.heroText })}`);
-    info(`오늘 실측: ${JSON.stringify({ clock: s4.clockText, notice: s4.notice?.text, counts: s4.countsText })}`);
+    info(`평일 08:00 시간표: ${JSON.stringify({ day: s1.listDay, rows: s1.listRows, 기대: s1Expected, next: s1.nextTime, chips: s1.chips.map((chip) => chip.text) })}`);
+    info(`대체휴일 10:00 시간표: ${JSON.stringify({ day: s2.listDay, rows: s2.listRows, 기대: s2Expected, next: s2.nextTime, notice: s2.notice?.text })}`);
+    info(`자정 경계: 23:59=${JSON.stringify({ clock: s3a.clockText, next: s3a.nextTime, notice: s3a.notice?.kind })} / 00:01=${JSON.stringify({ clock: s3b.clockText, next: s3b.nextTime, day: s3b.listDay, rows: s3b.listRows })}`);
+    info(`오늘 실측: ${JSON.stringify({ clock: s4.clockText, notice: s4.notice?.text, day: s4.listDay, rows: s4.listRows })}`);
 
     console.log('\n검사 결과:');
     for (const line of notes) console.log(line);
@@ -593,41 +667,11 @@ function ascending(times) {
   return times.length > 0;
 }
 
-function countsOf(text) {
-  const match = /총 (\d+)편 · 남은 (\d+)편/.exec(String(text));
-  return match === null ? { total: -1, remaining: -1 } : { total: Number(match[1]), remaining: Number(match[2]) };
-}
-
-function s1OutExpected(counts) {
-  return `out 필터: 남은 ${String(counts.remaining)}편 중 상위 3편`;
-}
-
-function s1InExpected(counts) {
-  return `in 필터: 남은 ${String(counts.remaining)}편 중 상위 3편`;
-}
-
 /**
- * T24 — 앱 셸 탭 전환([지금]/[전체]). 탭 상태는 localStorage 에 남으므로, 스모크가 탭을 바꾼 뒤에는
- * **원래 탭으로 되돌려야** 다음 시나리오(새 페이지 로드)의 첫 화면이 [지금]으로 유지된다.
+ * 방향 칩을 누르고 그 방향만 남는지 확인한다(즉시 반영 검증 — §9-1 로 칩은 시간표의 축이 됐다).
+ * 칩 상태(pressed)와 **시간표 목록의 방향**을 함께 실측한다.
  */
-async function showAppTab(tab) {
-  const clicked = await evaluate(`
-    const node = document.querySelector('#shuttle-tab-${tab}');
-    if (node === null) return false;
-    if (node.getAttribute('aria-selected') === 'true') return true;
-    node.click();
-    return true;
-  `);
-  await delay(150);
-  return clicked === true;
-}
-
-/**
- * 방향 칩을 누르고 그 방향만 남는지 확인한다(즉시 반영 검증).
- * T24 — 칩은 [전체] 탭에 있고, 반영 대상은 **전체 목록**(`full-list`)이다.
- */
-async function clickChip(direction, label) {
-  await showAppTab('all');
+async function clickChip(direction) {
   const clicked = await evaluate(`
     const chip = document.querySelector('[data-testid="direction-chip"][data-direction="${direction}"]');
     if (chip === null) return false;
@@ -638,12 +682,13 @@ async function clickChip(direction, label) {
   await delay(200);
   const state = await evaluate(READ);
   const chip = state.chips.find((entry) => entry.direction === direction);
-  const rows = state.fullRows.map((row) => row.direction);
-  const allSame = rows.length > 0 && rows.every((value) => value === direction);
-  const ok = chip?.pressed === 'true' && allSame;
+  const directions = state.directions;
+  const rows = state.listRows;
+  const allSame = direction === 'all' ? rows > 0 : rows > 0 && directions.every((value) => value === direction);
   return {
-    ok,
-    detail: `${label} — pressed=${String(chip?.pressed)} 전체목록=${String(state.fullRowCount)}행 방향=${JSON.stringify([...new Set(rows)].slice(0, 3))}`,
+    ...state,
+    ok: chip?.pressed === 'true' && allSame,
+    detail: `pressed=${String(chip?.pressed)} 시간표=${String(rows)}행 방향=${JSON.stringify([...new Set(directions)].slice(0, 3))}`,
   };
 }
 

@@ -4,7 +4,7 @@
  *
  * 검증하는 것 (docs/03 §1 AC-5·AC-6)
  *  ① 캐시 계층이 실제로 채워진다: Service Worker 등록·제어 + 셸/데이터 캐시 + IndexedDB 레코드(원문·contentHash·저장시각)
- *  ② **오프라인**(AC-6): 네트워크를 끊고 새로고침해도 첫 화면이 뜨고, 요일 전환·다음 버스 카운트다운이 동작한다
+ *  ② **오프라인**(AC-6): 네트워크를 끊고 새로고침해도 첫 화면이 뜨고, 요일 전환·다음 출발 행 강조가 동작한다(T27 §9)
  *  ③ **수집 실패 폴백**(AC-5): 데이터 요청만 실패시키면 **마지막 정상 데이터**를 표시하고, 앱이 낸 콘솔 오류는 0
  *  ④ 캐시 나이 24h 초과: 캐시는 그대로 쓰되 "24시간 초과" 를 문구로 알린다(docs/01 §5 만료 정책)
  *  ⑤ 캐시조차 없을 때: 조용히 빈 화면이 되지 않고 **오류 UI(F8)** 로 정직하게 실패한다
@@ -216,19 +216,9 @@ async function clickTab(dayType) {
 }
 
 /**
- * T24 — 앱 셸 탭 전환. 요일 탭은 [전체] 화면에 있으므로, 요일 전환을 검증할 때는 먼저 [전체] 탭을 연다
- * (숨겨진 패널만 바꾸면 증거 스크린샷이 실제 화면과 어긋난다).
+ * T27(§9-1) — 화면 하나. 앱 셸 [지금]/[전체] 탭은 없어졌고, 시간표는 항상 본문에 있다.
+ * (요일 전환은 `clickTab` 하나로 충분하다.)
  */
-async function showAppTab(tab) {
-  const ok = await evaluate(`
-    const node = document.querySelector('#shuttle-tab-${tab}');
-    if (node === null) return false;
-    if (node.getAttribute('aria-selected') !== 'true') node.click();
-    return true;
-  `);
-  await delay(200);
-  return ok;
-}
 
 async function capture(fileName, selector = null) {
   if (!WANT_SHOTS) return null;
@@ -269,26 +259,28 @@ async function capture(fileName, selector = null) {
  * T14: 홈은 **오늘 남은 출발 보드**가 본문이다(`[data-testid="timetable"]` 은 UI 에서 제거됨).
  */
 const READY =
-  'document.querySelector(\'[data-testid="loading"]\') === null && (document.querySelector(\'[data-testid="departure-list-card"]\') !== null || document.querySelector(\'[data-testid="data-error"]\') !== null)';
+  'document.querySelector(\'[data-testid="loading"]\') === null && (document.querySelector(\'[data-testid="timetable-section"]\') !== null || document.querySelector(\'[data-testid="data-error"]\') !== null)';
 
-/** 화면 상태를 한 번에 읽는다(증거용) — T14 홈 구조(보드 + 최신 데이터 1줄 + 출처 1줄). */
+/** 화면 상태를 한 번에 읽는다(증거용) — T27 홈 구조(시간표 하나 + 상단 바 + 정보 시트). */
 const READ_STATE = `
-  const card = document.querySelector('[data-testid="next-bus-card"]');
-  const listCard = document.querySelector('[data-testid="departure-list-card"]');
+  const listCard = document.querySelector('[data-testid="timetable-section"]');
   const notice = document.querySelector('[data-testid="offline-notice"]');
-  // T24 — 앱 셸 탭바가 생기며 [role=tab] 이 두 종류가 됐다. 여기서 보는 것은 **요일 탭**이다.
+  // T27(§9-1) — 화면 하나. 여기서 보는 탭은 **요일 탭**이다(앱 셸 [지금]/[전체] 탭은 제거됐다).
   const tabs = [...document.querySelectorAll('[data-testid="day-tabs"] [role="tab"]')];
   const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
+  // T27(§9-3) — 히어로 카운트다운 카드 대신 **강조된 다음 출발 행**이 그 역할을 한다.
+  const nextRow = document.querySelector('[data-testid="timetable-row"][data-next="true"]');
   return {
     hasApp: document.querySelector('.shuttle-app') !== null,
-    hasCard: card !== null,
-    cardStatus: card?.dataset.status ?? null,
-    heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
-    remaining: document.querySelector('[data-testid="next-bus-remaining"]')?.textContent ?? null,
-    listStatus: listCard?.dataset.status ?? null,
-    departureRows: document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length,
-    restRows: document.querySelectorAll('[data-testid="departure-rest"] [data-testid="departure-row"]').length,
-    boardCounts: document.querySelector('[data-testid="board-counts"]')?.textContent ?? null,
+    hasCard: listCard !== null,
+    // T27: timetable-section 에는 status 데이터셋이 없다 — **섹션 자체의 존재**가 계약이다.
+    tableDay: listCard?.dataset.day ?? null,
+    tableToday: listCard?.dataset.today ?? null,
+    listReady: listCard !== null,
+    nextTime: nextRow === null ? null : (nextRow.querySelector('.shuttle-departure__time')?.textContent ?? null),
+    nextKey: nextRow?.dataset.key ?? null,
+    departureRows: document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]').length,
+    emptyShown: document.querySelector('[data-testid="timetable-empty"]') !== null,
     refreshLine: document.querySelector('[data-testid="data-refresh-line"]')?.textContent ?? null,
     selectedTab: selected?.id ?? null,
     offlineNotice: notice === null ? null : { source: notice.dataset.source ?? null, text: notice.textContent },
@@ -355,6 +347,17 @@ async function main() {
   const routesCount = raw.routes.length;
   const asanWeekday = rowsOf('asan-ktx', 'weekday');
   const asanSaturday = rowsOf('asan-ktx', 'saturday');
+  /**
+   * 발행물에서 계산한 **그 요일 기대 행 수** — 출발 시각이 있는 회차만(앱의 행 수와 같은 필터).
+   * T27 §9-1 로 본문이 `그 요일 전체 회차`가 됐으므로, 행 수가 곧 그 요일 판정 편수다(t22 와 같은 대조 방식).
+   */
+  const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
+  const expectedRowsOf = (dayType) =>
+    raw.routes.reduce((sum, route) => {
+      const table = route.byDay?.[dayType];
+      if (table === null || table === undefined) return sum;
+      return sum + table.trips.filter((row) => hasDepartureTime(row)).length;
+    }, 0);
 
   mkdirSync(join(DIST, 'data'), { recursive: true });
   copyFileSync(DATA_FILE, join(DIST, 'data', 'timetable.json'));
@@ -469,10 +472,12 @@ async function main() {
     info(`오프라인 화면 데이터 출처: ${offlineFirst.offlineNotice === null ? 'SW 캐시(앱 입장에서는 네트워크 성공)' : JSON.stringify(offlineFirst.offlineNotice.source)}`);
     check('오프라인: 앱 셸이 그려짐(빈 화면 아님)', offlineFirst.hasApp === true);
     check('오프라인: SW 가 계속 제어', offlineFirst.swController === true);
+    const expectedFirst = expectedRowsOf(String(offlineFirst.tableDay));
+    // T27 §9-1: 본문은 **시간표 하나** — 그 요일 전체 회차가 행으로 그려진다(보드 카드·편수 문구 없음).
     check(
-      '오프라인: 평일 보드가 계약 데이터로 그려진다(보드 ready · 출발 행 ≥1)',
-      offlineFirst.listStatus === 'ready' && offlineFirst.departureRows >= 1,
-      `listStatus=${String(offlineFirst.listStatus)} rows=${String(offlineFirst.departureRows)} counts=${String(offlineFirst.boardCounts)}`,
+      '오프라인: 시간표가 계약 데이터로 그려진다(요일 섹션 · 행 ≥1 · 발행물 편수와 일치)',
+      offlineFirst.listReady === true && offlineFirst.departureRows >= 1 && offlineFirst.departureRows === expectedFirst,
+      `day=${String(offlineFirst.tableDay)} rows=${String(offlineFirst.departureRows)} 기대(발행물)=${String(expectedFirst)}`,
     );
     // T14: 홈에서 `원본` 노출 0 · 학교 링크 ≤1(대표 출처 1줄만).
     check(
@@ -480,24 +485,36 @@ async function main() {
       offlineFirst.visibleSourceCount === 0 && offlineFirst.schoolLinks <= 1,
       `원본=${String(offlineFirst.visibleSourceCount)} schoolLinks=${String(offlineFirst.schoolLinks)}`,
     );
-    check('오프라인: 다음 버스 카운트다운 표시', String(offlineFirst.heroTime ?? '').length > 0 && String(offlineFirst.remaining ?? '').length > 0, `hero=${String(offlineFirst.heroTime)} remaining=${String(offlineFirst.remaining)}`);
+    // T27 §9-3: 히어로 카운트다운 카드 대신 **강조된 다음 출발 행**이 그 역할을 한다.
+    check(
+      '오프라인: 다음 출발 행이 강조되어 있다(강조 행 1개 · 출발 시각 표시)',
+      String(offlineFirst.nextTime ?? '').length > 0,
+      `next=${String(offlineFirst.nextTime)} key=${String(offlineFirst.nextKey)}`,
+    );
     const firstShot = await capture('T6-1-오프라인-첫화면.png');
 
-    check('오프라인: 요일 탭(토요일) 전환', (await showAppTab('all')) && (await clickTab('saturday')));
+    check('오프라인: 요일 탭(토요일) 전환', await clickTab('saturday'));
     const saturday = await evaluate(READ_STATE);
+    const expectedSaturday = expectedRowsOf('saturday');
     check(
-      '오프라인: 토요일 탭 전환 후에도 보드가 데이터로 그려진다',
-      saturday.selectedTab === 'shuttle-day-tab-saturday' && saturday.listStatus !== null && saturday.errorBanner === false,
-      `selected=${String(saturday.selectedTab)} listStatus=${String(saturday.listStatus)}`,
+      '오프라인: 토요일 탭 전환 후에도 시간표가 데이터로 그려진다(발행물 편수와 일치)',
+      saturday.selectedTab === 'shuttle-day-tab-saturday' &&
+        saturday.tableDay === 'saturday' &&
+        saturday.departureRows === expectedSaturday &&
+        saturday.errorBanner === false,
+      `selected=${String(saturday.selectedTab)} day=${String(saturday.tableDay)} rows=${String(saturday.departureRows)} 기대(발행물)=${String(expectedSaturday)}`,
     );
     const saturdayShot = await capture('T6-2-오프라인-요일전환.png');
 
     await clickTab('weekday');
-    await showAppTab('now');
     await delay(200);
-    const countdownShot = await capture('T6-3-오프라인-카운트다운.png', '[data-testid="next-bus-card"]');
+    const countdownShot = await capture('T6-3-오프라인-카운트다운.png', '[data-testid="timetable-list"]');
     const backToWeekday = await evaluate(READ_STATE);
-    check('오프라인: 평일 탭 복귀 후에도 카운트다운 유지', String(backToWeekday.remaining ?? '').length > 0, `remaining=${String(backToWeekday.remaining)}`);
+    check(
+      '오프라인: 평일 탭 복귀 후에도 그 요일 시간표로 돌아온다',
+      backToWeekday.selectedTab === 'shuttle-day-tab-weekday' && backToWeekday.departureRows >= 1,
+      `selected=${String(backToWeekday.selectedTab)} day=${String(backToWeekday.tableDay)} rows=${String(backToWeekday.departureRows)} next=${String(backToWeekday.nextTime)}`,
+    );
     check('오프라인: 앱이 낸 콘솔 오류 0 (AC-6)', appErrors.length === 0, appErrors.join(' | '));
 
     // ── ③ AC-5 수집 실패 폴백: 네트워크는 살리고 **데이터 요청만** 실패시킨다 ────────────────
@@ -527,9 +544,9 @@ async function main() {
     const fallback = await evaluate(READ_STATE);
     check('수집 실패 검증 조건: SW 미제어(앱 계층 폴백을 본다)', fallback.swController === false, `controller=${String(fallback.swController)}`);
     check(
-      '수집 실패: 마지막 정상 데이터 표시(보드가 데이터로 그려짐)',
-      fallback.listStatus === 'ready' && fallback.errorBanner === false,
-      `listStatus=${String(fallback.listStatus)} rows=${String(fallback.departureRows)}`,
+      '수집 실패: 마지막 정상 데이터 표시(시간표가 데이터로 그려짐)',
+      fallback.listReady === true && fallback.departureRows >= 1 && fallback.errorBanner === false,
+      `day=${String(fallback.tableDay)} rows=${String(fallback.departureRows)}`,
     );
     check('수집 실패: 캐시 폴백 안내를 문구로 표시', fallback.offlineNotice !== null, JSON.stringify(fallback.offlineNotice));
     check('수집 실패: 오류 UI(F8)로 가지 않는다 — 데이터가 있으므로', fallback.errorBanner === false);

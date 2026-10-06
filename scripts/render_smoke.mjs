@@ -245,7 +245,15 @@ async function main() {
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
   if (!existsSync(DATA_FILE)) throw new Error('data/timetable.json 이 없습니다.');
 
-  // T14 재기준: 접힘 원본표·tbody 행 수 검사가 사라져 계약 JSON 을 다시 읽을 필요가 없다.
+  // T27 §9-1: 본문이 `그 요일 전체 회차`가 됐으므로 행 수가 곧 그 요일 판정 편수다(발행물로 대조한다).
+  const raw = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
+  const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
+  const expectedRowsOf = (dayType) =>
+    raw.routes.reduce((sum, route) => {
+      const table = route.byDay?.[dayType];
+      if (table === null || table === undefined) return sum;
+      return sum + table.trips.filter((row) => hasDepartureTime(row)).length;
+    }, 0);
   mkdirSync(join(DIST, 'data'), { recursive: true });
   copyFileSync(DATA_FILE, join(DIST, 'data', 'timetable.json'));
   mkdirSync(SHOT_DIR, { recursive: true });
@@ -301,30 +309,30 @@ async function main() {
     const deadline = Date.now() + 20_000;
     let ready = false;
     while (Date.now() < deadline && !ready) {
-      ready = (await evaluate(`return document.querySelector('[data-testid="next-bus-card"]') !== null;`)) === true;
+      ready = (await evaluate(`return document.querySelector('[data-testid="timetable-list"]') !== null;`)) === true;
       if (!ready) await delay(250);
     }
-    check('화면 렌더(next-bus-card 존재)', ready);
+    check('화면 렌더(시간표 목록 존재)', ready);
 
-    // ── ③ 보드가 계약 JSON 기반으로 그려진다 / ② 탭 전환 ───────────────
+    // ── ③ 본문이 계약 JSON 기반으로 그려진다 / ② 요일 탭 전환 ───────────────
     const initial = await evaluate(`
-      const card = document.querySelector('[data-testid="next-bus-card"]');
-      const listCard = document.querySelector('[data-testid="departure-list-card"]');
+      const card = document.querySelector('[data-testid="timetable-list"]');
+      const listCard = document.querySelector('[data-testid="timetable-section"]');
       const tabs = [...document.querySelectorAll('[role="tab"]')];
       const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
       return {
         tabs: tabs.length,
         selectedTab: selected?.id ?? null,
         tabNotes: tabs.map((tab) => tab.textContent.trim()),
-        cardStatus: card?.dataset.status ?? null,
-        boardCard: card !== null,
-        boardRows: document.querySelectorAll('[data-testid="next-bus-card"] [data-testid="next-bus-row"]').length,
-        heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
+        cardReady: card !== null,
+        listReady: listCard !== null,
+        listDay: listCard?.dataset.day ?? null,
+        nextTime: document.querySelector('[data-testid="timetable-row"][data-next="true"] .shuttle-departure__time')?.textContent ?? null,
+        nextCount: document.querySelectorAll('[data-testid="timetable-row"][data-next="true"]').length,
         clock: document.querySelector('[data-testid="app-clock"]')?.textContent ?? null,
-        boardNotice: document.querySelector('[data-testid="board-notice"]')?.textContent ?? null,
+        boardNotice: document.querySelector('[data-testid="day-notice"]')?.textContent ?? null,
         chips: [...document.querySelectorAll('[data-testid="direction-chip"]')].length,
-        listStatus: listCard?.dataset.status ?? null,
-        listRows: document.querySelectorAll('[data-testid="departure-list"] [data-testid="departure-row"]').length,
+        listRows: document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]').length,
         refreshLine: document.querySelector('[data-testid="data-refresh-line"]')?.textContent ?? null,
         sourceDetails: document.querySelectorAll('[data-testid="source-details"]').length,
         timetable: document.querySelector('[data-testid="timetable"]') !== null,
@@ -335,21 +343,26 @@ async function main() {
     check('요일 탭 3개', initial.tabs === 3, `tabs=${String(initial.tabs)}`);
     check('오늘(KST) 탭이 기본 선택', initial.selectedTab === 'shuttle-day-tab-weekday', `selected=${String(initial.selectedTab)}`);
     check('주말 탭이 노선 수를 반영', String(initial.tabNotes[1]).includes('노선 3/5개'), `토요일 탭="${String(initial.tabNotes[1])}"`);
-    // ── V1 간편 홈 구조(T12) ──
-    check('V1 상태줄: 오늘 날짜·현재 시각(KST)', String(initial.clock).includes('10월 5일 (월) 14:40'), `clock=${String(initial.clock)}`);
+    // ── T27 시간표 중심 구조(§9) ──
+    check('T27 상단 바: 오늘 날짜·현재 시각(KST, `·` 구분)', String(initial.clock).includes('10월 5일 (월) · 14:40'), `clock=${String(initial.clock)}`);
     check('V1 공지 배너: 대체 시간표 안내', String(initial.boardNotice).includes('일요일 시간표로 운행합니다'), String(initial.boardNotice));
-    check('V1 다음 출발 카드 상태 ready', initial.boardCard === true && initial.cardStatus === 'ready', `status=${String(initial.cardStatus)}`);
-    check('V1 다음 출발 상위 3편(히어로 1 + 목록 2)', initial.boardRows === 2, `board rows=${String(initial.boardRows)}`);
-    check('V1 히어로 시각이 노선 통합 도메인 계산값', initial.heroTime === '오늘 16:00 출발', `hero=${String(initial.heroTime)}`);
+    // T27: 히어로 카드 대신 **시간표 섹션 하나**가 본문이다(대체휴일 → 일요일 시간표 적용).
+    check('T27 본문 = 시간표 섹션 하나(적용 시간표 일요일)', initial.listReady === true && initial.listDay === 'sunday', `day=${String(initial.listDay)}`);
+    check('T27 다음 출발 행이 정확히 하나 강조된다', initial.nextCount === 1, `count=${String(initial.nextCount)}`);
+    check('T27 강조 행 시각이 노선 통합 도메인 계산값(가장 가까운 남은 편)', initial.nextTime === '16:00', `next=${String(initial.nextTime)}`);
     check('V1 방향 필터 칩 3개', initial.chips === 3, `chips=${String(initial.chips)}`);
     check('V1 오늘 남은 출발 목록', initial.listRows > 0, `list rows=${String(initial.listRows)}`);
-    check('V1 오늘 남은 출발 보드 상태 ready', initial.listStatus === 'ready', `listStatus=${String(initial.listStatus)}`);
+    check(
+      'T27 시간표 행 수 = 발행물 판정 편수',
+      initial.listRows === expectedRowsOf(String(initial.listDay)),
+      `화면=${String(initial.listRows)}행 · 발행물=${String(expectedRowsOf(String(initial.listDay)))}편`,
+    );
     // ── T14: 홈에서 원본 노출 0 ──
     check('T14 접힘 원본표·원본 시간표가 홈에 없다', initial.sourceDetails === 0 && initial.timetable === false, `sourceDetails=${String(initial.sourceDetails)} timetable=${String(initial.timetable)}`);
     check('T14 최신 데이터 1줄(`데이터 갱신: …`)', String(initial.refreshLine ?? '').startsWith('데이터 갱신:'), String(initial.refreshLine));
     check('T14 홈에 `원본` 0회 · 학교 링크 ≤1(대표 출처 1줄)', initial.visibleSourceCount === 0 && initial.schoolLinks <= 1, `원본=${String(initial.visibleSourceCount)} links=${String(initial.schoolLinks)}`);
 
-    const freshPath = await capture('T5-4-다음버스카드.png', '[data-testid="next-bus-card"]');
+    const freshPath = await capture('T5-4-다음버스카드.png', '[data-testid="timetable-list"]');
 
     // 키보드만으로 요일 탭 이동(←/→)
     await evaluate(`
@@ -364,13 +377,17 @@ async function main() {
       return {
         selected: document.querySelector('[role="tab"][aria-selected="true"]')?.id ?? null,
         focus: document.activeElement?.id ?? null,
-        listStatus: document.querySelector('[data-testid="departure-list-card"]')?.dataset.status ?? null,
-        cardStatus: document.querySelector('[data-testid="next-bus-card"]')?.dataset.status ?? null,
+        listDay: document.querySelector('[data-testid="timetable-section"]')?.dataset.day ?? null,
+        listRows: document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]').length,
       };
     `);
     check('키보드(→)로 토요일 탭 이동', afterKey.selected === 'shuttle-day-tab-saturday', `selected=${String(afterKey.selected)}`);
     check('키보드 이동 후 포커스 유지', afterKey.focus === 'shuttle-day-tab-saturday', `focus=${String(afterKey.focus)}`);
-    check('토요일 탭에서도 보드가 데이터로 그려진다', afterKey.listStatus !== null && afterKey.cardStatus !== null, `list=${String(afterKey.listStatus)} card=${String(afterKey.cardStatus)}`);
+    check(
+      '토요일 탭에서도 시간표가 데이터로 그려진다',
+      afterKey.listDay === 'saturday' && afterKey.listRows === expectedRowsOf('saturday'),
+      `day=${String(afterKey.listDay)} rows=${String(afterKey.listRows)} 기대(발행물)=${String(expectedRowsOf('saturday'))}`,
+    );
     const saturdayPath = await capture('T5-2-토요일탭.png');
 
     // 평일 탭으로 되돌린다(② 탭 왕복 — 노선 선택은 T14 에서 홈에서 제거됐다)
@@ -380,12 +397,12 @@ async function main() {
       return {
         selected: document.querySelector('[role="tab"][aria-selected="true"]')?.id ?? null,
         clock: document.querySelector('[data-testid="app-clock"]')?.textContent ?? null,
-        heroTime: document.querySelector('[data-testid="next-bus-time"]')?.textContent ?? null,
+        nextTime: document.querySelector('[data-testid="timetable-row"][data-next="true"] .shuttle-departure__time')?.textContent ?? null,
         visibleSourceCount: (document.body.innerText.match(/원본/g) ?? []).length,
       };
     `);
     check('탭 왕복 후 평일로 복귀', back.selected === 'shuttle-day-tab-weekday', `selected=${String(back.selected)}`);
-    check('탭 왕복 후에도 히어로 시각 유지', back.heroTime === '오늘 16:00 출발', `hero=${String(back.heroTime)}`);
+    check('탭 왕복 후에도 다음 출발 강조 시각 유지', back.nextTime === '16:00', `next=${String(back.nextTime)}`);
     check('탭 왕복 후에도 홈에 `원본` 0회(T14)', back.visibleSourceCount === 0, `원본=${String(back.visibleSourceCount)}`);
     const suspendedPath = await capture('T5-3-평일복귀.png');
 
