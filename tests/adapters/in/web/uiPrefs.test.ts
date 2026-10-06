@@ -5,7 +5,7 @@
  * 깨진 값·모르는 값·저장소 차단(사파리 프라이빗)에서도 **앱이 죽지 않고 기본값으로** 동작해야 한다.
  */
 import { describe, expect, it } from 'vitest';
-import type { KeyValueStorage } from '../../../../src/adapters/in/web/features/schedule/api/installHintApi';
+import type { KeyValueStorage } from '../../../../src/adapters/in/web/shared/lib/storage';
 import {
   UI_PREFS_STORAGE_KEY,
   effectiveStoredDayType,

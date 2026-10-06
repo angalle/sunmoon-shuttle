@@ -6,6 +6,7 @@
  * 항목은 scripts/qa/iOS-CHECKLIST.md 로 넘기고, **기계 검증 가능한 계약**만 여기서 실측한다.
  *   → iPhone 뷰포트·iPhone Safari UA / PWA 로 표시되는 정보 / manifest 파싱 / 아이콘·manifest HTTP 200
  *     / Service Worker 등록 / 오프라인 / standalone 표시 모드 / IndexedDB 없는 환경 폴백
+ *     / **설치 안내 문구 0건**(T31 · docs/07 §13-4 AC-U13-4 — 옛 "안내가 떠야 통과" 조건을 뒤집었다)
  *
  * scripts/render_smoke.mjs · scripts/offline_smoke.mjs 의 **검증된 CDP 패턴을 재사용**한다
  * (node:http 정적 서버 + Node 내장 WebSocket 으로 CDP 직접 호출 · 추가 라이브러리 0).
@@ -42,7 +43,7 @@ const BASE = normalizeBase(args.get('base') ?? '/sunmoon-shuttle/');
 const NOW = args.get('now') ?? '2026-10-05T14:40:00+09:00';
 const WANT_SHOTS = args.get('shots') !== 'none';
 const CHROME = process.env['CHROME_PATH'] ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-/** iPhone Safari 16 계열 UA — 앱의 iOS 분기(설치 안내 문구)와 iOS 뷰포트를 태운다. */
+/** iPhone Safari 16 계열 UA — iOS 뷰포트·UA 분기 경로를 태운다(T31 로 설치 안내 분기는 삭제됐다). */
 const IPHONE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
 /** iPhone 14/15 CSS 뷰포트(px) */
@@ -235,13 +236,76 @@ const READY =
   ' return loading && (body || failed);' +
   ' })()';
 
-const READ_STATE = `
+/**
+ * T31 §13 — 본문 금지 문자열 실측(AC-U13-1). `본문`에서 0건이어야 한다.
+ * §9-4 예외 구역(상단 1줄 상태 안내·오류·오프라인 배너)은 문서가 **남긴 상태 문구**라 따로 센다
+ * (v1·render·offline 스모크가 그 문구를 그대로 검사한다 — 위반이 아니라 예외).
+ */
+const FORBIDDEN_HELPERS = `
+  const FORBIDDEN = ['홈 화면', '전체화면', '한 번만', '하세요', '합니다'];
+  const EXCEPTION_ZONE = '[data-testid="day-notice"],[data-testid="vacation-notice"],[data-testid="offline-notice"],[data-testid="data-error"]';
+  const forbiddenTexts = (includeException) => {
+    const parts = [];
+    const walker = document.createTreeWalker(document.querySelector('.shuttle-app'), NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const parent = node.parentElement;
+      if (parent === null) continue;
+      if (parent.closest('.shuttle-sr-only') !== null) continue;
+      const style = getComputedStyle(parent);
+      if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) continue;
+      // 숨은 구역(정보 시트 ⓘ 등)은 조상이 display:none 이라 **계산 크기가 0** 이다 — 본문이 아니다.
+      const rect = parent.getBoundingClientRect();
+      if (rect.width <= 2 || rect.height <= 2) continue;
+      if (!includeException && parent.closest(EXCEPTION_ZONE) !== null) continue;
+      const text = (node.textContent || '').trim();
+      if (text !== '') parts.push(text);
+    }
+    return parts.join(' ');
+  };
+  /** 위반(본문) 문자열이 **어느 요소에서** 나왔는지 — 실패 시 원인 추적용 증거. */
+  const violationSamples = () => {
+    const out = [];
+    const walker = document.createTreeWalker(document.querySelector('.shuttle-app'), NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const parent = node.parentElement;
+      if (parent === null) continue;
+      const text = (node.textContent || '').trim();
+      const phrase = FORBIDDEN.find((candidate) => text.includes(candidate));
+      if (phrase === undefined) continue;
+      if (parent.closest('.shuttle-sr-only') !== null) continue;
+      const style = getComputedStyle(parent);
+      if (style.display === 'none' || style.visibility === 'hidden') continue;
+      const rect = parent.getBoundingClientRect();
+      if (rect.width <= 2 || rect.height <= 2) continue;
+      if (parent.closest(EXCEPTION_ZONE) !== null) continue;
+      const label = parent.tagName.toLowerCase() + (typeof parent.className === 'string' && parent.className !== '' ? '.' + parent.className.split(' ').join('.') : '');
+      out.push(phrase + '@' + label);
+    }
+    return out;
+  };
+  const measureForbidden = () => {
+    const body = forbiddenTexts(false);
+    const everything = forbiddenTexts(true);
+    return {
+      hits: FORBIDDEN.filter((phrase) => body.includes(phrase)),
+      exceptionHits: FORBIDDEN.filter((phrase) => everything.includes(phrase) && !body.includes(phrase)),
+      samples: violationSamples(),
+    };
+  };
+`;
+
+const READ_STATE =
+  FORBIDDEN_HELPERS +
+  `
   const listCard = document.querySelector('[data-testid="timetable-section"]');
   const notice = document.querySelector('[data-testid="offline-notice"]');
   const hint = document.querySelector('[data-testid="install-hint"]');
   const tabs = [...document.querySelectorAll('[data-testid="day-tabs"] [role="tab"]')];
   const selected = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
   const nextRow = document.querySelector('[data-testid="timetable-row"][data-next="true"]');
+  const forbidden = measureForbidden();
   return {
     hasApp: document.querySelector('.shuttle-app') !== null,
     hasCard: listCard !== null,
@@ -253,6 +317,9 @@ const READ_STATE = `
     selectedTab: selected?.id ?? null,
     offlineNotice: notice === null ? null : { source: notice.dataset.source ?? null, text: notice.textContent },
     installHint: hint === null ? null : { platform: hint.dataset.platform ?? null, text: hint.textContent },
+    forbiddenHits: forbidden.hits,
+    forbiddenExceptionHits: forbidden.exceptionHits,
+    forbiddenSamples: forbidden.samples,
     errorBanner: document.querySelector('[data-testid="data-error"]') !== null,
     swController: navigator.serviceWorker.controller !== null,
   };
@@ -371,7 +438,14 @@ async function main() {
     `day=${String(a.listDay)} rows=${String(a.rows)} json(그 요일)=${String(expectedRowsOf(String(a.listDay)))}`,
   );
   check('A.next-departure', '다음 출발 행이 강조되어 시각이 보인다', String(a.nextTime ?? '').length > 0, `next=${String(a.nextTime)}`);
-  check('A.ua-ios-hint', 'iPhone UA → 설치 안내가 iOS 문구("홈 화면에 추가")', a.installHint?.platform === 'ios' && String(a.installHint?.text ?? '').includes('홈 화면에 추가'), JSON.stringify(a.installHint?.platform));
+  // T31 §13-2 — 설치 안내 카드(홈 화면 추가 안내 + "한 번만 표시됩니다")를 지웠다.
+  // 검사 방향을 뒤집는다: 안내가 **떠야** 통과였던 옛 조건(A.ua-ios-hint) → **0건**이어야 통과.
+  check(
+    'A.no-install-hint',
+    '설치 안내 문구 0건(미설치·미닫음 iPhone 에서도 안내를 띄우지 않는다)',
+    a.installHint === null && a.forbiddenHits.length === 0,
+    `hint=${JSON.stringify(a.installHint)} 금지어=${JSON.stringify(a.forbiddenHits)} 샘플=${JSON.stringify(a.forbiddenSamples)} · §9-4 예외=${JSON.stringify(a.forbiddenExceptionHits)}`,
+  );
 
   const head = await evaluate(
     cdp,
@@ -547,10 +621,14 @@ async function main() {
   const standaloneReady = await waitFor(cdp2, READY, 25_000, 'C-standalone');
   const standalone = await evaluate(
     cdp2,
-    `const listCard = document.querySelector('[data-testid="timetable-section"]');
+    FORBIDDEN_HELPERS +
+      `
+     const listCard = document.querySelector('[data-testid="timetable-section"]');
+     const forbidden = measureForbidden();
      return {
        standalone: matchMedia('(display-mode: standalone)').matches,
        hint: document.querySelector('[data-testid="install-hint"]') === null ? null : document.querySelector('[data-testid="install-hint"]')?.dataset.platform ?? 'present',
+       forbiddenHits: forbidden.hits,
        hasApp: document.querySelector('.shuttle-app') !== null,
        listDay: listCard?.dataset.day ?? null,
        rows: listCard === null ? -1 : listCard.querySelectorAll('[data-testid="timetable-row"]').length,
@@ -563,7 +641,13 @@ async function main() {
     standalone.rows === expectedRowsOf(String(standalone.listDay)),
     `day=${String(standalone.listDay)} rows=${String(standalone.rows)} json=${String(expectedRowsOf(String(standalone.listDay)))}`,
   );
-  check('C.standalone-no-hint', '이미 설치(standalone) 상태면 설치 안내를 띄우지 않는다', standalone.hint === null, `hint=${JSON.stringify(standalone.hint)}`);
+  check(
+    'C.standalone-no-hint',
+    '이미 설치(standalone) 상태면 설치 안내 문구 0건',
+    standalone.hint === null && standalone.forbiddenHits.length === 0,
+    `hint=${JSON.stringify(standalone.hint)} 금지어=${JSON.stringify(standalone.forbiddenHits)}`,
+  );
+
   const standaloneShot = await capture(cdp2, 'T9-4-standalone-전체화면.png');
 
   /* ═════════ 요약 ═════════ */

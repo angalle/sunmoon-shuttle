@@ -16,16 +16,10 @@ import type { TimetableCachePort } from '../../../../ports/timetable_cache';
 import { IndexedDbTimetableCache } from '../../../out/storage/indexedDbTimetableCache';
 import { loadTimetableModel, type LoadedTimetable } from '../features/schedule/api/timetableApi';
 import { createWebClock, readInitialSelection } from '../features/schedule/data/urlParams';
-import {
-  dismissInstallHint,
-  installHintPlatform,
-  isStandaloneDisplay,
-  safeLocalStorage,
-  shouldShowInstallHint,
-} from '../features/schedule/api/installHintApi';
 import { readUiPrefs, writeUiPrefs, effectiveStoredDayType } from '../features/schedule/api/uiPrefsApi';
 import { createSchedulePage } from '../features/schedule/pages/SchedulePage';
 import { ScheduleStore } from '../features/schedule/store/scheduleStore';
+import { safeLocalStorage } from '../shared/lib/storage';
 import { registerServiceWorker } from './serviceWorker';
 
 /** 갱신 주기(ms) — 카드 지시: 60초 */
@@ -94,24 +88,13 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
       });
   };
 
-  // 설치 안내(T7) — 홈 화면 추가 안내는 **한 번만**, 이미 설치(standalone)면 띄우지 않는다.
-  // 브라우저 API(localStorage·matchMedia·UA)는 이 조립 지점에서만 읽어 페이지에는 값으로 넘긴다.
-  const installStorage = safeLocalStorage();
-  const installHintKind = shouldShowInstallHint(
-    isStandaloneDisplay((query) => window.matchMedia(query)),
-    installStorage,
-  )
-    ? installHintPlatform(window.navigator.userAgent)
-    : null;
+  // 설치 안내(T7)는 §13-2(2026-10-06 사용자 지시)로 **삭제**했다 — 브라우저 API(localStorage)는
+  // 화면 설정 저장(§11-1)에만 쓴다.
 
   const disposePage = createSchedulePage(root, store, {
     onRetry: reload,
     // 상단 바 새로고침(T24·T27) — 같은 로더를 다시 돌린다(스피너는 status='loading' 으로 표시된다).
     onRefresh: reload,
-    installHint: installHintKind,
-    onDismissInstallHint: () => {
-      dismissInstallHint(installStorage);
-    },
     // §11-1 상태 저장 — 페이지가 고른 요일·방향 필터를 그대로 저장한다(실패는 삼킨다).
     initialDirection: storedPrefs.direction ?? undefined,
     onViewPrefs: (prefs) => {

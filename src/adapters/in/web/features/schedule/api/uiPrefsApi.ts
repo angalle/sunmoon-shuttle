@@ -10,7 +10,7 @@
  */
 import { isDayType, type DayType } from '../../../../../../domain/entities/DayType';
 import { DIRECTION_FILTERS, type DirectionFilter } from '../store/selectors';
-import type { KeyValueStorage } from './installHintApi';
+import type { KeyValueStorage } from '../../../shared/lib/storage';
 
 /** 저장 키 — 접미사 `:v1` 은 값 형식이 바뀔 때 올린다(옛 값은 조용히 무시된다). */
 export const UI_PREFS_STORAGE_KEY = 'sunmoon-shuttle:ui-prefs:v1';

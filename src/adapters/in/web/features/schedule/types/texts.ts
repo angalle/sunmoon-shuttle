@@ -52,14 +52,8 @@ export const UI_TEXT = {
   /** 스켈레톤(로딩 자리) — 화면 낭독기용 안내(빈 화면 금지) */
   skeletonLabel: '시간표를 불러오는 중…',
 
-  /* 설치 안내(홈 화면 추가) — 카드 지시⑤: 과하지 않게 1회만 */
-  installHintTitle: '홈 화면에 추가하면 앱처럼 전체화면으로 열립니다',
-  installHintIos: 'Safari 하단의 공유 버튼 → “홈 화면에 추가”를 선택하세요.',
-  installHintAndroid: 'Chrome 오른쪽 위 ⋮ 메뉴 → “홈 화면에 추가”(앱 설치)를 선택하세요.',
-  installHintOther: '브라우저 메뉴에서 “홈 화면에 추가”(앱 설치)를 선택하세요.',
-  installHintEn: 'Add to Home Screen to open it fullscreen like an app.',
-  installHintNote: '이 안내는 한 번만 표시됩니다.',
-  installHintDismiss: '닫기',
+  /* 설치 안내(홈 화면 추가) 문구는 §13-2(2026-10-06 사용자 지시)로 **삭제**했다 —
+   * 본문은 값·상태만 두고, 설치 경로 설명은 화면에 두지 않는다(docs/07 §13). */
 
   /* ── T27 — 시간표 중심 단순화 (docs/07 §9) ──
    * 본문은 시간표 하나다: 잡텍스트(소개문구·히어로·변동·출처·요금 안내)는 정보 시트(ⓘ)로 옮긴다.

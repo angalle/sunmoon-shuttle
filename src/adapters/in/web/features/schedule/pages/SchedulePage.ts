@@ -66,19 +66,16 @@ import type { ScheduleState, ScheduleStore } from '../store/scheduleStore';
 import { UI_TEXT, FALLBACK_SOURCE_URL } from '../types/texts';
 import { dayTabs as dayTabsMolecule, dayTabId } from '../components/molecules/DayTabs';
 import { directionFilter } from '../components/molecules/DirectionFilter';
-import { installHint } from '../components/molecules/InstallHint';
 import { skeletonCards } from '../components/molecules/SkeletonCards';
 import { toast } from '../components/molecules/Toast';
 import { dailyTimetable } from '../components/organisms/DailyTimetable';
 import { dayNotice } from '../components/organisms/DayNotice';
 import { guideSheet } from '../components/organisms/GuideSheet';
 import { moveButtons } from '../components/molecules/MoveButtons';
-import type { InstallHintPlatform } from '../api/installHintApi';
 import { SPLASH_MAX_MS, decideSplash, splashFadeMs, type SplashHideReason } from '../data/splash';
 
 const TAB_ID_PREFIX = 'shuttle-day';
 const DAY_PANEL_ID = 'shuttle-day-panel';
-const INSTALL_HEADING_ID = 'shuttle-install-heading';
 const LIST_HEADING_ID = 'shuttle-timetable-heading';
 const GUIDE_HEADING_ID = 'shuttle-guide-heading';
 const GUIDE_NOTICE_HEADING_ID = 'shuttle-guide-notice-heading';
@@ -144,9 +141,6 @@ export interface SchedulePageOptions {
   readonly onRetry: () => void;
   /** 상단 바 새로고침(수동 갱신) — 재로딩은 app/mount.ts 가 소유한다. */
   readonly onRefresh: () => void;
-  /** 설치 안내에 쓸 플랫폼 문구 — null 이면 안내를 띄우지 않는다(이미 설치됨·닫음). */
-  readonly installHint: InstallHintPlatform | null;
-  readonly onDismissInstallHint: () => void;
   /**
    * 저장된 방향 필터(§11-1 상태 저장) — 없으면 `전체`.
    * 저장소 읽기/쓰기는 조립 지점(app/mount.ts)이 맡고 페이지는 값만 받는다.
@@ -174,7 +168,6 @@ export function createSchedulePage(
   const tabsHost = host('tabs-host');
   const filterHost = host('filter-host');
   const listHost = host('list-host');
-  const installHost = host('install-host');
   const sheetHost = host('sheet-host');
   /** 하단 안내(토스트) 자리 — 이동 버튼 **위쪽**에 뜬다(§11-2). 여는 책임은 페이지, 배치는 CSS. */
   const toastHost = host('toast-host');
@@ -249,7 +242,7 @@ export function createSchedulePage(
   replaceChildren(root, [appNode]);
 
   // 본문은 **시간표 하나**다 — 요일·필터는 위 고정 영역이 맡는다(§9-1 · §11-1).
-  replaceChildren(scroller, [dayPanel, installHost]);
+  replaceChildren(scroller, [dayPanel]);
   replaceChildren(dayPanel, [listHost]);
 
 
@@ -576,26 +569,6 @@ export function createSchedulePage(
   const persistViewPrefs = (dayType: DayType, direction: DirectionFilter): void => {
     options.onViewPrefs?.({ dayType, direction, date: dayKey(store.getState().nowMs) });
   };
-
-  /** 설치 안내(T7) — 표시 여부는 페이지가 지역 상태로 갖는다(1회 표시는 저장소가 판단). */
-  let installVisible = options.installHint !== null;
-  const renderInstall = (): void => {
-    const platform = options.installHint;
-    replaceChildren(installHost, [
-      platform === null || !installVisible
-        ? null
-        : installHint({
-            platform,
-            headingId: INSTALL_HEADING_ID,
-            onDismiss: () => {
-              installVisible = false;
-              options.onDismissInstallHint();
-              renderInstall();
-            },
-          }),
-    ]);
-  };
-  renderInstall();
 
   /**
    * 재렌더로 포커스를 잃지 않게 한다 — 방향 칩은 키보드 사용자의 현재 위치다.

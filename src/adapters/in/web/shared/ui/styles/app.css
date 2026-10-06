@@ -799,51 +799,6 @@ body {
   }
 }
 
-/* ───────────────────────── 설치 안내 (T7) ───────────────────────── */
-
-/*
- * 홈 화면 추가 안내 — 카드 지시⑤: 과하지 않게, 1회.
- * 정보 톤(info 토큰)만 쓰고 모서리·간격도 토큰에서 온다(다크모드 자동 대응).
- */
-.shuttle-install {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-info-border);
-  border-left-width: 4px;
-  border-radius: var(--radius-md);
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
-}
-
-.shuttle-install__title {
-  margin: 0;
-  font-size: var(--font-size-md);
-}
-
-.shuttle-install__body {
-  margin: 0;
-}
-
-.shuttle-install__en {
-  margin: 0;
-  font-size: var(--font-size-sm);
-}
-
-.shuttle-install__note {
-  margin: 0;
-  font-size: var(--font-size-sm);
-}
-
-/* 닫기도 터치 타깃 48px 규칙을 따른다(버튼 원자의 공통 규칙 + 여기서는 대비 보정). */
-.shuttle-install .shuttle-button {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border-color: var(--color-info-border);
-}
-
 /* ───────────────────────── V1 간편 홈 (T12) ───────────────────────── */
 /* 값은 전부 토큰(`var(--...)`)만 쓴다 — 하드코딩 색·간격 금지(검수 grep ③). */
 

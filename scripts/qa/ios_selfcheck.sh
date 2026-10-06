@@ -54,8 +54,6 @@ seed_sandbox() {
   cp "$ROOT/src/adapters/in/web/shared/ui/styles/"*.css "$SB/src/adapters/in/web/shared/ui/styles/"
   cp "$ROOT/src/adapters/in/web/app/serviceWorker.ts" "$SB/src/adapters/in/web/app/"
   cp "$ROOT/src/adapters/out/storage/indexedDbTimetableCache.ts" "$SB/src/adapters/out/storage/"
-  mkdir -p "$SB/src/adapters/in/web/features/schedule/api"
-  cp "$ROOT/src/adapters/in/web/features/schedule/api/installHintApi.ts" "$SB/src/adapters/in/web/features/schedule/api/" 2>/dev/null || true
 }
 
 # ── 기대 판정 실행 ────────────────────────────────────────────────────────────────

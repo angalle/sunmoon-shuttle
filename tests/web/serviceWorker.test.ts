@@ -102,7 +102,8 @@ describe('앱 코드는 원본 서버로 요청하지 않는다(표시용 링크
   it('src/ 안에 절대 URL fetch 호출이 없다', () => {
     const files = [
       'src/adapters/in/web/features/schedule/api/timetableApi.ts',
-      'src/adapters/in/web/features/schedule/api/installHintApi.ts',
+      'src/adapters/in/web/features/schedule/api/uiPrefsApi.ts',
+      'src/adapters/in/web/shared/lib/storage.ts',
       'src/adapters/in/web/app/mount.ts',
     ].filter((relative) => existsSync(join(ROOT, relative)));
     const offenders = files.filter((relative) =>

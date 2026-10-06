@@ -13,13 +13,15 @@
  *   ④ `prefers-color-scheme` 반영 실측(토큰 값과 계산값 일치) + 라이트/다크 **스크린샷 각 1장**
  *   ⑤ 전체화면(standalone) 실측 — `--app=` 모드에서 matchMedia(display-mode) 확인 + 스크린샷
  *   ⑥ 안전영역(safe-area) 대응 — `Emulation.setSafeAreaInsets` 로 노치·홈 인디케이터를 주입해 여백 확인
- *   ⑦ 설치 안내 1회 표시 — 닫기 → localStorage 표시 → 새로고침 후 **다시 안 뜸**
+ *   ⑦ 설치 안내 **문구 0건**(T31 · docs/07 §13-2 — 옛 "설치 안내 1회 표시" 검사를 뒤집었다) +
+ *      **본문 텍스트 노드 전수 목록**(문자열·위치·크기 덤프, §13-1 의 값·상태·라벨 5종 밖 0건)
  *   ⑧ 개인정보처리방침 정적 페이지(T11) — 푸터 링크(./privacy.html) → HTTP 200 · 필수 문구 5종 ·
  *      실제 렌더 대비 실측(같은 WCAG 4.5/3.0) · 가로 스크롤 없음 · 스크린샷
  *
  * 산출물
  *   .session-notes/T7-light.png / T7-dark.png / T7-standalone.png / T11-privacy.png
  *   .session-notes/T7-a11y-report.md  (원출력 표 — 증거 문서에 그대로 인용한다)
+ *   .session-notes/T31-본문텍스트노드.md (T31 §13-3 — 본문 텍스트 노드 전수 목록)
  *
  * 사용: node scripts/a11y_smoke.mjs  [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
  * 종료코드: 검사 하나라도 실패하면 1.
@@ -36,6 +38,8 @@ const DIST = join(ROOT, 'dist');
 const DATA_FILE = join(ROOT, 'data', 'timetable.json');
 const SHOT_DIR = join(ROOT, '.session-notes');
 const REPORT = join(SHOT_DIR, 'T7-a11y-report.md');
+/** T31 §13-3 — 본문 텍스트 노드 전수 목록(문자열·위치·크기). 증거 문서에 그대로 인용한다. */
+const TEXT_NODES_REPORT = join(SHOT_DIR, 'T31-본문텍스트노드.md');
 
 const args = new Map(
   process.argv.slice(2).map((arg) => {
@@ -264,6 +268,85 @@ const CONTRAST_PROBE = contrastProbe('.shuttle-app');
 /** 개인정보처리방침 페이지(.privacy-page) 대비 실측 — T11. 같은 WCAG·같은 임계값(4.5/3.0)을 쓴다. */
 const PRIVACY_CONTRAST_PROBE = contrastProbe('.privacy-page');
 
+/**
+ * 본문 텍스트 노드 **전수 목록**(T31 · docs/07 §13-3, AC-U13-2) — 문자열 + 위치 + 폰트 크기.
+ *
+ * 같이 재는 것:
+ *  · `forbiddenHits` — §13-4 AC-U13-1 의 금지 문자열 5종(설치 안내·메타 문구의 흔적) 실측 카운트
+ *  · `allowed` — 이 노드가 §13-1 의 **값·상태·컨트롤 라벨**이 사는 구역(허용 클래스) 안에 있는지.
+ *    `false` 는 "값도 상태도 아닌 설명문이 본문에 섞였다"는 뜻이라 0건이어야 한다.
+ *  정보 시트(ⓘ)·상단 1줄 상태 안내(§9-4 예외)·오류/오프라인 얇은 줄은 문서가 예외로 둔 구역이다.
+ */
+const TEXT_NODES_PROBE = `
+  const forbidden = ['홈 화면', '전체화면', '한 번만', '하세요', '합니다'];
+  const ALLOWED = [
+    '.shuttle-appbar__clock',
+    '.shuttle-button',
+    '.shuttle-tab',
+    '.shuttle-chip',
+    '.shuttle-departure__time',
+    '.shuttle-departure__route',
+    '.shuttle-departure__dir',
+    '.shuttle-departure__token',
+    '.shuttle-strip__line',
+    '.shuttle-banner',
+    '.shuttle-toast',
+    '.shuttle-sheet',
+    '.shuttle-skip-link',
+    '.shuttle-table-scroll',
+  ];
+  /**
+   * §9-4 예외 구역 — 상단 1줄 상태 안내(운행 없음·대체 시간표)와 오류·오프라인 얇은 줄.
+   * 이 줄들은 T27 §9-4 가 "반드시 남긴다"고 정한 **상태** 표시라 문구가 고정 계약이다
+   * (v1·render·offline 스모크가 그 문구를 그대로 검사한다). 금지 문자열 판정에서 분리해 **별도 집계**한다.
+   */
+  const EXCEPTION = '.shuttle-strip__line,.shuttle-banner';
+  const allowedSelector = ALLOWED.join(',');
+  const rows = [];
+  for (const node of document.querySelectorAll('.shuttle-app *')) {
+    const own = [...node.childNodes]
+      .filter((child) => child.nodeType === 3)
+      .map((child) => child.textContent.trim())
+      .join(' ')
+      .trim();
+    if (own === '') continue;
+    if (node.closest('.shuttle-sr-only') !== null) continue;
+    const style = getComputedStyle(node);
+    if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) continue;
+    const rect = node.getBoundingClientRect();
+    if (rect.width <= 2 || rect.height <= 2) continue;
+    const className = typeof node.className === 'string' && node.className !== '' ? '.' + node.className.split(' ').join('.') : '';
+    const zone = node.closest(EXCEPTION) !== null ? 'exception' : node.closest(allowedSelector) !== null ? 'value' : 'outside';
+    rows.push({
+      label: node.tagName.toLowerCase() + className,
+      text: own,
+      x: Math.round(rect.left),
+      y: Math.round(rect.top),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+      fontSize: parseFloat(style.fontSize),
+      zone,
+    });
+  }
+  /** 어떤 구역의 문자열에서 금지 문자열이 나왔는지 구역별로 따로 센다. */
+  const hitsIn = (zone) => {
+    const baggage = rows.filter((row) => row.zone === zone).map((row) => row.text);
+    return forbidden.filter((phrase) => baggage.some((text) => text.includes(phrase)));
+  };
+  const violations = (() => {
+    const baggage = rows.filter((row) => row.zone !== 'exception').map((row) => row.text);
+    return forbidden.filter((phrase) => baggage.some((text) => text.includes(phrase)));
+  })();
+  return {
+    rows,
+    /** §13-4 AC-U13-1 실측 — 값·상태·라벨 구역(§9-4 예외 제외)에서 0건이어야 한다. */
+    forbiddenViolations: violations,
+    /** §9-4 예외 구역(상태 1줄)에서 나온 금지 문자열 — 문서가 남긴 예외라 위반이 아니다(별도 표기). */
+    forbiddenExceptions: hitsIn('exception'),
+    installHintNode: document.querySelector('[data-testid="install-hint"]') !== null,
+  };
+`;
+
 /** 포커스 가능한 요소의 터치 타깃 크기 측정. */
 const TARGET_PROBE = `
   const selector = '.shuttle-app a[href], .shuttle-app button, .shuttle-app summary, .shuttle-app [role="tab"], .shuttle-app [tabindex]:not([tabindex="-1"])';
@@ -482,7 +565,7 @@ async function main() {
           canScrollHorizontally: after > 0,
           scrollLeftAfter: after,
           elements: document.querySelectorAll('.shuttle-app *').length,
-          installHint: document.querySelector('[data-testid="install-hint"]') !== null,
+          installHintNode: document.querySelector('[data-testid="install-hint"]') !== null,
           bodyBackground: getComputedStyle(document.body).backgroundColor,
           bodyColor: getComputedStyle(document.body).color,
           offenders: offenders.slice(0, 8),
@@ -548,38 +631,72 @@ async function main() {
     const focusShot = await capture('T7-focus-skip-link.png');
     report.push(`\n#### 키보드 포커스(실측)\n- activeElement: ${focusState.tag}${focusState.className === null ? '' : `.${focusState.className}`}\n- outline: ${String(focusState.outlineStyle)} ${String(focusState.outlineWidth)} ${String(focusState.outlineColor)}\n`);
 
-    // ── ⑦ 설치 안내 1회 표시 ────────────────────────────────────────
-    const hint = await evaluate(`
-      const node = document.querySelector('[data-testid="install-hint"]');
-      if (node === null) return null;
-      const dismiss = document.querySelector('[data-testid="install-hint-dismiss"]');
-      const rect = dismiss === null ? null : dismiss.getBoundingClientRect();
-      return {
-        platform: node.dataset.platform,
-        heading: node.querySelector('h2')?.textContent ?? null,
-        lang: node.querySelector('[lang="en"]')?.getAttribute('lang') ?? null,
-        dismissLabel: dismiss === null ? null : dismiss.textContent,
-        dismissWidth: rect === null ? 0 : Math.round(rect.width),
-        dismissHeight: rect === null ? 0 : Math.round(rect.height),
-      };
-    `);
-    check('설치 안내 표시(미설치·미닫음)', hint !== null, JSON.stringify(hint));
-    if (hint !== null) {
-      check('설치 안내에 한/영 문구가 함께 있다(lang="en")', hint.lang === 'en', `lang=${String(hint.lang)}`);
-      check('설치 안내 닫기 버튼 ≥48×48', hint.dismissWidth >= 48 && hint.dismissHeight >= 48, `${String(hint.dismissWidth)}x${String(hint.dismissHeight)}`);
-      report.push(`\n### ⑤ 설치 안내(1회 표시)\n- platform=${String(hint.platform)} · heading=${String(hint.heading)} · en lang=${String(hint.lang)}\n- 닫기 버튼: "${String(hint.dismissLabel)}" ${String(hint.dismissWidth)}x${String(hint.dismissHeight)}px\n`);
-      await evaluate(`document.querySelector('[data-testid="install-hint-dismiss"]').click(); return true;`);
-      await delay(200);
-      const afterDismiss = await evaluate(`
-        return {
-          hintGone: document.querySelector('[data-testid="install-hint"]') === null,
-          stored: window.localStorage.getItem('sunmoon-shuttle:install-hint-dismissed:v1'),
-        };
-      `);
-      check('닫기 → 안내 사라짐', afterDismiss.hintGone === true, `hintGone=${String(afterDismiss.hintGone)}`);
-      check('닫기 → localStorage 에 1회 표시 기록', afterDismiss.stored === 'yes', `stored=${String(afterDismiss.stored)}`);
-      report.push(`- 닫기 결과: hintGone=${String(afterDismiss.hintGone)} · localStorage=${String(afterDismiss.stored)}\n`);
-    }
+    // ── ⑦ 설치 안내 문구 0건 + 본문 텍스트 노드 전수 목록 (T31 · docs/07 §13) ─────
+    // 옛 검사는 "설치 안내가 1회 뜨고, 닫으면 다시 안 뜬다"였다. §13-2(사용자 지시)로 안내를 **삭제**했으므로
+    // 검사 방향을 뒤집는다 — **0건이어야 통과**(AC-U13-4 와 같은 반전).
+    const textDump = await evaluate(TEXT_NODES_PROBE);
+    const zoneLabel = (zone) => (zone === 'value' ? '값·상태·라벨' : zone === 'exception' ? '§9-4 예외(상태 1줄)' : '**허용 구역 밖**');
+    check(
+      '설치 안내 노드 0건(§13-2 — 컴포넌트·판정 API 삭제)',
+      textDump.installHintNode === false,
+      `install-hint=${String(textDump.installHintNode)}`,
+    );
+    check(
+      '본문 금지 문자열 0건(홈 화면·전체화면·한 번만·하세요·합니다) — AC-U13-1 실측',
+      textDump.forbiddenViolations.length === 0,
+      textDump.forbiddenViolations.join(' | '),
+    );
+    const outside = textDump.rows.filter((row) => row.zone === 'outside');
+    check(
+      `본문 텍스트 노드 허용 구역(값·상태·컨트롤 라벨) 밖 0건 (노드 ${String(textDump.rows.length)}개 실측)`,
+      outside.length === 0,
+      outside.map((row) => `${row.label} "${row.text}" @${String(row.x)},${String(row.y)}`).join(' | '),
+    );
+    // §9-4 예외 구역(상태 1줄)은 문서가 남긴 고정 문구다 — 위반이 아니라 **별도 집계**로 보고한다.
+    note(
+      `§9-4 예외 구역(상단 상태 1줄·오류/오프라인 배너)의 금지 문자열: ${textDump.forbiddenExceptions.length === 0 ? '0건' : textDump.forbiddenExceptions.join(', ')}`,
+    );
+    // §13-3 — 전수 목록을 **문서로 제출**한다(문자열 + 위치 + 폰트 크기).
+    const dumpLines = [
+      '# T31 본문 텍스트 노드 전수 목록 (docs/07 §13-3 · AC-U13-2)',
+      '',
+      `- 일시: ${new Date().toISOString()}`,
+      `- URL: ${url}`,
+      '- 뷰포트: 390×844 @2x (mobile, touch) · 라이트 모드 · 미설치 상태(설치 안내 없음)',
+      `- 노드 수: ${String(textDump.rows.length)}개 · 금지 문자열 실측: ${textDump.forbiddenViolations.length === 0 ? '0건' : textDump.forbiddenViolations.join(', ')}`,
+      `- §9-4 예외 구역(상단 상태 1줄·오류/오프라인 배너)에서 나온 금지 문자열: ${textDump.forbiddenExceptions.length === 0 ? '0건' : textDump.forbiddenExceptions.join(', ')} (문서가 남긴 고정 문구 — v1·render·offline 스모크가 그대로 검사한다)`,
+      `- 허용 구역 밖(설명문 의심): ${outside.length === 0 ? '0건' : `${String(outside.length)}건`}`,
+      '',
+      '| # | 요소 | 문자열 | 위치(x,y) | 크기(w×h) | 폰트(px) | 구분 |',
+      '|---|---|---|---|---|---|---|',
+      ...textDump.rows.map(
+        (row, index) =>
+          `| ${String(index + 1)} | ${row.label} | ${row.text.replace(/\|/g, '\\|')} | ${String(row.x)},${String(row.y)} | ${String(row.width)}×${String(row.height)} | ${String(row.fontSize)} | ${zoneLabel(row.zone)} |`,
+      ),
+      '',
+      '## 구분 기준 (§13-1 — 본문 텍스트는 다음 5종만)',
+      '① 시각 ② 노선·도착지 ③ 편수 ④ 조건 토큰 ⑤ 컨트롤 라벨(아이콘 라벨)',
+      '',
+      '허용 구역 클래스',
+      '- `.shuttle-appbar__clock` — 날짜·시각(①)',
+      '- `.shuttle-departure__time`/`__route`/`__dir`/`__token` — 시각·노선·도착지·조건 토큰(①②③④)',
+      '- `.shuttle-tab`/`.shuttle-chip`/`.shuttle-button` — 컨트롤 라벨·편수(③⑤)',
+      '- `.shuttle-strip__line`/`.shuttle-banner` — §9-4 예외: 상단 1줄 상태 안내(운행 없음·대체 시간표·오프라인·오류)',
+      '- `.shuttle-toast` — 하단 안내(§11-2, 사용자가 `현재 시간으로` 를 눌렀을 때만)',
+      '- `.shuttle-sheet` — 정보 시트(ⓘ). §13-1 이 예외로 둔 구역(출처·요금·정차창·갱신 시각)',
+      '- `.shuttle-table-scroll` — 표 계약(T14 이후 미사용)',
+      '',
+      '제외: `shuttle-sr-only`(낭독기 전용) · 표시되지 않는 노드(display:none/visibility:hidden/opacity:0) · 2px 이하',
+    ];
+    writeFileSync(TEXT_NODES_REPORT, dumpLines.join('\n'));
+    report.push(
+      `\n### 설치 안내 삭제 + 본문 텍스트 노드 전수 목록(T31 · docs/07 §13)\n- 설치 안내 노드: ${String(textDump.installHintNode)} · 금지 문자열 실측(값·상태·라벨 구역): ${textDump.forbiddenViolations.length === 0 ? '0건' : textDump.forbiddenViolations.join(', ')}\n- §9-4 예외 구역(상태 1줄): ${textDump.forbiddenExceptions.length === 0 ? '0건' : textDump.forbiddenExceptions.join(', ')}\n- 본문 텍스트 노드 ${String(textDump.rows.length)}개 · 허용 구역 밖 ${String(outside.length)}건\n- 전수 목록(문자열·위치·크기): ${TEXT_NODES_REPORT.slice(ROOT.length)}\n\n| 요소 | 문자열 | 위치(x,y) | 크기(w×h) | 폰트(px) | 구분 |\n|---|---|---|---|---|---|\n${textDump.rows
+        .map(
+          (row) =>
+            `| ${row.label} | ${row.text.replace(/\|/g, '\\|')} | ${String(row.x)},${String(row.y)} | ${String(row.width)}×${String(row.height)} | ${String(row.fontSize)} | ${zoneLabel(row.zone)} |`,
+        )
+        .join('\n')}\n`,
+    );
 
     // ── ④ 다크 모드 실측(새로고침 후) ───────────────────────────────
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'dark' }] });
@@ -593,8 +710,12 @@ async function main() {
     check('다크 모드에서도 앱 렌더', darkReady);
     const darkTokens = await auditTheme('dark');
     check('다크 토큰이 라이트와 실제로 다르다', darkTokens.colorBg !== lightTokens.colorBg && darkTokens.colorText !== lightTokens.colorText, `light bg=${lightTokens.colorBg} text=${lightTokens.colorText} / dark bg=${darkTokens.colorBg} text=${darkTokens.colorText}`);
-    const hintAfterReload = await evaluate(`return document.querySelector('[data-testid="install-hint"]') !== null;`);
-    check('새로고침 후 설치 안내가 다시 뜨지 않는다(1회)', hintAfterReload === false, `hintPresent=${String(hintAfterReload)}`);
+    const darkDump = await evaluate(TEXT_NODES_PROBE);
+    check(
+      '새로고침 후에도 설치 안내 문구 0건(§13-2) — 다크 모드 재실측',
+      darkDump.installHintNode === false && darkDump.forbiddenViolations.length === 0,
+      `hint=${String(darkDump.installHintNode)} 위반=${JSON.stringify(darkDump.forbiddenViolations)} §9-4 예외=${JSON.stringify(darkDump.forbiddenExceptions)}`,
+    );
     const darkShot = await capture('T7-dark.png');
 
     // ── ⑥ 안전영역(노치·홈 인디케이터) 주입 ──────────────────────────
@@ -665,9 +786,14 @@ async function main() {
         const standaloneState = await evaluate(TOKEN_PROBE);
         check('--app= 모드에서 앱 렌더', appReady);
         check('display-mode: standalone 실측', standaloneState.standalone === true, `standalone=${String(standaloneState.standalone)}`);
-        check('standalone 에서 설치 안내가 뜨지 않는다(이미 설치)', (await evaluate(`return document.querySelector('[data-testid="install-hint"]') !== null;`)) === false);
+        const standaloneDump = await evaluate(TEXT_NODES_PROBE);
+        check(
+          'standalone 에서도 설치 안내 문구 0건(§13-2)',
+          standaloneDump.installHintNode === false && standaloneDump.forbiddenViolations.length === 0,
+          `hint=${String(standaloneDump.installHintNode)} 위반=${JSON.stringify(standaloneDump.forbiddenViolations)}`,
+        );
         const standaloneShot = await capture('T7-standalone.png');
-        report.push(`\n### ⑦ 전체화면(standalone, --app= 모드)\n- matchMedia('(display-mode: standalone)') = ${String(standaloneState.standalone)}\n- 설치 안내 미표시(이미 설치 상태)\n- 스크린샷: ${standaloneShot}\n`);
+        report.push(`\n### ⑦ 전체화면(standalone, --app= 모드)\n- matchMedia('(display-mode: standalone)') = ${String(standaloneState.standalone)}\n- 설치 안내 문구 0건(§13-2 로 삭제 — 옛 "이미 설치 상태라 미표시" 조건이 아니다)\n- 스크린샷: ${standaloneShot}\n`);
       }
     } else {
       const standaloneShot = await capture('T7-standalone.png');
