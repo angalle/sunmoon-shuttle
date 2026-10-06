@@ -77,7 +77,7 @@
 | **T16 AI 보강 추출 파이프라인** — 날짜 동적 파라미터 갭 6종 구조화 + 스키마 v2 + 인용검증·폴백 | `t_72e33f3a` | apiprojectcreator | **발행(ready)** — `docs/01` 부록 A 파이프라인/갭표, `docs/00` AC-A1~A4 |
 | **T17 스키마 v2 표시** — 다가오는 운행없음/대체 시간표·방향별 소요시간·정차창·방학 안내 | `t_c3375494` | frontendprojectcreator | todo(부모 T16) |
 
-| **T18 🚨 회귀 수정** — 수집 실패 시 캐시 폴백 복구 + 만료 캐시 안내 | `t_74a9348b` | frontendprojectcreator | **발행(ready·최우선 P12)** — `verify:offline` FAIL 5건(총괄 실측). 수정 후 exit 0 + 회귀 스모크 4종 PASS 필요. **이것이 풀리기 전 push·P3 판정 보류** |
+| **T18 🚨 회귀 수정** — 수집 실패 시 캐시 폴백 복구 + 만료 캐시 안내 | `t_74a9348b` | frontendprojectcreator | **완료(done)** — `verify:offline` FAIL 5건(총괄 실측). 수정 후 exit 0 + 회귀 스모크 4종 PASS 필요. **회귀 닫힘**(원인=캐시 스키마 게이트 v1 고정 → 지원목록 v1·v2) — verify:offline PASS·334 tests. **push 대기 중** |
 
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
