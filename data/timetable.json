@@ -1307,7 +1307,8 @@
           "confidence": 1,
           "needsReview": false
         }
-      ]
+      ],
+      "routeNotes": []
     },
     {
       "id": "cheonan-station",
@@ -2484,7 +2485,8 @@
           "confidence": 1,
           "needsReview": false
         }
-      ]
+      ],
+      "routeNotes": []
     },
     {
       "id": "cheonan-terminal",
@@ -3890,7 +3892,8 @@
           "confidence": 1,
           "needsReview": false
         }
-      ]
+      ],
+      "routeNotes": []
     },
     {
       "id": "onyang",
@@ -4160,7 +4163,8 @@
           "confidence": 1,
           "needsReview": false
         }
-      ]
+      ],
+      "routeNotes": []
     },
     {
       "id": "cheonan-campus",
@@ -4193,27 +4197,16 @@
         "sunday"
       ],
       "tripNotes": [],
-      "stopWindows": []
+      "stopWindows": [],
+      "routeNotes": [
+        {
+          "quote": "천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)",
+          "note": "운행 중단(폐지) 노선 — 날짜 규칙(dateRules)이 아니라 routes[].status·routeNotes 로 표현한다(docs/06 §8-1)"
+        }
+      ]
     }
   ],
   "dateRules": [
-    {
-      "sourceQuote": "천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)",
-      "sourcePage": "data/raw/2026-2학기-cheonan-campus-평일.html",
-      "extractedBy": "ai",
-      "confidence": 0.9,
-      "dayTypes": [],
-      "kind": "no-service",
-      "start": "2024-09-01",
-      "end": null,
-      "yearInferred": false,
-      "scope": [],
-      "effect": {
-        "appliesTo": "all-routes"
-      },
-      "note": "천안캠퍼스 노선 운행 중단",
-      "needsReview": false
-    },
     {
       "kind": "route-change",
       "start": "2026-09-01",
@@ -4621,8 +4614,8 @@
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx",
     "sourceUpdatedAt": "2026-08-20",
-    "fetchedAt": "2026-10-06T12:54:39+09:00",
-    "contentHash": "sha256:7455f715e7fb53c22faa4bd013aaf28fa0e06217f59647f31dfd49257424c057",
+    "fetchedAt": "2026-10-06T13:30:00+09:00",
+    "contentHash": "sha256:e0952e99ade9e3800e3b1a0c4ccb386596ee1b98b8990174e90e34caaf3b5729",
     "pages": [
       {
         "routeId": "asan-ktx",
@@ -4699,20 +4692,20 @@
       ],
       "model": "deepseek-v4-flash",
       "provider": "api",
-      "promptTemplateSha256": "sha256:e86a2f83c952acff25e7ea60fbd38fe22a90059c750a98c660a6918f58a44a27",
-      "promptChars": 1804,
+      "promptTemplateSha256": "sha256:56f3dc0016a06000f9590ad98aab7d3f9cc28c9c3f57efed11df275cb0aa7c06",
+      "promptChars": 2024,
       "aiStatus": "ok",
       "aiError": null,
       "calls": 2,
       "truncated": 0,
-      "promptTokens": 1230,
-      "completionTokens": 1248,
-      "totalTokens": 2478,
+      "promptTokens": 1450,
+      "completionTokens": 1044,
+      "totalTokens": 2494,
       "fallbackReason": null,
       "candidates": 25,
       "ruleEntries": 11,
-      "aiDrafts": 16,
-      "aiAccepted": 1,
+      "aiDrafts": 15,
+      "aiAccepted": 0,
       "aiDropped": 5,
       "aiRepairs": 2,
       "aiConflicts": 10,
