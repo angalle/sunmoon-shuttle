@@ -1,24 +1,24 @@
 {
-  "generatedAt": "2026-10-06T00:53:48.442Z",
+  "generatedAt": "2026-10-06T03:47:58.215Z",
   "schemaVersion": 3,
   "termPages": [
     "data/raw/terms/2026-2학기-방학.html"
   ],
-  "model": "lfm2.5:latest",
-  "provider": "rule-only",
+  "model": "deepseek-v4-flash",
+  "provider": "api",
   "fallbackReason": null,
-  "aiMode": "off",
-  "calls": 0,
+  "aiMode": "api",
+  "calls": 2,
   "truncated": 0,
-  "promptTokens": 0,
-  "completionTokens": 0,
-  "totalTokens": 0,
+  "promptTokens": 1230,
+  "completionTokens": 1259,
+  "totalTokens": 2489,
   "promptTemplateSha256": "sha256:e86a2f83c952acff25e7ea60fbd38fe22a90059c750a98c660a6918f58a44a27",
   "promptChars": 1804,
-  "aiStatus": "disabled",
+  "aiStatus": "ok",
   "aiError": null,
-  "durationMs": 47,
-  "aiDurationMs": 0,
+  "durationMs": 41777,
+  "aiDurationMs": 41710,
   "files": [
     "data/raw/2026-2학기-asan-ktx-일요일.html",
     "data/raw/2026-2학기-asan-ktx-토요일.html",
@@ -35,27 +35,22 @@
   "candidates": 25,
   "candidatesRejected": 0,
   "ruleEntries": 11,
-  "aiDrafts": 0,
-  "aiAccepted": 0,
-  "aiDropped": 0,
-  "aiRepairs": 0,
-  "aiConflicts": 0,
+  "aiDrafts": 16,
+  "aiAccepted": 2,
+  "aiDropped": 3,
+  "aiRepairs": 2,
+  "aiConflicts": 10,
   "needsReview": 1,
   "dedupedNotices": 1,
   "fatalIssues": [
     {
-      "where": "source.contentHash",
-      "message": "재계산 해시와 다릅니다 — 기대 sha256:bfd5d485598f8643dfbb8fb438b259aae68194027d2bf0b83effee6da2202599, 실제 sha256:d7594388e115a32172cef8aa9264fc062c77ba05873e044b1e95e5aabd9ef7f0",
-      "fatal": true
-    },
-    {
-      "where": "dateRules[9](no-service)",
-      "message": "인용 검증 실패 — 원본 스냅샷 어디에도 없는 문장이다: \"원본에 없는 위조 문장: 셔틀버스 운행 없음\"",
+      "where": "terms[1](semester)",
+      "message": "같은 term 이 중복입니다",
       "fatal": true
     }
   ],
   "reviewReasons": [],
   "output": null,
   "dryRun": false,
-  "noAi": true
+  "noAi": false
 }

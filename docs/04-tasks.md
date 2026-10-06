@@ -85,6 +85,10 @@
 | **T21 스키마 v3 (편별 요일 조건 구조화)** — `금(X)` 59행→`excludedDays:["fri"]`·`월~화 2대`→`dayScope`·`0:15`→`durationMinutes`·방학 기간 수집·게이트 목록화 | `t_6e8253fc` | apiprojectcreator | **완료(done)** — v3 발행(금(X) 59/59 매핑·note 잔존 0)·게이트 [1,2,3]·401 tests·스모크 4종 PASS |
 | **T22 앱 판정·표시** — `tripStatus`(오늘 운행 편만)·사유 배지·`약 N분 소요`·방학 배너 + 금요일 스크린샷 | `t_88a65081` | frontendprojectcreator | **완료(done)** — 금요일 115→55편(감소 60=미운행 60 일치)·사유 배지·약 N분 소요·450 tests·스모크 PASS |
 
+| **T23 🚨 AI 경로 발행 중단 수정** — 중복 term/dateRules 는 병합·폐기(치명 아님) + 실 DeepSeek 1회 end-to-end 발행 성공 | `t_6801878b` | apiprojectcreator | **발행(ready)** — 총괄이 실 DeepSeek 키로 실행해 발견(중복 term → 치명 → 발행 중단). 환각 폐기·발행중단은 정상 작동 확인 |
+| **T24 모바일 앱 셸·스플래시** — 스플래시·하단 탭(지금/전체)·스켈레톤·앱바·safe-area + 화면 분리 | `t_fc242158` | frontendprojectcreator | **발행(ready·최우선 P13)** — 계약 `docs/07-mobile-ux.md`, AC-U1~U7 |
+| **T25 네이티브 스플래시·아이콘 정합** — Capacitor 스플래시/상태바/아이콘 + AAB 재빌드·서명검증·에뮬 스모크 | `t_f5832339` | infraprojectcreator | todo(부모 T24) |
+
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
 - **배포 주의**: 최신 배포본은 T5 시점(run `37270216029`, 커밋 `0ab0501`) — T6~T9(오프라인·PWA·접근성)는 **아직 미배포**. `main` 은 origin 보다 **12커밋 앞**이며 push(=배포 트리거)는 **사용자 승인 사안**.
