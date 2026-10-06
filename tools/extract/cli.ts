@@ -219,6 +219,8 @@ interface RunRecord {
   aiDrafts: number;
   aiAccepted: number;
   aiDropped: number;
+  /** T23: 중복이라 규칙 항목에 병합한 AI 초안 수(폐기와 별개 집계) */
+  aiMerged: number;
   aiRepairs: number;
   aiConflicts: number;
   needsReview: number;
@@ -332,6 +334,12 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   });
   for (const drop of merged.dropped) {
     deps.log(`[extract] ⚠️ AI 초안 버림 — ${drop.reason}: "${drop.quote.slice(0, 60)}"`);
+  }
+  for (const merge of merged.merged) {
+    deps.log(`[extract] ⚠️ AI 초안 병합(중복) — ${merge.reason}: "${merge.quote.slice(0, 60)}"`);
+  }
+  if (merged.merged.length > 0) {
+    deps.log(`[extract] AI 중복 처리 — 병합 ${String(merged.merged.length)}건(규칙 항목에 인용 보존) · AI 초안끼리 중복은 버림으로 집계`);
   }
   for (const issue of merged.fatal) deps.error(`[extract] ${issue.where}: ${issue.message}`);
   if (merged.fatal.length > 0) {
@@ -472,7 +480,7 @@ function buildRecord(
   args: ExtractArgs,
   files: readonly string[],
   candidates: number,
-  merged: { readonly accepted: number; readonly dropped: readonly unknown[]; readonly repairs: readonly unknown[]; readonly conflicts: number },
+  merged: { readonly accepted: number; readonly dropped: readonly unknown[]; readonly merged: readonly unknown[]; readonly repairs: readonly unknown[]; readonly conflicts: number },
   rules: RuleStructures,
   aiResult: AiStructureResult,
   durationMs: number,
@@ -513,6 +521,7 @@ function buildRecord(
     aiDrafts: aiResult.drafts.length,
     aiAccepted: merged.accepted,
     aiDropped: merged.dropped.length,
+    aiMerged: merged.merged.length,
     aiRepairs: merged.repairs.length,
     aiConflicts: merged.conflicts,
     needsReview: extra?.needsReview ?? 0,

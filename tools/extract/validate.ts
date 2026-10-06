@@ -3,10 +3,12 @@
  *
  * 두 종류의 문제를 구분한다(요구사항 `AC-A3` · 부록 A 검증 규칙):
  *  - `fatal: true`  → **발행 중단(exit 1)**: 스키마 위반(잘못된 kind·날짜 형식·필수 필드 누락),
- *                     **인용이 원본 부분문자열이 아님**(위조), 중복 규칙, contentHash 불일치,
+ *                     **인용이 원본 부분문자열이 아님**(위조), contentHash 불일치,
  *                     v3 편별 조건 계약 위반(원문 note 유실·표기 변형·중복 표현).
- *  - `fatal: false` → **발행은 하되 `needsReview` 로 표시**: 규칙 baseline(행 수·시각) 불일치,
- *                     AI 저신뢰인데 표시가 빠짐, 날짜 미기재 항목.
+ *                     **중복 규칙·중복 term 은 여기 없다(T23 재분류) — 병합 단계가 규칙 우선으로 흡수하고,
+ *                     검증기는 방어적으로 경고만 낸다(중복 때문에 발행 전체가 막히면 안 된다).**
+ *  - `fatal: false` → **발행은 하되 검토 대상으로 표시**: 규칙 baseline(행 수·시각) 불일치,
+ *                     AI 저신뢰인데 표시가 빠짐, 날짜 미기재 항목, **중복 규칙·중복 term**.
  *
  * 검증 순서: ① v1 보존(앱 무중단) ② v3 스키마 ③ 편별 조건(v3) ④ 인용 ⑤ 중복 ⑥ baseline ⑦ needsReview 판정
  */
@@ -154,7 +156,10 @@ export function validateEnriched(timetable: EnrichedTimetableBody, context: Vali
       if (!ok) fatal(`${where}.${field}`, `${rule.kind} 의 필수 필드가 비었습니다`);
     }
     const key = `${rule.kind}|${rule.start ?? ''}|${rule.end ?? ''}|${rule.dayTypes.join(',')}|${[...rule.scope].sort().join(',')}|${rule.sourceQuote}`;
-    if (seenRules.has(key)) fatal(where, '같은 규칙이 중복입니다(중복 제거 위반)');
+    // T23 재분류: 중복은 **치명이 아니다**(병합 단계가 규칙 우선으로 흡수한다) — 방어적으로 경고만 낸다.
+    if (seenRules.has(key)) {
+      warn(where, '같은 규칙이 중복입니다(중복 제거 위반) — 발행은 하되 검토 대상으로 남깁니다(중복은 치명 아님)');
+    }
     seenRules.add(key);
     for (const quote of rule.mergedQuotes ?? []) {
       if (quote.trim() === '') fatal(`${where}.mergedQuotes`, '빈 인용이 있습니다');
@@ -179,7 +184,10 @@ export function validateEnriched(timetable: EnrichedTimetableBody, context: Vali
     }
     checkPeriodSearch(term.periodSearch ?? null, term.start, term.end, `${where}.periodSearch`, context, fatal);
     const key = `${term.kind}|${term.label}|${term.start ?? ''}`;
-    if (seenTerms.has(key)) fatal(where, '같은 term 이 중복입니다');
+    // T23 재분류: 중복 term 도 **치명이 아니다**(병합 단계가 규칙 우선으로 흡수한다) — 경고만 낸다.
+    if (seenTerms.has(key)) {
+      warn(where, '같은 term 이 중복입니다(중복 제거 위반) — 발행은 하되 검토 대상으로 남깁니다(중복은 치명 아님)');
+    }
     seenTerms.add(key);
   });
 

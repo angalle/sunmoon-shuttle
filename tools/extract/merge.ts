@@ -1,5 +1,5 @@
 /**
- * 규칙 산출물 + AI 초안 병합 — **규칙이 이긴다**(같은 인용을 두고 충돌하면 규칙 채택).
+ * 규칙 산출물 + AI 초안 병합 — **규칙이 이긴다**(같은 인용·같은 기간을 두고 충돌하면 규칙 채택).
  *
  * AI 초안 처리 규칙(정직성의 핵심):
  *   ① 인용 해석: 원본 부분문자열(정확) → 후보 id → 후보 유사도(≥0.85) 순으로 **정본 문장**을 확정한다.
@@ -9,6 +9,11 @@
  *      `kind` 별 필수 필드가 비므로 그 초안도 버린다.
  *   ④ `confidence < 0.6` 이면 `needsReview: true` 로 **발행은 하되 표시**한다.
  *   ⑤ AI 가 만든 항목은 `extractedBy: 'ai'` 로 구분한다(결정성 기준은 규칙 산출물에만 적용).
+ *   ⑥ **중복은 치명이 아니다**(T23): AI 초안이 규칙 산출물과 *같은 항목*(dateRule = 같은 `kind`+같은 시점,
+ *      term = 같은 `kind`+같은 `label` 또는 같은 기간)이면 **규칙 우선** — dateRule 은 인용을
+ *      `mergedQuotes` 로 **병합(근거 보존)**, term 은 폐기하고, AI 초안끼리 겹쳐도 첫 초안만 채택한다.
+ *      병합·폐기 어느 쪽이든 **사유를 `merged`/`dropped` 로 남긴다**(조용한 소실 금지).
+ *      치명(fatal)은 ① 인용 위조처럼 **진짜 위험**에만 쓴다 — 중복 때문에 발행 전체가 막히지 않는다.
  */
 
 import { deriveDates } from './dateparse.js';
@@ -60,10 +65,20 @@ export interface QuoteRepair {
   readonly how: 'candidate-id' | 'similarity';
 }
 
+export interface MergedDraft {
+  /** 규칙 항목으로 흡수된 AI 인용(정본) */
+  readonly quote: string;
+  /** 흡수 대상이 된 규칙 항목 식별자(사람이 읽는 문자열) */
+  readonly into: string;
+  readonly reason: string;
+}
+
 export interface AiMergeResult {
   readonly dateRules: readonly DateRule[];
   readonly terms: readonly Term[];
   readonly dropped: readonly DroppedDraft[];
+  /** T23: 중복이라 **규칙 항목에 병합**한 AI 초안(폐기와 구분해 로그·집계한다) */
+  readonly merged: readonly MergedDraft[];
   readonly repairs: readonly QuoteRepair[];
   readonly conflicts: number;
   readonly accepted: number;
@@ -235,12 +250,53 @@ export function draftToEntry(
   };
 }
 
+/** 사람이 읽는 규칙 식별자(로그·사유 문구용) */
+function describeRule(rule: DateRule): string {
+  const start = rule.start ?? '시점없음';
+  const end = rule.end === null ? '' : `~${rule.end}`;
+  return `${rule.kind} ${start}${end}`.trim();
+}
+
+/** 사람이 읽는 term 식별자(로그·사유 문구용) */
+function describeTerm(term: Term): string {
+  return `${term.kind} ${term.label}${term.start === null ? '' : ` ${term.start}`}`;
+}
+
+/**
+ * T23-⑥-a: term 이 규칙 산출물과 **같은 항목**인가 — 같은 `kind` 이고
+ *  ① 같은 `label`(예: 규칙 `방학` vs AI `방학`) 이거나
+ *  ② 같은 기간(시작이 같고 끝이 같거나 한쪽이 열려 있음)
+ * 이면 같은 항목으로 본다(규칙 우선).
+ */
+function sameTermItem(candidate: Term, existing: Term): boolean {
+  if (candidate.kind !== existing.kind) return false;
+  if (candidate.label !== '' && candidate.label === existing.label) return true;
+  if (candidate.start === null || existing.start === null) return false;
+  if (candidate.start !== existing.start) return false;
+  return candidate.end === null || existing.end === null || candidate.end === existing.end;
+}
+
+/**
+ * T23-⑥-c: dateRule 이 규칙 산출물과 **같은 규칙**인가 — 같은 `kind` + 같은 시점(시작일 동일,
+ * 끝은 같거나 한쪽이 열려 있음). 시점이 없는 규칙(시간창 등)은 이 판정에서 제외한다(별개 항목일 수 있다).
+ */
+function sameRulePeriod(candidate: DateRule, existing: DateRule): boolean {
+  if (candidate.kind !== existing.kind) return false;
+  if (candidate.start === null || existing.start === null) return false;
+  if (candidate.start !== existing.start) return false;
+  return candidate.end === null || existing.end === null || candidate.end === existing.end;
+}
+
 export function mergeAiDrafts(input: AiMergeInput): AiMergeResult {
   const dropped: DroppedDraft[] = [];
+  const merged: MergedDraft[] = [];
   const repairs: QuoteRepair[] = [];
   const fatal: ValidationIssue[] = [];
   const aiRules: DateRule[] = [];
   const aiTerms: Term[] = [];
+  // 규칙 산출물 — 병합(mergedQuotes)이 생기면 **이 사본의 원소만** 바뀐다(입력 불변).
+  const ruleRules: DateRule[] = [...input.ruleDateRules];
+  const ruleTerms: Term[] = [...input.ruleTerms];
   // 규칙 산출물이 이미 설명한 문장 = ① 각 규칙의 정본 인용 ② **중복 통합으로 흡수된 인용**(mergedQuotes).
   // rules.ts 의 `explained` 집합과 같은 기준이다 — AI 는 규칙이 못 잡은 문장만 구조화한다.
   const ruleQuotes = new Set<string>();
@@ -275,26 +331,69 @@ export function mergeAiDrafts(input: AiMergeInput): AiMergeResult {
       return;
     }
     if (outcome.term !== null) {
-      const key = `term|${outcome.term.kind}|${outcome.term.label}|${outcome.term.start ?? ''}`;
-      if (seenKeys.has(key)) return;
+      const term = outcome.term;
+      // ⑥-a 규칙 산출물과 같은 항목(같은 kind + 같은 label/기간) → **규칙 우선**, AI 초안 폐기(사유 기록)
+      const duplicate = ruleTerms.find((existing) => sameTermItem(term, existing));
+      if (duplicate !== undefined) {
+        dropped.push({
+          quote: resolved.canonical,
+          reason: `중복(규칙 산출물 우선) — 같은 ${term.kind} 항목이 이미 규칙 산출물에 있다(${describeTerm(duplicate)})`,
+        });
+        return;
+      }
+      // ⑥-b AI 초안끼리 같은 항목 → 먼저 온 초안을 채택하고 사유를 남긴다(조용한 소실 금지)
+      const key = `term|${term.kind}|${term.label}|${term.start ?? ''}`;
+      if (seenKeys.has(key)) {
+        dropped.push({
+          quote: resolved.canonical,
+          reason: `중복(AI 초안끼리) — 같은 ${term.kind} 항목이 이미 채택됐다(첫 초안 우선)`,
+        });
+        return;
+      }
       seenKeys.add(key);
-      aiTerms.push(outcome.term);
+      aiTerms.push(term);
       return;
     }
     if (outcome.rule !== null) {
-      const key = `${outcome.rule.kind}|${outcome.rule.start ?? ''}|${outcome.rule.end ?? ''}|${outcome.rule.dayTypes.join(',')}|${outcome.rule.sourceQuote}`;
-      if (seenKeys.has(key)) return;
+      const rule = outcome.rule;
+      // ⑥-c 규칙 산출물과 같은 규칙(같은 kind + 같은 시점) → **규칙 우선** + AI 인용을 근거로 병합(보존)
+      const duplicateIndex = ruleRules.findIndex((existing) => sameRulePeriod(rule, existing));
+      if (duplicateIndex >= 0) {
+        const existing = ruleRules[duplicateIndex] as DateRule;
+        const already = [...(existing.mergedQuotes ?? []), existing.sourceQuote].includes(rule.sourceQuote);
+        if (!already) {
+          ruleRules[duplicateIndex] = { ...existing, mergedQuotes: [...(existing.mergedQuotes ?? []), rule.sourceQuote] };
+        }
+        merged.push({
+          quote: rule.sourceQuote,
+          into: describeRule(existing),
+          reason: already
+            ? `중복(규칙 산출물 우선) — 같은 인용이 이미 규칙 항목에 병합돼 있다(${describeRule(existing)})`
+            : `중복(규칙 산출물 우선) — 같은 ${existing.kind} 시점의 규칙 항목에 인용을 병합했다(근거 보존: mergedQuotes)`,
+        });
+        return;
+      }
+      // ⑥-d AI 초안끼리 같은 규칙 → 첫 초안만 채택(사유 기록)
+      const key = `${rule.kind}|${rule.start ?? ''}|${rule.end ?? ''}|${rule.dayTypes.join(',')}|${rule.sourceQuote}`;
+      if (seenKeys.has(key)) {
+        dropped.push({
+          quote: resolved.canonical,
+          reason: `중복(AI 초안끼리) — 같은 ${rule.kind} 규칙이 이미 채택됐다(첫 초안 우선)`,
+        });
+        return;
+      }
       seenKeys.add(key);
-      aiRules.push(outcome.rule);
+      aiRules.push(rule);
     }
   });
 
   return {
-    dateRules: [...input.ruleDateRules, ...aiRules].sort(compareDateRules),
-    terms: [...input.ruleTerms, ...aiTerms].sort(
+    dateRules: [...ruleRules, ...aiRules].sort(compareDateRules),
+    terms: [...ruleTerms, ...aiTerms].sort(
       (a, b) => (a.start ?? '9999-99-99').localeCompare(b.start ?? '9999-99-99') || a.kind.localeCompare(b.kind),
     ),
     dropped,
+    merged,
     repairs,
     conflicts,
     accepted: aiRules.length + aiTerms.length,

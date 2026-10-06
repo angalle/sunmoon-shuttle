@@ -183,12 +183,13 @@ describe('T16 검증기 규칙', () => {
     expect(issues.some((issue) => issue.fatal && issue.where.includes('dateRules'))).toBe(true);
   });
 
-  it('규칙 중복은 치명이다(중복 제거 위반)', () => {
+  it('규칙 중복은 치명이 아니라 경고다(T23 재분류 — 병합 단계가 흡수한다)', () => {
     const { base, sources, termSources, enriched } = loadFixture();
     const first = enriched.dateRules.find((rule) => rule.kind === 'period-meaning');
     const issues = validateEnriched(withFabricated(enriched, { ...first!, extractedBy: 'ai' }), { baseline: base, sources, termSources });
-    // 같은 규칙이 한 번 더 들어갔으므로 중복 또는 인용 문제로 잡힌다
-    expect(hasFatal(issues)).toBe(true);
+    // 중복은 발행을 막지 않는다 — 검증기는 방어적으로 경고만 낸다(인용·스키마 위반과 구분)
+    expect(hasFatal(issues)).toBe(false);
+    expect(issues.some((issue) => !issue.fatal && issue.message.includes('중복'))).toBe(true);
   });
 
   it('baseline(행 수·시각) 불일치는 치명이 아니라 needsReview 경고다(발행은 하되 표시)', () => {
