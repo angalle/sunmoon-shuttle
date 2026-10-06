@@ -205,3 +205,25 @@ GitHub Actions 는 스케줄·이력·아티팩트를 담당하되, **AI 호출 
 - `routes[].tripNotes[]`(방향·소요시간 구조화), `routes[].stopWindows[]`
 - `terms[]`: 학기/방학 기간 + 해당 시간표 소스
 검증 규칙: AI 산출물은 ① `sourceQuote` 가 원본 문장 **부분문자열**일 것 ② `kind` 마다 필수 필드 존재 ③ 규칙 baseline(행 수·시각)과 **불일치 시 `needsReview=true`** ④ 날짜는 `YYYY-MM-DD`(연도 추론 결과 명시) ⑤ 중복 제거.
+
+## 부록 A-2 (구조) — 결정 변경 (2026-10-06, 사용자 확정)
+
+**AI 추출 실행 방식이 self-hosted runner + 로컬 Ollama → GitHub 호스티드 러너 + 외부 AI API(OpenAI 호환)로 변경됐습니다.**
+- 배경: 이 맥이 꺼져 있어도 배치가 돌아야 한다는 가용성 요구가 우선(로컬 Ollama 는 이 맥 상시 가동 전제).
+- 폐기: `T15`(self-hosted runner 등록 + `extract.yml` self-hosted 실행) → **아카이브**. `.github/runner/**` 는 대안(로컬 Ollama) 문서로만 보존.
+- 대체: `T19`(AI 계층 `--ai=api` — `AI_BASE_URL`·`AI_MODEL`·`AI_API_KEY` env, 키 없음/401/타임아웃 시 **규칙 전용 자동 폴백**) · `T20`(`extract.yml` → `runs-on: ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트).
+- 유지: 앱은 여전히 **정적 JSON만 읽는다**(앱 변경 0) · 규칙 파서가 수치 기준선 · 원문 인용(`sourceQuote`) 필수 · 검증 실패 시 발행 중단(AC-5) · AI 항목은 `extractedBy: ai` 로 구분.
+- 비용: 호출은 하루 2회·회당 입력 수천 토큰 수준(날짜 관련 문장만 전송)이며 **토큰 상한·호출 수·잘림 여부를 산출물 `extraction` 메타에 기록**한다. 정확한 요금은 벤더 가격표에 따른다(총괄이 임의 수치를 확정하지 않는다).
+- 시크릿: `AI_API_KEY` 는 **저장소 시크릿**으로 사용자가 설정한다(현재 미설정 — `gh secret list` 비어 있음). 미설정이어도 워크플로는 규칙 전용으로 계속 돈다.
+
+```
+GitHub Actions(호스티드 ubuntu-latest, 스케줄 05:10/17:10 KST)
+  └ npm ci → npm run extract -- --ai=api
+      ├ 규칙 파서(수치 기준선, AI 금지 영역)        ← 유지
+      ├ AI 보강(OpenAI 호환: AI_BASE_URL/AI_MODEL/AI_API_KEY)  ← 신규(T19)
+      │    └ 실패·키 없음 → 규칙 전용 자동 폴백(경고)            ← 유지
+      ├ 자동 검증(인용 원문 대조·스키마·날짜 정합) → 불일치 시 발행 중단
+      └ data/timetable.json(v2) 변경 시에만 커밋·푸시 → Pages 배포(deploy.yml)
+앱(PWA/Capacitor) — 정적 JSON 만 읽음(변경 0)
+```
+- self-hosted runner 절(이 맥 LaunchAgent·`~/actions-runner-sunmoon`)은 **폐기**. 재도입 시에만 참고.

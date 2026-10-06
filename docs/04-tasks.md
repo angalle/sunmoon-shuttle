@@ -73,11 +73,14 @@
 | **T13 밝은 톤 + 더 심플한 UI + 결함 정정** | `t_a9b67742` | frontendprojectcreator | **ready(발행)** — 사용자 지시: ① "심플한 UI + 밝은 톤" ② 옵션②(접힌 원본표에서 오늘 요일표 확인·기본 닫힘 유지) ③ 총괄 검증 결함 2건 수정: (A) 운행 없는 날(한글날 10-09)에 `오늘 운행이 끝났습니다` 모순 문구 → 운행없음 문구로 정정 (B) 홈에 노출된 미해석 경고 6줄(`"0:15"` 패턴 미등록·`출발 시각이 없는 회차`) → 소요시간 패턴 등록(도메인 수정 승인) + 홈 1줄·상세는 접힘 |
 
 | **T14 UI 에서 "원본" 노출 제거** — 원본표·원본 링크 8개 삭제·소개문구 정정·외부 요청 0건 강제 | `t_b7bf0e9c` | frontendprojectcreator | **발행(ready/running)** — 사용자 반복 지적("왜 원본을 읽어와?") → 실측: 앱 요청 7건 전부 동일 출처·학교 도메인 0건. UI 잔재(원본표·원본 링크·옛 소개문구) 제거 |
-| **T15 배치 v2 인프라** — self-hosted runner(이 맥) + `extract.yml` 하루 2회 + 발행·모니터링 | `t_1633db9b` | infraprojectcreator | **발행(ready)** — 승인 구조 1-③(Actions)+2-①(로컬 Ollama)+3-①(JSON 유지)의 필연 구성 |
+| **T15 배치 v2 인프라** — self-hosted runner(이 맥) + `extract.yml` 하루 2회 + 발행·모니터링 | `t_1633db9b` | infraprojectcreator | **폐기·아카이브(2026-10-06)** — 사용자 결정 변경(self-hosted+로컬 Ollama → 호스티드+외부 API). 러너 스크립트는 대안 문서로 보존 |
 | **T16 AI 보강 추출 파이프라인** — 날짜 동적 파라미터 갭 6종 구조화 + 스키마 v2 + 인용검증·폴백 | `t_72e33f3a` | apiprojectcreator | **발행(ready)** — `docs/01` 부록 A 파이프라인/갭표, `docs/00` AC-A1~A4 |
 | **T17 스키마 v2 표시** — 다가오는 운행없음/대체 시간표·방향별 소요시간·정차창·방학 안내 | `t_c3375494` | frontendprojectcreator | todo(부모 T16) |
 
 | **T18 🚨 회귀 수정** — 수집 실패 시 캐시 폴백 복구 + 만료 캐시 안내 | `t_74a9348b` | frontendprojectcreator | **완료(done)** — `verify:offline` FAIL 5건(총괄 실측). 수정 후 exit 0 + 회귀 스모크 4종 PASS 필요. **회귀 닫힘**(원인=캐시 스키마 게이트 v1 고정 → 지원목록 v1·v2) — verify:offline PASS·334 tests. **push 대기 중** |
+
+| **T19 AI 계층 API 모드** — OpenAI 호환(`AI_BASE_URL`/`AI_MODEL`/`AI_API_KEY`) + 키 없음·실패 시 규칙 전용 폴백 + 비용 가드·모의서버 테스트 | `t_89869521` | apiprojectcreator | **발행(ready)** — 결정 ③의 필수 선행 |
+| **T20 extract.yml 호스티드 러너 전환** — `ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트, self-hosted·Ollama 의존 제거 | `t_8322b6e9` | infraprojectcreator | todo(부모 T19) — **CI 실측은 main push 보류로 미실측** |
 
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.

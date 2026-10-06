@@ -188,3 +188,22 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 | 앱 네트워크 요청 출처 | 외부 도메인 요청 **> 0** | 스모크 FAIL | UI 에서 원본 읽기 유입 차단(T14 수용기준) |
 
 **복구 원칙**: 발행 실패는 **앱 장애로 이어지지 않는다**(마지막 정상 JSON 유지). 앱은 파일 하나만 읽으므로 롤백은 `git revert` 1회로 끝난다.
+
+## 부록 A-2 (모니터링) — 결정 변경 (2026-10-06, 사용자 확정)
+
+**AI 추출 실행 방식이 self-hosted runner + 로컬 Ollama → GitHub 호스티드 러너 + 외부 AI API(OpenAI 호환)로 변경됐습니다.**
+- 배경: 이 맥이 꺼져 있어도 배치가 돌아야 한다는 가용성 요구가 우선(로컬 Ollama 는 이 맥 상시 가동 전제).
+- 폐기: `T15`(self-hosted runner 등록 + `extract.yml` self-hosted 실행) → **아카이브**. `.github/runner/**` 는 대안(로컬 Ollama) 문서로만 보존.
+- 대체: `T19`(AI 계층 `--ai=api` — `AI_BASE_URL`·`AI_MODEL`·`AI_API_KEY` env, 키 없음/401/타임아웃 시 **규칙 전용 자동 폴백**) · `T20`(`extract.yml` → `runs-on: ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트).
+- 유지: 앱은 여전히 **정적 JSON만 읽는다**(앱 변경 0) · 규칙 파서가 수치 기준선 · 원문 인용(`sourceQuote`) 필수 · 검증 실패 시 발행 중단(AC-5) · AI 항목은 `extractedBy: ai` 로 구분.
+- 비용: 호출은 하루 2회·회당 입력 수천 토큰 수준(날짜 관련 문장만 전송)이며 **토큰 상한·호출 수·잘림 여부를 산출물 `extraction` 메타에 기록**한다. 정확한 요금은 벤더 가격표에 따른다(총괄이 임의 수치를 확정하지 않는다).
+- 시크릿: `AI_API_KEY` 는 **저장소 시크릿**으로 사용자가 설정한다(현재 미설정 — `gh secret list` 비어 있음). 미설정이어도 워크플로는 규칙 전용으로 계속 돈다.
+
+| 지표 | 임계값 | 알림·복구 |
+|---|---|---|
+| 배치 마지막 성공 시각 | 24h 초과 | 런 실패 확인 → `workflow_dispatch` 수동 재실행 |
+| **AI 폴백 발생**(`extraction.fallbackReason` 비어있지 않음) | 3회 연속 | `AI_API_KEY` 설정·벤더 상태 확인(발행은 계속되므로 앱 영향 없음) |
+| **AI 호출 수/잘림(truncated)** | 호출 0 또는 잘림 발생 | 프롬프트·입력 상한 점검 |
+| 발행 검증 불일치(`needsReview`>0 또는 exit≠0) | ≥1 | 발행 중단 확인(마지막 정상 JSON 유지) — 원문 대조 |
+| 워크플로 실패율 | 2회 연속 | `gh run view` 로그 → 원인별(네트워크/API/스키마) 대응 |
+| Pages 배포 지연 | 커밋 후 10분 | `deploy.yml` 런 확인 |
