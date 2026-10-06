@@ -40,3 +40,34 @@ export function dayTypeFromWeekdayLabel(label: string): DayType {
 export function isDayType(value: unknown): value is DayType {
   return typeof value === 'string' && (DAY_TYPES as readonly string[]).includes(value);
 }
+
+/**
+ * 요일 코드 — 데이터(JSON) 표기와 **같은 값**이다(`docs/06-data-model.md §3`:
+ * `excludedDays: ["fri"]` · `dayScope: ["mon","tue"]`).
+ *
+ * 인덱스가 곧 JS `Date` 규약의 요일 번호(0=일 … 6=토)이므로 `kst.ts` 의 계산과 그대로 맞물린다.
+ */
+export const WEEKDAY_CODES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
+
+export type WeekdayCode = (typeof WEEKDAY_CODES)[number];
+
+/** 외부 입력(JSON 등)이 유효한 요일 코드인지 좁히는 타입 가드. */
+export function isWeekdayCode(value: unknown): value is WeekdayCode {
+  return typeof value === 'string' && (WEEKDAY_CODES as readonly string[]).includes(value);
+}
+
+/** 요일 번호(0=일 … 6=토) → 요일 코드. 범위를 벗어나면 null(추측하지 않는다). */
+export function weekdayCodeOf(weekday: number): WeekdayCode | null {
+  return WEEKDAY_CODES[weekday] ?? null;
+}
+
+/** 요일 코드 → 요일 번호(0=일 … 6=토). */
+export function weekdayIndexOfCode(code: WeekdayCode): number {
+  return WEEKDAY_CODES.indexOf(code);
+}
+
+/** 요일 코드 배열을 코드 규약(`sun`…`sat`)으로만 걸러 낸다(외부 JSON 관용 읽기). */
+export function weekdayCodesOf(value: unknown): WeekdayCode[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is WeekdayCode => isWeekdayCode(item));
+}

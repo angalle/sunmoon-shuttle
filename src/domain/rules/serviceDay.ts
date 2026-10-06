@@ -2,17 +2,26 @@ import type { DayType } from '../entities/DayType';
 import type { Notice } from '../entities/Notice';
 import { tripDepartureTime, type Trip } from '../entities/Trip';
 import { dayTypeFromWeekday } from './dayType';
+import { formatIsoDate, type KstDay } from './kst';
 import {
-  formatIsoDate,
-  type KstDay,
-  weekdayIndexFromLabel,
-} from './kst';
+  matchTripNoteRule,
+  TRIP_NOTE_RULES,
+  tripStatus,
+  weekdayIndexFromCode,
+  type TripNoteRule,
+  type TripNoteRuleId,
+  type TripReasonCode,
+  type TripStatusContext,
+  type TripStatus,
+} from './tripStatus';
 
 /**
- * 운행 여부 판정 규칙 (요구사항 F3·F7).
+ * 운행 여부 판정 규칙 (요구사항 F3·F7 · `docs/06 §2`).
  *
- * 원본 안내문(`notices`)과 회차 특이사항(`trip.note`)을 **문자열 패턴 표**로 해석한다.
- * - 규칙은 아래 `NOTICE_RULES` / `TRIP_NOTE_RULES` 두 표에만 있다(코드에 매직 분기 금지).
+ * - **날짜 단위** 판정은 이 파일(`resolveDayService`)이 담당한다(안내문 원문 → 운행 없음/대체 시간표).
+ * - **회차(편) 단위** 판정은 `rules/tripStatus.ts` 의 `tripStatus` 가 담당한다 — 여기서는 그 결과를
+ *   옛 계약(`TripServiceStatus`)으로 옮겨 주기만 한다(판정 재구현 금지).
+ * - 규칙(문자열 패턴 표)은 `tripStatus.ts` 의 `TRIP_NOTE_RULES` 하나뿐이다 — 아래에서 재노출한다.
  * - 해석하지 못하는 표기는 **경고(`warnings`)로 수집**한다 — 조용히 무시하지 않는다.
  * - 해석 못 한 표기가 운행 여부를 바꾸지는 않는다(표에 실린 회차는 운행으로 본다).
  *   근거: `docs/00-requirements.md` F8(빈 화면 금지) + 회차 표가 정본.
@@ -72,53 +81,12 @@ export function matchNoticeRule(text: string): NoticeRule | null {
   return null;
 }
 
-/* ────────────────────────── 회차 특이사항 패턴 표 ────────────────────────── */
-
-export type TripNoteRuleId = 'weekday-exclusion' | 'multi-bus-annotation' | 'duration-annotation';
-
-export interface TripNoteRule {
-  readonly id: TripNoteRuleId;
-  readonly pattern: RegExp;
-  readonly description: string;
-}
-
-/**
- * 회차 특이사항(`trip.note`) → 규칙. **위에서부터 먼저 맞는 것 하나**를 쓴다.
- * 근거 원문(같은 스냅샷 '운행 특이사항' 열): `금(X)` · `월~화 2대 운행` · `월~목 2대 운행` ·
- * `0:15`(소요시간) · `중간노선 전용`
- * - `금(X)`      → 그 요일에는 이 회차가 운행되지 않는다(제외).
- * - `월~화 2대 운행` → 운행 여부와 무관한 **주석**(2대 운행 안내)이다. 회차는 운행된다.
- *   (수용 기준 ⑦ "주석 처리" 지시)
- * - `0:15`       → **소요시간(HH:MM) 표기**다. 회차는 운행되고 표시용 주석으로만 남긴다(T13 승인).
- *   (원본 `아산(KTX)역` 평일 첫 회차의 특이사항 열 값 — 실측 `data/timetable.json`)
- * - 그 밖의 미등록 표기는 경고로 수집하고 운행 여부는 바꾸지 않는다.
+/* ────────────────────────── 회차 특이사항 패턴 표 재노출 ──────────────────────────
+ * 구현(판정)은 `tripStatus.ts` 에 있다 — 여기 import 경로를 쓰던 호출부·테스트를 깨지 않게 재노출한다.
  */
-export const TRIP_NOTE_RULES: readonly TripNoteRule[] = [
-  {
-    id: 'weekday-exclusion',
-    pattern: /^([월화수목금토일])\s*\(\s*[XxΧ×]\s*\)$/,
-    description: '해당 요일에는 미운행 (예: "금(X)")',
-  },
-  {
-    id: 'multi-bus-annotation',
-    pattern: /^([월화수목금토일])\s*~\s*([월화수목금토일])\s*(\d+)\s*대\s*운행$/,
-    description: '기간 중 N대 운행 안내 — 운행 여부를 바꾸지 않는 주석 (예: "월~화 2대 운행")',
-  },
-  {
-    id: 'duration-annotation',
-    // 소요시간(HH:MM) — 시:분. `0:15`(15분)처럼 한 자리 시(時)도 온다(원본 실측).
-    pattern: /^\d{1,3}:\d{2}$/,
-    description: '소요시간(HH:MM) 표기 — 운행 여부를 바꾸지 않는 주석 (예: "0:15")',
-  },
-];
 
-/** 회차 특이사항 문자열에 맞는 규칙(없으면 null). */
-export function matchTripNoteRule(note: string): TripNoteRule | null {
-  for (const rule of TRIP_NOTE_RULES) {
-    if (rule.pattern.test(note)) return rule;
-  }
-  return null;
-}
+export { matchTripNoteRule, TRIP_NOTE_RULES };
+export type { TripNoteRule, TripNoteRuleId };
 
 /* ────────────────────────── 날짜 단위 판정 ────────────────────────── */
 
@@ -180,12 +148,13 @@ export function resolveDayService(day: KstDay, notices: readonly Notice[]): DayS
   return { serviceOn, date, dayType, effectiveDayType, overrideNotice, reason, warnings };
 }
 
-/* ────────────────────────── 회차 단위 판정 ────────────────────────── */
+/* ────────────────────────── 회차 단위 판정 (옛 계약 어댑터) ────────────────────────── */
 
 export type TripServiceReason =
   | 'runs'
   | 'weekday-exclusion'
   | 'no-departure-time'
+  | 'holiday-no-service'
   | 'unknown-note';
 
 export interface TripServiceStatus {
@@ -199,58 +168,48 @@ export interface TripServiceStatus {
 }
 
 /**
- * 그 날짜에 그 회차가 안내 대상인지 판정한다.
- * - 운행 여부를 바꾸는 규칙은 `weekday-exclusion`(`금(X)`) 뿐이다.
- * - 다른 규칙은 **주석**으로만 수집한다(운행 여부 불변).
- * - 출발 시각이 없는 회차(`Χ`)는 안내 대상이 아니다.
- * - 해석 못 한 표기는 경고로 수집하고 **운행 여부는 바꾸지 않는다**(추측 금지 — 표에 실린 대로).
+ * 그 날짜에 그 회차가 안내 대상인지 판정한다 — 판정 자체는 `tripStatus` 가 한다(단일 책임).
+ * 이 함수는 ① 출발 시각 없는 회차 제외(`no-departure-time`) ② 사유 코드 → 옛 계약 이름 변환만 한다.
+ * `context`(날짜 규칙·학기/방학)를 넘기면 `tripStatus` 가 우선순위 ①·③까지 반영한다.
  */
-export function resolveTripService(trip: Trip, day: KstDay): TripServiceStatus {
-  const warnings: string[] = [];
-  const annotations: string[] = [];
-
+export function resolveTripService(
+  trip: Trip,
+  day: KstDay,
+  context: TripStatusContext = {},
+): TripServiceStatus {
   if (tripDepartureTime(trip) === null) {
     return {
       runs: false,
       reason: 'no-departure-time',
       excludedWeekday: null,
-      annotations,
+      annotations: [],
       warnings: [`출발 시각이 없는 회차입니다(순번 ${trip.seq}) — 안내 대상에서 제외`],
     };
   }
 
-  const note = (trip.note ?? '').replace(/[\s\u3000]+/g, '');
-  if (note === '') {
-    return { runs: true, reason: 'runs', excludedWeekday: null, annotations, warnings };
-  }
+  const status: TripStatus = tripStatus(trip, day, context);
+  const firstExcluded = status.excludedDays[0];
+  return {
+    runs: status.runs,
+    reason: legacyReasonOf(status.reason),
+    excludedWeekday: firstExcluded === undefined ? null : weekdayIndexFromCode(firstExcluded),
+    annotations: status.notes,
+    warnings: status.warnings,
+  };
+}
 
-  const rule = matchTripNoteRule(note);
-  if (rule === null) {
-    warnings.push(`회차 특이사항을 해석하지 못했습니다(패턴 표 미등록): ${JSON.stringify(trip.note)} (순번 ${trip.seq})`);
-    return { runs: true, reason: 'unknown-note', excludedWeekday: null, annotations, warnings };
+/** `docs/06 §2` 사유 코드 → 이 파일의 옛 계약 이름(호출부·테스트 하위호환). */
+function legacyReasonOf(reason: TripReasonCode): TripServiceReason {
+  switch (reason) {
+    case 'weekday-excluded':
+      return 'weekday-exclusion';
+    case 'unknown-note':
+      return 'unknown-note';
+    case 'holiday-no-service':
+      return 'holiday-no-service';
+    default:
+      return 'runs';
   }
-
-  if (rule.id === 'weekday-exclusion') {
-    const label = rule.pattern.exec(note)?.[1] ?? '';
-    const weekday = weekdayIndexFromLabel(label);
-    if (weekday === null) {
-      warnings.push(`요일 표기를 해석하지 못했습니다: ${JSON.stringify(trip.note)} (순번 ${trip.seq})`);
-      return { runs: true, reason: 'unknown-note', excludedWeekday: null, annotations, warnings };
-    }
-    if (weekday === day.weekday) {
-      return {
-        runs: false,
-        reason: 'weekday-exclusion',
-        excludedWeekday: weekday,
-        annotations,
-        warnings,
-      };
-    }
-    return { runs: true, reason: 'runs', excludedWeekday: weekday, annotations, warnings };
-  }
-
-  annotations.push(trip.note ?? note);
-  return { runs: true, reason: 'runs', excludedWeekday: null, annotations, warnings };
 }
 
 function isIsoDate(value: string): boolean {
