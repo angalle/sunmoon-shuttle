@@ -59,15 +59,16 @@ tripStatus(trip, date) → { runs: boolean, reason: ReasonCode, label: string, s
     "byDay": {
       "weekday":  { "trips": [
         { "seq": 2, "depCampus": null, "depStation": "08:35", "arrCampus": "08:50",
-          "durationMinutes": null,
-          "service": {                       // ★ 신규 — 편별 조건(구조)
+          "service": {                       // ★ 신규 — 편별 조건(구조). 원문 note 가 있는 행에만 붙는다
             "excludedDays": ["fri"],         //   "금(X)"  → 매주 금요일 미운행
             "dayScope": null,                //   "월~화 2대 운행" → ["mon","tue"]
             "vehicleCount": null,            //   2 (dayScope 와 함께)
             "label": null,                   //   "중간노선 전용" 등 표기 통일본
-            "sourceQuote": "금(X)"           //   ★ 원문 그대로(필수)
+            "sourceQuote": "금(X)"           //   ★ 원문 note **그대로**(필수, 표기 변형 금지)
           },
-          "note": null                       //   구조화된 항목은 note 비움(중복 표현 금지)
+          "durationMinutes": null,           //   "0:15" → 15 (원문 note 가 소요시간이면 여기)
+          "note": null,                      //   구조화된 항목은 note 비움(중복 표현 금지)
+          "needsReview": false               //   미해석일 때만 true
         }
       ]},
       "saturday": { "trips": [] }, "sunday": { "trips": [] }
@@ -80,32 +81,56 @@ tripStatus(trip, date) → { runs: boolean, reason: ReasonCode, label: string, s
 
   "dateRules": [ /* v2 그대로 — kind/start/end/dayTypes/scope/effect/sourceQuote/… */ ],
 
-  "terms": [ /* semester 는 기간 포함, vacation 은 기간 수집 후 채운다 */ ],
+  "terms": [ /* semester 는 기간 포함. vacation 은 periodSearch 로 기간 출처를 남긴다(아래) */
+    { "kind": "vacation", "label": "방학", "start": null, "end": null,
+      "periodSearch": {                    // ★ 신규 — 기간을 어디서 찾았고 결과가 무엇인가
+        "file": "data/raw/terms/2026-2학기-방학.html",   // 스냅샷 파일(기간 문구를 찾은/못 찾은 페이지)
+        "result": "not-found",             //   "found" | "not-found" | "not-provided"(스냅샷 미포함)
+        "evidenceQuote": "현재는 2026-2학기 시간표로 운행되고 있습니다."  // 판정 근거 문장(원문 부분문자열)
+      } }
+  ],
 
-  "extraction": {                    // ★ T19 실행 메타(지금은 null)
+  "extraction": {                    // ★ T19 실행 메타 + 스키마 버전
     "provider": "api|ollama|rule-only", "model": "…", "calls": 0,
-    "truncated": false, "fallbackReason": null, "schemaVersion": 3
+    "truncated": false, "fallbackReason": null,
+    "schemaVersion": 3, "termSources": ["data/raw/terms/2026-2학기-방학.html"]
   }
 }
 ```
 
+**v1/v2 보존 범위(정정)**: v3 는 `routes[].byDay[*].trips[]` 행을 **원문 note 가 있는 행에 한해** 바꾼다
+(`note` 비움 + `service`/`durationMinutes`/`unknownNote`/`needsReview` 추가). 시각·순번·열(`columns`)·행 수는
+**값까지 그대로**여야 하며, 검증기가 그 불변식을 강제한다(`note`·조건 필드는 비교에서 제외).
+
+**미해석 표기 보존**: 표에 없는 표기는 버리지 않는다 → `service: null`, `note` 유지(원문),
+`unknownNote: "원문"`(= note 와 같은 문자열), `needsReview: true`.
+
 **표기 정규화 사전**(추출기가 이 표대로만 변환, 표에 없으면 버리지 않고 `needsReview` + `unknownNote`)
-| 원문 표기 | 변환 |
-|---|---|
-| `금(X)` · `금X` · `금요일 없음` | `excludedDays: ["fri"]` |
-| `월~화 2대 운행` | `dayScope: ["mon","tue"]`, `vehicleCount: 2` |
-| `월~목 2대 운행` | `dayScope: ["mon","tue","wed","thu"]`, `vehicleCount: 2` |
-| `0:15` (소요시간 주석) | `durationMinutes: 15` |
-| `중간노선 전용` / `중간노선전용` | `label: "중간노선 전용"`(공백 표기 통일) |
-| 그 외 미해석 | `service: null`, `note` 유지 + `needsReview: true` |
+| 원문 표기 | 변환 | 실측 건수(2026-10-06) |
+|---|---|---|
+| `금(X)` · `금X` · `금요일 없음` | `excludedDays: ["fri"]` | 59 |
+| `월~화 2대 운행` | `dayScope: ["mon","tue"]`, `vehicleCount: 2` | 1 |
+| `월~목 2대 운행` | `dayScope: ["mon","tue","wed","thu"]`, `vehicleCount: 2` | 1 |
+| `0:15` (소요시간 주석) | `durationMinutes: 15` | 1 |
+| `중간노선 전용` / `중간노선전용` | `label: "중간노선 전용"`(공백 표기 통일, `sourceQuote` 는 원문) | 2 |
+| 그 외 미해석 | `service: null`, `note` 유지 + `unknownNote` + `needsReview: true` | 0 |
+
+**방학 기간 스냅샷**: 원본 방학 시간표 페이지(`About08_04_03_01_01.aspx`)는 `data/raw/terms/*.html` 규약으로
+반입한다(파일명이 `<학기>-<노선>-<요일>` 규약 밖이라 `data/raw/` 바로 아래가 아니라 `terms/` 하위에 둔다 —
+노선 파서가 잘못 집어가지 않게). 실제로 2026-10-06 에 1회 반입해 확인한 결과 **본문에 기간 문구가 없다**
+("현재는 2026-2학기 시간표로 운행되고 있습니다") → `start/end = null` 유지 + `periodSearch.result = "not-found"`
+`+ evidenceQuote`(근거 문장) 기록. 추측 금지.
 
 ## 4. 버전·호환 전략 (지난 회귀를 반복하지 않기 위한 필수 조건)
 
 지난 사고: T16 이 데이터를 v2 로 올렸는데 **앱 캐시 게이트가 v1 만 통과**시켜 폴백이 전면 붕괴했다. 대책을 계약으로 못 박는다.
 
 - `schemaVersion: 3` · **소비자 게이트는 지원 목록(`[1,2,3]`)** 으로만 판정(단일 상수 금지)
+  - 게이트 위치: `src/adapters/in/web/features/schedule/api/timetableApi.ts` 의 `SUPPORTED_SCHEMA_VERSIONS`
+  - **RED 실증**: `tests/extract/consumer-gate.test.ts` 가 *발행물*(`data/timetable.json`)의 `schemaVersion` 이
+    게이트 목록에 있는지 검사한다 → 스키마를 범프하고 게이트를 안 넓히면 그 테스트가 즉시 RED 다(T16·T18 사고 재발 방지)
 - 신규 필드가 없는 데이터(v1/v2)도 **그대로 렌더**되어야 한다(조건 없음 = 기본 동작)
-- **미지원 버전 테스트**(스키마 범프 시 RED) 를 테스트에 포함
+- **미지원 버전 테스트**(스키마 범프 시 RED) 를 테스트에 포함 — 목록 밖 버전 캐시는 버린다
 - 데이터 발행 태스크의 수용기준에 **소비자 스모크 재실행**(`verify:offline` · `v1_smoke` · `v2_smoke` · `a11y`) 을 포함
 
 ## 5. 화면 표시 규칙 (T22 계약 — 이게 "뭘 보여줄지"의 답)
@@ -121,17 +146,40 @@ tripStatus(trip, date) → { runs: boolean, reason: ReasonCode, label: string, s
 
 ## 6. 수용 기준 (AC — 증거로만 판정)
 
-- **AC-D1** `금(X)` 59행 → `excludedDays:["fri"]` **100% 매핑**(원문 대조 카운트 일치), 잔여 미해석 0 또는 `needsReview` 표시
-- **AC-D2** `tripStatus` 단위 테스트: 금요일/월요일/토/일/공휴일(한글날)/대체휴일(개천절) 각 케이스 + `dayScope` 케이스
-- **AC-D3** 원문 인용률 100%(`sourceQuote` 없는 신규 항목 0)
-- **AC-D4** 하위호환: **v2·v1 데이터로도 앱이 정상 렌더**(스모크 1회씩)
-- **AC-D5** 소비자 게이트 목록화 + **미지원 버전 테스트**(RED 실증)
-- **AC-D6** 회귀: `test` 0 fail · `verify:offline` PASS · `v1_smoke`/`v2_smoke`/`a11y` PASS · `lint:boundary` PASS
-- **AC-D7** UI(T22): 금요일 조건이 실제 화면에서 사라짐(금요일 주입 스크린샷) + 사유 배지 + `약 N분 소요` 표시
+**배치 측(T21 — 발행물 `data/timetable.json` + `tools/extract`)**
+
+| # | 기준 | 증거 명령/산출 |
+|---|---|---|
+| **AC-D1** | `금(X)` 59행 → `excludedDays:["fri"]` **100% 매핑**(원문 대조 카운트 일치) · `note` 에 `금(X)` 잔존 0 · 잔여 미해석은 `needsReview` | `npm run test` + `./node_modules/.bin/tsx tools/extract/verify.ts` (파서 카운트 vs 발행물 카운트 표) |
+| **AC-D2** | 원문 인용률 100% — 신규 항목(`service.sourceQuote`·`unknownNote`·`periodSearch.evidenceQuote`) 누락 0, 전부 원본 부분문자열 | `verify.ts`(인용 대조 표) + 검증기 fatal 0 |
+| **AC-D3** | `npm run test` 0 fail — 신규 ≥15(정규화 사전 각 항목 · 미해석 보존 · v1/v2 하위호환 · 미지원 버전 게이트) | `npm run test` |
+| **AC-D4** | **v2·v1 데이터로도 렌더**(스모크 각 1회) + **v3 발행본**으로 `v2_smoke`/`v1_smoke`/`verify:offline`/`a11y` PASS | `node scripts/v1_smoke.mjs` 등 4종 |
+| **AC-D5** | `--inject-fabricated` → exit 1 유지 · `--ai=off` 경로 회귀 없음 | 실행 로그 |
+| **AC-D6** | `npm run build`·`lint:boundary` PASS · `src/domain` 0줄(변경 없음) · 신규 의존성 0 | 실행 출력 |
+
+**앱 측(T22)**
+
+- **AC-D7** `tripStatus` 단위 테스트: 금요일/월요일/토/일/공휴일(한글날)/대체휴일(개천절) 각 케이스 + `dayScope` 케이스
+- **AC-D8** 금요일 조건이 실제 화면에서 사라짐(금요일 주입 스크린샷) + 사유 배지 + `약 N분 소요` 표시
 
 ## 7. 태스크 매핑
 
 | 태스크 | 담당 | 내용 |
 |---|---|---|
-| **T21** | apiprojectcreator | 배치 측: `금(X)`·`월~화`·`0:15`·`중간노선 전용` 구조화 + 방학 기간 수집 + 스키마 v3 + 게이트 목록화 + AC-D1~D6 증거 |
-| **T22** | frontendprojectcreator | 앱 측: `tripStatus` 도메인 판정 + 사유 배지·오늘만 필터·소요시간 + 방학 배너 + AC-D7 증거 (T21 완료 후) |
+| **T21** | apiprojectcreator | 배치 측: `금(X)`·`월~화`·`0:15`·`중간노선 전용` 구조화 + 방학 기간 수집 + 스키마 v3 + 게이트 목록화 + AC-D1~D6 증거 — **완료(2026-10-06)** |
+| **T22** | frontendprojectcreator | 앱 측: `tripStatus` 도메인 판정 + 사유 배지·오늘만 필터·소요시간 + 방학 배너 + AC-D7·D8 증거 (T21 완료 후) |
+
+## 8. 실행 방법 (T21 산출물 재현)
+
+```bash
+npm run test                       # 단위·파이프라인·게이트 테스트
+npm run build && npm run lint:boundary
+# 발행(규칙 전용, AI 호출 0): data/raw/*.html + data/raw/terms/*.html → data/timetable.json
+npm run extract -- --ai=off
+# 계약 실측 검증(파서 카운트 vs 발행물 카운트 · 인용률 · 방학 기간 결과)
+./node_modules/.bin/tsx tools/extract/verify.ts
+# 소비자 스모크(v3 데이터로 앱이 렌더되는지)
+node scripts/v1_smoke.mjs && node scripts/v2_smoke.mjs && npm run verify:offline && node scripts/a11y_smoke.mjs
+```
+
+`--term-page <경로>`(반복 가능)로 방학 시간표 스냅샷을 명시할 수 있다. 생략하면 `data/raw/terms/*.html` 를 자동으로 쓴다.
