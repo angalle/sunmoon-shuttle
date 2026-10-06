@@ -185,3 +185,22 @@ node scripts/v1_smoke.mjs && node scripts/v2_smoke.mjs && npm run verify:offline
 ```
 
 `--term-page <경로>`(반복 가능)로 방학 시간표 스냅샷을 명시할 수 있다. 생략하면 `data/raw/terms/*.html` 를 자동으로 쓴다.
+
+## 8. 개정 — AI 초안 수용 규칙 (2026-10-06, 실 DeepSeek 실행 후)
+
+실 API 로 AI 보강을 켠 결과, AI 가 아래 항목을 만들었고 **의미가 틀렸다**(총괄 실측):
+
+```jsonc
+{ "kind": "no-service", "start": "2024-09-01", "end": null,
+  "scope": [], "effect": { "appliesTo": "all-routes" }, "dayTypes": [],
+  "note": "천안캠퍼스 노선 운행 중단", "extractedBy": "ai", "confidence": 0.9, "needsReview": false }
+```
+원문은 `천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)` 로 **특정 노선의 폐지** 서술이다. 그런데 AI 는 ① **전 노선(all-routes)** ② **날짜 규칙(단일 날짜)** ③ `dayTypes: []` 로 표현했다. (앱 영향은 없었다 — `end` 없는 규칙은 "start 당일"만 적용되므로 2024-09-01 은 오늘과 매칭되지 않는다. 그러나 데이터가 의미를 잘못 담고 있으면 다음 소비자·다음 버전에서 사고가 난다.)
+
+### 규칙(계약에 추가)
+1. **노선 폐지·중단은 날짜 규칙이 아니다** — `routes[].status: "suspended"`(이미 존재) + `routes[].routeNotes[] { quote, note }` 로만 표현한다. 같은 사실을 `dateRules` 에 중복 기재하지 않는다.
+2. **`no-service`/`alternate-schedule` 의 scope**: 원문이 **특정 노선**을 말하면 `scope: [routeId]`, **"전 노선·전체"를 명시한 경우에만** `scope: []` + `effect.appliesTo: "all-routes"`. 근거가 없는데 전 노선으로 넓히면 **폐기**(로그 남김).
+3. **`dayTypes: []` 금지** — 규칙에 요일 의미가 없으면 필드를 비우지 말고, 요일 의미가 있는 경우에만 채운다(빈 배열은 소비자마다 해석이 갈린다).
+4. **기존 표현과 중복되는 AI 초안은 폐기** — 예: `routes[].status: suspended` 가 이미 있는 노선의 중단 서술, 이미 있는 `terms`/`dateRules` 와 같은 기간.
+5. **검증기**: 위 1~3 위반은 **치명 또는 `needsReview`** 로 표시하고 발행 전에 사람이 볼 수 있게 한다(조용한 통과 금지).
+
