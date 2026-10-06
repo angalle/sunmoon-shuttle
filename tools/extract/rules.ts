@@ -16,12 +16,14 @@
 import { DAY_TYPES } from '../scraper/types.js';
 import type { Timetable } from '../scraper/types.js';
 import { ROUTES } from '../scraper/routeMeta.js';
+import { harvestLeafTexts } from './candidates.js';
 import { deriveDates, deriveDayTypes } from './dateparse.js';
 import { findExactQuote } from './text.js';
 import { structureTripConditions } from './trips.js';
 import type {
   Candidate,
   DateRule,
+  RouteNote,
   RuleStructures,
   SemesterPeriod,
   SnapshotSource,
@@ -609,6 +611,48 @@ function periodMeaningRules(input: RuleInput): DateRule[] {
   ];
 }
 
+// ─────────────────────── 노선 폐지·중단(docs/06 §8-1) ───────────────────────
+
+/** 중단 노선의 원문 서술에 붙이는 설명(원문에 없는 내용을 만들지 않는다) */
+export const SUSPENSION_NOTE =
+  '운행 중단(폐지) 노선 — 날짜 규칙(dateRules)이 아니라 routes[].status·routeNotes 로 표현한다(docs/06 §8-1)';
+
+/**
+ * 중단 노선의 **원문 문구**를 스냅샷에서 결정적으로 찾는다(추측·요약 금지).
+ *   ① 본문에서 `이름(사유)` 형태를 그대로 찾는다 — 가장 좁고 정확한 인용(부분문자열 확인 필수)
+ *   ② 없으면 `suspendedReason` 을 담은 **잎 요소(제목·문단)** 중 **가장 짧은** 것(문서 순서 우선)
+ * 못 찾으면 null 이다(빈 문자열로 때우지 않는다).
+ */
+export function findSuspensionQuote(source: SnapshotSource, routeName: string, reason: string | null): string | null {
+  if (reason === null || reason.trim() === '') return null;
+  const wrapped = `${routeName}(${reason})`;
+  if (source.text.includes(wrapped)) return wrapped;
+  return (
+    harvestLeafTexts(source.html)
+      .filter((leaf) => leaf.includes(reason) && source.text.includes(leaf))
+      .sort((a, b) => a.length - b.length)[0] ?? null
+  );
+}
+
+/**
+ * `status: "suspended"` 노선의 원문 서술을 모은다 — **`dateRules` 에 넣지 않는다**(docs/06 §8-1).
+ * 노선 스냅샷에서 문구를 찾은 첫 페이지를 근거로 삼는다(결정적).
+ */
+export function routeNoteStructures(input: RuleInput): { readonly routeId: string; readonly notes: RouteNote[] }[] {
+  const out: { routeId: string; notes: RouteNote[] }[] = [];
+  for (const route of input.base.routes) {
+    if (route.status !== 'suspended') continue;
+    const reason = route.suspendedReason ?? null;
+    const quote = input.sources
+      .filter((source) => source.routeId === route.id)
+      .map((source) => findSuspensionQuote(source, route.name, reason))
+      .find((found): found is string => found !== null);
+    if (quote === undefined) continue;
+    out.push({ routeId: route.id, notes: [{ quote, note: SUSPENSION_NOTE }] });
+  }
+  return out;
+}
+
 // ─────────────────────── 조립 ───────────────────────
 
 function orderDays(days: readonly string[]): (typeof DAY_TYPES)[number][] {
@@ -623,6 +667,7 @@ export function extractRuleStructures(input: RuleInput): RuleStructures {
   const durationEntries = durationNotes(input, index, consumed);
   const stopResult = stopWindowRules(input, index, consumed);
   const tripConditions = structureTripConditions(input.base);
+  const routeNotes = routeNoteStructures(input);
 
   const dateRules: DateRule[] = [
     ...noticeResult.dateRules,
@@ -646,6 +691,7 @@ export function extractRuleStructures(input: RuleInput): RuleStructures {
     dateRules,
     terms,
     tripConditions,
+    routeNotes,
     notices: noticeResult.notices,
     dedupedNotices: noticeResult.removed.length,
     dedupedQuotes: noticeResult.removed.map((entry) => entry.removed.raw),

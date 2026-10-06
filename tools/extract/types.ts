@@ -10,6 +10,8 @@
  *  - `terms[]`      : 학기/방학 구간 + 그 기간에 적용되는 시간표 소스(갭 ④) + `periodSearch`(v3)
  *  - `routes[].tripNotes[]`  : 방향별 소요시간(갭 ②)
  *  - `routes[].stopWindows[]`: 시간창 조건부 정차(갭 ③)
+ *  - `routes[].routeNotes[]` : 노선 폐지·중단 **원문 서술**(`status: "suspended"` 와 짝) — v3 개정(docs/06 §8-1).
+ *                              같은 사실을 `dateRules` 로 표현하지 않는다(날짜 규칙은 "그 날짜에만" 으로 읽힌다)
  *  - `routes[].byDay[*].trips[].service`·`durationMinutes`·`unknownNote`·`needsReview` (v3 편별 조건)
  *  - `source.extraction.schemaVersion`·`termSources` (v3 실행 메타)
  *
@@ -55,8 +57,11 @@ export interface DateRule {
   readonly end: string | null;
   /** 원본 표기에 연도가 없어 학기에서 추론했는가(갭 ⑥) */
   readonly yearInferred: boolean;
-  /** 규칙이 특정 요일에만 적용되면 채운다. 빈 배열 = 요일 한정 없음 */
-  readonly dayTypes: readonly DayType[];
+  /**
+   * 규칙이 특정 요일에만 적용되면 채운다.
+   * **요일 의미가 없으면 필드를 만들지 않는다** — 빈 배열은 소비자마다 해석이 갈리므로 금지한다(docs/06 §8-3).
+   */
+  readonly dayTypes?: readonly DayType[];
   /** 적용 노선 id. 빈 배열 = 전 노선 */
   readonly scope: readonly string[];
   /** kind 별 구조화 값(자유 형식이지만 kind 마다 필수 키가 있다 — validate.ts 참조) */
@@ -192,6 +197,22 @@ export interface StopWindow {
   readonly needsReview: boolean;
 }
 
+// ─────────────────────────── 노선 폐지·중단(스키마 v3 개정 · docs/06 §8-1) ───────────────────────────
+
+/**
+ * 노선 운행 중단(폐지) 서술 1건 — **날짜 규칙이 아니라 노선 서술이다**.
+ *
+ * `routes[].status: "suspended"` 가 "지금 운행하지 않는다"는 사실을, `routeNotes[]` 가 **원문 문구**를 담는다.
+ * 같은 사실을 `dateRules`(`kind: no-service`)에 중복 기재하지 않는다 — 날짜 규칙으로 표현하면
+ * "그 날짜에만 운행이 없다"로 읽혀 의미가 틀린다(docs/06 §8-1, 실 DeepSeek 실행에서 발견).
+ */
+export interface RouteNote {
+  /** 원본 스냅샷 본문의 **정확한 부분문자열**(원문 인용 — 추측·요약 금지) */
+  readonly quote: string;
+  /** 사람이 읽는 설명(왜 이 노선이 중단인가) — 원문에 없는 내용은 쓰지 않는다 */
+  readonly note: string | null;
+}
+
 // ─────────────────────────── 학기/방학(갭 ④) ───────────────────────────
 
 export interface Term {
@@ -309,6 +330,8 @@ export interface MergeOutcome {
 export interface EnrichedRouteData extends RouteData {
   readonly tripNotes: readonly TripNote[];
   readonly stopWindows: readonly StopWindow[];
+  /** 노선 폐지·중단 원문 서술(`status: "suspended"` 와 짝) — 없으면 빈 배열 */
+  readonly routeNotes: readonly RouteNote[];
 }
 
 /** 갭 6종 커버리지 자기보고(검증기가 데이터에서 계산 — 하드코딩 아님) */
@@ -387,6 +410,8 @@ export interface RuleStructures {
   readonly terms: readonly Term[];
   /** v3: 편별 조건(원문 note 해석 결과) — 노선별 */
   readonly tripConditions: readonly { readonly routeId: string; readonly entries: readonly TripConditionEntry[] }[];
+  /** v3 개정: 노선 폐지·중단 원문 서술(노선별) — `dateRules` 가 아니라 여기로만 표현한다 */
+  readonly routeNotes: readonly { readonly routeId: string; readonly notes: readonly RouteNote[] }[];
   /** 중복 제거된 v1 안내문(그대로 v2 `notices` 로 발행된다) */
   readonly notices: readonly Notice[];
   readonly dedupedNotices: number;

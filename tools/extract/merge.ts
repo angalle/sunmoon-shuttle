@@ -14,6 +14,14 @@
  *      `mergedQuotes` 로 **병합(근거 보존)**, term 은 폐기하고, AI 초안끼리 겹쳐도 첫 초안만 채택한다.
  *      병합·폐기 어느 쪽이든 **사유를 `merged`/`dropped` 로 남긴다**(조용한 소실 금지).
  *      치명(fatal)은 ① 인용 위조처럼 **진짜 위험**에만 쓴다 — 중복 때문에 발행 전체가 막히지 않는다.
+ *
+ * T26 — **AI 초안 수용 규칙**(docs/06 §8, 실 DeepSeek 실행에서 의미가 틀린 초안이 발행된 뒤):
+ *   ⑦ **노선 폐지·중단은 dateRule 이 아니다** — `routes[].status`·`routes[].routeNotes[]` 로만 표현한다.
+ *      원문이 노선을 지목하며 중단을 말하면(`운행하지 않습니다` 등) 그 초안은 **폐기 + 사유**다.
+ *   ⑧ **scope 근거 강제** — `no-service`/`alternate-schedule` 은 ①원문이 특정 노선을 말하면 `scope: [routeId]`,
+ *      ②원문이 "전 노선·전체"를 명시했을 때만 `scope: []` + `appliesTo: "all-routes"`.
+ *      근거가 없는데 전 노선으로 넓히면 **폐기**(로그 남김) — 조용히 넓히지 않는다.
+ *   ⑨ **`dayTypes: []` 금지** — 요일 의미가 없으면 필드를 **만들지 않는다**(빈 배열은 해석이 갈린다).
  */
 
 import { deriveDates } from './dateparse.js';
@@ -38,10 +46,68 @@ export const QUOTE_REPAIR_SIMILARITY = 0.85;
 
 const CONFIDENCE_REVIEW_THRESHOLD = 0.6;
 
+/**
+ * 원문이 **전 노선·전체**를 말하는 표기(docs/06 §8-2).
+ * 이 근거가 있을 때만 `scope: []` + `effect.appliesTo: "all-routes"` 를 허용한다 —
+ * 근거 없이 전 노선으로 넓히면 그 초안은 폐기한다.
+ */
+export const ALL_ROUTES_PHRASES: readonly string[] = [
+  '전 노선',
+  '전노선',
+  '전체 노선',
+  '모든 노선',
+  '전체 차량',
+  '전체차량',
+  '전 차량',
+  '모든 셔틀버스',
+  '전체 셔틀버스',
+  '셔틀버스 운행 없음',
+  '셔틀버스 운행없음',
+];
+
+/**
+ * 원문이 **노선 폐지·중단**을 말하는 표기(docs/06 §8-1).
+ * 노선명과 함께 나오면 그 문장은 `dateRules` 가 아니라 `routes[].status`·`routeNotes` 의 재료다.
+ */
+export const SUSPENSION_PHRASES: readonly string[] = [
+  '운행하지 않습니다',
+  '운행하지 않음',
+  '운행하지 않는다',
+  '운행되지 않',
+  '운행 중단',
+  '운행중단',
+  '미운행',
+  '폐지',
+];
+
+/** 원문이 지목한 노선 id(노선명이 그대로 등장할 때만 — 추측하지 않는다) */
+export function routeIdsMentionedIn(quote: string, base: Timetable): string[] {
+  return base.routes.filter((route) => route.name !== '' && quote.includes(route.name)).map((route) => route.id);
+}
+
+/** 원문이 "전 노선·전체"를 명시했는가(scope: [] 의 유일한 근거) */
+export function isAllRoutesStatement(quote: string): boolean {
+  return ALL_ROUTES_PHRASES.some((phrase) => quote.includes(phrase));
+}
+
+/** 원문이 **특정 노선의 폐지·중단**을 말하는가 — dateRule 금지 대상 판정(docs/06 §8-1) */
+export function isRouteSuspensionStatement(quote: string, base: Timetable): boolean {
+  if (routeIdsMentionedIn(quote, base).length === 0) return false;
+  if (SUSPENSION_PHRASES.some((phrase) => quote.includes(phrase))) return true;
+  return base.routes.some(
+    (route) => route.suspendedReason !== undefined && route.suspendedReason !== '' && quote.includes(route.suspendedReason),
+  );
+}
+
 const DAY_TOKEN: Readonly<Record<string, DayType>> = {
   평일: 'weekday',
   주중: 'weekday',
   weekday: 'weekday',
+  월요일: 'weekday',
+  화요일: 'weekday',
+  수요일: 'weekday',
+  목요일: 'weekday',
+  금요일: 'weekday',
   토요일: 'saturday',
   토: 'saturday',
   saturday: 'saturday',
@@ -142,7 +208,9 @@ function fileOfAny(sources: readonly SnapshotSource[]): string {
   return sources[0]?.file ?? '';
 }
 
-function toDayTypes(tokens: readonly string[]): DayType[] {
+function toDayTypes(tokens: readonly string[] | undefined): DayType[] {
+  // 모델이 요일 의미가 없을 때 `dayTypes` 를 아예 넣지 않는다(prompt 5) — 없는 값은 "요일 한정 없음"이다.
+  if (!Array.isArray(tokens)) return [];
   const found = new Set<DayType>();
   for (const token of tokens) {
     const day = DAY_TOKEN[token.trim()];
@@ -169,6 +237,20 @@ export function draftToEntry(
   if (!isDateRuleKind(kind)) {
     return { rule: null, term: null, dropped: { quote: resolved.canonical, reason: `알 수 없는 kind "${kind}"` } };
   }
+  const isTermKind = kind === 'term' || kind === 'vacation';
+  // ⑦ 노선 폐지·중단은 dateRule 이 아니다(docs/06 §8-1) — `routes[].status`·`routeNotes` 몫이다.
+  //    (term 경로는 같은 항목 중복 판정이 규칙 우선으로 흡수한다 — 기존 계약 유지)
+  if (!isTermKind && isRouteSuspensionStatement(resolved.canonical, base)) {
+    return {
+      rule: null,
+      term: null,
+      dropped: {
+        quote: resolved.canonical,
+        reason:
+          '노선 폐지·중단 서술은 dateRule 이 아니다 — routes[].status·routeNotes 로 표현한다(날짜 규칙으로 적으면 "그 날짜에만 운행 없음"으로 읽힌다, docs/06 §8-1)',
+      },
+    };
+  }
   const dates = deriveDates(resolved.canonical, base.semester);
   const dayTypes = toDayTypes(draft.dayTypes);
   const confidence = draft.confidence;
@@ -178,10 +260,11 @@ export function draftToEntry(
     sourcePage: resolved.page,
     extractedBy: 'ai' as const,
     confidence,
-    dayTypes,
   };
+  /** ⑨ 요일 의미가 없으면 `dayTypes` 필드를 **만들지 않는다**(빈 배열 금지, docs/06 §8-3) */
+  const dayFields = dayTypes.length > 0 ? { dayTypes } : {};
 
-  if (kind === 'term' || kind === 'vacation') {
+  if (isTermKind) {
     const termKind: Term['kind'] = kind === 'vacation' ? 'vacation' : 'semester';
     const label = kind === 'vacation' ? '방학' : (/(\d{4})\s*-\s*(\d)\s*학기/.exec(resolved.canonical)?.[0] ?? '학기');
     if (dates.start === null) {
@@ -222,11 +305,28 @@ export function draftToEntry(
     return { rule: null, term: null, dropped: { quote: resolved.canonical, reason: `${kind} 인데 원문에 날짜가 없다` } };
   }
 
+  // ⑧ scope 근거 강제(docs/06 §8-2): 특정 노선 서술 → `scope: [routeId]`,
+  //    "전 노선·전체" 명시 → `scope: []` + all-routes. 어느 쪽 근거도 없으면 **폐기**한다.
+  const scoped = kind === 'no-service' || kind === 'alternate-schedule';
+  const scopeIds = scoped ? routeIdsMentionedIn(resolved.canonical, base) : [];
+  if (scoped && scopeIds.length === 0 && !isAllRoutesStatement(resolved.canonical)) {
+    return {
+      rule: null,
+      term: null,
+      dropped: {
+        quote: resolved.canonical,
+        reason:
+          'scope 근거 없음 — 원문이 특정 노선도 "전 노선·전체"도 말하지 않는다(근거 없이 전 노선으로 넓히지 않는다, docs/06 §8-2)',
+      },
+    };
+  }
+  const appliesTo = scopeIds.length > 0 ? 'specific-routes' : 'all-routes';
+
   const effect: Record<string, unknown> =
     kind === 'alternate-schedule'
-      ? { timetable: resolved.canonical.includes('일요일') ? 'sunday' : null, appliesTo: 'all-routes' }
+      ? { timetable: resolved.canonical.includes('일요일') ? 'sunday' : null, appliesTo }
       : kind === 'no-service'
-        ? { appliesTo: 'all-routes' }
+        ? { appliesTo }
         : kind === 'period-meaning'
           ? { appliesTo: 'unknown', statement: resolved.canonical }
           : kind === 'route-change'
@@ -236,11 +336,12 @@ export function draftToEntry(
   return {
     rule: {
       ...baseFields,
+      ...dayFields,
       kind,
       start: dates.start,
       end: dates.end,
       yearInferred: dates.yearInferred,
-      scope: [],
+      scope: scopeIds,
       effect,
       note,
       needsReview: confidence < CONFIDENCE_REVIEW_THRESHOLD,
@@ -374,7 +475,7 @@ export function mergeAiDrafts(input: AiMergeInput): AiMergeResult {
         return;
       }
       // ⑥-d AI 초안끼리 같은 규칙 → 첫 초안만 채택(사유 기록)
-      const key = `${rule.kind}|${rule.start ?? ''}|${rule.end ?? ''}|${rule.dayTypes.join(',')}|${rule.sourceQuote}`;
+      const key = `${rule.kind}|${rule.start ?? ''}|${rule.end ?? ''}|${(rule.dayTypes ?? []).join(',')}|${rule.sourceQuote}`;
       if (seenKeys.has(key)) {
         dropped.push({
           quote: resolved.canonical,

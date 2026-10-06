@@ -8,15 +8,23 @@
  *                     **중복 규칙·중복 term 은 여기 없다(T23 재분류) — 병합 단계가 규칙 우선으로 흡수하고,
  *                     검증기는 방어적으로 경고만 낸다(중복 때문에 발행 전체가 막히면 안 된다).**
  *  - `fatal: false` → **발행은 하되 검토 대상으로 표시**: 규칙 baseline(행 수·시각) 불일치,
- *                     AI 저신뢰인데 표시가 빠짐, 날짜 미기재 항목, **중복 규칙·중복 term**.
+ *                     AI 저신뢰인데 표시가 빠짐, 날짜 미기재 항목, **중복 규칙·중복 term**,
+ *                     규칙 산출물의 빈 `dayTypes`.
  *
- * 검증 순서: ① v1 보존(앱 무중단) ② v3 스키마 ③ 편별 조건(v3) ④ 인용 ⑤ 중복 ⑥ baseline ⑦ needsReview 판정
+ * T26(docs/06 §8) — **AI 초안 수용 규칙**도 여기서 강제한다(`checkAiAcceptance`):
+ *   노선 폐지·중단을 `dateRule` 로 표현 = **치명** · AI 규칙의 `dayTypes: []` = **치명** ·
+ *   `no-service`/`alternate-schedule` 의 scope 근거 없음(원문에 "전 노선·전체" 없음) = **치명**.
+ *   (조용한 통과 금지 — 발행 전에 사람이 볼 수 있게 한다)
+ *
+ * 검증 순서: ① v1 보존(앱 무중단) ② v3 스키마 ③ 편별 조건(v3) ④ 인용 ⑤ 중복 ⑤-b AI 수용 규칙
+ *            ⑥ baseline ⑦ needsReview 판정
  */
 
 import { DAY_TYPES } from '../scraper/types.js';
 import type { CellValue, DayTable, Notice, Timetable, TripRow } from '../scraper/types.js';
 import { dedupeNotices } from './rules.js';
 import { enrichedCanonicalPayload, sha256Hex } from './enrich.js';
+import { isAllRoutesStatement, isRouteSuspensionStatement, routeIdsMentionedIn } from './merge.js';
 import { noteTextOf } from './trips.js';
 import { findExactQuote } from './text.js';
 import type { QuoteSource } from './text.js';
@@ -155,7 +163,7 @@ export function validateEnriched(timetable: EnrichedTimetableBody, context: Vali
     for (const [field, ok] of required) {
       if (!ok) fatal(`${where}.${field}`, `${rule.kind} 의 필수 필드가 비었습니다`);
     }
-    const key = `${rule.kind}|${rule.start ?? ''}|${rule.end ?? ''}|${rule.dayTypes.join(',')}|${[...rule.scope].sort().join(',')}|${rule.sourceQuote}`;
+    const key = `${rule.kind}|${rule.start ?? ''}|${rule.end ?? ''}|${(rule.dayTypes ?? []).join(',')}|${[...rule.scope].sort().join(',')}|${rule.sourceQuote}`;
     // T23 재분류: 중복은 **치명이 아니다**(병합 단계가 규칙 우선으로 흡수한다) — 방어적으로 경고만 낸다.
     if (seenRules.has(key)) {
       warn(where, '같은 규칙이 중복입니다(중복 제거 위반) — 발행은 하되 검토 대상으로 남깁니다(중복은 치명 아님)');
@@ -166,10 +174,13 @@ export function validateEnriched(timetable: EnrichedTimetableBody, context: Vali
       // 통합된 표기는 다른 페이지에서 온 것일 수 있으므로 근거 페이지 대조는 하지 않는다(인용 존재만 확인)
       else checkQuote(quote, '', `${where}.mergedQuotes`, context, fatal);
     }
-    for (const day of rule.dayTypes) {
+    for (const day of rule.dayTypes ?? []) {
       if (!(DAY_TYPES as readonly string[]).includes(day)) fatal(`${where}.dayTypes`, `알 수 없는 요일 "${String(day)}"`);
     }
   });
+
+  // ⑤-b T26 AI 초안 수용 규칙(docs/06 §8) — 노선 폐지를 dateRule 로 표현·scope 근거 없음·`dayTypes: []`
+  checkAiAcceptance(timetable, context.baseline, fatal, warn);
 
   // ⑥ terms
   const seenTerms = new Set<string>();
@@ -191,8 +202,16 @@ export function validateEnriched(timetable: EnrichedTimetableBody, context: Vali
     seenTerms.add(key);
   });
 
-  // ⑦ routes[].tripNotes / stopWindows
+  // ⑦ routes[].tripNotes / stopWindows / routeNotes(T26 개정)
   timetable.routes.forEach((route) => {
+    route.routeNotes.forEach((entry, index) => {
+      const where = `routes[${route.id}].routeNotes[${index}]`;
+      if (entry.quote.trim() === '') {
+        fatal(`${where}.quote`, '원문 인용이 비었습니다(노선 폐지·중단 근거 필요)');
+        return;
+      }
+      checkQuote(entry.quote, '', where, context, fatal);
+    });
     route.tripNotes.forEach((note: TripNote, index: number) => {
       const where = `routes[${route.id}].tripNotes[${index}]`;
       if (note.minutes !== null && (!Number.isInteger(note.minutes) || note.minutes <= 0 || note.minutes > 300)) {
@@ -216,6 +235,75 @@ export function validateEnriched(timetable: EnrichedTimetableBody, context: Vali
   });
 
   return issues;
+}
+
+/**
+ * T26 AI 초안 수용 규칙(docs/06 §8) — **조용한 통과 금지**.
+ *
+ *   ① 노선 폐지·중단 서술을 `dateRule` 로 표현하면 **치명**(출처 무관 — 스키마 오용).
+ *      `routes[].status`·`routes[].routeNotes[]` 가 그 사실의 자리다.
+ *   ② AI(`extractedBy: ai`) 규칙의 `dayTypes` 가 **빈 배열**이면 치명 — 요일 의미가 없으면 필드를 만들지 않는다.
+ *      (규칙 파서 산출물의 빈 배열은 경고 — 회귀 감시)
+ *   ③ AI 의 `no-service`/`alternate-schedule` 은 **scope 근거**가 있어야 한다:
+ *      원문이 특정 노선을 말하면 `scope: [그 노선 id]`, "전 노선·전체" 명시일 때만 `scope: []` + `all-routes`.
+ *      근거 없이 전 노선으로 넓혔거나 원문에 없는 노선을 넣었으면 **치명**.
+ */
+function checkAiAcceptance(
+  timetable: EnrichedTimetableBody,
+  baseline: Timetable,
+  fatal: (where: string, message: string) => void,
+  warn: (where: string, message: string) => void,
+): void {
+  timetable.dateRules.forEach((rule, index) => {
+    const where = `dateRules[${index}](${rule.kind})`;
+    const quote = rule.sourceQuote;
+
+    if (isRouteSuspensionStatement(quote, baseline)) {
+      fatal(
+        where,
+        '노선 폐지·중단 서술을 dateRule 로 표현했습니다 — routes[].status·routes[].routeNotes 로만 표현한다(docs/06 §8-1)',
+      );
+    }
+
+    const dayTypes = rule.dayTypes;
+    if (dayTypes !== undefined && dayTypes.length === 0) {
+      if (rule.extractedBy === 'ai') {
+        fatal(`${where}.dayTypes`, 'dayTypes 가 빈 배열입니다 — 요일 의미가 없으면 필드를 만들지 않습니다(docs/06 §8-3)');
+      } else {
+        warn(`${where}.dayTypes`, 'dayTypes 가 빈 배열입니다 — 요일 의미가 없으면 필드를 만들지 않는다(docs/06 §8-3)');
+      }
+    }
+
+    if (rule.extractedBy !== 'ai') return;
+    if (rule.kind !== 'no-service' && rule.kind !== 'alternate-schedule') return;
+
+    const named = routeIdsMentionedIn(quote, baseline);
+    const effect = (rule.effect ?? {}) as Record<string, unknown>;
+    if (rule.scope.length === 0) {
+      if (named.length > 0) {
+        fatal(`${where}.scope`, `원문이 특정 노선(${named.join(', ')})을 말하는데 scope 가 비었습니다(docs/06 §8-2)`);
+        return;
+      }
+      if (effect['appliesTo'] !== 'all-routes') {
+        fatal(`${where}.effect.appliesTo`, `scope 가 비었으면 appliesTo 는 "all-routes" 여야 합니다 — 실제 ${JSON.stringify(effect['appliesTo'])}`);
+        return;
+      }
+      if (!isAllRoutesStatement(quote)) {
+        fatal(
+          `${where}.scope`,
+          '원문에 "전 노선·전체" 근거가 없는데 scope: [] (전 노선)로 넓혔습니다 — 근거 없는 확대 금지(docs/06 §8-2)',
+        );
+      }
+      return;
+    }
+    for (const id of rule.scope) {
+      if (!baseline.routes.some((route) => route.id === id)) {
+        fatal(`${where}.scope`, `알 수 없는 노선 id "${id}"`);
+      } else if (!named.includes(id)) {
+        fatal(`${where}.scope`, `원문이 말하지 않은 노선을 scope 에 넣었습니다 — "${id}"(docs/06 §8-2)`);
+      }
+    }
+  });
 }
 
 /** v1 보존 비교용 — 조건 필드와 `note` 를 뺀 값(그 둘은 v3 계약으로 바뀐다). */

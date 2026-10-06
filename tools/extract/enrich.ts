@@ -7,7 +7,7 @@
  * 보존 원칙(발행 전 검증기가 다시 확인한다 — `validate.ts`):
  *  - `schemaVersion` 2 → 3 (앱은 `schemaVersion` 을 숫자로만 읽는다)
  *  - `semester` · `holidayPeriod` · `dayTypes` · `busRefs` · `contacts` · `source`(url·시각·pages) 불변
- *  - `routes[]` 는 표(columns/keys/rows/offDays/status) **불변** + `tripNotes[]`·`stopWindows[]`·조건 필드 추가
+ *  - `routes[]` 는 표(columns/keys/rows/offDays/status) **불변** + `tripNotes[]`·`stopWindows[]`·`routeNotes[]`·조건 필드 추가
  *  - `notices[]` 는 **중복 통합만** 수행(갭 ⑥) — 나머지 항목의 kind/text/raw/date/endDate 는 불변
  *  - `contentHash` 는 v3 페이로드(v3 추가 필드 포함, `source` 제외)로 **재계산**한다
  */
@@ -24,6 +24,7 @@ import type {
   EnrichedTimetableBody,
   EnrichedTripRow,
   ExtractionMeta,
+  RouteNote,
   StopWindow,
   Term,
   TripConditionEntry,
@@ -40,6 +41,8 @@ export interface EnrichedParts {
   readonly stopWindows: readonly { readonly routeId: string; readonly windows: readonly StopWindow[] }[];
   /** v3: 편별 조건(원문 note 해석 결과) — 없으면 조건 없음(편별 note 없는 입력) */
   readonly tripConditions?: readonly { readonly routeId: string; readonly entries: readonly TripConditionEntry[] }[];
+  /** v3 개정: 노선 폐지·중단 원문 서술 — `dateRules` 가 아니라 여기로만 표현한다(docs/06 §8-1) */
+  readonly routeNotes?: readonly { readonly routeId: string; readonly notes: readonly RouteNote[] }[];
   readonly notices: readonly Notice[];
   readonly dedupedNotices: number;
 }
@@ -67,6 +70,7 @@ export function applyTripCondition(row: TripRow, entry: TripConditionEntry | und
 export function buildEnrichedTimetable(base: Timetable, parts: EnrichedParts): EnrichedTimetableBody {
   const tripNotesByRoute = new Map(parts.tripNotes.map((entry) => [entry.routeId, entry.notes]));
   const stopWindowsByRoute = new Map(parts.stopWindows.map((entry) => [entry.routeId, entry.windows]));
+  const routeNotesByRoute = new Map((parts.routeNotes ?? []).map((entry) => [entry.routeId, entry.notes]));
   const conditionsByRoute = new Map(
     (parts.tripConditions ?? []).map((entry) => [
       entry.routeId,
@@ -101,6 +105,7 @@ export function buildEnrichedTimetable(base: Timetable, parts: EnrichedParts): E
       ),
       tripNotes: clone(tripNotesByRoute.get(route.id) ?? []),
       stopWindows: clone(stopWindowsByRoute.get(route.id) ?? []),
+      routeNotes: clone(routeNotesByRoute.get(route.id) ?? []),
     };
   });
 
