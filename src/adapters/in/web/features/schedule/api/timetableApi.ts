@@ -30,17 +30,21 @@ export const TIMETABLE_PATH = './data/timetable.json';
  *  - `2` — T16 이 넓힌 계약(`dateRules[]`·`terms[]`·`routes[].tripNotes[]`·`stopWindows[]`).
  *    파서는 이 배열들을 **선택**으로 읽는다(키가 없거나 배열이 아니면 `[]` — normalize.ts 주석)
  *    → v1 파일도 같은 파서로 그대로 동작한다(무중단 하위호환).
+ *  - `3` — T21 이 넓힌 계약(`routes[].byDay[*].trips[].service`·`durationMinutes`·`unknownNote`·
+ *    `needsReview`, `terms[].periodSearch`, `source.extraction.schemaVersion`). 파서는 편별 조건을
+ *    아직 읽지 않지만(v3 표시는 T22), 발행물을 **읽어 렌더하는 데는 문제가 없다**(모르는 키는 무시).
  *
  * 목록 밖(더 높은) 버전의 캐시는 버린다 — 마이그레이션 없음(`ports/timetable_cache.ts` 계약).
  *
  * ⚠️ **발행물의 스키마 버전을 올릴 때는 이 목록도 같이 올려야 한다**(T18 회귀): T16 이 데이터를 v2 로
  * 발행했는데 이 게이트가 v1 만 통과시켜, 캐시가 저장은 되지만 읽히지 않아 **수집 실패 폴백(AC-5)이
  * 통째로 죽었다**(`npm run verify:offline` FAIL 5건). 목록을 늘리지 않으면 캐시 폴백이 조용히 사라진다.
+ * → 미지원 버전 RED 테스트: `tests/extract/consumer-gate.test.ts`(발행물 version ∈ 목록 검사).
  */
-export const SUPPORTED_SCHEMA_VERSIONS: readonly number[] = [1, 2];
+export const SUPPORTED_SCHEMA_VERSIONS: readonly number[] = [1, 2, 3];
 
 /** 현재 계약의 스키마 버전(= 지원 목록의 최신). 캐시 게이트는 이 값이 아니라 **목록**으로 판정한다. */
-export const SUPPORTED_SCHEMA_VERSION = 2;
+export const SUPPORTED_SCHEMA_VERSION = 3;
 
 export type FetchLike = (input: string) => Promise<Response>;
 

@@ -101,6 +101,8 @@ tripStatus(trip, date) → { runs: boolean, reason: ReasonCode, label: string, s
 **v1/v2 보존 범위(정정)**: v3 는 `routes[].byDay[*].trips[]` 행을 **원문 note 가 있는 행에 한해** 바꾼다
 (`note` 비움 + `service`/`durationMinutes`/`unknownNote`/`needsReview` 추가). 시각·순번·열(`columns`)·행 수는
 **값까지 그대로**여야 하며, 검증기가 그 불변식을 강제한다(`note`·조건 필드는 비교에서 제외).
+원문 note 가 없던 행은 **v1 그대로**다 — `note: null` 을 새로 넣지 않고 키 자체가 없다(빈값 = 키 없음).
+`note` 는 **원문 note 가 있던 행에서만** 구조화 결과에 따라 `null`(구조화) 또는 원문 문자열(미해석)이 된다.
 
 **미해석 표기 보존**: 표에 없는 표기는 버리지 않는다 → `service: null`, `note` 유지(원문),
 `unknownNote: "원문"`(= note 와 같은 문자열), `needsReview: true`.

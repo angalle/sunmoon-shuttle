@@ -495,11 +495,40 @@ function requireRecord(value: unknown, path: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
+/**
+ * 행 1개를 검사한다. **표 셀**(`seq`·시각·`note`·…)은 문자열·숫자·null 만 허용하지만,
+ * v3 편별 조건 필드(`service`·`durationMinutes`·`unknownNote`·`needsReview`)는 셀이 아니라
+ * **구조**이므로 각자 타입 규칙으로 따로 검사한다(docs/06 §3 · T21).
+ * 모르는 키는 셀 규칙으로 검사한다(v1 계약 유지 — v1/v2 파일은 이 분기를 타지 않는다).
+ */
 function requireRow(value: unknown, path: string): TripRow {
   const record = requireRecord(value, path);
   for (const [key, cell] of Object.entries(record)) {
-    if (cell !== null && typeof cell !== 'string' && typeof cell !== 'number') {
-      throw new TimetableDataError(`${path}.${key}`, `셀 값은 문자열·숫자·null 이어야 합니다 (${describe(cell)})`);
+    switch (key) {
+      case 'service':
+        if (cell !== null && recordOrNull(cell) === null) {
+          throw new TimetableDataError(`${path}.service`, `객체 또는 null 이어야 합니다 (${describe(cell)})`);
+        }
+        continue;
+      case 'needsReview':
+        if (typeof cell !== 'boolean') {
+          throw new TimetableDataError(`${path}.needsReview`, `true/false 여야 합니다 (${describe(cell)})`);
+        }
+        continue;
+      case 'durationMinutes':
+        if (cell !== null && typeof cell !== 'number') {
+          throw new TimetableDataError(`${path}.durationMinutes`, `숫자 또는 null 이어야 합니다 (${describe(cell)})`);
+        }
+        continue;
+      case 'unknownNote':
+        if (cell !== null && typeof cell !== 'string') {
+          throw new TimetableDataError(`${path}.unknownNote`, `문자열 또는 null 이어야 합니다 (${describe(cell)})`);
+        }
+        continue;
+      default:
+        if (cell !== null && typeof cell !== 'string' && typeof cell !== 'number') {
+          throw new TimetableDataError(`${path}.${key}`, `셀 값은 문자열·숫자·null 이어야 합니다 (${describe(cell)})`);
+        }
     }
   }
   return record as TripRow;
