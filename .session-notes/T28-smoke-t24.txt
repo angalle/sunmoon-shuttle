@@ -1,0 +1,71 @@
+
+검사 결과:
+  PASS  AC-U1 스플래시가 진입 시 표시된다 — "선문대 셔틀시간표 불러오는 중"
+  PASS  AC-U1 스플래시 내용 — 로고(src) + 앱 이름 + 진행 표시 + `시간표 불러오는 중` — {"logo":"./icons/icon-192.png","spinner":true,"text":"선문대 셔틀시간표 불러오는 중"}
+  PASS  AC-U1 접근성 — role="status" + aria-live="polite" — role=status live=polite
+  PASS  AC-U1 스플래시가 화면을 덮는다(전체화면 진입 경험) — covers=true
+  PASS  AC-U1 본문 전환(시간표 렌더)
+  PASS  AC-U1 표시 시간 실측 400ms ≤ t ≤ 2.5s (하한: 깜빡임 방지) — t=416ms (shownAt=17 hiddenAt=433 reason=data)
+  PASS  AC-U1 스플래시 노드가 사라진다(전환 완료) — present=false
+  PASS  AC-U1 본문 전환 스크린샷 + 시간표 행 렌더 — rows=115
+  PASS  AC-U9-1 상단 바에 현재 날짜·시각이 `10월 6일 (화) · 08:00` 형식으로 있다 — {"clock":{"text":"10월 6일 (화) · 08:00","datetime":"2026-10-05T23:00:00.000Z","fontSize":"15px","weight":"700"},"expected":"10월 6일 (화) · 08:00"}
+  PASS  AC-U9-1 시각이 분 단위로 갱신된다(+1분 실측) — got=10월 6일 (화) · 08:01 expected=10월 6일 (화) · 08:01
+  PASS  AC-U9-1 진입 시 "다음 출발" 행이 정확히 하나 있고(가장 가까운 남은 편) 그 행이 화면에 보인다 — {"nextTime":"08:05","nextTop":334,"nextBottom":400,"appbarBottom":73,"innerHeight":844}
+  PASS  AC-U9-1/9-4 자동 스크롤 계측값 + `scroll-margin-top` 적용(상단 바 높이) — {"scroll":{"autoScrolls":2,"skipped":0,"buttonScrolls":0,"lastTargetKey":"asan-ktx:1","lastOffset":200,"lastAutoAt":660.3000001907349,"lastUserScrollAt":null},"scrollMarginTop":56,"nextKey":"asan-ktx:1"}
+  PASS  AC-U9-3 강조는 좌측 라인 + 배경 톤만 — 테두리 0 · 배지 0 · 강조 행 토큰 0 — {"next":{"color":"rgb(15, 23, 32)","background":"rgb(238, 244, 251)","boxShadow":"rgb(11, 84, 151) 3px 0px 0px 0px inset","borderTop":"0px","borderLeft":"0px","borderRight":"0px"},"normal":{"color":"rgb(95, 113, 131)","background":"rgba(0, 0, 0, 0)","boxShadow":"none","borderTop":"0px","borderLeft":"0px","borderRight":"0px"},"badges":0,"tokens":0}
+  PASS  AC-U9-3 지나간 행은 dim(계산색 실측) — 지난 편 수 > 0 — {"pastCount":2,"pastColor":"rgb(90, 107, 124)","normalColor":"rgb(95, 113, 131)"}
+  PASS  AC-U9-3 조건 토큰은 행당 1개 이하 · 짧다(긴 사유 문구 금지 — 8자 이하 실측) — {"tokenRows":60,"maxPerRow":1,"maxLength":6,"longest":"월·화 2대"}
+  INFO  AC-U9-1 스크린샷(다음 출발 강조): .session-notes/T27-3-다음출발-자동스크롤.png
+  PASS  AC-U9-2 본문 텍스트에 제거 대상 문구 0건(소개문구·데이터 갱신·출처·요금·변동·원본) — [{"phrase":"지금 탈 수 있는 셔틀버스를 바로 보여줍니다","count":0},{"phrase":"Shows the shuttle","count":0},{"phrase":"데이터 갱신","count":0},{"phrase":"출처","count":0},{"phrase":"요금","count":0},{"phrase":"다가오는 운행 변동","count":0},{"phrase":"정차 시간 안내","count":0},{"phrase":"원본","count":0}]
+  PASS  AC-U9-2 히어로 카드·바로가기·앱 탭·원본표 노드 0개 — []
+  PASS  요일 전환 컨트롤 유지 — role=tablist · 3개(평일/토/일) · roving tabindex · 화면은 하나(숨은 패널 0) — {"role":"tablist","labels":["평일 (오늘)노선 4/5개","토요일노선 3/5개","일요일노선 3/5개"],"selected":["true","false","false"],"tabIndexes":["0","-1","-1"],"hiddenPanels":0}
+  PASS  AC-U9-4 사용자가 스크롤한 뒤 3초 안에는 자동 스크롤하지 않는다(스킵 실측) — {"before":{"scrollTop":400,"auto":2},"during":{"auto":2,"skipped":2}}
+  PASS  AC-U9-4 3초가 지나면 다시 다음 출발로 맞춘다(재스크롤 허용) — {"during":{"auto":2,"skipped":2},"after":{"auto":3,"scrollTop":204}}
+  PASS  AC-U9-4 자동 스크롤이 가려지지 않는다(다음 출발 행 y ≥ 상단 바 하단) — {"nextTop":130,"appbarBottom":73}
+  PASS  AC-U10-3 두 버튼이 우하단 **세로 스택**으로 있다(아이콘 + `aria-label` — 화면 문구 없음) — {"labels":["현재 시간으로","맨 위로"],"position":"absolute","zIndex":30,"now":{"top":724,"bottom":772,"left":326,"right":374,"width":48,"height":48},"top":{"top":780,"bottom":828,"left":326,"right":374,"width":48,"height":48}}
+  PASS  AC-U10-3 두 버튼 터치 타깃 ≥48×48 (실측) — {"now":{"top":724,"bottom":772,"left":326,"right":374,"width":48,"height":48},"top":{"top":780,"bottom":828,"left":326,"right":374,"width":48,"height":48}}
+  PASS  AC-U10-3 두 버튼이 키보드 포커스를 받는다(focus() → activeElement 실측) — [true,true]
+  PASS  AC-U10-3 safe-area bottom(34px) + 16px 만큼 띄운다(하단 여백 실측) — {"gapBottom":50,"gapRight":16,"innerHeight":844}
+  PASS  AC-U10-3 맨 아래까지 스크롤해도 마지막 행이 버튼 스택과 겹치지 않는다(겹침 0 실측) — {"lastBottom":422,"stackTop":724,"scrollTop":7362}
+  INFO  AC-U10-3 스크린샷(우하단 이동 버튼): .session-notes/T28-1-이동버튼-본문-390x844.png
+  PASS  AC-U10-2 `맨 위로` 클릭 → scrollTop = 0 (수치) — {"before":{"scrollTop":7362},"after":{"scrollTop":0,"buttons":1}}
+  INFO  AC-U10-2 스크린샷(맨 위로 클릭 후): .session-notes/T28-3-맨위로-클릭후.png
+  PASS  AC-U10-1 `현재 시간으로` 클릭 → 다음 출발 행이 상단 바 아래로 이동(전/후 scrollTop + 행 y좌표) — {"before":{"scrollTop":0,"nextTop":334,"appbarBottom":73},"after":{"scrollTop":200,"nextTop":134,"appbarBottom":73,"innerHeight":844}}
+  INFO  AC-U10-1 스크린샷(현재 시간으로 클릭 후): .session-notes/T28-2-현재시간으로-클릭후.png
+  PASS  AC-U10-1 사용자 스크롤로 억제된 상태(3초 이내)에서도 `현재 시간으로`는 동작한다(억제 해제 실측) — {"before":{"scrollTop":0,"buttonScrolls":2,"skipped":2},"after":{"scrollTop":200,"buttonScrolls":3,"userScrollAt":9026.599999904633}}
+  PASS  AC-U10-4 폰트 실측 — 행 시각 15px · 행 보조 13px · 조건 토큰 11px · 상단 바 15px — {"clock":15,"rowTime":15,"rowMeta":13,"token":11}
+  PASS  AC-U10-4 화면 텍스트 중 11px 미만 0건(하한 실측) · 행 높이 ≥48px(불변) — {"minText":{"size":11,"text":"금 휴","label":"span.shuttle-departure__token"},"rowHeight":66}
+  PASS  AC-U3 390×844(iPhone) 가로 스크롤 0(문서·본문 스크롤포트 둘 다) — scrollWidth=390 clientWidth=390 list=366/366
+  PASS  AC-U3 360×800(Android) 가로 스크롤 0(문서·본문 스크롤포트 둘 다) — scrollWidth=360 clientWidth=360 list=336/336
+  INFO  AC-U3 스크린샷: .session-notes/T27-4-본문-390x844.png · .session-notes/T27-4-본문-360x800.png
+  PASS  AC-U4 노치·홈인디케이터(47/34px)만큼 셸이 여백을 확보한다(상단 바·본문이 잘리지 않음) — {"appPaddingTop":47,"appPaddingBottom":48,"appbarTop":47,"appbarHeight":57,"scrollBottom":796,"innerHeight":844}
+  INFO  AC-U4 safe-area: CDP inset 주입 미지원(토큰 주입으로 실측)
+  PASS  AC-U5 스플래시 2.5s 상한 실측(초과 시 스켈레톤으로 진행) — t=2531ms 예약=2499.800000190735ms reason=timeout
+  PASS  AC-U5 캐시 없는 첫 실행에서 스켈레톤 카드 3장(빈 화면·텍스트만 아님) — {"present":true,"cards":3,"bars":9,"role":"status","rows":0,"splash":false}
+  PASS  AC-U5 지연 해제 후 본문 렌더(스켈레톤→본문)
+  INFO  AC-U5 스켈레톤 스크린샷: .session-notes/T27-6-스켈레톤.png
+  PASS  AC-U6 prefers-reduced-motion: reduce 에서 전환 애니메이션 0(계산값) — {"reduced":true,"panelAnimation":"0s","splashTransition":"0s","spinnerAnimation":"none"}
+  INFO  AC-U6 대조군(일반 모드): panel animation=0.18s · splash transition=0.2s → reduce: panel=0s · splash=0s
+  PASS  AC-U6 reduced-motion 에서도 스플래시 하한(400ms)은 지킨다(즉시 페이드아웃) — t=413ms
+  PASS  AC-U10-1(보조) reduced-motion 에서 `현재 시간으로`는 즉시 이동(60ms 값 = 600ms 값) — 60ms=200 600ms=200
+  PASS  회귀: 화면 `원본` 0회 · 학교 링크 ≤1 · 원본표 0개 (T14 계약 유지) — {"innerTextSource":0,"domSource":0,"schoolLinks":1,"sourceDetails":0,"elements":938,"sheetHidden":true}
+  PASS  정보 시트(ⓘ)는 기본 숨김이다 — {"innerTextSource":0,"domSource":0,"schoolLinks":1,"sourceDetails":0,"elements":938,"sheetHidden":true}
+  PASS  정보 시트(ⓘ): 출처·데이터 갱신·요금/정차창이 본문이 아니라 시트 안에 있다(§9-5) — {"open":true,"sourceLine":true,"refreshLine":true,"stopWindow":true,"noticePanel":true,"bodyText":false}
+  PASS  회귀: 콘솔 오류 0
+  PASS  회귀: 셸이 비어 있지 않다(화면 요소 200개 초과) — elements=938
+  INFO  스플래시 스크린샷: .session-notes/T27-1-스플래시.png · .session-notes/T27-5-safe-area-390x844.png · .session-notes/T27-2-본문-390x844.png
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-1-스플래시.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-2-본문-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-3-다음출발-자동스크롤.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T28-1-이동버튼-본문-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T28-3-맨위로-클릭후.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T28-2-현재시간으로-클릭후.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-4-본문-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-4-본문-360x800.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-5-safe-area-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-6-스켈레톤.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-7-reduced-motion-본문.png
+
+T27·T28 SMOKE: PASS
