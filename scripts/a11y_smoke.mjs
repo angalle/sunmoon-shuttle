@@ -8,7 +8,8 @@
  * 검증 항목(카드 수용기준 2·3·4 + 지시 ①③④⑤)
  *   ① `Page.getAppManifest` 로 **매니페스트가 실제로 파싱**되는지(오류 0) + 아이콘 URL 이 200 인지
  *   ② 라이트/다크 **실제 대비 실측** — 화면의 모든 텍스트 노드를 돌며 WCAG 대비 계산(본문 4.5 / 큰 글씨 3.0)
- *   ③ **터치 타깃 실측** — 포커스 가능한 요소의 폭·높이(≥48×48)
+ *   ③ **터치 타깃 실측** — 포커스 가능한 요소의 폭·높이(기본 ≥48×48 · 상단 3줄의 요일 탭 44·방향 칩 40 은
+ *      docs/07 §12-5(AC-U12-4)가 낮춰 규정한 값 — **가로 ≥48px 유지**)
  *   ④ `prefers-color-scheme` 반영 실측(토큰 값과 계산값 일치) + 라이트/다크 **스크린샷 각 1장**
  *   ⑤ 전체화면(standalone) 실측 — `--app=` 모드에서 matchMedia(display-mode) 확인 + 스크린샷
  *   ⑥ 안전영역(safe-area) 대응 — `Emulation.setSafeAreaInsets` 로 노치·홈 인디케이터를 주입해 여백 확인
@@ -266,6 +267,16 @@ const PRIVACY_CONTRAST_PROBE = contrastProbe('.privacy-page');
 /** 포커스 가능한 요소의 터치 타깃 크기 측정. */
 const TARGET_PROBE = `
   const selector = '.shuttle-app a[href], .shuttle-app button, .shuttle-app summary, .shuttle-app [role="tab"], .shuttle-app [tabindex]:not([tabindex="-1"])';
+  /**
+   * 요소별 **문서가 정한 최소 크기**. 기본은 48×48(docs/00 §4)이지만,
+   * docs/07 §12-5(AC-U12-4)가 상단 3줄의 두 컨트롤 높이를 낮춰 규정했다 —
+   * 요일 세그먼트 탭 44px · 방향 칩 40px(둘 다 **가로 ≥48px 유지**).
+   */
+  const minSizeOf = (node) => {
+    if (node.classList.contains('shuttle-tab')) return { width: 48, height: 44 };
+    if (node.classList.contains('shuttle-chip')) return { width: 48, height: 40 };
+    return { width: 48, height: 48 };
+  };
   const rows = [];
   for (const node of document.querySelectorAll(selector)) {
     const style = getComputedStyle(node);
@@ -275,11 +286,14 @@ const TARGET_PROBE = `
     // 렌더되지 않는 요소는 터치 타깃이 아니므로 여기서 빼고, 그 화면들은 auditTargets 가 실제로 열어 측정한다.
     if (rect.width === 0 && rect.height === 0) continue;
     const className = typeof node.className === 'string' && node.className !== '' ? '.' + node.className.split(' ').join('.') : '';
+    const min = minSizeOf(node);
     rows.push({
       label: node.tagName.toLowerCase() + className,
       text: (node.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 28),
       width: Math.round(rect.width),
       height: Math.round(rect.height),
+      minWidth: min.width,
+      minHeight: min.height,
     });
   }
   return rows;
@@ -475,9 +489,14 @@ async function main() {
         };
       `);
       const contrastBad = contrast.filter((row) => row.ratio < row.threshold);
-      const targetBad = targets.filter((row) => row.width < 48 || row.height < 48);
+      // 기준은 행마다 다르다 — 기본 48×48, §12-5 예외(요일 탭 44 · 방향 칩 40, 가로 ≥48).
+      const targetBad = targets.filter((row) => row.width < row.minWidth || row.height < row.minHeight);
       check(`[${theme}] 대비 미달 0건 (텍스트 ${String(contrast.length)}개 실측)`, contrastBad.length === 0, contrastBad.map((row) => `${row.label} "${row.text}" ${String(row.ratio)}<${String(row.threshold)}`).join(' | '));
-      check(`[${theme}] 터치 타깃 ≥48×48 (요소 ${String(targets.length)}개 실측)`, targetBad.length === 0, targetBad.map((row) => `${row.label} "${row.text}" ${String(row.width)}x${String(row.height)}`).join(' | '));
+      check(
+        `[${theme}] 터치 타깃 규격(기본 48×48 · §12-5 탭 44·칩 40 가로 ≥48) (요소 ${String(targets.length)}개 실측)`,
+        targetBad.length === 0,
+        targetBad.map((row) => `${row.label} "${row.text}" ${String(row.width)}x${String(row.height)} < ${String(row.minWidth)}x${String(row.minHeight)}`).join(' | '),
+      );
       check(`[${theme}] theme-color 메타 = --color-bg(${tokens.colorBg})`, tokens.themeColorMeta === tokens.colorBg, `meta=${String(tokens.themeColorMeta)}`);
       check(`[${theme}] prefers-color-scheme 반영`, tokens.darkScheme === (theme === 'dark'), `matches=${String(tokens.darkScheme)}`);
       check(`[${theme}] 수평 스크롤 없음(본문 폭 ${String(layout.innerWidth)}px · scrollWidth=${String(layout.scrollWidth)})`, layout.canScrollHorizontally === false, `scrollLeft→${String(layout.scrollLeftAfter)} offenders=${JSON.stringify(layout.offenders)}`);
@@ -488,9 +507,9 @@ async function main() {
             `| ${row.label} | ${row.text.replace(/\|/g, '\\|')} | ${row.foreground} | ${row.background} | ${String(row.fontSize)}px${row.bold ? ' bold' : ''}${row.large ? ' (큰글씨)' : ''} | ${String(row.ratio)}:1 | ≥${String(row.threshold)} |`,
         )
         .join('\n')}\n\n미달: ${contrastBad.length === 0 ? '0건' : `${String(contrastBad.length)}건`}\n`);
-      report.push(`\n#### ${theme} — 터치 타깃 실측(${String(targets.length)}개)\n\n| 요소 | 문구 | 폭 | 높이 |\n|---|---|---|---|\n${targets
-        .map((row) => `| ${row.label} | ${row.text.replace(/\|/g, '\\|')} | ${String(row.width)}px | ${String(row.height)}px |`)
-        .join('\n')}\n\n48×48 미만: ${targetBad.length === 0 ? '0건' : `${String(targetBad.length)}건`}\n\n레이아웃: 요소 ${String(layout.elements)}개 · body bg=${String(layout.bodyBackground)} · body color=${String(layout.bodyColor)} · scrollWidth=${String(layout.scrollWidth)} ≤ clientWidth=${String(layout.clientWidth)}\n`);
+      report.push(`\n#### ${theme} — 터치 타깃 실측(${String(targets.length)}개)\n\n| 요소 | 문구 | 폭 | 높이 | 최소(문서) |\n|---|---|---|---|---|\n${targets
+        .map((row) => `| ${row.label} | ${row.text.replace(/\|/g, '\\|')} | ${String(row.width)}px | ${String(row.height)}px | ${String(row.minWidth)}×${String(row.minHeight)} |`)
+        .join('\n')}\n\n규격 미달: ${targetBad.length === 0 ? '0건' : `${String(targetBad.length)}건`}\n\n레이아웃: 요소 ${String(layout.elements)}개 · body bg=${String(layout.bodyBackground)} · body color=${String(layout.bodyColor)} · scrollWidth=${String(layout.scrollWidth)} ≤ clientWidth=${String(layout.clientWidth)}\n`);
       return tokens;
     };
 

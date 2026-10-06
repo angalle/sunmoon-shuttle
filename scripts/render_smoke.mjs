@@ -342,7 +342,11 @@ async function main() {
     `);
     check('요일 탭 3개', initial.tabs === 3, `tabs=${String(initial.tabs)}`);
     check('오늘(KST) 탭이 기본 선택', initial.selectedTab === 'shuttle-day-tab-weekday', `selected=${String(initial.selectedTab)}`);
-    check('주말 탭이 노선 수를 반영', String(initial.tabNotes[1]).includes('노선 3/5개'), `토요일 탭="${String(initial.tabNotes[1])}"`);
+    check(
+      '요일 탭 라벨이 `평일`·`토요일`·`일요일` 만이다(부가 텍스트 0 — T30 §12-2)',
+      initial.tabNotes.join('|') === '평일|토요일|일요일' && !initial.tabNotes.some((note) => /노선|개|\(|\)|오늘/.test(String(note))),
+      `탭=${JSON.stringify(initial.tabNotes)}`,
+    );
     // ── T27 시간표 중심 구조(§9) ──
     check('T27 상단 바: 오늘 날짜·현재 시각(KST, `·` 구분)', String(initial.clock).includes('10월 5일 (월) · 14:40'), `clock=${String(initial.clock)}`);
     check('V1 공지 배너: 대체 시간표 안내', String(initial.boardNotice).includes('일요일 시간표로 운행합니다'), String(initial.boardNotice));

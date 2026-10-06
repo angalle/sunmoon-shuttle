@@ -408,7 +408,7 @@ async function main() {
       s1.listDay === 'weekday' && s1.listRows === s1Expected && s1.listRows > 0,
       `day=${String(s1.listDay)} 화면=${String(s1.listRows)}행 · 발행물=${String(s1Expected)}편`,
     );
-    check('① 방향 칩 편수도 발행물과 일치(전체 N편)', String(s1.chips[0]?.text ?? '').includes(`전체 ${String(s1Expected)}편`), String(s1.chips[0]?.text));
+    check('① 방향 칩 편수도 발행물과 일치(전체 N — §12-3 접미사 없음)', String(s1.chips[0]?.text ?? '').trim() === `전체 ${String(s1Expected)}`, String(s1.chips[0]?.text));
     check('① 다음 출발 행이 정확히 하나 강조된다(§9-3)', s1.nextCount === 1, `count=${String(s1.nextCount)} next=${String(s1.nextTime)}`);
     check('① 강조 행 = 08:00 이후 첫 편(08:05)', s1.nextTime === '08:05', String(s1.nextTime));
     check(
@@ -454,14 +454,14 @@ async function main() {
     const s1OutExpected = s1.chips.find((chip) => chip.direction === 'out')?.text ?? '';
     const s1InExpected = s1.chips.find((chip) => chip.direction === 'in')?.text ?? '';
     check(
-      '④ 방향 칩 라벨이 `전체`·`학교 도착`·`터미널 도착`(T29 §11-1 표시 순서)',
-      s1.chips.map((chip) => String(chip.text).replace(/ \d+편$/, '')).join('|') === '전체|학교 도착|터미널 도착',
+      '④ 방향 칩 라벨이 `전체`·`학교 도착`·`터미널 도착`(T29 §11-1 표시 순서 · T30 §12-3 편수는 숫자만)',
+      s1.chips.map((chip) => String(chip.text).replace(/ \d+$/, '')).join('|') === '전체|학교 도착|터미널 도착',
       JSON.stringify(s1.chips.map((chip) => chip.text)),
     );
     const s1Out = await clickChip('out');
     check('④ 방향 칩(터미널 도착) 즉시 반영', s1Out.ok, s1Out.detail);
-    check('④ 방향 칩 편수 문구(터미널 도착 N편)', /^터미널 도착 \d+편$/.test(s1OutExpected), s1OutExpected);
-    check('④ 방향 칩 편수 문구(학교 도착 N편)', /^학교 도착 \d+편$/.test(s1InExpected), s1InExpected);
+    check('④ 방향 칩 편수 표기(터미널 도착 N)', /^터미널 도착 \d+$/.test(s1OutExpected.trim()), s1OutExpected);
+    check('④ 방향 칩 편수 표기(학교 도착 N)', /^학교 도착 \d+$/.test(s1InExpected.trim()), s1InExpected);
     const s1In = await clickChip('in');
     check('④ 방향 칩(학교 도착) 즉시 반영', s1In.ok, s1In.detail);
     const s1Back = await clickChip('all');

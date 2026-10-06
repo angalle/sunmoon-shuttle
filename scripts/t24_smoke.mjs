@@ -23,14 +23,19 @@
  *         - AC-U10-4 행 시각 15px · 보조 13px · 토큰 11px · 상단 바 15px · 11px 미만 0건 · 행 높이 48px 이상
  *  AC-U11 T29 상단 고정 필터(3줄) + "오늘 아님" 안내 (§11)
  *         - AC-U11-1 상단 고정 3줄(날짜·시각 / 요일 / 필터) · 스크롤 전/후 좌표 동일 · 요일·필터는 스크롤 영역 밖
- *         - AC-U11-2 칩 라벨 `전체`·`학교 도착`·`터미널 도착` · ≥48px · 편수 표기 · 배경 톤+굵기(대비 ≥4.5:1)
+ *         - AC-U11-2 칩 라벨 `전체`·`학교 도착`·`터미널 도착` · 높이 ≥40px(§12-3) · 편수 숫자 표기 · 배경 톤+굵기(대비 ≥4.5:1)
  *         - AC-U11-3 편수 대조(발행물 독립 계산 = 칩 = 목록 행) · 합 = 전체 · 토·일에서도 동작 · 재실행 유지
  *         - AC-U11-4 요일·필터를 바꾼 뒤 `현재 시간으로` — 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0)
  *         - AC-U11-5 오늘이 아닌 요일 → 토스트 문구 · `오늘 보기` 동작 · 3초 소멸 · 탭 즉시 닫힘 · 버튼 겹침 0
+ *  AC-U12 T30 탭·칩 UI 정리 — 텍스트 축소·배치 (§12)
+ *         - AC-U12-1 요일 탭 라벨에 `노선`·`개`·괄호·`오늘` 0건 · 오늘은 **점 1개**(`aria-label="오늘"`) · 등폭 3분할(≤1px) · 44px
+ *         - AC-U12-2 칩 화면 텍스트 `전체 115` 형식(`편`·`개`·괄호 0건) · 편수 11px < 라벨 13px · 40px · 간격 8px · 가로 스크롤
+ *         - AC-U12-3 3줄 좌우 여백 12px · 세로 중앙 · 고정 영역 높이 146~160px · 390×844·360×800 동일 규격
+ *         - AC-U12-4 규격 변경 후에도 가려짐 0(수치) · 터치 타깃 탭 44px·칩 40px(가로 ≥48px)
  *  회귀   화면 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 정보 시트가 출처·데이터 갱신·정차창을 갖는다 · 콘솔 오류 0
  *
  * 사용: node scripts/t24_smoke.mjs [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
- * 산출물: .session-notes/T27-*.png · .session-notes/T28-*.png · .session-notes/T29-*.png
+ * 산출물: .session-notes/T27-*.png · .session-notes/T28-*.png · .session-notes/T29-*.png · .session-notes/T30-*.png
  * 종료코드: 검사 하나라도 실패하면 1.
  */
 import { spawn } from 'node:child_process';
@@ -487,6 +492,33 @@ const FIXED_PROBE = `
     };
   };
   const box = document.querySelector('.shuttle-chips');
+  const tabs = [...document.querySelectorAll('[data-testid="day-tabs"] [role="tab"]')];
+  const track = document.querySelector('.shuttle-daytabs');
+  const tabInfo = (tab) => {
+    const style = getComputedStyle(tab);
+    const fg = parseColor(style.color);
+    const label = tab.querySelector('.shuttle-tab__label');
+    const dot = tab.querySelector('.shuttle-tab__today');
+    return {
+      id: tab.id,
+      text: (tab.textContent || '').replace(/\\s+/g, ' ').trim(),
+      label: label === null ? '' : (label.textContent || '').trim(),
+      selected: tab.getAttribute('aria-selected'),
+      weight: style.fontWeight,
+      fontSize: parseFloat(style.fontSize),
+      alignItems: style.alignItems,
+      lineWidth: parseFloat(style.borderBottomWidth),
+      lineColor: style.borderBottomColor,
+      background: style.backgroundColor,
+      contrast: fg === null ? null : Number(ratio(fg, backgroundOf(tab)).toFixed(2)),
+      rect: rectOf(tab),
+      labelRect: rectOf(label),
+      dotCount: tab.querySelectorAll('.shuttle-tab__today').length,
+      dotText: dot === null ? null : (dot.textContent || '').trim(),
+      dotAria: dot === null ? null : dot.getAttribute('aria-label'),
+      dotRect: rectOf(dot),
+    };
+  };
   const toast = document.querySelector('[data-testid="toast"]');
   const toastAction = toast === null ? null : toast.querySelector('[data-testid="toast-action"]');
   return {
@@ -502,7 +534,13 @@ const FIXED_PROBE = `
     nextTop: next === null ? null : Math.round(next.getBoundingClientRect().top),
     nextTime: next === null ? null : (next.querySelector('.shuttle-departure__time')?.textContent ?? '').trim(),
     chips: chips.map(chipInfo),
-    chipsStyle: box === null ? null : { flexWrap: getComputedStyle(box).flexWrap, overflowX: getComputedStyle(box).overflowX },
+    chipsStyle: box === null ? null : { flexWrap: getComputedStyle(box).flexWrap, overflowX: getComputedStyle(box).overflowX, gap: getComputedStyle(box).columnGap },
+    chipAlign: chips.length === 0 ? null : getComputedStyle(chips[0]).alignItems,
+    chipLabelSize: chips.length === 0 ? null : parseFloat(getComputedStyle(chips[0].querySelector('.shuttle-chip__label')).fontSize),
+    chipCountSize: chips.length === 0 ? null : parseFloat(getComputedStyle(chips[0].querySelector('.shuttle-chip__count')).fontSize),
+    tabs: tabs.map(tabInfo),
+    todayDotCount: document.querySelectorAll('[data-testid="today-dot"]').length,
+    trackRect: rectOf(track),
     directions: {
       all: rows.length,
       in: rows.filter((row) => row.dataset.direction === 'in').length,
@@ -1001,8 +1039,8 @@ async function main() {
       JSON.stringify(chipProbe.chips.map((chip) => ({ direction: chip.direction, text: chip.text, pressed: chip.pressed }))),
     );
     check(
-      'AC-U11-2 칩 높이 ≥48px · 칩마다 편수 표기(`N편`) · 줄바꿈 대신 가로 스크롤',
-      chipProbe.chips.every((chip) => chip.rect.height >= 48 && chip.rect.width >= 48 && /^\d+편$/.test(chip.countText)) &&
+      'AC-U11-2 칩 높이 ≥40px(§12-3) · 칩마다 편수 숫자 표기(`N`) · 줄바꿈 대신 가로 스크롤',
+      chipProbe.chips.every((chip) => chip.rect.height >= 40 && chip.rect.width >= 48 && /^\d+$/.test(chip.countText)) &&
         chipProbe.chipsStyle !== null &&
         chipProbe.chipsStyle.flexWrap === 'nowrap' &&
         chipProbe.chipsStyle.overflowX === 'auto',
@@ -1166,6 +1204,173 @@ async function main() {
       JSON.stringify({ toast: noHint.toast, scrollTop: noHint.scrollTop, nextTop: noHint.nextTop }),
     );
     info(`AC-U11-5 스크린샷(안내): ${toastShot.slice(ROOT.length)}`);
+
+    /* ── T30 탭·칩 UI 정리 (docs/07 §12 · AC-U12) ───────────────────────────
+     * 요일 탭 = 등폭 3분할 세그먼트(44px · 오늘 점 1개) · 방향 칩 = 라벨 + 작은 숫자(40px).
+     * 편수 대조 수치(115/24/91)는 AC-U11-3 이 그대로 보고, 여기서는 **표기·규격**을 실측한다.
+     */
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+    await clickChip('all');
+    await showDayTab('weekday');
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
+    await delay(250);
+    const styled = await evaluate(FIXED_PROBE);
+    const tabWidths = styled.tabs.map((tab) => tab.rect.width);
+    const tabTexts = styled.tabs.map((tab) => tab.text);
+    const tabsJoined = tabTexts.join('');
+
+    /* AC-U12-1 — 요일 탭: 부가 텍스트 0 · 오늘 점 1개 · 등폭 3분할 · 높이 44px */
+    check(
+      'AC-U12-1 요일 탭 화면 텍스트에 `노선`·`개`·`(`·`)`·`오늘` 0건(실측) · 라벨 = 평일/토요일/일요일',
+      styled.tabs.length === 3 &&
+        tabTexts.join('|') === '평일|토요일|일요일' &&
+        ['노선', '개', '(', ')', '오늘'].every((token) => !tabsJoined.includes(token)),
+      JSON.stringify({ texts: tabTexts, labels: styled.tabs.map((tab) => tab.label) }),
+    );
+    check(
+      'AC-U12-1 오늘 표시는 점 요소 1개(첫 탭 · aria-label="오늘" · 화면 텍스트 아님) · 탭 3개 등폭(차이 ≤1px) · 높이 44px',
+      styled.todayDotCount === 1 &&
+        styled.tabs[0].dotCount === 1 &&
+        styled.tabs[0].dotAria === '오늘' &&
+        styled.tabs.every((tab) => tab.dotText === null || tab.dotText === '') &&
+        Math.max(...tabWidths) - Math.min(...tabWidths) <= 1 &&
+        styled.tabs.every((tab) => Math.abs(tab.rect.height - 44) <= 1),
+      JSON.stringify({ dots: styled.todayDotCount, widths: tabWidths, heights: styled.tabs.map((tab) => tab.rect.height), dot: styled.tabs[0].dotRect }),
+    );
+    const selTab = styled.tabs.find((tab) => tab.selected === 'true') ?? null;
+    const idleTab = styled.tabs.find((tab) => tab.selected !== 'true') ?? null;
+    check(
+      'AC-U12-1 선택 상태 = 배경 톤 + 굵기 600 + 하단 2px 라인(대비 ≥4.5:1 실측)',
+      selTab !== null &&
+        idleTab !== null &&
+        selTab.background !== idleTab.background &&
+        Number(selTab.weight) === 600 &&
+        Math.abs(selTab.lineWidth - 2) <= 0.5 &&
+        selTab.lineColor !== idleTab.lineColor &&
+        selTab.contrast !== null &&
+        selTab.contrast >= 4.5,
+      JSON.stringify({
+        selected: { bg: selTab?.background, weight: selTab?.weight, line: `${String(selTab?.lineWidth)}px ${String(selTab?.lineColor)}`, contrast: selTab?.contrast, fontSize: selTab?.fontSize },
+        idle: { bg: idleTab?.background, weight: idleTab?.weight, contrast: idleTab?.contrast, fontSize: idleTab?.fontSize },
+      }),
+    );
+
+    /* AC-U12-2 — 방향 칩: `전체 115` 형식 · 편수 11px < 라벨 13px · 높이 40px · 간격 8px */
+    check(
+      'AC-U12-2 칩 화면 텍스트가 `전체 115`·`학교 도착 24`·`터미널 도착 91` 형식(`편`·`개`·괄호 0건)',
+      styled.chips.map((chip) => chip.text).join('|') ===
+        `전체 ${String(weekdayCounts.all)}|학교 도착 ${String(weekdayCounts.in)}|터미널 도착 ${String(weekdayCounts.out)}` &&
+        styled.chips.every((chip) => !chip.text.includes('편') && !chip.text.includes('개') && !/[()]/.test(chip.text)),
+      JSON.stringify({ texts: styled.chips.map((chip) => chip.text), data: weekdayCounts }),
+    );
+    check(
+      'AC-U12-2 편수 11px < 라벨 13px(실측) · 칩 높이 40px · 간격 8px · 초과 시 가로 스크롤',
+      styled.chipCountSize === 11 &&
+        styled.chipLabelSize === 13 &&
+        styled.chips.every((chip) => Math.abs(chip.rect.height - 40) <= 1 && chip.rect.width >= 48) &&
+        styled.chipsStyle !== null &&
+        styled.chipsStyle.gap === '8px' &&
+        styled.chipsStyle.flexWrap === 'nowrap' &&
+        styled.chipsStyle.overflowX === 'auto',
+      JSON.stringify({
+        label: styled.chipLabelSize,
+        count: styled.chipCountSize,
+        chips: styled.chips.map((chip) => ({ h: chip.rect.height, w: chip.rect.width, n: chip.countText })),
+        gap: styled.chipsStyle?.gap,
+      }),
+    );
+
+    /* AC-U12-3 — 3줄 공통 정렬(좌우 12px · 세로 중앙) + 고정 영역 총 높이 */
+    const rowLefts = [styled.appbarRect.left, styled.dayRowRect.left, styled.filterRowRect.left];
+    const rowRights = [styled.appbarRect.right, styled.dayRowRect.right, styled.filterRowRect.right];
+    check(
+      'AC-U12-3 3줄 좌우 여백이 모두 12px(실측) · 고정 영역 총 높이 146~160px',
+      rowLefts.every((left) => Math.abs(left - 12) <= 1) &&
+        Math.max(...rowRights) - Math.min(...rowRights) <= 1 &&
+        styled.fixedHeight !== null &&
+        styled.fixedHeight >= 146 &&
+        styled.fixedHeight <= 160,
+      JSON.stringify({ left: rowLefts, right: rowRights, fixedHeight: styled.fixedHeight, appbar: styled.appbarRect, day: styled.dayRowRect, filter: styled.filterRowRect }),
+    );
+    check(
+      'AC-U12-3 세로 중앙 정렬(탭 라벨 중심 = 탭 중심) · 요일 줄은 **컨트롤 1개**(트랙 폭 = 고정 영역 폭)',
+      styled.tabs.every(
+        (tab) =>
+          tab.alignItems === 'center' &&
+          tab.labelRect !== null &&
+          Math.abs((tab.rect.top + tab.rect.bottom) / 2 - (tab.labelRect.top + tab.labelRect.bottom) / 2) <= 2,
+      ) &&
+        styled.chipAlign === 'center' &&
+        styled.trackRect !== null &&
+        styled.fixedRect !== null &&
+        Math.abs(styled.trackRect.width - styled.fixedRect.width) <= 1 &&
+        Math.abs(styled.trackRect.height - styled.tabs[0].rect.height) <= 1,
+      JSON.stringify({ aligns: styled.tabs.map((tab) => tab.alignItems), track: styled.trackRect, fixed: styled.fixedRect }),
+    );
+    const shotTop = await capture('T30-1-상단3줄-390x844.png');
+
+    /* AC-U12-1(선택 상태) — 오늘이 아닌 요일을 골라도 **오늘 점은 오늘 탭에** 남고, 선택만 옮겨간다 */
+    await showDayTab('saturday');
+    await delay(250);
+    const saturdayStyled = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U12-1(선택) 토요일 선택 → 선택 이동(굵기 600) · 오늘 점은 오늘(평일) 탭에 그대로 1개',
+      saturdayStyled.tabs[1].selected === 'true' &&
+        Number(saturdayStyled.tabs[1].weight) === 600 &&
+        Number(saturdayStyled.tabs[0].weight) !== 600 &&
+        saturdayStyled.todayDotCount === 1 &&
+        saturdayStyled.tabs[0].selected === 'false' &&
+        saturdayStyled.tabs[0].dotAria === '오늘',
+      JSON.stringify({ dots: saturdayStyled.todayDotCount, tabs: saturdayStyled.tabs.map((tab) => ({ text: tab.text, sel: tab.selected, weight: tab.weight, dots: tab.dotCount })) }),
+    );
+    const shotSelected = await capture('T30-2-토요일선택-390x844.png');
+
+    /* 스크린샷 — `학교 도착` 필터 적용 후 */
+    await showDayTab('weekday');
+    await delay(200);
+    await clickChip('in');
+    await delay(200);
+    const shotFiltered = await capture('T30-3-학교도착-필터.png');
+
+    /* AC-U12-4 — 규격이 바뀐 뒤에도 자동 스크롤 가려짐 0 · 터치 타깃 유지 */
+    await clickMove('move-now');
+    await delay(700);
+    const afterStyle = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U12-4 요일·필터 변경 후 `현재 시간으로` → 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0, 수치)',
+      afterStyle.nextTop !== null &&
+        afterStyle.fixedRect !== null &&
+        afterStyle.nextTop >= afterStyle.fixedRect.bottom &&
+        afterStyle.scrollMarginTop !== null &&
+        afterStyle.fixedHeight !== null &&
+        afterStyle.scrollMarginTop >= afterStyle.fixedHeight - 1,
+      JSON.stringify({ nextTop: afterStyle.nextTop, nextTime: afterStyle.nextTime, fixedBottom: afterStyle.fixedRect?.bottom, scrollMarginTop: afterStyle.scrollMarginTop, fixedHeight: afterStyle.fixedHeight }),
+    );
+    check(
+      'AC-U12-4 터치 타깃 유지 — 탭 44px · 칩 40px · 가로 ≥48px(§12-5)',
+      afterStyle.tabs.every((tab) => Math.abs(tab.rect.height - 44) <= 1 && tab.rect.width >= 48) &&
+        afterStyle.chips.every((chip) => Math.abs(chip.rect.height - 40) <= 1 && chip.rect.width >= 48),
+      JSON.stringify({ tabs: afterStyle.tabs.map((tab) => ({ h: tab.rect.height, w: tab.rect.width })), chips: afterStyle.chips.map((chip) => ({ h: chip.rect.height, w: chip.rect.width })) }),
+    );
+    await clickChip('all');
+    await delay(150);
+
+    /* 360×800 — 좁은 화면에서도 같은 3줄 규격(좌우 12px·등폭·44/40px) */
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 360, height: 800, deviceScaleFactor: 2, mobile: true });
+    await delay(250);
+    const narrow = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U12-3 360×800 에서도 3줄 좌우 12px · 탭 등폭(≤1px) · 높이 탭 44px/칩 40px',
+      [narrow.appbarRect.left, narrow.dayRowRect.left, narrow.filterRowRect.left].every((left) => Math.abs(left - 12) <= 1) &&
+        Math.max(...narrow.tabs.map((tab) => tab.rect.width)) - Math.min(...narrow.tabs.map((tab) => tab.rect.width)) <= 1 &&
+        narrow.tabs.every((tab) => Math.abs(tab.rect.height - 44) <= 1) &&
+        narrow.chips.every((chip) => Math.abs(chip.rect.height - 40) <= 1),
+      JSON.stringify({ left: [narrow.appbarRect.left, narrow.dayRowRect.left, narrow.filterRowRect.left], tabWidths: narrow.tabs.map((tab) => tab.rect.width), tabHeights: narrow.tabs.map((tab) => tab.rect.height), chipHeights: narrow.chips.map((chip) => chip.rect.height) }),
+    );
+    const shotNarrow = await capture('T30-4-상단3줄-360x800.png', 360, 800);
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+    await delay(150);
+    info(`AC-U12 스크린샷: ${[shotTop, shotSelected, shotFiltered, shotNarrow].map((path) => path.slice(ROOT.length)).join(' · ')}`);
 
     /* ── AC-U3 두 크기에서 가로 스크롤 0 + 스크린샷 ────────────────── */
     const sizes = [
@@ -1414,7 +1619,7 @@ async function main() {
     for (const line of failures) console.log(line);
     process.exitCode = 1;
   } else {
-    console.log('\nT27·T28·T29 SMOKE: PASS');
+    console.log('\nT27·T28·T29·T30 SMOKE: PASS');
   }
 }
 
