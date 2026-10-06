@@ -50,13 +50,14 @@ const OUT = 'tmp/test-out.json';
 const LOG = 'tmp/test-run.json';
 
 describe('T16 CLI 인자', () => {
-  it('기본값 — 출력 data/timetable.json · 로그 .session-notes/T16-extract-run.json · AI 켜짐', () => {
+  it('기본값 — 출력 data/timetable.json · 로그 .session-notes/T16-extract-run.json · AI 모드 api(T19 신규 기본)', () => {
     expect(parseExtractArgs([])).toEqual({
       files: [],
       out: 'data/timetable.json',
       logPath: '.session-notes/T16-extract-run.json',
       noAi: false,
-      model: 'lfm2.5:latest',
+      aiMode: 'api',
+      model: '',
       dryRun: false,
       injectFabricated: false,
       now: null,
@@ -77,12 +78,23 @@ describe('T16 CLI 인자', () => {
       FIXED_NOW,
       'data/raw/a.html',
     ]);
-    expect(args).toMatchObject({ noAi: true, dryRun: true, model: 'qwen3-vl:4b', out: OUT, logPath: LOG, now: FIXED_NOW });
+    expect(args).toMatchObject({ noAi: true, aiMode: 'off', dryRun: true, model: 'qwen3-vl:4b', out: OUT, logPath: LOG, now: FIXED_NOW });
     expect(args.files).toEqual(['data/raw/a.html']);
+  });
+
+  it('T19 --ai=api|ollama|off · --ai <모드> 를 읽고 잘못된 값은 던진다', () => {
+    expect(parseExtractArgs(['--ai=api'])).toMatchObject({ aiMode: 'api', noAi: false });
+    expect(parseExtractArgs(['--ai=ollama'])).toMatchObject({ aiMode: 'ollama', noAi: false });
+    expect(parseExtractArgs(['--ai=off'])).toMatchObject({ aiMode: 'off', noAi: true });
+    expect(parseExtractArgs(['--ai', 'ollama'])).toMatchObject({ aiMode: 'ollama', noAi: false });
+    expect(parseExtractArgs(['--no-ai'])).toMatchObject({ aiMode: 'off', noAi: true });
+    expect(() => parseExtractArgs(['--ai=auto'])).toThrow(/api\|ollama\|off/);
+    expect(() => parseExtractArgs(['--ai'])).toThrow(/모드가 필요/);
   });
 
   it('--model 을 공백으로 넘겨도 되고 값이 없으면 던진다', () => {
     expect(parseExtractArgs(['--model', 'lfm2.5:latest']).model).toBe('lfm2.5:latest');
+    expect(parseExtractArgs([]).model).toBe('');
     expect(() => parseExtractArgs(['--model'])).toThrow(/모델명/);
     expect(() => parseExtractArgs(['--now', '2026-10-06'])).toThrow(/ISO8601/);
     expect(() => parseExtractArgs(['--bogus'])).toThrow(/알 수 없는 옵션/);

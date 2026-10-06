@@ -13,6 +13,7 @@ import type { Snapshot, Timetable } from '../../tools/scraper/types.js';
 import { harvestCandidates, toSources } from '../../tools/extract/candidates.js';
 import { extractRuleStructures } from '../../tools/extract/rules.js';
 import { buildEnrichedTimetable } from '../../tools/extract/enrich.js';
+import type { ExtractDeps } from '../../tools/extract/cli.js';
 import type { EnrichedTimetableBody, RuleStructures, SnapshotSource } from '../../tools/extract/types.js';
 
 export const RAW_DIR = join(process.cwd(), 'data', 'raw');
@@ -71,17 +72,61 @@ export const FILE_NAMES = {
   terminalWeekday: 'data/raw/2026-2학기-cheonan-terminal-평일.html',
 } as const;
 
-/** 테스트용 가짜 AI structurer */
-export function fakeStructurer(drafts: readonly unknown[], status: 'ok' | 'unavailable' = 'ok'): {
+/**
+ * `runExtract` 테스트 하네스 — 파일 IO 를 메모리로 바꾼다(디스크 쓰기 0).
+ * `createStructurer` 만 주입한다(T19: 모의 서버를 향하는 `createApiStructurer` 등).
+ */
+export interface RunHarness {
+  readonly written: Map<string, string>;
+  readonly logs: string[];
+  readonly errors: string[];
+  readonly deps: ExtractDeps;
+}
+
+export function makeRunHarness(createStructurer: ExtractDeps['createStructurer']): RunHarness {
+  const written = new Map<string, string>();
+  const logs: string[] = [];
+  const errors: string[] = [];
+  return {
+    written,
+    logs,
+    errors,
+    deps: {
+      listFiles: (dir) => readdirSync(dir),
+      readTextFile: (path) => readFileSync(path, 'utf8'),
+      writeTextFile: (path, text) => written.set(path, text),
+      nowIso: () => FIXED_NOW,
+      nowMs: () => 1_000,
+      log: (line) => logs.push(line),
+      error: (line) => errors.push(line),
+      createStructurer,
+    },
+  };
+}
+
+/** 테스트용 가짜 AI structurer(네트워크 0) */
+export function fakeStructurer(
+  drafts: readonly unknown[],
+  status: 'ok' | 'unavailable' | 'error' = 'ok',
+  provider: 'api' | 'ollama' = 'ollama',
+): {
   model: string;
   promptTemplateSha256: string;
   structure: () => Promise<{
-    status: 'ok' | 'unavailable' | 'disabled';
+    status: 'ok' | 'unavailable' | 'disabled' | 'error';
+    provider: 'api' | 'ollama' | 'rule-only';
     model: string;
     durationMs: number;
     drafts: readonly { candidateId: string | null; sourceQuote: string; kind: string; dayTypes: readonly string[]; note: string | null; confidence: number }[];
     raw: string;
     error: string | null;
+    usage: {
+      calls: number;
+      promptTokens: number;
+      completionTokens: number;
+      totalTokens: number;
+      truncated: number;
+    };
   }>;
 } {
   return {
@@ -89,11 +134,13 @@ export function fakeStructurer(drafts: readonly unknown[], status: 'ok' | 'unava
     promptTemplateSha256: 'sha256:test',
     structure: async () => ({
       status,
+      provider,
       model: 'fake-model:test',
       durationMs: 1,
       drafts: drafts as never,
       raw: '',
-      error: status === 'unavailable' ? '모델 없음(테스트)' : null,
+      error: status === 'ok' ? null : '모델 없음(테스트)',
+      usage: { calls: 0, promptTokens: 0, completionTokens: 0, totalTokens: 0, truncated: 0 },
     }),
   };
 }
