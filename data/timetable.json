@@ -4198,6 +4198,23 @@
   ],
   "dateRules": [
     {
+      "sourceQuote": "천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)",
+      "sourcePage": "data/raw/2026-2학기-cheonan-campus-평일.html",
+      "extractedBy": "ai",
+      "confidence": 0.9,
+      "dayTypes": [],
+      "kind": "no-service",
+      "start": "2024-09-01",
+      "end": null,
+      "yearInferred": false,
+      "scope": [],
+      "effect": {
+        "appliesTo": "all-routes"
+      },
+      "note": "천안캠퍼스 노선 운행 중단",
+      "needsReview": false
+    },
+    {
       "kind": "route-change",
       "start": "2026-09-01",
       "end": null,
@@ -4604,8 +4621,8 @@
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx",
     "sourceUpdatedAt": "2026-08-20",
-    "fetchedAt": "2026-10-06T09:52:08+09:00",
-    "contentHash": "sha256:d7594388e115a32172cef8aa9264fc062c77ba05873e044b1e95e5aabd9ef7f0",
+    "fetchedAt": "2026-10-06T12:54:39+09:00",
+    "contentHash": "sha256:7455f715e7fb53c22faa4bd013aaf28fa0e06217f59647f31dfd49257424c057",
     "pages": [
       {
         "routeId": "asan-ktx",
@@ -4680,25 +4697,25 @@
       "termSources": [
         "data/raw/terms/2026-2학기-방학.html"
       ],
-      "model": null,
-      "provider": "rule-only",
+      "model": "deepseek-v4-flash",
+      "provider": "api",
       "promptTemplateSha256": "sha256:e86a2f83c952acff25e7ea60fbd38fe22a90059c750a98c660a6918f58a44a27",
       "promptChars": 1804,
-      "aiStatus": "disabled",
+      "aiStatus": "ok",
       "aiError": null,
-      "calls": 0,
+      "calls": 2,
       "truncated": 0,
-      "promptTokens": 0,
-      "completionTokens": 0,
-      "totalTokens": 0,
+      "promptTokens": 1230,
+      "completionTokens": 1248,
+      "totalTokens": 2478,
       "fallbackReason": null,
       "candidates": 25,
       "ruleEntries": 11,
-      "aiDrafts": 0,
-      "aiAccepted": 0,
-      "aiDropped": 0,
-      "aiRepairs": 0,
-      "aiConflicts": 0,
+      "aiDrafts": 16,
+      "aiAccepted": 1,
+      "aiDropped": 5,
+      "aiRepairs": 2,
+      "aiConflicts": 10,
       "needsReview": 1,
       "dedupedNotices": 1,
       "reviewReasons": [],

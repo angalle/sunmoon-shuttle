@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-06T03:47:58.215Z",
+  "generatedAt": "2026-10-06T03:55:20.929Z",
   "schemaVersion": 3,
   "termPages": [
     "data/raw/terms/2026-2학기-방학.html"
@@ -11,14 +11,14 @@
   "calls": 2,
   "truncated": 0,
   "promptTokens": 1230,
-  "completionTokens": 1259,
-  "totalTokens": 2489,
+  "completionTokens": 1248,
+  "totalTokens": 2478,
   "promptTemplateSha256": "sha256:e86a2f83c952acff25e7ea60fbd38fe22a90059c750a98c660a6918f58a44a27",
   "promptChars": 1804,
   "aiStatus": "ok",
   "aiError": null,
-  "durationMs": 41777,
-  "aiDurationMs": 41710,
+  "durationMs": 41292,
+  "aiDurationMs": 41222,
   "files": [
     "data/raw/2026-2학기-asan-ktx-일요일.html",
     "data/raw/2026-2학기-asan-ktx-토요일.html",
@@ -36,21 +36,16 @@
   "candidatesRejected": 0,
   "ruleEntries": 11,
   "aiDrafts": 16,
-  "aiAccepted": 2,
-  "aiDropped": 3,
+  "aiAccepted": 1,
+  "aiDropped": 5,
+  "aiMerged": 0,
   "aiRepairs": 2,
   "aiConflicts": 10,
   "needsReview": 1,
   "dedupedNotices": 1,
-  "fatalIssues": [
-    {
-      "where": "terms[1](semester)",
-      "message": "같은 term 이 중복입니다",
-      "fatal": true
-    }
-  ],
+  "fatalIssues": [],
   "reviewReasons": [],
-  "output": null,
+  "output": "data/timetable.json",
   "dryRun": false,
   "noAi": false
 }
