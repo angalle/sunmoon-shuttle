@@ -21,8 +21,26 @@ import type { TimetableModel } from '../types/model';
 /** 앱이 읽는 계약 데이터 경로(상대) */
 export const TIMETABLE_PATH = './data/timetable.json';
 
-/** 앱이 아는 계약 스키마 버전 — 다른 버전의 캐시는 버린다(docs/01 §4: 스키마 변경 시 앱·파서 동시 배포). */
-export const SUPPORTED_SCHEMA_VERSION = 1;
+/**
+ * 앱이 **캐시에서 읽어도 되는** 계약 스키마 버전 목록.
+ *
+ * `data/timetable.json`(발행물)과 파서(`normalize.ts`)는 함께 배포되므로, 넣는 기준은
+ * "그 발행물을 이 파서가 온전히 읽는가" 다.
+ *  - `1` — 최초 계약(표·안내문)
+ *  - `2` — T16 이 넓힌 계약(`dateRules[]`·`terms[]`·`routes[].tripNotes[]`·`stopWindows[]`).
+ *    파서는 이 배열들을 **선택**으로 읽는다(키가 없거나 배열이 아니면 `[]` — normalize.ts 주석)
+ *    → v1 파일도 같은 파서로 그대로 동작한다(무중단 하위호환).
+ *
+ * 목록 밖(더 높은) 버전의 캐시는 버린다 — 마이그레이션 없음(`ports/timetable_cache.ts` 계약).
+ *
+ * ⚠️ **발행물의 스키마 버전을 올릴 때는 이 목록도 같이 올려야 한다**(T18 회귀): T16 이 데이터를 v2 로
+ * 발행했는데 이 게이트가 v1 만 통과시켜, 캐시가 저장은 되지만 읽히지 않아 **수집 실패 폴백(AC-5)이
+ * 통째로 죽었다**(`npm run verify:offline` FAIL 5건). 목록을 늘리지 않으면 캐시 폴백이 조용히 사라진다.
+ */
+export const SUPPORTED_SCHEMA_VERSIONS: readonly number[] = [1, 2];
+
+/** 현재 계약의 스키마 버전(= 지원 목록의 최신). 캐시 게이트는 이 값이 아니라 **목록**으로 판정한다. */
+export const SUPPORTED_SCHEMA_VERSION = 2;
 
 export type FetchLike = (input: string) => Promise<Response>;
 
@@ -123,9 +141,12 @@ async function fetchContractJson(fetchImpl: FetchLike, path: string): Promise<un
   }
 }
 
-/** 캐시 레코드 → 뷰모델. 스키마 버전 불일치·파싱 실패는 `null`(네트워크로 진행). */
+/**
+ * 캐시 레코드 → 뷰모델. 지원 목록 밖 스키마 버전·파싱 실패는 `null`(네트워크로 진행).
+ * 게이트를 "한 버전 일치"로 되돌리면 발행물 버전이 오를 때 폴백이 조용히 죽는다(T18 회귀).
+ */
 function parseCached(cached: CachedTimetableEntry): TimetableModel | null {
-  if (cached.schemaVersion !== SUPPORTED_SCHEMA_VERSION) return null;
+  if (!SUPPORTED_SCHEMA_VERSIONS.includes(cached.schemaVersion)) return null;
   try {
     return parseTimetable(cached.raw);
   } catch {

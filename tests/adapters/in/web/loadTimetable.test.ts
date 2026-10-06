@@ -7,8 +7,13 @@
  * - 네트워크 실패 + 캐시 없음(또는 캐시가 깨짐/스키마 불일치) → `TimetableDataError`(화면은 F8 오류 배너)
  * 실 DB·실 네트워크 금지: fetch 는 stub, 캐시는 인메모리 페이크.
  */
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { loadTimetableModel, SUPPORTED_SCHEMA_VERSION, type FetchLike } from '../../../../src/adapters/in/web/features/schedule/api/timetableApi';
+import {
+  loadTimetableModel,
+  SUPPORTED_SCHEMA_VERSIONS,
+  type FetchLike,
+} from '../../../../src/adapters/in/web/features/schedule/api/timetableApi';
 import { parseTimetable, TimetableDataError } from '../../../../src/adapters/in/web/features/schedule/data/normalize';
 import { TIMETABLE_CACHE_TTL_MS } from '../../../../src/application/cache/timetableCachePolicy';
 import type {
@@ -20,6 +25,10 @@ import { FIXTURE_RAW } from './fixtures';
 
 const NOW_MS = Date.parse('2026-10-06T07:40:00+09:00');
 const HOUR_MS = 60 * 60 * 1000;
+/** `FIXTURE_RAW`(v1)의 계약 버전 — 캐시 레코드의 버전은 **데이터의 실제 버전**을 그대로 쓴다. */
+const FIXTURE_SCHEMA_VERSION = 1;
+/** 게이트가 버려야 하는 버전 = 지원 목록 **밖**(미래 계약 — 마이그레이션 없음). */
+const UNSUPPORTED_SCHEMA_VERSION = Math.max(...SUPPORTED_SCHEMA_VERSIONS) + 1;
 
 /** 인메모리 캐시 페이크(포트 계약만 구현: 어떤 경우에도 던지지 않는다) */
 class MemoryCache implements TimetableCachePort {
@@ -58,7 +67,7 @@ function cachedEntry(ageMs: number, overrides: Partial<CachedTimetableEntry> = {
     raw: FIXTURE_RAW,
     contentHash: 'sha256:fixture',
     fetchedAt: '2026-10-05T14:39:32+09:00',
-    schemaVersion: SUPPORTED_SCHEMA_VERSION,
+    schemaVersion: FIXTURE_SCHEMA_VERSION,
     cachedAtMs: NOW_MS - ageMs,
     ...overrides,
   };
@@ -79,7 +88,7 @@ describe('loadTimetableModel — 네트워크 성공', () => {
     expect(loaded.model.routes).toHaveLength(4);
     expect(cache.writes).toHaveLength(1);
     expect(cache.entry?.contentHash).toBe(loaded.model.source.contentHash);
-    expect(cache.entry?.schemaVersion).toBe(SUPPORTED_SCHEMA_VERSION);
+    expect(cache.entry?.schemaVersion).toBe(FIXTURE_SCHEMA_VERSION);
     expect(cache.entry?.cachedAtMs).toBe(NOW_MS);
   });
 
@@ -140,6 +149,59 @@ describe('loadTimetableModel — 실패 주입: 마지막 정상 데이터 폴�
   });
 });
 
+/**
+ * T18 회귀 — T16 이 `data/timetable.json` 을 **schemaVersion 2** 로 발행한 뒤, 캐시 게이트가 v1 만 통과시켜
+ * 캐시 폴백이 통째로 죽었다(`npm run verify:offline` FAIL 5건 · AC-5). 게이트는 "한 버전"이 아니라
+ * **파서가 읽는 버전 목록**으로 판정한다(목록 밖 = 버림 — 마이그레이션 없음).
+ */
+describe('loadTimetableModel — schema v2 캐시도 폴백한다 (T18 회귀)', () => {
+  const V2_RAW = { ...(FIXTURE_RAW as Record<string, unknown>), schemaVersion: 2 };
+
+  it('지원 목록에 현재 계약 버전(2)이 들어 있다 — 발행물과 게이트의 동기화', () => {
+    expect(SUPPORTED_SCHEMA_VERSIONS).toContain(2);
+  });
+
+  it('v2 원문 캐시(schemaVersion 2)를 파싱해 캐시로 폴백한다', async () => {
+    const cache = new MemoryCache();
+    cache.entry = cachedEntry(HOUR_MS, { raw: V2_RAW, schemaVersion: 2 });
+
+    const loaded = await loadTimetableModel({ fetchImpl: offlineFetch, cache, nowMs: () => NOW_MS });
+
+    expect(loaded.source).toBe('cache');
+    expect(loaded.model.schemaVersion).toBe(2);
+    expect(loaded.model.routes.map((route) => route.id)).toEqual(parseTimetable(V2_RAW).routes.map((route) => route.id));
+  });
+
+  it('네트워크로 받은 v2 데이터를 저장한 캐시로 오프라인 폴백이 된다(발행→저장→폴백 왕복)', async () => {
+    const cache = new MemoryCache();
+    const v2Fetch: FetchLike = async () => jsonResponse(V2_RAW);
+
+    const online = await loadTimetableModel({ fetchImpl: v2Fetch, cache, nowMs: () => NOW_MS });
+    await flush();
+    expect(online.source).toBe('network');
+    expect(cache.entry?.schemaVersion).toBe(2);
+
+    const offline = await loadTimetableModel({ fetchImpl: offlineFetch, cache, nowMs: () => NOW_MS });
+    expect(offline.source).toBe('cache');
+    expect(offline.model.schemaVersion).toBe(2);
+  });
+
+  it('실제 발행물(data/timetable.json v2)도 캐시로 폴백한다', async () => {
+    const published = JSON.parse(
+      readFileSync(new URL('../../../../data/timetable.json', import.meta.url), 'utf8'),
+    ) as { schemaVersion: number; routes: unknown[] };
+    expect(published.schemaVersion).toBe(2);
+
+    const cache = new MemoryCache();
+    cache.entry = cachedEntry(HOUR_MS, { raw: published, schemaVersion: published.schemaVersion });
+
+    const loaded = await loadTimetableModel({ fetchImpl: offlineFetch, cache, nowMs: () => NOW_MS });
+
+    expect(loaded.source).toBe('cache');
+    expect(loaded.model.routes.length).toBe(published.routes.length);
+  });
+});
+
 describe('loadTimetableModel — 폴백할 캐시가 없으면 정직하게 실패한다 (F8)', () => {
   it('캐시 없음 + 네트워크 실패 → TimetableDataError', async () => {
     const cache = new MemoryCache();
@@ -148,9 +210,9 @@ describe('loadTimetableModel — 폴백할 캐시가 없으면 정직하게 실�
     );
   });
 
-  it('스키마 버전이 다르거나 깨진 캐시는 버리고 실패한다', async () => {
+  it('스키마 버전이 앱의 지원 목록 밖이거나 깨진 캐시는 버리고 실패한다', async () => {
     const wrongSchema = new MemoryCache();
-    wrongSchema.entry = cachedEntry(HOUR_MS, { schemaVersion: SUPPORTED_SCHEMA_VERSION + 1 });
+    wrongSchema.entry = cachedEntry(HOUR_MS, { schemaVersion: UNSUPPORTED_SCHEMA_VERSION });
     await expect(
       loadTimetableModel({ fetchImpl: offlineFetch, cache: wrongSchema, nowMs: () => NOW_MS }),
     ).rejects.toBeInstanceOf(TimetableDataError);
