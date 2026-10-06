@@ -27,6 +27,14 @@
   /* T27 §9-3 — 다음 출발 행의 배경 톤 한 단계(본문 글자 대비 16.3:1 · 보조글자 4.95:1) */
   --color-highlight: #eef4fb;
 
+  /*
+   * T28 §10-1 — 우하단 이동 버튼의 **반투명** 표면(뒤의 본문이 비친다) + 얇은 테두리.
+   * 반투명이라 `backgroundOf`(불투명 배경을 만날 때까지 상위로 올라간다) 기준으로도
+   * 본문 대비(≥4.5:1)는 셸 배경에서 계산된다 — a11y 스모크가 실측한다.
+   */
+  --color-floating-bg: rgba(255, 255, 255, 0.92);
+  --color-floating-border: #7b8794;
+
   /* 강조·링크 */
   --color-accent: #0b5497;        /* on surface 7.69:1 (T13 재실측) */
   --color-accent-hover: #083d6f;
@@ -81,8 +89,21 @@
   --duration-spin: 900ms;
   --z-appbar: 10;
   --z-tabbar: 20;
+  /* T28 §10-1 — 우하단 이동 버튼: 본문 위, 시트·스플래시 아래 */
+  --z-floating: 30;
   --z-sheet: 100;
   --z-splash: 200;
+
+  /*
+   * T28 §10-1 — 우하단 플로팅 이동 버튼(`현재 시간으로`·`맨 위로`)의 배치 규격.
+   * 지름/높이는 터치 규격(≥48px)을 그대로 쓰고, 테두리는 얇게, 배경은 **반투명**(라이트 톤 유지)이다.
+   */
+  --floating-button-size: 48px;
+  --floating-stack-gap: var(--space-2);
+  --floating-stack-height: calc(2 * var(--floating-button-size) + var(--floating-stack-gap));
+  --floating-offset: var(--space-4); /* safe-area + 16px */
+  /* 본문 하단 여백 — 마지막 행이 버튼 스택에 가려지지 않게 확보한다(§10-1 겹침 금지) */
+  --floating-clearance: calc(var(--floating-stack-height) + var(--floating-offset) + var(--space-2));
 
   /* 스켈레톤(로딩 자리) — 빈 화면·텍스트만 금지(docs/07 §5). 색은 라이트/다크 양쪽에 정의한다 */
   --color-skeleton: #eef2f7;
@@ -99,6 +120,16 @@
   --line-height-base: 1.55;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
+  /*
+   * T28 §10-2 — 폰트 한 단계 축소(사용자 지시: "좀더 폰트 약간 더 작게").
+   * 화면에 값을 즉석으로 쓰지 않는다 — 축소 대상도 토큰으로 정의한다.
+   * **하한 11px**(`--font-size-caption`) — 더 줄이지 않는다(가독성·접근성, AC-U10-4).
+   * 행 높이·터치 타깃(48px)은 줄이지 않는다 — 토큰 값 그대로 유지한다.
+   */
+  --font-size-clock: 0.9375rem; /* 15px — 상단 바 날짜·시각(§10-2) */
+  --font-size-row-time: 0.9375rem; /* 15px — 시간표 행 시각(주 정보) */
+  --font-size-row-meta: 0.8125rem; /* 13px — 행 보조(도착·소요시간) */
+  --font-size-caption: 0.6875rem; /* 11px — 조건 토큰·캡션(하한) */
 
   /* 접근성 최소선 */
   --touch-target-min: 48px;
@@ -136,6 +167,9 @@
     /* T27 — 라이트와 같은 이름을 정의한다: dim 글자 7.33:1(배경)/6.54:1(표면) · 강조 배경(7.28:1 on 보조글자) */
     --color-text-dim: #9aa6b2;
     --color-highlight: #263241;
+    /* T28 §10-1 — 다크에서도 같은 이름을 정의한다(반투명 표면 + 얇은 테두리) */
+    --color-floating-bg: rgba(27, 33, 41, 0.92);
+    --color-floating-border: #6b7784;
 
     --color-accent: #7cb6f0;      /* on surface 7.6:1 */
     --color-accent-hover: #a3cbf6;

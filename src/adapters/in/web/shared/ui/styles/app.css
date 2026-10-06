@@ -82,6 +82,8 @@ body {
 .shuttle-app {
   display: flex;
   flex-direction: column;
+  /* 이동 버튼(§10-1)의 기준 상자 — 우하단 고정 배치가 셸(max-width 64rem) 안에서 이뤄진다 */
+  position: relative;
   height: 100dvh;
   overflow: hidden;
   max-width: 64rem;
@@ -157,7 +159,8 @@ body {
 
 .shuttle-appbar__clock {
   margin: 0;
-  font-size: var(--font-size-md);
+  /* T28 §10-2 — 상단 바 날짜·시각 16 → 15px(토큰으로만 정의) */
+  font-size: var(--font-size-clock);
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -986,7 +989,8 @@ body {
 
 .shuttle-departure__time {
   min-width: 3.5rem;
-  font-size: var(--font-size-lg);
+  /* T28 §10-2 — 행 시각(주 정보) 20 → 15px. 시각 열 정렬(min-width)과 행 높이(48px)는 그대로 둔다. */
+  font-size: var(--font-size-row-time);
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
 }
@@ -1003,7 +1007,8 @@ body {
 
 .shuttle-departure__dir {
   color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
+  /* T28 §10-2 — 행 보조(도착·소요시간) 12 → 13px(§10-2 표준 보조 크기) */
+  font-size: var(--font-size-row-meta);
 }
 
 .shuttle-departure__remaining {
@@ -1025,6 +1030,11 @@ body {
  */
 .shuttle-timetable {
   display: block;
+  /*
+   * T28 §10-1 — 우하단 이동 버튼이 마지막 행을 가리지 않게 본문 하단 여백을 확보한다(겹침 0).
+   * 값은 토큰(버튼 스택 높이 + safe-area + 16px 기준)에서 온다.
+   */
+  padding-bottom: var(--floating-clearance);
 }
 
 .shuttle-departure {
@@ -1062,7 +1072,48 @@ body {
 .shuttle-departure__token {
   margin-left: auto;
   color: var(--color-text-dim);
-  font-size: var(--font-size-xs);
+  /* T28 §10-2 — 조건 토큰·캡션 12 → 11px (**하한** — 더 줄이지 않는다) */
+  font-size: var(--font-size-caption);
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
+}
+
+/* ───────────────────────── T28 — 우하단 이동 버튼 (docs/07 §10-1) ─────────────────────────
+ * 문구를 화면에 쓰지 않는다(아이콘 + `aria-label`). 값은 전부 토큰에서 온다.
+ * 배치: 우하단 세로 스택 · safe-area bottom + 16px · 지름/높이 48px(터치 규격) ·
+ *       반투명 배경 + 얇은 테두리(라이트 톤 유지) · 시트/스플래시보다 아래 z-index.
+ */
+.shuttle-floating {
+  position: absolute;
+  right: calc(var(--safe-area-right) + var(--floating-offset));
+  bottom: calc(var(--safe-area-bottom) + var(--floating-offset));
+  z-index: var(--z-floating);
+  display: flex;
+  flex-direction: column;
+  gap: var(--floating-stack-gap);
+}
+
+.shuttle-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--floating-button-size);
+  height: var(--floating-button-size);
+  min-height: var(--touch-target-min);
+  padding: 0;
+  border: var(--hairline) solid var(--color-floating-border);
+  border-radius: 50%;
+  background: var(--color-floating-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.shuttle-icon-button:hover {
+  background: var(--color-surface-alt);
+}
+
+.shuttle-icon-button:active {
+  border-color: var(--color-accent);
 }

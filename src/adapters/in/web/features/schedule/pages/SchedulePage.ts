@@ -16,12 +16,16 @@
  *   ── 정보 시트(ⓘ, 기본 숨김) ──────────────────────────────────────────────
  *     출처(학교 링크 1개) · `데이터 갱신` · 요금/지연 안내 · 정차창 · 방학 링크 · 비공식 고지 ·
  *     미해석 경고(내부) · 개인정보처리방침 — §9-5 로 본문에서 걷어낸 것들
+ *   ── 우하단 이동 버튼 2개(T28 · §10-1) ────────────────────────────────────
+ *     `현재 시간으로`(다음 출발 행으로 — §9-3 로직 재사용, **억제 상태여도 동작**) · `맨 위로`
  *   ── 스플래시 ────────────────────────────────────────────────────────────
  *     진입 시 항상 표시 → 데이터 준비 시 200ms 페이드아웃(최소 400ms / 최대 2.5s — `data/splash.ts`)
  *
  * 자동 스크롤(§9-3)
  * - 진입·요일 전환·새로고침 후 **다음 출발 행**이 상단 바 바로 아래에 오도록 스크롤한다(즉시 이동).
  * - 사용자가 직접 스크롤한 뒤 **3초** 안에는 다시 스크롤하지 않는다(주기적 재스크롤 금지 — 60초 틱은 스크롤하지 않는다).
+ * - 단, **이동 버튼(`현재 시간으로`)은 억제를 해제하고 항상 동작**한다(§10-1). 버튼 이동은
+ *   `prefers-reduced-motion: reduce` 면 즉시, 아니면 부드럽게(`moveScrollBehavior`) 간다.
  * - 계측값은 `window.__shuttleScroll` 로 남긴다(스모크 증거).
  *
  * 갱신 전략
@@ -59,6 +63,7 @@ import { skeletonCards } from '../components/molecules/SkeletonCards';
 import { dailyTimetable } from '../components/organisms/DailyTimetable';
 import { dayNotice } from '../components/organisms/DayNotice';
 import { guideSheet } from '../components/organisms/GuideSheet';
+import { moveButtons } from '../components/molecules/MoveButtons';
 import type { InstallHintPlatform } from '../api/installHintApi';
 import { SPLASH_MAX_MS, decideSplash, splashFadeMs, type SplashHideReason } from '../data/splash';
 
@@ -73,6 +78,31 @@ const SOURCE_HEADING_ID = 'shuttle-source-heading';
 /** 사용자가 직접 스크롤한 뒤 자동 스크롤을 쉬는 시간(ms) — docs/07 §9-3 */
 export const AUTO_SCROLL_COOLDOWN_MS = 3000;
 
+/** 즉시 이동(진입 자동 스크롤 §9-3)의 계측 창(ms) — 프로그램 스크롤을 사용자 스크롤로 오인하지 않게 한다. */
+export const INSTANT_SCROLL_WINDOW_MS = 150;
+
+/**
+ * 이동 버튼(§10-1)의 이동 애니메이션 시간(ms) — 문서 계약은 **150~200ms**.
+ * 네이티브 `behavior: 'smooth'` 는 **거리에 따라 수 초**가 걸려(7000px 이동 실측) 이 계약을 못 지킨다
+ * → 이동 버튼은 거리와 무관한 짧은 rAF 애니메이션을 쓴다.
+ */
+export const MOVE_ANIMATION_MS = 180;
+
+/** rAF 가 멈춘 환경(백그라운드 탭 등)에서도 목표에 도착시키는 보정 여유(ms). */
+export const MOVE_SETTLE_MS = 60;
+
+/** 이동 방식 — `instant`(즉시 · 애니메이션 0) 또는 `animate`(짧은 애니메이션). */
+export type MoveStyle = 'instant' | 'animate';
+
+/**
+ * 이동 버튼(§10-1)의 이동 방식.
+ * `prefers-reduced-motion: reduce` 면 **즉시(애니메이션 0)**, 아니면 짧은 애니메이션(150~200ms).
+ * (진입 자동 스크롤은 §9-3 계약대로 언제나 즉시다 — 여기서 바뀌지 않는다.)
+ */
+export function moveScrollStyle(reducedMotion: boolean): MoveStyle {
+  return reducedMotion ? 'instant' : 'animate';
+}
+
 /** 스플래시 계측값(스모크 증거용) — 화면에 붙는 값이 아니라 계측용이라 window 에 남긴다. */
 interface SplashMetric {
   shownAt: number;
@@ -86,6 +116,8 @@ interface SplashMetric {
 interface ScrollMetric {
   autoScrolls: number;
   skipped: number;
+  /** 이동 버튼(`현재 시간으로`·`맨 위로`)으로 움직인 횟수 — 억제 상태에서도 동작했는지의 증거(§10-1). */
+  buttonScrolls: number;
   lastTargetKey: string | null;
   lastOffset: number | null;
   lastAutoAt: number | null;
@@ -163,22 +195,21 @@ export function createSchedulePage(
     dataset: { testid: 'day-panel' },
   });
 
-  replaceChildren(root, [
-    el('div', { class: 'shuttle-app' }, [
-      el('a', { class: 'shuttle-skip-link', attrs: { href: '#shuttle-main' }, text: UI_TEXT.skipToContent }),
-      el('header', { class: 'shuttle-appbar', dataset: { testid: 'appbar' } }, [
-        // 앱 이름·로고는 화면에 내보내지 않는다(§9-2 — 스플래시가 이미 보여줬다). 낭독기용 제목만 남긴다.
-        el('h1', { class: 'shuttle-sr-only', text: UI_TEXT.appTitle }),
-        clockNode,
-        el('div', { class: 'shuttle-appbar__actions' }, [infoNode, refreshNode]),
-      ]),
-      // 상단 바 아래 최소 1줄(예외 안내) + 오류·오프라인 안내 — 둘 다 얇은 줄이다(§9-4).
-      el('div', { class: 'shuttle-stripbar' }, [bannerHost, noticeHost]),
-      scroller,
-      sheetHost,
-      splashNode,
+  const appNode = el('div', { class: 'shuttle-app' }, [
+    el('a', { class: 'shuttle-skip-link', attrs: { href: '#shuttle-main' }, text: UI_TEXT.skipToContent }),
+    el('header', { class: 'shuttle-appbar', dataset: { testid: 'appbar' } }, [
+      // 앱 이름·로고는 화면에 내보내지 않는다(§9-2 — 스플래시가 이미 보여줬다). 낭독기용 제목만 남긴다.
+      el('h1', { class: 'shuttle-sr-only', text: UI_TEXT.appTitle }),
+      clockNode,
+      el('div', { class: 'shuttle-appbar__actions' }, [infoNode, refreshNode]),
     ]),
+    // 상단 바 아래 최소 1줄(예외 안내) + 오류·오프라인 안내 — 둘 다 얇은 줄이다(§9-4).
+    el('div', { class: 'shuttle-stripbar' }, [bannerHost, noticeHost]),
+    scroller,
+    sheetHost,
+    splashNode,
   ]);
+  replaceChildren(root, [appNode]);
 
   replaceChildren(scroller, [
     el('section', { class: 'shuttle-controls' }, [tabsHost, filterHost]),
@@ -214,6 +245,7 @@ export function createSchedulePage(
   const scrollMetric: ScrollMetric = {
     autoScrolls: 0,
     skipped: 0,
+    buttonScrolls: 0,
     lastTargetKey: null,
     lastOffset: null,
     lastAutoAt: null,
@@ -240,22 +272,107 @@ export function createSchedulePage(
     return bar === null ? 56 : Math.round(bar.getBoundingClientRect().height);
   };
 
-  const scrollToNextDeparture = (): void => {
+  /**
+   * 행의 목표 오프셋 — 행의 **스크롤 영역 기준** 위치에서 `margin`(상단 바 높이)만큼 뺀다(§9-3: 상단 바 바로 아래).
+   * `offsetTop`(조상 기준)은 셸 여백·상단 바 높이까지 포함해 목표가 어긋난다(실측: 행이 상단 바 뒤로 16px 들어갔다)
+   * → 스크롤포트 사각형으로 계산한다.
+   */
+  const offsetForRow = (row: HTMLElement, margin: number): number =>
+    Math.max(0, Math.round(row.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - margin));
+
+  /** rAF 프레임·보정 타이머 — 새 이동이 시작되면 앞선 이동을 취소한다. */
+  let moveFrame: number | null = null;
+  let moveTimer: number | null = null;
+
+  const cancelMove = (): void => {
+    if (moveFrame !== null) {
+      cancelAnimationFrame(moveFrame);
+      moveFrame = null;
+    }
+    if (moveTimer !== null) {
+      window.clearTimeout(moveTimer);
+      moveTimer = null;
+    }
+  };
+
+  /**
+   * 본문을 목표 오프셋으로 옮긴다 — 프로그램 스크롤 구간을 열어 두어 사용자 스크롤로 오인하지 않게 한다.
+   * `animate`(이동 버튼 §10-1)는 **거리와 무관한** 150~200ms rAF 애니메이션이고,
+   * `instant`(진입 자동 스크롤 §9-3 · reduced-motion)는 즉시 이동한다.
+   */
+  const moveTo = (offset: number, style: MoveStyle): void => {
+    cancelMove();
+    programmaticUntil = monotonicNow() + (style === 'animate' ? MOVE_ANIMATION_MS + MOVE_SETTLE_MS : INSTANT_SCROLL_WINDOW_MS);
+    if (style === 'instant') {
+      scroller.scrollTop = offset;
+      return;
+    }
+    const start = scroller.scrollTop;
+    const delta = offset - start;
+    const startedAt = performance.now();
+    const step = (): void => {
+      const progress = Math.min(1, (performance.now() - startedAt) / MOVE_ANIMATION_MS);
+      // easeOutCubic — 180ms 안에 정확히 도착한다(거리와 무관).
+      scroller.scrollTop = Math.round(start + delta * (1 - (1 - progress) ** 3));
+      if (progress < 1) {
+        moveFrame = requestAnimationFrame(step);
+        return;
+      }
+      moveFrame = null;
+      scroller.scrollTop = offset;
+      if (moveTimer !== null) {
+        window.clearTimeout(moveTimer);
+        moveTimer = null;
+      }
+    };
+    moveFrame = requestAnimationFrame(step);
+    // rAF 가 멈춘 환경(백그라운드 탭 등)에서도 목표에 도착하게 하는 보정 타이머.
+    moveTimer = window.setTimeout(() => {
+      cancelMove();
+      scroller.scrollTop = offset;
+    }, MOVE_ANIMATION_MS + MOVE_SETTLE_MS);
+  };
+
+  /**
+   * 다음 출발 행을 상단 바 바로 아래로.
+   * `force`(이동 버튼 §10-1)면 **사용자 스크롤 억제를 해제**하고 항상 움직인다(150~200ms 애니메이션 — reduced-motion 이면 즉시).
+   * 진입·요일 전환·새로고침의 자동 스크롤은 §9-3 계약대로 즉시(instant)이고 억제 규칙을 지킨다.
+   */
+  const scrollToNextDeparture = (force = false): void => {
     const now = monotonicNow();
-    if (lastUserScrollAt !== null && now - lastUserScrollAt < AUTO_SCROLL_COOLDOWN_MS) {
+    if (!force && lastUserScrollAt !== null && now - lastUserScrollAt < AUTO_SCROLL_COOLDOWN_MS) {
       scrollMetric.skipped += 1;
       return;
     }
     const row = root.querySelector<HTMLElement>('[data-testid="timetable-row"][data-next="true"]');
     if (row === null) return;
-    const offset = Math.max(0, row.offsetTop - appbarMargin());
-    programmaticUntil = now + 150;
-    scroller.scrollTop = offset;
+    const offset = offsetForRow(row, appbarMargin());
+    moveTo(offset, force ? moveScrollStyle(reducedMotion()) : 'instant');
     scrollMetric.autoScrolls += 1;
+    if (force) scrollMetric.buttonScrolls += 1;
     scrollMetric.lastTargetKey = row.dataset['key'] ?? null;
     scrollMetric.lastOffset = offset;
     scrollMetric.lastAutoAt = now;
   };
+
+  /** 목록 맨 위로(이동 버튼 §10-1) — 항상 동작하고, reduced-motion 이면 즉시. */
+  const scrollToTop = (): void => {
+    moveTo(0, moveScrollStyle(reducedMotion()));
+    scrollMetric.buttonScrolls += 1;
+  };
+
+  // §10-1 우하단 이동 버튼 — 셸 **뒤에** 붙인다(이동 규칙·계측이 정의된 다음이라 순서가 자연스럽다).
+  // 포커스 순서: 본문(요일 탭·목록) 다음, 정보 시트(숨김)·스플래시 앞.
+  appNode.appendChild(
+    moveButtons({
+      onNow: () => {
+        scrollToNextDeparture(true);
+      },
+      onTop: () => {
+        scrollToTop();
+      },
+    }),
+  );
 
   /**
    * 스플래시 숨김 — 페이드아웃(200ms, reduced-motion 이면 즉시) 후 노드를 제거하고
@@ -272,7 +389,8 @@ export function createSchedulePage(
     splashMetric.reason = reason;
     splashNode.classList.add('shuttle-splash--out');
     const active = document.activeElement;
-    if (active === null || active === document.body) dayPanel.focus();
+    // 포커스만 옮긴다 — 기본 포커스 스크롤이 본문을 0 으로 되돌리면 §9-3 자동 스크롤 목표가 지워진다(실측).
+    if (active === null || active === document.body) dayPanel.focus({ preventScroll: true });
     const fadeMs = splashFadeMs(reducedMotion());
     if (fadeMs <= 0) {
       removeSplash();
@@ -283,6 +401,9 @@ export function createSchedulePage(
 
   function removeSplash(): void {
     if (splashNode.parentNode !== null) splashNode.parentNode.removeChild(splashNode);
+    // 진입 화면이 곧바로 쓸모 있게 — 스플래시가 **완전히 사라진 뒤** 다음 출발 행으로 맞춘다(§9-3).
+    // (셸 조립·포커스 이동이 끝난 시점이라 목표 위치가 확정된다. 사용자가 그 사이 스크롤했다면 쿨다운이 막는다.)
+    scrollToNextDeparture();
   }
 
   /**
@@ -513,6 +634,7 @@ export function createSchedulePage(
   return () => {
     unsubscribe();
     document.removeEventListener('keydown', onKeyDown);
+    cancelMove();
     window.clearTimeout(splashMaxTimer);
     if (splashTimer !== null) window.clearTimeout(splashTimer);
   };

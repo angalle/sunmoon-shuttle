@@ -55,3 +55,45 @@ export function replaceChildren(parent: Element, children: readonly DomChild[]):
 export function srOnly(text: string): HTMLSpanElement {
   return el('span', { class: 'shuttle-sr-only', text });
 }
+
+/**
+ * SVG 아이콘 도형 — 아이콘은 **코드로 그린다**(외부 아이콘 CDN 금지 · 오프라인 원칙, 스킬 §0).
+ * 좌표는 24×24 뷰박스 기준이고, 색은 `currentColor`(글자색)를 따라간다.
+ */
+export type SvgShape =
+  | { readonly kind: 'path'; readonly d: string }
+  | { readonly kind: 'circle'; readonly cx: number; readonly cy: number; readonly r: number };
+
+/**
+ * 장식용 인라인 SVG(T28 — 이동 버튼 아이콘).
+ * 항상 `aria-hidden` + `focusable=false` 다: 아이콘은 장식이고 이름은 버튼의 `aria-label` 이 갖는다.
+ * 텍스트 노드를 만들지 않으므로 화면 문구 계약(`원본` 0건 등)에도 영향을 주지 않는다.
+ */
+export function svgIcon(
+  shapes: readonly SvgShape[],
+  options: { readonly size?: string; readonly viewBox?: string } = {},
+): SVGSVGElement {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', options.viewBox ?? '0 0 24 24');
+  svg.setAttribute('width', options.size ?? '1em');
+  svg.setAttribute('height', options.size ?? '1em');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  for (const shape of shapes) {
+    const node = document.createElementNS(NS, shape.kind === 'path' ? 'path' : 'circle');
+    if (shape.kind === 'path') node.setAttribute('d', shape.d);
+    else {
+      node.setAttribute('cx', String(shape.cx));
+      node.setAttribute('cy', String(shape.cy));
+      node.setAttribute('r', String(shape.r));
+    }
+    svg.appendChild(node);
+  }
+  return svg;
+}
