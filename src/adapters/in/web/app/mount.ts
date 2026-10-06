@@ -10,6 +10,7 @@
  * - 진짜로 아무 데이터도 못 읽었을 때만 오류 상태(`F8`)로 간다 — 조용한 실패 금지.
  */
 import { dayTypeFromDate } from '../../../../domain/rules/dayType';
+import { formatIsoDate, kstDayFromInstant } from '../../../../domain/rules/kst';
 import type { Clock } from '../../../../ports/clock';
 import type { TimetableCachePort } from '../../../../ports/timetable_cache';
 import { IndexedDbTimetableCache } from '../../../out/storage/indexedDbTimetableCache';
@@ -22,6 +23,7 @@ import {
   safeLocalStorage,
   shouldShowInstallHint,
 } from '../features/schedule/api/installHintApi';
+import { readUiPrefs, writeUiPrefs, effectiveStoredDayType } from '../features/schedule/api/uiPrefsApi';
 import { createSchedulePage } from '../features/schedule/pages/SchedulePage';
 import { ScheduleStore } from '../features/schedule/store/scheduleStore';
 import { registerServiceWorker } from './serviceWorker';
@@ -49,6 +51,14 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
   const cache = options.cache === undefined ? new IndexedDbTimetableCache() : options.cache;
   const load = options.load ?? (() => loadTimetableModel({ cache, nowMs }));
 
+  // 화면 설정 저장(§11-1) — 저장된 요일·방향 필터를 재실행 후에도 유지한다.
+  // 우선순위: URL(`?day=`) > 저장값 > 기본(오늘 요일 · `전체`). URL 은 스모크/공유 링크의 **명시 지정**이라 가장 세다.
+  // 저장된 **요일**은 그날(KST) 안에서만 유효하다 — 다른 날짜로 열면(자정을 넘겼거나 `?now=` 로 다른 날을 보면)
+  // 지난 선택을 따라가지 않고 오늘 요일로 시작한다(잘못된 요일 시간표 방지).
+  const prefsStorage = safeLocalStorage();
+  const storedPrefs = readUiPrefs(prefsStorage);
+  const storedDayType = effectiveStoredDayType(storedPrefs, formatIsoDate(kstDayFromInstant(new Date(clock.now()))));
+
   const store = new ScheduleStore({
     status: 'loading',
     model: null,
@@ -56,7 +66,7 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
     dataSource: null,
     cacheAgeMs: null,
     offlineReason: null,
-    dayType: initial.dayType ?? dayTypeFromDate(clock.now()),
+    dayType: initial.dayType ?? storedDayType ?? dayTypeFromDate(clock.now()),
     routeId: initial.routeId,
     nowMs: nowMs(),
   });
@@ -101,6 +111,11 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
     installHint: installHintKind,
     onDismissInstallHint: () => {
       dismissInstallHint(installStorage);
+    },
+    // §11-1 상태 저장 — 페이지가 고른 요일·방향 필터를 그대로 저장한다(실패는 삼킨다).
+    initialDirection: storedPrefs.direction ?? undefined,
+    onViewPrefs: (prefs) => {
+      writeUiPrefs(prefsStorage, prefs);
     },
   });
 

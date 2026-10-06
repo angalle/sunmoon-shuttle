@@ -87,6 +87,31 @@ export const UI_TEXT = {
   /** 시간표가 빈 경우(그 요일 표에 안내할 회차가 없음) */
   timetableEmptyDay: '이 시간표에 안내할 회차가 없습니다',
 
+  /* ── T29 — 상단 고정 필터 + "오늘 아님" 안내 (docs/07 §11) ──
+   * §11-1: 상단 고정 영역 3줄 = 날짜·시각 / 요일 3개 / 방향 필터 3개.
+   *  칩 라벨은 문서의 문자열 **그대로** 쓴다(`전체`·`학교 도착`·`터미널 도착`).
+   *  의미: `전체` = 모든 편 · `학교 도착` = **학교로 도착하는 편** · `터미널 도착` = **역/터미널로
+   *  도착하는 편**(데이터의 도착 열 기준 — 학교 출발 편). 행에 붙는 방향 보조문구(`boardDirectionOut/In`)와
+   *  다른 문맥이라 상수를 따로 둔다(행은 "학교에서 출발"이 정확한 표현이다).
+   */
+  filterDirectionLegend: '방향 필터',
+  filterDirectionAll: '전체',
+  filterDirectionSchool: '학교 도착',
+  filterDirectionTerminal: '터미널 도착',
+  /* §11-2: `현재 시간으로` 를 눌렀을 때의 안내(토스트) — 문구는 여기서만 만든다. */
+  /** `오늘은 <오늘요일>이 아닙니다 · 오늘(<오늘요일>) 시간표로 이동할까요?` */
+  moveNowOtherDayPrefix: '오늘은 ',
+  moveNowOtherDayMiddle: '이 아닙니다 · 오늘(',
+  moveNowOtherDaySuffix: ') 시간표로 이동할까요?',
+  /** 안내 액션 — 오늘 요일 버킷으로 전환하고 다음 출발 행으로 스크롤 */
+  moveNowTodayAction: '오늘 보기',
+  /** 이 시간표에 편이 한 건도 없을 때 */
+  moveNowNoTrips: '오늘 시간표에 해당하는 편이 없습니다',
+  /** 오늘 편이 모두 지났을 때 — 뒤에 `<날짜(요일)> <시각>` 이 붙는다 */
+  moveNowTodayOverPrefix: '오늘 남은 편이 없습니다 · 다음 운행: ',
+  /** 다음 운행 편을 알 수 없을 때(그 뒤가 없음)만 쓰는 짧은 문구 */
+  moveNowTodayOverNoNext: '오늘 남은 편이 없습니다',
+
   dayTabLegend: '요일 선택',
   routeLegend: '노선 선택',
   routeStatusSuspended: '운행 중단',

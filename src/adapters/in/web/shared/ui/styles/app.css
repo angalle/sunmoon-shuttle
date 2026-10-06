@@ -217,12 +217,22 @@ body {
   margin: 0;
 }
 
-/* 요일 탭·방향 필터(시간표의 축) — 본문 맨 위, 스크롤과 함께 움직인다 */
-.shuttle-controls {
+/* 요일 탭·방향 필터(시간표의 축) — T29 §11-1 부터는 **상단 고정 영역**(.shuttle-fixed)의 2·3줄이다 */
+.shuttle-fixed {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--fixed-row-gap);
+  /* 고정 영역 아래 경계 — 본문과 시각적으로 나눈다(얇은 1px) */
   padding-bottom: var(--space-2);
+  border-bottom: var(--hairline) solid var(--color-border);
+  background: var(--color-bg);
+}
+
+/* 고정 영역의 한 줄 — 안쪽 컨테이너(요일 탭 · 필터 칩)가 폭을 넘으면 **그 줄 안에서만** 가로 스크롤한다 */
+.shuttle-fixed__row {
+  display: block;
+  min-width: 0;
 }
 
 /* ─────────────── 스피너 (원자) ─────────────── */
@@ -891,17 +901,23 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
-/* ④ 방향 필터 칩 */
+/* ④ 방향 필터 칩 (T29 §11-1 — 상단 고정 3줄의 마지막 줄) */
 .shuttle-chips {
   display: flex;
-  flex-wrap: wrap;
+  /* 3개가 한 줄에 안 들어가면 **가로 스크롤**한다 — 줄바꿈으로 고정 영역 높이를 늘리지 않는다(§11-1) */
+  flex-wrap: nowrap;
   gap: var(--space-1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .shuttle-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  /* 터치 타깃 48px + 칩이 줄어들지 않게(가로 스크롤의 전제) */
+  flex: 0 0 auto;
   min-height: var(--touch-target-min);
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-strong);
@@ -909,9 +925,13 @@ body {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  /* 라벨 13px(보조 크기 — §10-2 토큰) · 편수는 11px 캡션 토큰 */
+  font-size: var(--font-size-row-meta);
+  white-space: nowrap;
   cursor: pointer;
 }
 
+/* 선택 상태는 **배경 톤 + 굵기**(색만으로 전달 금지) — 대비는 `color-on-accent`/`color-accent` 쌍(7.69:1) */
 .shuttle-chip[aria-pressed='true'] {
   background: var(--color-accent);
   border-color: var(--color-accent);
@@ -919,13 +939,22 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
+/* 0건 칩 — 흐리게 하되 대비 4.5:1 이상인 토큰만 쓴다(빈 결과를 숨기지 않는다, §11-1) */
+.shuttle-chip--empty {
+  color: var(--color-text-dim);
+}
+
 .shuttle-chip__count {
   color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-caption);
 }
 
 .shuttle-chip[aria-pressed='true'] .shuttle-chip__count {
   color: var(--color-on-accent);
+}
+
+.shuttle-chip--empty .shuttle-chip__count {
+  color: var(--color-text-dim);
 }
 
 /* ③ 다음 출발 카드 보조 요소 */
@@ -1041,8 +1070,11 @@ body {
   min-height: var(--touch-target-min);
   align-items: center;
   padding: var(--space-2) var(--space-3);
-  /* 자동 스크롤 목표가 상단 바에 가려지지 않게 한다(§9-3) */
-  scroll-margin-top: var(--appbar-height);
+  /*
+   * 자동 스크롤 목표가 상단 고정 영역에 가려지지 않게 한다(§9-3 · §11-1).
+   * 값은 **동적**이다 — 페이지가 고정 영역(3줄)의 실제 높이를 `--fixed-height` 로 내려 준다(하드코딩 금지).
+   */
+  scroll-margin-top: var(--fixed-height, var(--appbar-height));
 }
 
 /* 지나간 편 — dim(색·굵기를 낮춘다) */
@@ -1117,3 +1149,51 @@ body {
 .shuttle-icon-button:active {
   border-color: var(--color-accent);
 }
+
+/* ───────────────────────── T29 — 하단 안내(토스트) (docs/07 §11-2) ─────────────────────────
+ * `현재 시간으로` 가 "그냥 스크롤하면 안 되는" 상황(오늘이 아닌 요일 등)에 뜨는 **한 줄** 안내.
+ * 배치: 하단 · **이동 버튼 스택 위쪽**(겹침 0 — 버튼 높이 + 간격 토큰만큼 더 올린다) · 좌우 16px.
+ * 문구는 1줄 고정(넘치면 말줄임 — 줄바꿈으로 높이를 늘리지 않는다). 값은 전부 토큰에서 온다.
+ */
+.shuttle-toast {
+  position: absolute;
+  left: calc(var(--safe-area-left) + var(--toast-inset));
+  right: calc(var(--safe-area-right) + var(--toast-inset));
+  bottom: calc(var(--safe-area-bottom) + var(--floating-clearance) + var(--toast-gap));
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: var(--hairline) solid var(--color-floating-border);
+  border-radius: var(--radius-lg);
+  /* 반투명 배경(뒤 본문이 비친다) — 대비는 셸 배경 기준으로 계산된다(토큰 주석 참조) */
+  background: var(--color-floating-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-row-meta);
+}
+
+/* 문구는 1줄 — 길면 말줄임(§11-2) */
+.shuttle-toast__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 액션(`오늘 보기`) — 실제 버튼이고 터치 타깃 48px(토큰) */
+.shuttle-toast__action {
+  flex: 0 0 auto;
+  min-height: var(--touch-target-min);
+  padding: 0 var(--space-3);
+  border: var(--hairline) solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+

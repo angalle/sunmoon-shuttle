@@ -7,24 +7,30 @@
  * T27 — 시간표 중심 단순화(docs/07-mobile-ux.md §9). T24 의 화면 분리([지금]/[전체] 탭)를 없애고
  * **본문 = 시간표 하나**로 만든다:
  *
- *   상단 바(appbarHost)   현재 날짜·시각(분 단위 갱신) + ⓘ(정보 시트) + 새로고침 — 스크롤해도 고정
+ *   상단 고정 영역(§11-1 · T29) — 3줄, 스크롤해도 고정
+ *     ① 현재 날짜·시각(분 단위 갱신) + ⓘ(정보 시트) + 새로고침
+ *     ② 요일 전환 3개(평일/토요일/일요일)
+ *     ③ 방향 필터 3개(전체/학교 도착/터미널 도착) + 칩마다 편수 — 좁으면 **가로 스크롤**
  *   ── 본문(#shuttle-main, 스크롤 영역) ──────────────────────────────────────
  *     ① 상단 바 아래 **최소 1줄**(예외): 오늘 운행 없음(+다음 운행) · 대체 시간표 · 방학 · 오늘 종료
- *     ② 요일 탭(평일/토/일) + 방향 필터 칩 — 시간표의 축
- *     ③ **시간표 목록 하나**(그 요일 전체 회차): 지난 편 dim · 다음 출발 행 살짝 강조(좌측 라인+배경 톤)
+ *     ② **시간표 목록 하나**(그 요일 전체 회차): 지난 편 dim · 다음 출발 행 살짝 강조(좌측 라인+배경 톤)
  *        · 요일 조건은 **짧은 토큰 1개 이하**(`금 휴`)
  *   ── 정보 시트(ⓘ, 기본 숨김) ──────────────────────────────────────────────
  *     출처(학교 링크 1개) · `데이터 갱신` · 요금/지연 안내 · 정차창 · 방학 링크 · 비공식 고지 ·
  *     미해석 경고(내부) · 개인정보처리방침 — §9-5 로 본문에서 걷어낸 것들
  *   ── 우하단 이동 버튼 2개(T28 · §10-1) ────────────────────────────────────
  *     `현재 시간으로`(다음 출발 행으로 — §9-3 로직 재사용, **억제 상태여도 동작**) · `맨 위로`
+ *     §11-2 — 선택한 요일이 **오늘이 아니면** 그냥 스크롤하지 않고 하단 안내(토스트)를 띄운다.
  *   ── 스플래시 ────────────────────────────────────────────────────────────
  *     진입 시 항상 표시 → 데이터 준비 시 200ms 페이드아웃(최소 400ms / 최대 2.5s — `data/splash.ts`)
  *
- * 자동 스크롤(§9-3)
- * - 진입·요일 전환·새로고침 후 **다음 출발 행**이 상단 바 바로 아래에 오도록 스크롤한다(즉시 이동).
+ * 자동 스크롤(§9-3 · §11-1)
+ * - 진입·요일 전환·새로고침 후 **다음 출발 행**이 상단 고정 영역 바로 아래에 오도록 스크롤한다(즉시 이동).
+ * - 오프셋은 **고정 영역의 실제 높이**를 매번 재서 쓴다(하드코딩 금지) → 요일·필터가 바뀌어 고정 영역 높이가
+ *   달라져도 다음 출발 행이 가려지지 않는다. 같은 값을 `--fixed-height` 토큰으로 내려 행의
+ *   `scroll-margin-top` 도 동적이 된다.
  * - 사용자가 직접 스크롤한 뒤 **3초** 안에는 다시 스크롤하지 않는다(주기적 재스크롤 금지 — 60초 틱은 스크롤하지 않는다).
- * - 단, **이동 버튼(`현재 시간으로`)은 억제를 해제하고 항상 동작**한다(§10-1). 버튼 이동은
+ * - 단, **이동 버튼(`현재 시간으로`)** 은 억제를 해제하고 항상 동작한다(§10-1). 버튼 이동은
  *   `prefers-reduced-motion: reduce` 면 즉시, 아니면 부드럽게(`moveScrollBehavior`) 간다.
  * - 계측값은 `window.__shuttleScroll` 로 남긴다(스모크 증거).
  *
@@ -37,13 +43,15 @@ import { formatKstHeaderClock } from '../../../shared/lib/format';
 import { button } from '../../../shared/ui/atoms/Button';
 import { spinner } from '../../../shared/ui/atoms/Spinner';
 import { formatCacheAge } from '../../../../../../application/cache/timetableCachePolicy';
-import { DAY_TYPES } from '../../../../../../domain/entities/DayType';
+import { DAY_TYPES, type DayType } from '../../../../../../domain/entities/DayType';
+import { dayTypeFromDate } from '../../../../../../domain/rules/dayType';
 import { formatIsoDate, kstDayFromInstant } from '../../../../../../domain/rules/kst';
 import {
   dayNoticeLine,
   dayTabs,
   dayTabsWithoutModel,
   freshnessView,
+  moveNowHint,
   noticeGroups,
   stopWindowLines,
   todayBoardView,
@@ -60,6 +68,7 @@ import { dayTabs as dayTabsMolecule, dayTabId } from '../components/molecules/Da
 import { directionFilter } from '../components/molecules/DirectionFilter';
 import { installHint } from '../components/molecules/InstallHint';
 import { skeletonCards } from '../components/molecules/SkeletonCards';
+import { toast } from '../components/molecules/Toast';
 import { dailyTimetable } from '../components/organisms/DailyTimetable';
 import { dayNotice } from '../components/organisms/DayNotice';
 import { guideSheet } from '../components/organisms/GuideSheet';
@@ -77,6 +86,13 @@ const SOURCE_HEADING_ID = 'shuttle-source-heading';
 
 /** 사용자가 직접 스크롤한 뒤 자동 스크롤을 쉬는 시간(ms) — docs/07 §9-3 */
 export const AUTO_SCROLL_COOLDOWN_MS = 3000;
+
+/**
+ * 하단 안내(토스트)가 **스스로 사라지기까지의 시간**(ms) — docs/07 §11-2 는 3초를 요구한다.
+ * (탭하면 이 시간을 기다리지 않고 즉시 닫힌다.)
+ */
+export const TOAST_DURATION_MS = 3000;
+
 
 /** 즉시 이동(진입 자동 스크롤 §9-3)의 계측 창(ms) — 프로그램 스크롤을 사용자 스크롤로 오인하지 않게 한다. */
 export const INSTANT_SCROLL_WINDOW_MS = 150;
@@ -131,6 +147,13 @@ export interface SchedulePageOptions {
   /** 설치 안내에 쓸 플랫폼 문구 — null 이면 안내를 띄우지 않는다(이미 설치됨·닫음). */
   readonly installHint: InstallHintPlatform | null;
   readonly onDismissInstallHint: () => void;
+  /**
+   * 저장된 방향 필터(§11-1 상태 저장) — 없으면 `전체`.
+   * 저장소 읽기/쓰기는 조립 지점(app/mount.ts)이 맡고 페이지는 값만 받는다.
+   */
+  readonly initialDirection?: DirectionFilter | undefined;
+  /** 요일·방향 필터 선택을 저장한다(§11-1 재실행 시 유지). `date` = 저장 시점 KST 날짜 키(요일 선택은 그날 한정). */
+  readonly onViewPrefs?: ((prefs: { readonly dayType: DayType; readonly direction: DirectionFilter; readonly date: string }) => void) | undefined;
   /** 스플래시·스크롤 시간 계측용 **단조 시각**(기본 `performance.now`) — 테스트 주입용. */
   readonly monotonicNow?: () => number;
   /** `prefers-reduced-motion: reduce` 판정 주입(기본: matchMedia). */
@@ -153,6 +176,8 @@ export function createSchedulePage(
   const listHost = host('list-host');
   const installHost = host('install-host');
   const sheetHost = host('sheet-host');
+  /** 하단 안내(토스트) 자리 — 이동 버튼 **위쪽**에 뜬다(§11-2). 여는 책임은 페이지, 배치는 CSS. */
+  const toastHost = host('toast-host');
 
   /** ① 상단 바 — 현재 날짜·시각(크게, 분 단위 갱신) + ⓘ(정보 시트) + 새로고침. 값만 갱신한다. */
   const clockNode = el('time', { class: 'shuttle-appbar__clock', attrs: { datetime: '' }, dataset: { testid: 'app-clock' } });
@@ -195,28 +220,38 @@ export function createSchedulePage(
     dataset: { testid: 'day-panel' },
   });
 
-  const appNode = el('div', { class: 'shuttle-app' }, [
-    el('a', { class: 'shuttle-skip-link', attrs: { href: '#shuttle-main' }, text: UI_TEXT.skipToContent }),
-    el('header', { class: 'shuttle-appbar', dataset: { testid: 'appbar' } }, [
+  /**
+   * 상단 고정 영역(§11-1) — **3줄**을 한 덩어리로 묶는다: 날짜·시각 / 요일 3개 / 방향 필터 3개.
+   * 이 영역은 스크롤 영역(`.shuttle-scroll`) **밖**이라 스크롤해도 그대로 있고,
+   * 그 실제 높이가 자동 스크롤 오프셋이다(하드코딩하지 않는다 — `fixedHeight()`).
+   */
+  const fixedNode = el('header', { class: 'shuttle-fixed', dataset: { testid: 'fixed-header' } }, [
+    el('div', { class: 'shuttle-appbar', dataset: { testid: 'appbar' } }, [
       // 앱 이름·로고는 화면에 내보내지 않는다(§9-2 — 스플래시가 이미 보여줬다). 낭독기용 제목만 남긴다.
       el('h1', { class: 'shuttle-sr-only', text: UI_TEXT.appTitle }),
       clockNode,
       el('div', { class: 'shuttle-appbar__actions' }, [infoNode, refreshNode]),
     ]),
-    // 상단 바 아래 최소 1줄(예외 안내) + 오류·오프라인 안내 — 둘 다 얇은 줄이다(§9-4).
+    el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'day-row' } }, [tabsHost]),
+    el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'filter-row' } }, [filterHost]),
+  ]);
+
+  const appNode = el('div', { class: 'shuttle-app' }, [
+    el('a', { class: 'shuttle-skip-link', attrs: { href: '#shuttle-main' }, text: UI_TEXT.skipToContent }),
+    fixedNode,
+    // 상단 고정 영역 아래 최소 1줄(예외 안내) + 오류·오프라인 안내 — 둘 다 얇은 줄이다(§9-4).
     el('div', { class: 'shuttle-stripbar' }, [bannerHost, noticeHost]),
     scroller,
+    toastHost,
     sheetHost,
     splashNode,
   ]);
   replaceChildren(root, [appNode]);
 
-  replaceChildren(scroller, [
-    el('section', { class: 'shuttle-controls' }, [tabsHost, filterHost]),
-    dayPanel,
-    installHost,
-  ]);
+  // 본문은 **시간표 하나**다 — 요일·필터는 위 고정 영역이 맡는다(§9-1 · §11-1).
+  replaceChildren(scroller, [dayPanel, installHost]);
   replaceChildren(dayPanel, [listHost]);
+
 
   /* ── 이용 안내 시트(ⓘ) — 표현(표시·포커스)만 페이지가 관리한다 ── */
   let guideOpen = false;
@@ -233,8 +268,59 @@ export function createSchedulePage(
     root.querySelector<HTMLElement>('[data-testid="app-info"]')?.focus();
   };
 
+  /* ── 하단 안내(토스트 §11-2) — `현재 시간으로` 가 "그냥 스크롤하면 안 되는" 상황을 알린다 ──
+   *  · 자동 **3초** 후 사라짐(TOAST_DURATION_MS) · **탭하면 즉시 닫힘**(분자가 콜백) · Escape 도 닫힘
+   *  · 문구·`오늘 보기` 액션 유무는 선택자(`moveNowHint`)가 정한다 — 여기서는 표시 수명만 관리한다.
+   *  · 요일·필터가 바뀌면(구조 재렌더) 지난 안내는 의미가 없으므로 닫는다.
+   */
+  let toastTimer: number | null = null;
+
+  const closeToast = (): void => {
+    if (toastTimer !== null) {
+      window.clearTimeout(toastTimer);
+      toastTimer = null;
+    }
+    if (toastHost.firstChild !== null) replaceChildren(toastHost, []);
+  };
+
+  // `오늘 보기`(§11-2) — 오늘 요일 버킷으로 전환하고 **다음 출발 행으로** 스크롤한다.
+  // `scrollToNextDeparture` 는 아래에서 정의되지만, 이 콜백은 사용자 클릭 때만 실행된다.
+  const goToToday = (): void => {
+    const state = latestState;
+    if (state === null) return;
+    const today = dayTypeFromDate(new Date(state.nowMs));
+    // 요일 전환은 저장소가 알린다(동기 재렌더) — 그 뒤 확정된 목록에서 다음 출발 행으로 맞춘다.
+    if (state.dayType !== today) store.selectDay(today);
+    scrollToNextDeparture(true);
+  };
+
+  const showToast = (message: string, actionLabel: string | null): void => {
+    closeToast();
+    replaceChildren(toastHost, [
+      toast({
+        message,
+        actionLabel,
+        onAction: () => {
+          goToToday();
+        },
+        onDismiss: () => {
+          closeToast();
+        },
+      }),
+    ]);
+    toastTimer = window.setTimeout(() => {
+      closeToast();
+    }, TOAST_DURATION_MS);
+  };
+
   const onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && guideOpen) {
+    if (event.key !== 'Escape') return;
+    if (toastHost.firstChild !== null) {
+      event.preventDefault();
+      closeToast();
+      return;
+    }
+    if (guideOpen) {
       event.preventDefault();
       setGuideOpen(false);
     }
@@ -267,18 +353,46 @@ export function createSchedulePage(
     { passive: true },
   );
 
-  const appbarMargin = (): number => {
-    const bar = root.querySelector<HTMLElement>('.shuttle-appbar');
-    return bar === null ? 56 : Math.round(bar.getBoundingClientRect().height);
+  /**
+   * 상단 **고정 영역의 실제 높이**(px) — §11-1: "고정 영역 전체 높이가 곧 자동 스크롤 오프셋이다".
+   * 요일·필터 줄의 높이는 화면 폭·줄바꿈·안전영역에 따라 달라지므로 **매번 재서** 쓴다(하드코딩 금지).
+   * 못 찾으면(초기 조립 전) 앱바 최소 높이로 물러선다.
+   */
+  const fixedHeight = (): number => {
+    const node = root.querySelector<HTMLElement>('[data-testid="fixed-header"]');
+    return node === null ? 56 : Math.round(node.getBoundingClientRect().height);
+  };
+
+  /** 행의 `scroll-margin-top` 이 같은 값을 쓰게 CSS 변수를 갱신한다(동적 — 고정 영역이 커지면 함께 커진다). */
+  const syncFixedHeightToken = (): void => {
+    appNode.style.setProperty('--fixed-height', `${String(fixedHeight())}px`);
   };
 
   /**
-   * 행의 목표 오프셋 — 행의 **스크롤 영역 기준** 위치에서 `margin`(상단 바 높이)만큼 뺀다(§9-3: 상단 바 바로 아래).
-   * `offsetTop`(조상 기준)은 셸 여백·상단 바 높이까지 포함해 목표가 어긋난다(실측: 행이 상단 바 뒤로 16px 들어갔다)
+   * 행의 목표 오프셋 — 행의 **스크롤 영역 기준** 위치에서 `overlap`(고정 영역이 스크롤포트를 실제로 덮는 높이)만큼 뺀다.
+   * `offsetTop`(조상 기준)은 셸 여백·고정 영역 높이까지 포함해 목표가 어긋난다(실측: 행이 상단 바 뒤로 16px 들어갔다)
    * → 스크롤포트 사각형으로 계산한다.
    */
-  const offsetForRow = (row: HTMLElement, margin: number): number =>
-    Math.max(0, Math.round(row.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - margin));
+  const offsetForRow = (row: HTMLElement, overlap: number): number =>
+    Math.max(0, Math.round(row.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - overlap));
+
+  /**
+   * 스크롤 오프셋에서 **빼야 하는 몫** = 고정 영역(3줄)이 스크롤 영역을 실제로 덮는 높이(px).
+   * 두 영역의 사각형을 **그때그때 재서** 구한다(하드코딩 금지).
+   *
+   * 지금 배치는 고정 영역이 스크롤 영역 **위에** 따로 서 있으므로 겹침이 0 이고, 다음 출발 행은
+   * 스크롤포트 맨 위(= 고정 영역 하단 바로 아래)에 맞춰진다 — 가려지지도, 넘겨 스크롤되지도 않는다.
+   * 고정 영역이 스크롤 영역을 덮는 배치(오버레이)로 바뀌면 그만큼 내려 준다(§11-1: 요일·필터 줄이
+   * 늘어나 높이가 변해도 같은 식으로 따라간다).
+   *
+   * `--fixed-height`(행의 `scroll-margin-top` 계약 = 고정 영역 전체 높이)와는 다른 값이다:
+   * 스크롤포트가 이미 고정 영역 아래에서 시작하므로 전체 높이를 그대로 빼면 과소 스크롤(0)이 된다.
+   */
+  const fixedOverlap = (): number => {
+    const header = root.querySelector<HTMLElement>('[data-testid="fixed-header"]');
+    if (header === null) return fixedHeight();
+    return Math.max(0, Math.round(header.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top));
+  };
 
   /** rAF 프레임·보정 타이머 — 새 이동이 시작되면 앞선 이동을 취소한다. */
   let moveFrame: number | null = null;
@@ -346,7 +460,11 @@ export function createSchedulePage(
     }
     const row = root.querySelector<HTMLElement>('[data-testid="timetable-row"][data-next="true"]');
     if (row === null) return;
-    const offset = offsetForRow(row, appbarMargin());
+    // 고정 영역 높이를 **지금** 재서 CSS 변수(행의 `scroll-margin-top`)에 쓰고(요일·필터가 바뀌어 높이가 달라져도 가려짐 0),
+    // 오프셋은 고정 영역이 스크롤포트를 실제로 덮는 높이(`fixedOverlap`)만큼만 빼서 스크롤포트 맨 위에 맞춘다.
+    const margin = fixedHeight();
+    appNode.style.setProperty('--fixed-height', `${String(margin)}px`);
+    const offset = offsetForRow(row, fixedOverlap());
     moveTo(offset, force ? moveScrollStyle(reducedMotion()) : 'instant');
     scrollMetric.autoScrolls += 1;
     if (force) scrollMetric.buttonScrolls += 1;
@@ -366,9 +484,17 @@ export function createSchedulePage(
   appNode.appendChild(
     moveButtons({
       onNow: () => {
+        // §11-2 — 오늘이 아닌 요일(또는 스크롤할 편이 없음)이면 그냥 스크롤하지 않고 **안내**를 띄운다.
+        const hint = latestState === null ? null : moveNowHint(latestState);
+        if (hint !== null) {
+          showToast(hint.message, hint.showTodayAction ? UI_TEXT.moveNowTodayAction : null);
+          return;
+        }
+        closeToast();
         scrollToNextDeparture(true);
       },
       onTop: () => {
+        closeToast();
         scrollToTop();
       },
     }),
@@ -440,8 +566,16 @@ export function createSchedulePage(
 
   let lastStructureKey = '';
   let latestState: ScheduleState | null = null;
-  /** 방향 필터(일시적 UI 상태) — 페이지가 소유한다(스킬 §5). */
-  let fullFilter: DirectionFilter = 'all';
+  /**
+   * 방향 필터(페이지 지역 상태 — 스킬 §5). 저장된 값이 있으면 그 값으로 시작한다(§11-1 재실행 시 유지).
+   */
+  let fullFilter: DirectionFilter = options.initialDirection ?? 'all';
+
+  /** 요일·방향 필터 선택 저장(§11-1) — 저장소 IO 는 조립 지점(app/mount.ts)이 갖고 여기서는 알리기만 한다.
+   *  저장 시점의 날짜 키를 함께 넘긴다 — 요일 선택은 그날 안에서만 되살아난다(다른 날 화면에서 따라오지 않게). */
+  const persistViewPrefs = (dayType: DayType, direction: DirectionFilter): void => {
+    options.onViewPrefs?.({ dayType, direction, date: dayKey(store.getState().nowMs) });
+  };
 
   /** 설치 안내(T7) — 표시 여부는 페이지가 지역 상태로 갖는다(1회 표시는 저장소가 판단). */
   let installVisible = options.installHint !== null;
@@ -511,22 +645,25 @@ export function createSchedulePage(
     return view;
   };
 
-  /** ② 방향 필터 칩 — 회차가 하나도 없는 요일에는 그리지 않는다(모두 `0편` = 소음). */
+  /**
+   * ② 방향 필터 칩 — **항상** 그린다(§11-1: 0건이면 흐리게 + `0편` — 빈 결과를 숨기지 않는다).
+   * 회차가 아직 없을 때(model null)도 자리는 지킨다 → 로딩 중에도 상단 3줄 구조가 흔들리지 않는다.
+   */
   const renderFilter = (view: TimetableView | null): void => {
     replaceChildren(filterHost, [
-      view === null || view.counts.all === 0
-        ? null
-        : directionFilter({
-            value: fullFilter,
-            counts: view.counts,
-            onSelect: (value: DirectionFilter) => {
-              fullFilter = value;
-              if (latestState !== null) {
-                renderFilter(renderRows(latestState));
-                return;
-              }
-            },
-          }),
+      directionFilter({
+        value: fullFilter,
+        counts: view?.counts ?? { all: 0, out: 0, in: 0 },
+        onSelect: (value: DirectionFilter) => {
+          fullFilter = value;
+          // 필터도 저장한다(§11-1 — 재실행 시 유지). 요일은 지금 선택된 값을 그대로 함께 쓴다.
+          persistViewPrefs(store.getState().dayType, value);
+          if (latestState !== null) {
+            renderFilter(renderRows(latestState));
+            return;
+          }
+        },
+      }),
     ]);
     restoreFocus(`chip:${fullFilter}`);
   };
@@ -572,10 +709,14 @@ export function createSchedulePage(
   const renderLive = (state: ScheduleState): void => {
     renderAppbar(state);
     renderFilter(renderRows(state));
+    // 고정 영역(3줄)의 실제 높이를 CSS 토큰으로 내려 행의 `scroll-margin-top` 을 **동적**으로 맞춘다(§11-1).
+    syncFixedHeightToken();
   };
 
   const renderStructure = (state: ScheduleState, options2: { readonly autoScroll: boolean }): void => {
     const focusKey = focusKeyOf(document.activeElement);
+    // 구조가 바뀌면(요일·날짜·새로고침) 지난 안내는 의미가 없어졌다 — 먼저 닫는다(§11-2).
+    closeToast();
     dayPanel.setAttribute('aria-labelledby', dayTabId(TAB_ID_PREFIX, state.dayType));
 
     replaceChildren(bannerHost, [renderBanner(state, options)]);
@@ -587,6 +728,8 @@ export function createSchedulePage(
         panelId: DAY_PANEL_ID,
         tabIdPrefix: TAB_ID_PREFIX,
         onSelect: (dayType) => {
+          // 요일 선택을 저장한 뒤 전환한다(§11-1 재실행 시 유지).
+          persistViewPrefs(dayType, fullFilter);
           store.selectDay(dayType);
         },
       }),
@@ -598,11 +741,13 @@ export function createSchedulePage(
     // 본문(시간표) + 필터 + 상단 바 — 시각 의존 부분까지 한 번에 그린다.
     renderLive(state);
     restoreFocus(focusKey);
+    // 자동 스크롤 목표는 **전환 애니메이션 전에** 잰다: `--enter` 애니메이션의 translateY 가 재는 시점에
+    // 섞이면 목표가 그만큼 어긋난다(애니메이션은 목표를 잰 뒤에 시작한다).
+    if (options2.autoScroll) scrollToNextDeparture();
     // 요일 전환(화면 전환) 애니메이션 150~200ms — `prefers-reduced-motion` 이면 CSS 가 끈다(AC-U6).
     dayPanel.classList.remove('shuttle-tabpanel--enter');
     void dayPanel.offsetWidth;
     dayPanel.classList.add('shuttle-tabpanel--enter');
-    if (options2.autoScroll) scrollToNextDeparture();
   };
 
   const unsubscribe = store.subscribe((state) => {
@@ -635,6 +780,7 @@ export function createSchedulePage(
     unsubscribe();
     document.removeEventListener('keydown', onKeyDown);
     cancelMove();
+    closeToast();
     window.clearTimeout(splashMaxTimer);
     if (splashTimer !== null) window.clearTimeout(splashTimer);
   };
