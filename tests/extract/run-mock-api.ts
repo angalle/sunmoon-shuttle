@@ -28,7 +28,8 @@ const inputs = files.map((file) => {
   return { file, routeId: ref.routeId, dayType: ref.dayType, html: readFileSync(join(rawDir, file), 'utf8') };
 });
 const { candidates } = harvestCandidates(toSources(inputs));
-const target = candidates.find((candidate) => candidate.text.startsWith('천안캠퍼스(2024-2학기'));
+// T26: 노선 폐지 문장은 AI 대상이 아니다(dateRules 금지) — 규칙이 설명하지 않는 다른 문장을 쓴다.
+const target = candidates.find((candidate) => candidate.text.startsWith('*소요시간: 등교시 아산역>캠퍼스'));
 
 const server = await startMockApi((request) => {
   const prompt = String(request.body.messages?.[0]?.content ?? '');
@@ -43,8 +44,7 @@ const server = await startMockApi((request) => {
             candidateId: target.id,
             sourceQuote: target.text,
             kind: 'route-change',
-            dayTypes: [],
-            note: '노선 중단(2024-2학기부터)',
+            note: '경유·소요시간 안내(규칙 밖 문장)',
             confidence: 0.9,
           },
         ];

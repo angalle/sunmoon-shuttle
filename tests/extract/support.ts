@@ -73,6 +73,7 @@ export function loadFixture(): Fixture {
     tripNotes: rules.tripNotes,
     stopWindows: rules.stopWindows,
     tripConditions: rules.tripConditions,
+    routeNotes: rules.routeNotes,
     notices: rules.notices,
     dedupedNotices: rules.dedupedNotices,
   });

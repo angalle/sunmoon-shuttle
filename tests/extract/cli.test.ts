@@ -135,10 +135,10 @@ describe('T16 CLI 실행', () => {
 
   it('AI 초안이 규칙 밖 문장을 채택하면 extractedBy=ai 항목이 산출물에 들어간다', async () => {
     const { candidates } = loadFixture();
-    const target = candidates.find((candidate) => candidate.text.startsWith('천안캠퍼스(2024-2학기'));
+    const target = candidates.find((candidate) => candidate.text.startsWith('*소요시간: 등교시 아산역>캠퍼스'));
     expect(target).toBeDefined();
     const h = harness('ok', [
-      { candidateId: target!.id, sourceQuote: target!.text, kind: 'route-change', dayTypes: [], note: '노선 중단(2024-2학기부터)', confidence: 0.9 },
+      { candidateId: target!.id, sourceQuote: target!.text, kind: 'route-change', dayTypes: [], note: '경유·소요시간 안내(규칙 밖 문장)', confidence: 0.9 },
     ]);
     const code = await runExtract(['--out', OUT, '--log', LOG], h.deps);
     expect(code).toBe(0);
@@ -150,6 +150,22 @@ describe('T16 CLI 실행', () => {
     expect(log.aiAccepted).toBe(1);
     expect(log.model).toBe('fake-model:test');
     expect(log.promptTemplateSha256).toMatch(/^sha256:/);
+  });
+
+  it('T26: 노선 폐지 문장을 AI 가 dateRule 로 내면 폐기되고 발행은 계속된다(사유 로그)', async () => {
+    const { candidates } = loadFixture();
+    const target = candidates.find((candidate) => candidate.text.startsWith('천안캠퍼스(2024-2학기'));
+    expect(target).toBeDefined();
+    const h = harness('ok', [
+      { candidateId: target!.id, sourceQuote: target!.text, kind: 'no-service', dayTypes: [], note: '노선 중단(2024-2학기부터)', confidence: 0.9 },
+    ]);
+    const code = await runExtract(['--out', OUT, '--log', LOG], h.deps);
+    expect(code).toBe(0);
+    const log = JSON.parse(h.written.get(LOG) ?? '{}') as { aiAccepted: number; aiDropped: number; fatalIssues: unknown[] };
+    expect(log.fatalIssues).toHaveLength(0);
+    expect(log.aiAccepted).toBe(0);
+    expect(log.aiDropped).toBe(1);
+    expect(h.logs.join('\n')).toContain('노선 폐지·중단 서술은 dateRule 이 아니다');
   });
 
   it('--inject-fabricated → exit 1, 발행 파일 없음(위조 주입 차단)', async () => {

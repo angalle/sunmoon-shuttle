@@ -136,12 +136,13 @@ describe('T23 중복 dateRules — 규칙 채택 + AI 인용은 mergedQuotes 로
 
   it('AI 초안끼리 같은 규칙이면 첫 초안만 채택하고 나머지는 사유와 함께 버린다', () => {
     const { candidates } = loadFixture();
-    const hall = candidates.find((candidate) => candidate.text.startsWith('천안캠퍼스(2024-2학기'));
-    expect(hall).toBeDefined();
+    // T26: 노선 폐지 문장은 dateRule 대상이 아니다 — 규칙 밖의 다른 문장으로 같은 판정을 확인한다.
+    const target = candidates.find((candidate) => candidate.text.startsWith('*소요시간: 등교시 아산역>캠퍼스'));
+    expect(target).toBeDefined();
 
     const result = mergeWith([
-      draft({ candidateId: hall!.id, sourceQuote: hall!.text, kind: 'route-change' }),
-      draft({ candidateId: hall!.id, sourceQuote: hall!.text, kind: 'route-change' }),
+      draft({ candidateId: target!.id, sourceQuote: target!.text, kind: 'route-change' }),
+      draft({ candidateId: target!.id, sourceQuote: target!.text, kind: 'route-change' }),
     ]);
 
     expect(result.fatal).toHaveLength(0);

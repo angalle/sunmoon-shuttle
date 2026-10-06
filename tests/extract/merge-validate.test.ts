@@ -13,6 +13,12 @@ import type { AiRuleDraft, DateRule, EnrichedTimetableBody } from '../../tools/e
 import { loadFixture } from './support.js';
 
 const HALL_SENTENCE = '천안캠퍼스(2024-2학기 부터 천안캠퍼스 노선은 운행하지 않습니다.)';
+/**
+ * T26 — 규칙이 설명하지 **않고** dateRule 로 표현해도 되는 문장(AI 채택 대상).
+ * 노선 폐지 문장(`HALL_SENTENCE`)은 이제 dateRule 이 아니라 `routes[].status`·`routeNotes` 몫이라
+ * AI 초안이면 폐기된다(아래 T26 스위트).
+ */
+const AI_ONLY_SENTENCE = '*소요시간: 등교시 아산역>캠퍼스 15분 소요 / 하교시 캠퍼스>탕정역 경유>아산역 20분 소요';
 
 function draft(partial: Partial<AiRuleDraft> & { sourceQuote: string }): AiRuleDraft {
   return {
@@ -91,25 +97,26 @@ describe('T16 AI 병합', () => {
   });
 
   it('규칙이 못 잡은 문장은 AI 항목으로 추가되고 extractedBy=ai 로 구분된다', () => {
-    const result = mergeWith([draft({ sourceQuote: HALL_SENTENCE, kind: 'route-change', confidence: 0.5 })]);
-    const added = result.dateRules.find((rule) => rule.sourceQuote === HALL_SENTENCE);
+    const result = mergeWith([draft({ sourceQuote: AI_ONLY_SENTENCE, kind: 'route-change', confidence: 0.5 })]);
+    const added = result.dateRules.find((rule) => rule.sourceQuote === AI_ONLY_SENTENCE);
     expect(added).toBeDefined();
     expect(added?.extractedBy).toBe('ai');
-    expect(added?.start).toBe('2024-09-01');
+    expect(added?.kind).toBe('route-change');
+    expect(added?.start).toBeNull(); // 원문에 날짜가 없다 — 수치는 AI 가 만들지 않는다
     expect(added?.needsReview).toBe(true); // confidence 0.5 < 0.6 → 발행은 하되 표시
   });
 
   it('후보 id 로 인용을 복구한다(AI 가 공백/오탈자를 내도 정본 문장으로 확정)', () => {
     const { candidates } = loadFixture();
-    const target = candidates.find((candidate) => candidate.text === HALL_SENTENCE);
+    const target = candidates.find((candidate) => candidate.text === AI_ONLY_SENTENCE);
     expect(target).toBeDefined();
     const result = mergeWith([
-      draft({ candidateId: target!.id, sourceQuote: '천안캠퍼스(2024-2학기 부터  노선은 운행하지 않습니다)', kind: 'route-change' }),
+      draft({ candidateId: target!.id, sourceQuote: AI_ONLY_SENTENCE.replace('하교시', '하교 시'), kind: 'route-change' }),
     ]);
     expect(result.repairs).toEqual([
-      { from: '천안캠퍼스(2024-2학기 부터  노선은 운행하지 않습니다)', to: HALL_SENTENCE, how: 'candidate-id' },
+      { from: AI_ONLY_SENTENCE.replace('하교시', '하교 시'), to: AI_ONLY_SENTENCE, how: 'candidate-id' },
     ]);
-    expect(result.dateRules.some((rule) => rule.sourceQuote === HALL_SENTENCE)).toBe(true);
+    expect(result.dateRules.some((rule) => rule.sourceQuote === AI_ONLY_SENTENCE)).toBe(true);
   });
 
   it('규칙이 중복 통합으로 흡수한 문장(mergedQuotes)도 AI 는 다시 구조화하지 않는다', () => {
@@ -231,7 +238,7 @@ describe('T16 검증기 규칙', () => {
 
   it('AI 저신뢰(confidence<0.6)인데 needsReview=false 면 경고가 뜬다(치명 아님)', () => {
     const { base, sources, termSources, enriched } = loadFixture();
-    const merged = mergeWith([draft({ sourceQuote: HALL_SENTENCE, kind: 'route-change', confidence: 0.4 })]);
+    const merged = mergeWith([draft({ sourceQuote: AI_ONLY_SENTENCE, kind: 'route-change', confidence: 0.4 })]);
     const payload = { ...enriched, dateRules: merged.dateRules };
     const withAi: EnrichedTimetableBody = {
       ...payload,

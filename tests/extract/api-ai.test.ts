@@ -65,9 +65,9 @@ function structurerFactory(
     });
 }
 
-/** 규칙이 설명하지 않는 문장(=`extractedBy: ai` 로 채택되는 대상) */
+/** 규칙이 설명하지 않는 문장(=`extractedBy: ai` 로 채택되는 대상). T26: 노선 폐지 문장은 더 이상 AI 대상이 아니다 */
 function aiTargetCandidate(): Candidate {
-  const target = loadFixture().candidates.find((candidate) => candidate.text.startsWith('천안캠퍼스(2024-2학기'));
+  const target = loadFixture().candidates.find((candidate) => candidate.text.startsWith('*소요시간: 등교시 아산역>캠퍼스'));
   if (target === undefined) throw new Error('픽스처에서 AI 대상 후보를 찾지 못했다');
   return target;
 }
@@ -78,7 +78,7 @@ function apiDraftFor(candidate: Candidate, override: Record<string, unknown> = {
     sourceQuote: candidate.text,
     kind: 'route-change',
     dayTypes: [],
-    note: '노선 중단(2024-2학기부터)',
+    note: '경유·소요시간 안내(규칙 밖 문장)',
     confidence: 0.9,
     ...override,
   };
@@ -486,7 +486,7 @@ describe('T19 runExtract 통합 — 모의 서버', () => {
   it('⑧ 후보 인용이 부분 일치로 복구되면 aiRepairs 로 기록된다(기존 복구 경로 유지)', async () => {
     const target = aiTargetCandidate();
     const server = await mock(() =>
-      ({ body: completionBody([apiDraftFor(target, { candidateId: null, sourceQuote: target.text.replace('운행하지 않습니다.', '운행을 폐지합니다.') })]) }),
+      ({ body: completionBody([apiDraftFor(target, { candidateId: null, sourceQuote: target.text.replace('15분 소요', '15 분 정도 소요') })]) }),
     );
     const harness = makeRunHarness(
       structurerFactory({ AI_BASE_URL: server.baseUrl, AI_MODEL: MOCK_MODEL, AI_API_KEY: MOCK_KEY }),
