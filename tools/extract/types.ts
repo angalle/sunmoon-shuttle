@@ -166,14 +166,40 @@ export interface AiRuleDraft {
 
 export type AiStatus = 'ok' | 'unavailable' | 'error' | 'disabled';
 
+/**
+ * AI 를 **실제로 어디서 받았는가**(NFR-A4).
+ *  - `api`       : 외부 OpenAI 호환 API(`AI_BASE_URL`) — 호스티드 러너 기본
+ *  - `ollama`    : 로컬 Ollama(`127.0.0.1:11434`) — 대안 경로
+ *  - `rule-only` : AI 없음(요청에 의한 off **또는** 키 없음·실패로 인한 폴백)
+ */
+export type AiProvider = 'api' | 'ollama' | 'rule-only';
+
+/**
+ * AI 호출 비용 추적(NFR-A4). 토큰 수는 **추정치**다(문자수 기반 휴리스틱 — `ai.ts estimateTokens`).
+ * 정확한 과금 값이 아니라 상한·이상치 감시용이다.
+ */
+export interface AiUsage {
+  /** 실제로 나간 HTTP 요청 수(재시도 포함) */
+  readonly calls: number;
+  readonly promptTokens: number;
+  readonly completionTokens: number;
+  readonly totalTokens: number;
+  /** 입력 길이 상한 초과로 **잘라낸 후보 문장 수**(0 = 잘림 없음) */
+  readonly truncated: number;
+}
+
 export interface AiStructureResult {
   readonly status: AiStatus;
+  /** 이 결과를 만든 어댑터 신원(폴백 여부와 무관) — `rule-only` 는 비활성 어댑터만 쓴다 */
+  readonly provider: AiProvider;
   readonly model: string;
   readonly durationMs: number;
   readonly drafts: readonly AiRuleDraft[];
   /** 원시 응답(증거·디버깅용, 로그에만 남긴다) */
   readonly raw: string;
   readonly error: string | null;
+  /** 호출 수·토큰 추정·잘림(NFR-A4) */
+  readonly usage: AiUsage;
 }
 
 export interface AiStructurer {
@@ -217,10 +243,22 @@ export interface ExtractionMeta {
   /** 추출기 식별자 */
   readonly extractor: string;
   readonly model: string | null;
+  /** AI 를 실제로 어디서 받았는가(`api`|`ollama`|`rule-only`) — NFR-A4 */
+  readonly provider: AiProvider;
   readonly promptTemplateSha256: string;
   readonly promptChars: number;
   readonly aiStatus: AiStatus;
   readonly aiError: string | null;
+  /** 실제 나간 AI 호출 수(재시도 포함) */
+  readonly calls: number;
+  /** 입력 상한 초과로 잘라낸 후보 문장 수 */
+  readonly truncated: number;
+  /** 토큰 **추정치**(정확한 과금값 아님) */
+  readonly promptTokens: number;
+  readonly completionTokens: number;
+  readonly totalTokens: number;
+  /** 규칙 전용으로 내려간 사유(정상 AI 사용이면 null · `--ai=off` 는 null) */
+  readonly fallbackReason: string | null;
   readonly candidates: number;
   readonly ruleEntries: number;
   readonly aiDrafts: number;
