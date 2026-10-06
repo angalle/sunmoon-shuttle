@@ -78,6 +78,8 @@ interface SplashMetric {
   shownAt: number;
   hiddenAt: number | null;
   reason: SplashHideReason | null;
+  /** 상한 타이머를 **실제로 건 지연**(shownAt 기준 남은 시간) — 계약(≤2.5s) 실측용. */
+  maxDelayMs: number | null;
 }
 
 /** 자동 스크롤 계측값(스모크 증거용) — 몇 번 스크롤했고, 언제 건너뛰었는지. */
@@ -148,7 +150,7 @@ export function createSchedulePage(
   /** ② 스플래시 — 진입 시 표시, 데이터가 준비되면 페이드아웃(최소 400ms · 최대 2.5s). */
   const splashNode = splashScreen();
   const splashStartedAt = monotonicNow();
-  const splashMetric: SplashMetric = { shownAt: splashStartedAt, hiddenAt: null, reason: null };
+  const splashMetric: SplashMetric = { shownAt: splashStartedAt, hiddenAt: null, reason: null, maxDelayMs: null };
   (window as unknown as { __shuttleSplash?: SplashMetric }).__shuttleSplash = splashMetric;
 
   let splashHidden = false;
@@ -283,10 +285,16 @@ export function createSchedulePage(
     if (splashNode.parentNode !== null) splashNode.parentNode.removeChild(splashNode);
   }
 
-  /** 상한(2.5s) — 로딩이 길어져도 스플래시에 갇히지 않고 스켈레톤/캐시 폴백으로 진행한다(AC-U5). */
+  /**
+   * 상한(2.5s) — 기준은 **스플래시가 화면에 붙은 시각**(shownAt)이다.
+   * 타이머를 걸기 전의 동기 렌더(앱 셸·시간표 조립)에 걸린 시간을 빼야
+   * "2.5초를 넘겨 붙잡지 않는다"는 계약이 실제 경과 시간과 일치한다(AC-U5 실측 스모크가 이 값을 잰다).
+   */
+  const splashMaxDelayMs = Math.max(0, SPLASH_MAX_MS - (monotonicNow() - splashStartedAt));
+  splashMetric.maxDelayMs = splashMaxDelayMs;
   const splashMaxTimer = window.setTimeout(() => {
     if (!splashHidden) hideSplash('timeout');
-  }, SPLASH_MAX_MS);
+  }, splashMaxDelayMs);
 
   /** 데이터 준비 시 하한(400ms)까지만 기다렸다 숨긴다. */
   const evaluateSplash = (state: ScheduleState): void => {
@@ -343,13 +351,22 @@ export function createSchedulePage(
     if (node.getAttribute('data-testid') === 'direction-chip') {
       return `chip:${node.getAttribute('data-direction') ?? ''}`;
     }
+    // 요일 탭(roving tabindex) — 재렌더로 탭 노드가 새로 만들어지므로 id 로 되돌린다(키보드 사용자 포커스 유지).
+    const id = node.id;
+    if (id.startsWith(`${TAB_ID_PREFIX}-tab-`)) return `tab:${id}`;
     return null;
   };
 
   const restoreFocus = (key: string | null): void => {
-    if (key === null || !key.startsWith('chip:')) return;
-    const direction = key.slice('chip:'.length);
-    root.querySelector<HTMLElement>(`[data-testid="direction-chip"][data-direction="${direction}"]`)?.focus();
+    if (key === null) return;
+    if (key.startsWith('chip:')) {
+      const direction = key.slice('chip:'.length);
+      root.querySelector<HTMLElement>(`[data-testid="direction-chip"][data-direction="${direction}"]`)?.focus();
+      return;
+    }
+    if (key.startsWith('tab:')) {
+      root.querySelector<HTMLElement>(`#${key.slice('tab:'.length)}`)?.focus();
+    }
   };
 
   /** 상단 바 — 현재 날짜·시각(KST, 분 단위) + 새로고침 진행 표시. 60초 틱마다 갱신된다. */
