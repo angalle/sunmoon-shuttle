@@ -22,7 +22,9 @@ import { buildEnrichedTimetable, withExtractionMeta } from './enrich.js';
 import { computeGapCoverage, countNeedsReview, hasFatal, validateEnriched } from './validate.js';
 import { ExtractError } from './types.js';
 import type {
+  AiProvider,
   AiStatus,
+  AiStructureResult,
   DateRule,
   EnrichedTimetable,
   ExtractionMeta,
@@ -30,6 +32,15 @@ import type {
   SnapshotSource,
   ValidationIssue,
 } from './types.js';
+
+/** AI 보강 모드 — `--ai=<모드>` (기본 `api`). `off` 는 `--no-ai` 와 같다. */
+export type AiMode = 'api' | 'ollama' | 'off';
+
+export const AI_MODES: readonly AiMode[] = ['api', 'ollama', 'off'];
+
+export function isAiMode(value: string): value is AiMode {
+  return (AI_MODES as readonly string[]).includes(value);
+}
 
 export interface ExtractDeps {
   /** 디렉터리의 파일 목록(글롭 확장 없이 — 셸 없이도 동작하게) */
@@ -41,8 +52,11 @@ export interface ExtractDeps {
   log(line: string): void;
   error(line: string): void;
   createStructurer(options: {
+    /** 빈 문자열 = 미지정(어댑터가 환경변수·기본값으로 해석한다) */
     readonly model: string;
     readonly noAi: boolean;
+    /** `api` | `ollama` | `off` */
+    readonly provider: AiMode;
     readonly baseUrl?: string | undefined;
     readonly timeoutMs?: number | undefined;
   }): AiStructurer;
@@ -57,7 +71,11 @@ export interface ExtractArgs {
   readonly files: readonly string[];
   readonly out: string;
   readonly logPath: string;
+  /** `--ai=off`/`--no-ai` 와 동일(호환용 — 기존 로그·테스트 필드) */
   readonly noAi: boolean;
+  /** AI 보강 모드(기본 `api` — OpenAI 호환 외부 API) */
+  readonly aiMode: AiMode;
+  /** 빈 문자열 = 미지정(어댑터가 `AI_MODEL`/기본값으로 해석) */
   readonly model: string;
   readonly dryRun: boolean;
   readonly injectFabricated: boolean;
@@ -65,17 +83,22 @@ export interface ExtractArgs {
 }
 
 export const USAGE = [
-  '사용법: npm run extract [-- --local] [data/raw/*.html] [--out data/timetable.json]',
-  '          [--no-ai] [--model=<이름>] [--dry-run] [--log .session-notes/T16-extract-run.json]',
+  '사용법: npm run extract [-- --ai=api|ollama|off] [--local] [data/raw/*.html] [--out data/timetable.json]',
+  '          [--model=<이름>] [--dry-run] [--log .session-notes/T16-extract-run.json]',
   '',
+  '  --ai=api              OpenAI 호환 외부 API 로 AI 보강한다(기본. AI_BASE_URL·AI_MODEL·AI_API_KEY)',
+  '  --ai=ollama           로컬 Ollama 로 AI 보강한다(대안. 기본 모델 ' + DEFAULT_MODEL + ')',
+  '  --ai=off              AI 없이 규칙만으로 발행한다(--no-ai 와 동일)',
+  '  --no-ai               `--ai=off` 와 동일(호환 유지)',
   '  --local               로컬 스냅샷만 사용한다(원격 수집 없음 — robots.txt 차단, docs/01 §8)',
-  '  --no-ai               AI 없이 규칙만으로 발행한다(폴백 모드 — 경고 기록)',
-  '  --model=<이름>        로컬 Ollama 모델명(기본 ' + DEFAULT_MODEL + ')',
+  '  --model=<이름>        모델명(비우면 ollama=기본 모델 · api=AI_MODEL env)',
   '  --dry-run             발행 없이 검증만(파일 쓰기 0, 로그는 남긴다)',
   '  --out <경로>          출력 JSON 경로(기본 data/timetable.json)',
   '  --log <경로>          실행 로그 경로(기본 .session-notes/T16-extract-run.json)',
   '  --now <ISO8601+09:00> 수집 시각 고정(결정성 확인용)',
   '  --inject-fabricated   [증거용] 원본에 없는 문장을 주입해 검증 FAIL(exit 1)을 재현한다',
+  '',
+  '  ※ 키 없음·401/403·타임아웃·5xx(재시도 1회)면 자동으로 규칙 전용으로 폴백한다(경고 기록 — 배치 유지).',
 ].join('\n');
 
 const ISO_OFFSET_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -86,6 +109,7 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     out: string;
     logPath: string;
     noAi: boolean;
+    aiMode: AiMode;
     model: string;
     dryRun: boolean;
     injectFabricated: boolean;
@@ -95,7 +119,8 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     out: DEFAULT_OUT,
     logPath: DEFAULT_LOG,
     noAi: false,
-    model: DEFAULT_MODEL,
+    aiMode: 'api',
+    model: '',
     dryRun: false,
     injectFabricated: false,
     now: null,
@@ -104,9 +129,24 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     const token = argv[i];
     if (token === undefined) continue;
     if (token === '--local' || token === '--no-ai' || token === '--dry-run' || token === '--inject-fabricated') {
-      if (token === '--no-ai') args.noAi = true;
+      if (token === '--no-ai') {
+        args.noAi = true;
+        args.aiMode = 'off';
+      }
       if (token === '--dry-run') args.dryRun = true;
       if (token === '--inject-fabricated') args.injectFabricated = true;
+      continue;
+    }
+    if (token === '--ai' || token.startsWith('--ai=')) {
+      const inline = token.startsWith('--ai=') ? token.slice('--ai='.length) : undefined;
+      const value = inline ?? argv[i + 1];
+      if (value === undefined || value === '' || (inline === undefined && value.startsWith('--'))) {
+        throw new ExtractError(`--ai 뒤에 모드가 필요합니다(${AI_MODES.join('|')})`);
+      }
+      if (!isAiMode(value)) throw new ExtractError(`--ai 값이 ${AI_MODES.join('|')} 가 아닙니다 — "${value}"`);
+      args.aiMode = value;
+      args.noAi = value === 'off';
+      if (inline === undefined) i += 1;
       continue;
     }
     if (token === '--model' || token.startsWith('--model=')) {
@@ -140,6 +180,19 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
 interface RunRecord {
   generatedAt: string;
   model: string;
+  /** AI 를 실제로 어디서 받았는가(NFR-A4) */
+  provider: AiProvider;
+  /** 규칙 전용으로 내려간 사유(정상이면 null · `--ai=off` 는 null) */
+  fallbackReason: string | null;
+  aiMode: AiMode;
+  /** 실제 나간 AI 호출 수(재시도 포함) */
+  calls: number;
+  /** 입력 상한 초과로 잘라낸 후보 문장 수 */
+  truncated: number;
+  /** 토큰 추정치(정확한 과금값 아님) */
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
   promptTemplateSha256: string;
   promptChars: number;
   aiStatus: AiStatus;
@@ -231,11 +284,12 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
 
   // ③ AI 보강(선택)
   const structurer = args.noAi
-    ? createDisabledStructurer(args.model)
-    : deps.createStructurer({ model: args.model, noAi: args.noAi });
+    ? createDisabledStructurer(args.model === '' ? DEFAULT_MODEL : args.model)
+    : deps.createStructurer({ model: args.model, noAi: args.noAi, provider: args.aiMode });
   const aiResult = await structurer.structure(candidates);
+  const fallbackReason = resolveFallbackReason(args.aiMode, aiResult.status, aiResult.error);
   if (aiResult.status === 'unavailable' || aiResult.status === 'error') {
-    deps.log(`[extract] ⚠️ AI 보강 불가(${aiResult.status}) — 규칙 전용으로 계속한다: ${aiResult.error ?? ''}`);
+    deps.log(`[extract] ⚠️ AI 보강 불가(${aiResult.status}) — 규칙 전용으로 계속한다: ${fallbackReason ?? ''}`);
   }
 
   // ④ 병합·중복 제거
@@ -294,11 +348,18 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   const gaps = computeGapCoverage(enriched);
   const meta: ExtractionMeta = {
     extractor: EXTRACTOR,
-    model: args.noAi ? null : aiResult.model,
+    model: args.noAi || aiResult.model === '' ? null : aiResult.model,
+    provider: effectiveProvider(args.aiMode, aiResult.status),
     promptTemplateSha256: promptTemplateSha256(),
     promptChars: promptChars,
     aiStatus: aiResult.status,
     aiError: aiResult.error,
+    calls: aiResult.usage.calls,
+    truncated: aiResult.usage.truncated,
+    promptTokens: aiResult.usage.promptTokens,
+    completionTokens: aiResult.usage.completionTokens,
+    totalTokens: aiResult.usage.totalTokens,
+    fallbackReason: fallbackReason,
     candidates: candidates.length,
     ruleEntries: rules.dateRules.length + rules.terms.length,
     aiDrafts: aiResult.drafts.length,
@@ -365,7 +426,7 @@ function buildRecord(
   candidates: number,
   merged: { readonly accepted: number; readonly dropped: readonly unknown[]; readonly repairs: readonly unknown[]; readonly conflicts: number },
   rules: RuleStructures,
-  aiResult: { readonly model: string; readonly status: AiStatus; readonly error: string | null; readonly durationMs: number; readonly drafts: readonly unknown[] },
+  aiResult: AiStructureResult,
   durationMs: number,
   fatalIssues: readonly ValidationIssue[],
   reviewReasons: readonly string[],
@@ -376,6 +437,14 @@ function buildRecord(
   return {
     generatedAt: new Date().toISOString(),
     model: aiResult.model,
+    provider: effectiveProvider(args.aiMode, aiResult.status),
+    fallbackReason: resolveFallbackReason(args.aiMode, aiResult.status, aiResult.error),
+    aiMode: args.aiMode,
+    calls: aiResult.usage.calls,
+    truncated: aiResult.usage.truncated,
+    promptTokens: aiResult.usage.promptTokens,
+    completionTokens: aiResult.usage.completionTokens,
+    totalTokens: aiResult.usage.totalTokens,
     promptTemplateSha256: promptTemplateSha256(),
     promptChars: extra?.promptChars ?? 0,
     aiStatus: aiResult.status,
@@ -415,7 +484,7 @@ function logSummary(
   deps: ExtractDeps,
   timetable: EnrichedTimetable,
   args: ExtractArgs,
-  aiResult: { readonly status: AiStatus; readonly model: string; readonly durationMs: number; readonly drafts: readonly unknown[] },
+  aiResult: AiStructureResult,
   needsReview: number,
   reviewReasons: readonly string[],
 ): void {
@@ -423,7 +492,10 @@ function logSummary(
     `[extract] 입력 스냅샷 ${String(args.files.length || timetable.source.pages.length)}개 · 후보 문장 ${String(timetable.source.extraction.candidates)}개 · 규칙 항목 ${String(timetable.source.extraction.ruleEntries)}개`,
   );
   deps.log(
-    `[extract] AI: status=${aiResult.status} model=${aiResult.model} 초안=${String(aiResult.drafts.length)} 채택=${String(timetable.source.extraction.aiAccepted)} 버림=${String(timetable.source.extraction.aiDropped)} 인용복구=${String(timetable.source.extraction.aiRepairs)} 충돌=${String(timetable.source.extraction.aiConflicts)} (${String(aiResult.durationMs)}ms)`,
+    `[extract] AI: mode=${args.aiMode} provider=${timetable.source.extraction.provider} status=${aiResult.status} model=${aiResult.model} 초안=${String(aiResult.drafts.length)} 채택=${String(timetable.source.extraction.aiAccepted)} 버림=${String(timetable.source.extraction.aiDropped)} 인용복구=${String(timetable.source.extraction.aiRepairs)} 충돌=${String(timetable.source.extraction.aiConflicts)} (${String(aiResult.durationMs)}ms)`,
+  );
+  deps.log(
+    `[extract] AI 비용 가드: 호출 ${String(aiResult.usage.calls)}회 · 토큰(추정) prompt ${String(aiResult.usage.promptTokens)} + completion ${String(aiResult.usage.completionTokens)} = ${String(aiResult.usage.totalTokens)} · 잘림 ${String(aiResult.usage.truncated)}건${timetable.source.extraction.fallbackReason === null ? '' : ` · 폴백 사유: ${timetable.source.extraction.fallbackReason}`}`,
   );
   for (const gap of timetable.source.extraction.gaps) {
     deps.log(`[extract] 갭 ${String(gap.gap)} ${gap.name}: ${gap.count}건 — ${gap.where}`);
@@ -436,6 +508,24 @@ function logSummary(
 
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * 산출물 `extraction.provider` — **실제로 AI 를 받은 경로**.
+ * `off`(의도) · 키 없음 · 실패(폴백)는 모두 `rule-only` 다(사유는 `fallbackReason`).
+ */
+export function effectiveProvider(mode: AiMode, status: AiStatus): AiProvider {
+  if (status !== 'ok') return 'rule-only';
+  if (mode === 'ollama') return 'ollama';
+  if (mode === 'api') return 'api';
+  return 'rule-only';
+}
+
+/** 규칙 전용으로 내려간 **사유**(정상 사용·의도된 off 는 null — 모니터링 지표, docs/02 부록 A-2) */
+export function resolveFallbackReason(mode: AiMode, status: AiStatus, error: string | null): string | null {
+  if (mode === 'off') return null;
+  if (status === 'ok') return null;
+  return error !== null && error !== '' ? error : `AI 사용 불가(${status})`;
 }
 
 export { hasFatal, DEFAULT_TIMEOUT_MS };
