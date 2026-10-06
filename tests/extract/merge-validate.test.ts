@@ -61,8 +61,8 @@ function withFabricated(enriched: EnrichedTimetableBody, rule: Partial<DateRule>
 
 describe('T16 검출력 자체검증 — 위조 주입은 FAIL(발행 중단)', () => {
   it('원본에 없는 문장을 넣으면 검증이 치명 오류를 낸다(exit 1 경로)', () => {
-    const { base, sources, enriched } = loadFixture();
-    const issues = validateEnriched(withFabricated(enriched, {}), { baseline: base, sources });
+    const { base, sources, termSources, enriched } = loadFixture();
+    const issues = validateEnriched(withFabricated(enriched, {}), { baseline: base, sources, termSources });
     const fatal = issues.filter((issue) => issue.fatal);
     expect(hasFatal(issues)).toBe(true);
     expect(fatal.some((issue) => issue.message.includes('인용 검증 실패'))).toBe(true);
@@ -157,42 +157,42 @@ describe('T16 AI 병합', () => {
 
 describe('T16 검증기 규칙', () => {
   it('정상(규칙 전용) 산출물은 문제 0건이다', () => {
-    const { base, sources, enriched } = loadFixture();
-    expect(validateEnriched(enriched, { baseline: base, sources })).toEqual([]);
+    const { base, sources, termSources, enriched } = loadFixture();
+    expect(validateEnriched(enriched, { baseline: base, sources, termSources })).toEqual([]);
   });
 
   it('kind 필수 필드 누락은 치명이다(stop-time-window 인데 시간창 없음)', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const broken = withFabricated(enriched, {
       kind: 'stop-time-window',
       start: null,
       effect: { windows: [] },
       sourceQuote: '*추석연휴[9.24(목)~9.26(토)]: 셔틀버스 운행 없음',
     });
-    const issues = validateEnriched(broken, { baseline: base, sources });
+    const issues = validateEnriched(broken, { baseline: base, sources, termSources });
     expect(issues.some((issue) => issue.fatal && issue.where.includes('effect.windows'))).toBe(true);
   });
 
   it('날짜 형식 위반(YYYY-MM-DD 아님)은 치명이다', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const broken = withFabricated(enriched, {
       start: '2026/01/01',
       sourceQuote: '*추석연휴[9.24(목)~9.26(토)]: 셔틀버스 운행 없음',
     });
-    const issues = validateEnriched(broken, { baseline: base, sources });
+    const issues = validateEnriched(broken, { baseline: base, sources, termSources });
     expect(issues.some((issue) => issue.fatal && issue.where.includes('dateRules'))).toBe(true);
   });
 
   it('규칙 중복은 치명이다(중복 제거 위반)', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const first = enriched.dateRules.find((rule) => rule.kind === 'period-meaning');
-    const issues = validateEnriched(withFabricated(enriched, { ...first!, extractedBy: 'ai' }), { baseline: base, sources });
+    const issues = validateEnriched(withFabricated(enriched, { ...first!, extractedBy: 'ai' }), { baseline: base, sources, termSources });
     // 같은 규칙이 한 번 더 들어갔으므로 중복 또는 인용 문제로 잡힌다
     expect(hasFatal(issues)).toBe(true);
   });
 
   it('baseline(행 수·시각) 불일치는 치명이 아니라 needsReview 경고다(발행은 하되 표시)', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const payload = {
       ...enriched,
       routes: enriched.routes.map((route, index) =>
@@ -203,54 +203,54 @@ describe('T16 검증기 규칙', () => {
       ...payload,
       source: { ...payload.source, contentHash: `sha256:${sha256Hex(enrichedCanonicalPayload(payload))}` },
     };
-    const issues = validateEnriched(mutated, { baseline: base, sources });
+    const issues = validateEnriched(mutated, { baseline: base, sources, termSources });
     expect(hasFatal(issues)).toBe(false);
     expect(issues.some((issue) => issue.message.includes('baseline'))).toBe(true);
   });
 
   it('notices 중복 제거를 건너뛰면 치명이다', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const payload = { ...enriched, notices: base.notices };
     const mutated: EnrichedTimetableBody = {
       ...payload,
       source: { ...payload.source, contentHash: `sha256:${sha256Hex(enrichedCanonicalPayload(payload))}` },
     };
-    expect(hasFatal(validateEnriched(mutated, { baseline: base, sources }))).toBe(true);
+    expect(hasFatal(validateEnriched(mutated, { baseline: base, sources, termSources }))).toBe(true);
   });
 
   it('contentHash 재계산 불일치는 치명이다', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const mutated: EnrichedTimetableBody = {
       ...enriched,
       source: { ...enriched.source, contentHash: `sha256:${'0'.repeat(64)}` },
     };
-    const issues = validateEnriched(mutated, { baseline: base, sources });
+    const issues = validateEnriched(mutated, { baseline: base, sources, termSources });
     expect(issues.some((issue) => issue.fatal && issue.where === 'source.contentHash')).toBe(true);
   });
 
   it('AI 저신뢰(confidence<0.6)인데 needsReview=false 면 경고가 뜬다(치명 아님)', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const merged = mergeWith([draft({ sourceQuote: HALL_SENTENCE, kind: 'route-change', confidence: 0.4 })]);
     const payload = { ...enriched, dateRules: merged.dateRules };
     const withAi: EnrichedTimetableBody = {
       ...payload,
       source: { ...payload.source, contentHash: `sha256:${sha256Hex(enrichedCanonicalPayload(payload))}` },
     };
-    const clean = validateEnriched(withAi, { baseline: base, sources });
+    const clean = validateEnriched(withAi, { baseline: base, sources, termSources });
     expect(hasFatal(clean)).toBe(false);
 
     const tampered = {
       ...withAi,
       dateRules: withAi.dateRules.map((rule) => (rule.extractedBy === 'ai' ? { ...rule, needsReview: false } : rule)),
     };
-    const issues = validateEnriched(tampered, { baseline: base, sources });
+    const issues = validateEnriched(tampered, { baseline: base, sources, termSources });
     expect(issues.some((issue) => !issue.fatal && issue.message.includes('needsReview'))).toBe(true);
   });
 
   it('v1 필드를 바꾸면 치명이다(앱 무중단 위반)', () => {
-    const { base, sources, enriched } = loadFixture();
+    const { base, sources, termSources, enriched } = loadFixture();
     const mutated: EnrichedTimetableBody = { ...enriched, semester: { ...enriched.semester, endsOn: '2026-12-15' } };
-    const issues = validateEnriched(mutated, { baseline: base, sources });
+    const issues = validateEnriched(mutated, { baseline: base, sources, termSources });
     expect(issues.some((issue) => issue.fatal && issue.where === 'semester')).toBe(true);
   });
 

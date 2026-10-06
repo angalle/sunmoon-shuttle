@@ -11,16 +11,37 @@ import { parseSnapshot } from '../../tools/scraper/parse.js';
 import { findRoute, parseSnapshotFileName } from '../../tools/scraper/routeMeta.js';
 import type { Snapshot, Timetable } from '../../tools/scraper/types.js';
 import { harvestCandidates, toSources } from '../../tools/extract/candidates.js';
+import { pageText } from '../../tools/extract/text.js';
 import { extractRuleStructures } from '../../tools/extract/rules.js';
 import { buildEnrichedTimetable } from '../../tools/extract/enrich.js';
 import type { ExtractDeps } from '../../tools/extract/cli.js';
-import type { EnrichedTimetableBody, RuleStructures, SnapshotSource } from '../../tools/extract/types.js';
+import type { EnrichedTimetableBody, RuleStructures, SnapshotSource, TermSource } from '../../tools/extract/types.js';
 
 export const RAW_DIR = join(process.cwd(), 'data', 'raw');
+/** 기간 스냅샷(방학 시간표 등) — CLI 기본값(`data/raw/terms`)과 같은 위치 */
+export const TERM_DIR = join(RAW_DIR, 'terms');
 export const FIXED_NOW = '2026-10-06T09:00:00+09:00';
+
+/** `data/raw/terms/*.html` — 노선 표가 아닌 안내 페이지(없으면 빈 배열). */
+export function loadTermSources(): TermSource[] {
+  let files: string[] = [];
+  try {
+    files = readdirSync(TERM_DIR)
+      .filter((file) => file.endsWith('.html'))
+      .sort();
+  } catch {
+    return [];
+  }
+  return files.map((file) => {
+    const html = readFileSync(join(TERM_DIR, file), 'utf8');
+    return { file: `data/raw/terms/${file}`, html, text: pageText(html) };
+  });
+}
 
 export interface Fixture {
   readonly files: readonly string[];
+  /** 기간 스냅샷(방학 페이지) — v3 */
+  readonly termSources: readonly TermSource[];
   readonly sources: readonly SnapshotSource[];
   readonly base: Timetable;
   readonly candidates: ReturnType<typeof harvestCandidates>['candidates'];
@@ -44,16 +65,18 @@ export function loadFixture(): Fixture {
   const base = assembleTimetable(snapshots, { fetchedAt: FIXED_NOW });
   const sources = toSources(inputs);
   const { candidates, rejected } = harvestCandidates(sources);
-  const rules = extractRuleStructures({ sources, base, candidates });
+  const termSources = loadTermSources();
+  const rules = extractRuleStructures({ sources, base, candidates, termSources });
   const enriched = buildEnrichedTimetable(base, {
     dateRules: rules.dateRules,
     terms: rules.terms,
     tripNotes: rules.tripNotes,
     stopWindows: rules.stopWindows,
+    tripConditions: rules.tripConditions,
     notices: rules.notices,
     dedupedNotices: rules.dedupedNotices,
   });
-  cached = { files, sources, base, candidates, rejectedCandidates: rejected, rules, enriched };
+  cached = { files, termSources, sources, base, candidates, rejectedCandidates: rejected, rules, enriched };
   return cached;
 }
 

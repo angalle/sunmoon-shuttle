@@ -12,9 +12,9 @@ import { parseTimetable } from '../../src/adapters/in/web/features/schedule/data
 import { buildEnrichedTimetable } from '../../tools/extract/enrich.js';
 
 describe('T16 스키마 v2 변환 — v1 필드 보존(앱 무중단)', () => {
-  it('schemaVersion 이 2 가 되고 v1 표 필드(routes/semester/dayTypes/busRefs/contacts)는 값까지 그대로다', () => {
+  it('schemaVersion 이 3 이 되고 v1 표 필드(routes/semester/dayTypes/busRefs/contacts)는 값까지 그대로다', () => {
     const { base, enriched } = loadFixture();
-    expect(enriched.schemaVersion).toBe(2);
+    expect(enriched.schemaVersion).toBe(3);
     expect(enriched.semester).toEqual(base.semester);
     expect(enriched.holidayPeriod).toEqual(base.holidayPeriod);
     expect(enriched.dayTypes).toEqual(base.dayTypes);
@@ -23,14 +23,20 @@ describe('T16 스키마 v2 변환 — v1 필드 보존(앱 무중단)', () => {
     expect(enriched.source.url).toBe(base.source.url);
     expect(enriched.source.sourceUpdatedAt).toBe(base.source.sourceUpdatedAt);
     expect(enriched.source.pages).toEqual(base.source.pages);
-    // 표(행·시각·열)는 v2 추가 필드와 무관하게 동일하다
+    // 표(행 수·시각·열·순번)는 v3 추가 필드와 무관하게 동일하다.
+    // 단, `note`(구조화 시 비움)와 v3 조건 필드는 v3 계약으로 **바뀌는 값**이라 비교에서 제외한다.
     enriched.routes.forEach((route, index) => {
       const before = base.routes[index];
       expect(before).toBeDefined();
-      expect(route.byDay).toEqual(before?.byDay);
       expect(route.columns).toEqual(before?.columns);
-      expect(route.trips).toEqual(before?.trips);
       expect(route.status).toBe(before?.status);
+      expect(route.offDays).toEqual(before?.offDays);
+      expect(stripV3(route.trips)).toEqual(stripV3(before?.trips ?? []));
+      for (const dayType of ['weekday', 'saturday', 'sunday'] as const) {
+        expect(stripV3(route.byDay[dayType].trips)).toEqual(stripV3(before?.byDay[dayType].trips ?? []));
+        expect(route.byDay[dayType].columns).toEqual(before?.byDay[dayType].columns);
+        expect(route.byDay[dayType].keys).toEqual(before?.byDay[dayType].keys);
+      }
     });
   });
 
@@ -147,6 +153,12 @@ describe('T16 갭 6종 구조화', () => {
     expect(computeGapCounts(enriched)).toEqual([2, 8, 5, 2, 1, 7]);
   });
 });
+
+/** v1 보존 비교용 — v3 계약으로 값이 바뀌는 키(`note`·조건 필드)를 뺀 행 */
+function stripV3(trips: readonly Record<string, unknown>[]): readonly Record<string, unknown>[] {
+  const cleared = ['note', 'service', 'durationMinutes', 'unknownNote', 'needsReview'];
+  return trips.map((row) => Object.fromEntries(Object.entries(row).filter(([key]) => !cleared.includes(key))));
+}
 
 function computeGapCounts(enriched: ReturnType<typeof ruleOnlyEnriched>): number[] {
   const rules = enriched.dateRules;

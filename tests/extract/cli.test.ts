@@ -55,6 +55,7 @@ describe('T16 CLI 인자', () => {
       files: [],
       out: 'data/timetable.json',
       logPath: '.session-notes/T16-extract-run.json',
+      termPages: [],
       noAi: false,
       aiMode: 'api',
       model: '',
@@ -111,12 +112,12 @@ describe('T16 CLI 실행', () => {
     expect(h.logs.join('\n')).toContain('--dry-run: 검증만 수행했다');
   });
 
-  it('--no-ai → 기존 수준 JSON 발행(PASS) · schemaVersion 2 · v1 필드 보존', async () => {
+  it('--no-ai → 계약 JSON 발행(PASS) · schemaVersion 3 · v1 필드 보존', async () => {
     const h = harness();
     const code = await runExtract(['--no-ai', '--out', OUT, '--log', LOG], h.deps);
     expect(code).toBe(0);
     const json = JSON.parse(h.written.get(OUT) ?? '{}') as Record<string, unknown>;
-    expect(json['schemaVersion']).toBe(2);
+    expect(json['schemaVersion']).toBe(3);
     expect(Array.isArray(json['routes'])).toBe(true);
     expect((json['source'] as Record<string, unknown>)['contentHash']).toMatch(/^sha256:/);
     const extraction = (json['source'] as Record<string, { aiStatus: string }>)['extraction'];

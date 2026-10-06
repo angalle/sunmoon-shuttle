@@ -186,11 +186,11 @@ describe('loadTimetableModel — schema v2 캐시도 폴백한다 (T18 회귀)',
     expect(offline.model.schemaVersion).toBe(2);
   });
 
-  it('실제 발행물(data/timetable.json v2)도 캐시로 폴백한다', async () => {
+  it('실제 발행물(data/timetable.json v3)도 캐시로 폴백한다', async () => {
     const published = JSON.parse(
       readFileSync(new URL('../../../../data/timetable.json', import.meta.url), 'utf8'),
     ) as { schemaVersion: number; routes: unknown[] };
-    expect(published.schemaVersion).toBe(2);
+    expect(published.schemaVersion).toBe(3);
 
     const cache = new MemoryCache();
     cache.entry = cachedEntry(HOUR_MS, { raw: published, schemaVersion: published.schemaVersion });

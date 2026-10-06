@@ -371,14 +371,14 @@ describe('T17 parseTimetable — v2 를 읽기만 한다(스키마·판정 신�
   });
 });
 
-/* ───────────────────────── ⑥ 실제 발행물(v2) ───────────────────────── */
+/* ───────────────────────── ⑥ 실제 발행물(v3) ───────────────────────── */
 
-describe('T17 실제 계약 데이터(data/timetable.json v2) 실측', () => {
+describe('T17 실제 계약 데이터(data/timetable.json v3) 실측', () => {
   const raw = JSON.parse(readFileSync(new URL('../../../../data/timetable.json', import.meta.url), 'utf8')) as unknown;
   const real = parseTimetable(raw);
 
-  it('v2 배열을 읽는다(schemaVersion 2 · dateRules · terms · tripNotes · stopWindows)', () => {
-    expect(real.schemaVersion).toBe(2);
+  it('v3 발행물을 읽는다(schemaVersion 3 · dateRules · terms · tripNotes · stopWindows)', () => {
+    expect(real.schemaVersion).toBe(3);
     expect(real.dateRules.length).toBeGreaterThan(0);
     expect(real.terms.length).toBeGreaterThan(0);
     const asan = real.routes.find((route) => route.id === 'asan-ktx');
