@@ -1,7 +1,14 @@
-# actionlint 설정 (T15 infraprojectcreator)
-# self-hosted 러너(이 맥)에 등록한 커스텀 라벨 — actionlint 는 이 저장소의 기본 라벨 목록을 모른다.
+# actionlint 설정 (T15 → T20)
+#
+# T15 는 self-hosted 러너(이 맥)에 등록한 커스텀 라벨 `sunmoon` 을 여기에 선언했다
+# (actionlint 는 저장소에 등록된 러너 라벨을 모르므로, 선언이 없으면 `runs-on` 을 오류로 본다).
+#
+# T20(2026-10-06)에서 워크플로가 **호스티드 러너(`ubuntu-latest`)로 전환**되어 커스텀 라벨을 쓰는
+# 워크플로가 0건이 됐다 → 아래 선언을 제거했다(더 이상 필요 없다).
+#
+# 재도입 시 복원할 내용(주석 해제):
+#   self-hosted-runner:
+#     labels:
+#       - sunmoon
 # 실측 등록 라벨: `gh api repos/angalle/sunmoon-shuttle/actions/runners --jq '.runners[].labels[].name'`
 #   → self-hosted · macOS · ARM64 · sunmoon
-self-hosted-runner:
-  labels:
-    - sunmoon

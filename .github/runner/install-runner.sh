@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # .github/runner/install-runner.sh — sunmoon-shuttle self-hosted 러너 설치·등록 (T15 infraprojectcreator)
 #
+# ⚠️ 현재 미사용 — 호스티드 러너 사용 중 (T20, 2026-10-06)
+#    `extract.yml` 은 `runs-on: ubuntu-latest` 로 돌고, AI 보강은 외부 OpenAI 호환 API(AI_BASE_URL·AI_MODEL·
+#    secrets.AI_API_KEY)를 쓴다. 이 스크립트는 **대안 경로(로컬 러너 + 로컬 모델) 문서**로만 남긴다.
+#    재도입·정리 절차는 같은 디렉터리 README.md 참조(제거는 총괄 승인 필요 — 임의 실행 금지).
+#
 # 이 맥(ihuiseon-ui-MacBookPro, macOS 26.2 arm64)에 GitHub Actions self-hosted 러너를 설치하고
 # launchd 로 상시 실행되게 등록한다. 재현 가능하게 스크립트로 굳혀 둔 것이고, 아래 순서를 그대로 밟는다.
 #

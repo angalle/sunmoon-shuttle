@@ -1,248 +1,212 @@
-# extract.yml — 배치 v2 발행 파이프라인 (T15 infraprojectcreator)
+# extract.yml — 배치 v2 발행 파이프라인 (T15 → **T20: 호스티드 러너 전환** · infraprojectcreator)
 #
 # 정본(총괄 문서):
-#   · docs/01-architecture.md 부록 A — 배치 v2 파이프라인(① 규칙 baseline → ② AI 보강 → ③ 검증 → ④ 발행)
-#   · docs/00-requirements.md 부록 A — FR-A1~A5 · NFR-A1~A3 · AC-A1~A4
-#   · docs/02-monitoring.md 부록 A — 지표·알림 경로·복구 절차(구현은 이 파일 + .github/runner/)
+#   · docs/01-architecture.md 부록 A · A-2 — 배치 v2 파이프라인(① 규칙 baseline → ② AI 보강 → ③ 검증 → ④ 발행)
+#   · docs/00-requirements.md 부록 A — FR-A1~A6 · NFR-A1~A4 · AC-A1~A4
+#   · docs/02-monitoring.md 부록 A · A-2 — 지표·알림 경로·복구 절차(구현은 이 파일 + .github/scripts/)
 #
-# ── 왜 self-hosted 인가 ────────────────────────────────────────────────────────
-# AI 보강은 이 맥의 로컬 Ollama(http://127.0.0.1:11434)를 쓴다(비용 0 · 외부 API 키 0).
-# 호스티드 러너에서는 127.0.0.1 이 러너 자신을 가리키므로 Ollama 에 닿을 수 없다(터널은 외부 노출·취약 → 금지).
-# 따라서 오케스트레이션만 GitHub Actions(스케줄·이력·아티팩트·무료)를 쓰고, **실행은 이 맥의 러너**가 한다.
-#   러너 라벨(실측 `gh api repos/angalle/sunmoon-shuttle/actions/runners`): self-hosted · macOS · ARM64 · sunmoon
-#   → runs-on 은 **실제 등록된 라벨 그대로** 적는다(대소문자 표기 차이로 잡이 큐에 남는 사고 방지).
-#   러너 등록·복구: .github/runner/recover.sh · .github/runner/README.md (T15)
+# ── 실행 위치: GitHub 호스티드 러너 (2026-10-06 사용자 결정 — 부록 A-2) ──────────
+# 우선순위가 "이 맥이 꺼져 있어도 배치가 돈다"로 바뀌어, T15 의 "이 맥의 러너 + 로컬 모델" 방식은 폐기했다.
+#   · 실행   : `runs-on: ubuntu-latest` — 표준 러너(공개 저장소는 분 과금 없음 · docs/02 §7)
+#   · AI 보강: **외부 OpenAI 호환 API** — `AI_BASE_URL`·`AI_MODEL`(저장소 Variables) + 키는 저장소 시크릿 `AI_API_KEY`
+#   · 폐기분 : T15 가 이 파일에 넣었던 로컬 러너 라벨/로컬 엔드포인트 문자열은 **전부 제거**했다(T20 수용기준 1).
+#              설치·복구 스크립트는 `.github/runner/` 에 **대안 문서로만** 남긴다(그 디렉터리 README 참조).
 #
-# ── 자동 크롤 없음(robots 준수) ────────────────────────────────────────────────
+# ── AI 키가 없어도 배치가 죽지 않는다 (FR-A6 · 부록 A-2) ────────────────────────
+# `AI_API_KEY` 미설정 · 401/403 · 타임아웃 · 5xx(재시도 1회) 면 추출기(tools/extract, T19)가 스스로
+# **규칙 전용으로 폴백**하고 exit 0 으로 정상 발행한다 → 키를 넣기 전에도 이 워크플로는 하루 2회 정상 동작한다.
+# 다만 조용히 넘어가지 않는다: 런 요약(::warning::) · 실행 로그 · 아티팩트의 `extraction` 메타
+# (provider·model·calls·fallbackReason)에 남는다(docs/02 부록 A-2 의 "AI 폴백 3회 연속" 알림 기준).
+#
+# ── 자동 크롤 없음(robots 준수) ─────────────────────────────────────────────────
 # lily.sunmoon.ac.kr/robots.txt 의 `Disallow: /Page` 는 접두사 규칙이라 `/Page2/…`(시간표 URL 전부)를 차단한다
 # (docs/01 §8 실측). 그래서 이 워크플로는 **네트워크로 원본을 가져오지 않는다** — 이미 커밋된 스냅샷
-# `data/raw/*.html` 을 입력으로 쓸 뿐이다(`npm run extract -- --local …`). 새 스냅샷 반입은 사람이 저장해
+# `data/raw/*.html` 을 입력으로 쓸 뿐이다(추출기에 원격 수집 경로 자체가 없다). 새 스냅샷 반입은 사람이 저장해
 # 커밋하고 `scrape.yml`(수동 전용)로 검증·반영한다.
-#   ※ docs/01 부록 A 파이프라인 ①("원본 스냅샷 수집(기존 크롤러)")과 이 결정의 관계는 T15 코멘트로 총괄에 보고했다
-#     — 학기 개편 시 새 스냅샷이 커밋되면 **다음 스케줄 실행이 자동으로 반영**하므로 사람 손은 반입 1회다.
 #
-# ── 역할 분리(중복 스케줄 0) ───────────────────────────────────────────────────
+# ── 역할 분리(중복 스케줄 0) ────────────────────────────────────────────────────
 #   extract.yml (이 파일) : 스케줄 하루 2회 + 수동 dispatch · 스냅샷 재파싱 + AI 보강 + 검증 + 발행
 #   scrape.yml            : **수동 전용**(workflow_dispatch 만) · 새 원본 스냅샷 반입·검증·반영
 #   deploy.yml            : main push → Pages 배포(테스트 실패 시 배포 잡 skipped)
 #   세 워크플로가 `data/timetable.json` 을 건드릴 수 있으므로 **concurrency group `data-publish` 를 공유**한다
 #   (같은 그룹은 저장소 전역에서 직렬화된다 → push 경합으로 인한 non-fast-forward 실패 방지).
 #
-# ── 보안(공개 저장소 + self-hosted) ────────────────────────────────────────────
-# 이 저장소는 public 이다. self-hosted 러너는 **신뢰할 수 없는 PR 을 실행하면 안 된다.**
-# 이 워크플로의 트리거는 `schedule` 과 `workflow_dispatch` 뿐이며(`pull_request`·`pull_request_target` 없음),
-# 스케줄/dispatch 워크플로는 **default branch 의 정의**로만 실행되므로 외부 포크 PR 코드가 이 맥에서 돌 수 없다.
-# → 유지 규칙: 이 파일에 `pull_request` 계열 트리거를 추가하지 않는다. 추가가 필요하면 러너를 격리(VM)해야 한다.
+# ── 보안(공개 저장소 · 최소권한) ────────────────────────────────────────────────
+# 트리거는 `schedule`·`workflow_dispatch` 뿐이다(`pull_request` 계열 없음) → 스케줄/dispatch 워크플로는
+# **default branch 의 정의**로만 실행되므로 외부 포크 코드가 여기서 돌 수 없다.
+#   → 유지 규칙: 이 파일에 `pull_request` 계열 트리거를 추가하지 않는다.
+# `AI_API_KEY` 는 **env 로만** 주입한다 — 로그·아티팩트·커밋·런 요약 어디에도 값을 남기지 않는다.
+# 그리고 그 env 는 **외부 API 를 실제로 호출하는 스텝 하나에만** 준다(체크아웃·npm ci·테스트 스텝은 보지 못한다).
 name: extract
 
 on:
   schedule:
-    # KST 기준 하루 2회 — GitHub cron 은 UTC 다. 05:10 KST = 20:10 UTC(전날) · 17:10 KST = 08:10 UTC.
+    # KST 하루 2회 — GitHub cron 은 UTC 다. 05:10 KST = 20:10 UTC(전날) · 17:10 KST = 08:10 UTC. (T15 그대로 유지)
     - cron: '10 20 * * *'
     - cron: '10 8 * * *'
   workflow_dispatch:
     inputs:
-      raw_glob:
-        description: '입력 스냅샷 경로(글롭) — 사람이 커밋한 원본 HTML'
-        required: true
-        default: 'data/raw/*.html'
-      ai:
-        description: 'AI 보강 모드 (auto=Ollama 있으면 사용 / off=규칙 전용 --no-ai)'
-        type: choice
-        options: [auto, off]
-        default: auto
-      model:
-        description: 'Ollama 모델명 (비우면 고정 기본값 — 아래 env.SUNMOON_AI_MODEL)'
-        required: false
-        default: ''
       mode:
-        description: '결과 반영 방식 (commit=main 직접 / pr=검토용 PR / none=발행 없이 검증만)'
+        description: '결과 반영 방식 (commit=main 직접 커밋 · none=발행 없이 검증만=--dry-run)'
         type: choice
-        options: [commit, pr, none]
+        options: [commit, none]
         default: commit
       reason:
-        description: '실행 사유(커밋·PR 메시지에 들어감)'
+        description: '실행 사유(커밋 메시지에 들어감)'
         required: false
         default: '스케줄/수동 배치'
 
 permissions:
-  contents: write        # 데이터 커밋·push
-  pull-requests: write   # mode=pr
+  contents: write        # data/timetable.json 커밋·push 만. 나머지 권한은 주지 않는다(최소권한).
 
 concurrency:
-  group: data-publish    # scrape.yml 과 같은 그룹 — data/timetable.json 발행은 직렬화한다
+  group: data-publish    # scrape.yml 과 공유 — data/timetable.json 발행을 저장소 전역에서 직렬화한다
   cancel-in-progress: false
+
+env:
+  # ── AI 벤더 설정(저장소 Variables 로 덮어쓴다) ──────────────────────────────────
+  # 기본값은 운영자 주력 벤더(DeepSeek · OpenAI 호환)다 → **키만 넣으면 바로 동작**하게 하려는 의도다.
+  # 다른 벤더(OpenAI · 사내 게이트웨이 등)면 Variables 두 개만 바꾸면 된다(워크플로·코드 수정 불필요):
+  #     gh variable set AI_BASE_URL -R angalle/sunmoon-shuttle --body 'https://<host>/v1'
+  #     gh variable set AI_MODEL    -R angalle/sunmoon-shuttle --body '<모델명>'
+  # `vars.X` 가 비어 있으면(현재 저장소 Variables 0건) 아래 기본값이 쓰인다.
+  # 추출기(T19)는 벤더 도메인을 코드에 갖지 않는다 — `AI_BASE_URL` 이 비면 호출하지 않고 규칙 전용으로 폴백한다.
+  AI_BASE_URL: ${{ vars.AI_BASE_URL || 'https://api.deepseek.com/v1' }}
+  AI_MODEL: ${{ vars.AI_MODEL || 'deepseek-flash' }}
 
 jobs:
   extract:
     name: "extract (스냅샷 → 규칙 → AI 보강 → 검증 → 발행)"
-    # self-hosted(이 맥) — 로컬 Ollama 를 쓰기 위한 필수 조건(파일 상단 주석).
-    runs-on: [self-hosted, macOS, sunmoon]
-    timeout-minutes: 45
-    env:
-      # AI 모델 **고정값**(문서화: 이 한 곳이 정본 — 워크플로가 항상 이 값을 --model 로 넘긴다).
-      #   선택 근거: 로컬에 이미 있는 모델 · 구조화 출력/도구 호출 지원 · 8B급이라 이 맥에서 초 단위 응답.
-      #   러너에서 실측 확인: `curl -s http://127.0.0.1:11434/api/tags | jq -r '.models[].name'`
-      SUNMOON_AI_MODEL: ${{ inputs.model || 'lfm2.5:latest' }}
-      OLLAMA_URL: http://127.0.0.1:11434
-      # 상태 파일(마지막 성공 시각·알림 로그) 위치. 러너 .env 의 SUNMOON_STATE_DIR 가 있으면 그 값이 이긴다.
-      # 비어 있으면 스크립트가 $HOME/.sunmoon-shuttle-batch 로 떨어진다.
-      SUNMOON_STATE_DIR: ${{ vars.SUNMOON_STATE_DIR }}
-
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # 상태 파일(실행 로그·알림·마지막 성공)은 러너 임시영역($RUNNER_TEMP/sunmoon-batch)에 만든다 —
+    # 호스티드 러너에는 다음 실행까지 남는 로컬 상태가 없으므로, **영속 근거는 아래 아티팩트 업로드**(보존 30일)다.
+    # 워크스페이스는 더럽히지 않는다(`git status` 를 깨끗하게 유지 → 변경 감지가 데이터 파일에만 걸린다).
     steps:
       - name: 체크아웃
         uses: actions/checkout@v7
 
-      # self-hosted 러너는 툴체인이 이미 있다 — setup-node 로 툴체인을 새로 받지 않고 **있으면 검증**한다
-      # (package.json engines: node >=26). 없으면 여기서 즉시 실패해 원인을 분명히 한다.
-      - name: "러너 환경 확인 (node ≥26 · jq · git · gh)"
-        run: |
-          set -euo pipefail
-          echo "runner=${RUNNER_NAME:-?} os=${RUNNER_OS:-?} arch=${RUNNER_ARCH:-?} host=$(uname -srm)"
-          node -v; npm -v; jq --version; git --version
-          command -v gh >/dev/null && gh --version | head -1 || echo "::warning title=gh 없음::mode=pr 을 쓸 수 없다(commit 경로만 동작)."
-          major="$(node -p 'process.versions.node.split(".")[0]')"
-          if [ "$major" -lt 26 ]; then
-            echo "::error title=Node 버전 부족::node $major — package.json engines 는 >=26 이다."
-            exit 1
-          fi
+      # 호스티드 러너는 툴체인이 매번 새로 온다 → setup-node 로 고정하고 npm 캐시를 붙인다.
+      # package.json engines 는 node >=26 이므로 deploy.yml·scrape.yml 과 **같은 26** 을 쓴다.
+      - name: "Node 설정 (engines: node >=26 — deploy/scrape 와 동일)"
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: npm
 
       - name: 의존성 설치 (잠금파일 고정)
         run: npm ci
 
-      # T16(AI 보강 추출 CLI) 이 만든 스크립트 계약을 확인한다 — 없으면 조용히 넘어가지 않고 즉시 실패.
-      - name: "추출 CLI 존재 확인 (T16 계약 — npm run extract)"
+      # T19 CLI 계약(`--ai=<모드>`, 기본 api)을 **동작으로** 확인한다 — 플래그 이름/값이 바뀌면 여기서 멈춘다
+      # (T20 지시: "이름을 임의로 만들지 말 것"). 잘못된 모드는 거부되고, 안내에 `--ai=api` 가 나와야 한다.
+      - name: "추출 CLI 계약 확인 (npm run extract · T19 --ai=api)"
         run: |
           set -euo pipefail
           if ! jq -e '.scripts.extract' package.json >/dev/null; then
-            echo "::error title=extract 스크립트 없음::package.json 에 extract 가 없다 — T16(AI 보강 추출 파이프라인) 산출물이 필요하다."
+            echo "::error title=extract 스크립트 없음::package.json 에 extract 가 없다 — tools/extract(T19) 산출물이 필요하다."
             exit 1
           fi
-          jq -r '.scripts.extract' package.json
-
-      # 실패 시 되돌릴 기준본 — "마지막 정상 JSON"(커밋된 본)을 워크스페이스 밖(${RUNNER_TEMP})에 복사해 둔다.
-      - name: 마지막 정상 JSON 백업
-        run: |
-          set -euo pipefail
-          cp data/timetable.json "${RUNNER_TEMP}/prev-timetable.json"
-          echo "백업: ${RUNNER_TEMP}/prev-timetable.json ($(wc -c < data/timetable.json) bytes)"
-
-      # ── Ollama 의존성 처리 ────────────────────────────────────────────────────
-      # Ollama 미실행/모델 부재 → **--no-ai 자동 폴백**(경고 기록). 배치를 죽이지 않는다(FR-A4·부록 A).
-      - name: Ollama 준비 확인 + AI 모드 결정
-        id: ollama
-        run: |
-          set -euo pipefail
-          STATE="${SUNMOON_STATE_DIR:-$HOME/.sunmoon-shuttle-batch}"
-          mkdir -p "$STATE"
-          stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
-          requested="${{ inputs.ai || 'auto' }}"
-          model="$SUNMOON_AI_MODEL"
-
-          if [ "$requested" = "off" ]; then
-            echo "ai=off" >> "$GITHUB_OUTPUT"
-            echo "수동 지정: 규칙 전용 모드(--no-ai)"
-            printf '%s kind=ai-forced-off dispatch 로 규칙 전용 모드 지정\n' "$(stamp)" >> "$STATE/alerts.log"
-            exit 0
+          echo "npm run extract → $(jq -r '.scripts.extract' package.json)"
+          for f in tools/extract/index.ts tools/extract/cli.ts tools/extract/structurer.ts; do
+            if [ ! -f "$f" ]; then
+              echo "::error title=추출기 없음::${f} 가 없다 — T19 산출물이 필요하다."
+              exit 1
+            fi
+          done
+          if out="$(npm run extract -- --ai=__contract_check__ 2>&1)"; then
+            echo "::error title=CLI 계약 위반::--ai=__contract_check__ 가 거부되지 않았다(잘못된 모드가 통과 = 입력 검증 실패)."
+            exit 1
           fi
-
-          if ! curl -sf --max-time 5 "$OLLAMA_URL/api/tags" -o "$STATE/ollama-tags.json"; then
-            echo "ai=off" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Ollama 무응답::${OLLAMA_URL} 무응답 — 규칙 전용(--no-ai)으로 폴백해 배치를 계속한다."
-            printf '%s kind=ollama-down %s 무응답 — --no-ai 폴백\n' "$(stamp)" "$OLLAMA_URL" >> "$STATE/alerts.log"
-            exit 0
+          if ! printf '%s\n' "$out" | grep -qF -- '--ai=api'; then
+            echo "::error title=CLI 계약 불일치::오류 안내에 --ai=api 가 없다 — 워크플로가 쓰는 플래그와 CLI 계약(T19)을 맞춰야 한다."
+            printf '%s\n' "$out"
+            exit 1
           fi
+          echo "CLI 계약 확인 OK — --ai 플래그가 존재하고, 잘못된 모드는 거부된다"
 
-          if jq -e --arg m "$model" '.models[] | select(.name == $m)' "$STATE/ollama-tags.json" >/dev/null; then
-            echo "ai=on" >> "$GITHUB_OUTPUT"
-            echo "Ollama 준비 OK — model=$model"
-          else
-            echo "ai=off" >> "$GITHUB_OUTPUT"
-            echo "::warning title=모델 부재::model=${model} 이 이 맥의 Ollama 에 없다 — 규칙 전용(--no-ai)으로 폴백."
-            printf '%s kind=ollama-model-missing model=%s 부재 — --no-ai 폴백\n' "$(stamp)" "$model" >> "$STATE/alerts.log"
-          fi
-
-      - name: "직전 배치 신선도 점검 (마지막 성공 24h 초과 시 경고 기록)"
-        run: node .github/scripts/batch_state.mjs check-staleness
-
-      - name: 추출 실행 (규칙 baseline + AI 보강 + 검증)
+      # ── 추출 실행 (규칙 baseline + AI 보강 + 검증) ───────────────────────────────
+      # 정확한 명령: `npm run extract -- --ai=api` (+ mode=none 이면 --dry-run). 입력은 커밋된 data/raw/*.html.
+      - name: "추출 실행 — npm run extract -- --ai=api"
         id: extract
+        env:
+          # 최소권한: 시크릿은 여기(외부 API 를 실제로 호출하는 유일한 스텝)에만 준다.
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
         run: |
           set -uo pipefail
-          STATE="${SUNMOON_STATE_DIR:-$HOME/.sunmoon-shuttle-batch}"
+          STATE="$RUNNER_TEMP/sunmoon-batch"
           mkdir -p "$STATE"
-          RAW_GLOB="${{ inputs.raw_glob || 'data/raw/*.html' }}"
-          AI="${{ steps.ollama.outputs.ai }}"
 
-          files=()
-          while IFS= read -r f; do files+=("$f"); done < <(compgen -G "$RAW_GLOB" || true)
-          echo "입력 스냅샷: ${#files[@]}개 ($RAW_GLOB)"
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "::error title=스냅샷 없음::${RAW_GLOB} 에 매칭되는 파일이 없다."
-            exit 1
-          fi
-          printf ' - %s\n' "${files[@]}"
+          flags=(--ai=api)
+          if [ "${{ inputs.mode || 'commit' }}" = "none" ]; then flags+=(--dry-run); fi
 
-          flags=()
-          if [ "$AI" = "on" ]; then
-            flags+=("--model=$SUNMOON_AI_MODEL")
-          else
-            flags+=("--no-ai")
-          fi
-          if [ "${{ inputs.mode || 'commit' }}" = "none" ]; then
-            flags+=("--dry-run")
-          fi
-
-          echo "실행: npm run extract -- --local <파일 ${#files[@]}개> ${flags[*]}"
+          echo "입력: data/raw/*.html (커밋된 스냅샷 · 원격 수집 없음)"
+          echo "실행: npm run extract -- ${flags[*]} --log <state>/extract-run.json"
           startedAt="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           start=$(date +%s)
           set +e
-          npm run extract -- --local "${files[@]}" "${flags[@]}" 2>&1 | tee "$STATE/last-run.log"
+          npm run extract -- "${flags[@]}" --log "$STATE/extract-run.json" 2>&1 | tee "$STATE/run.log"
           rc="${PIPESTATUS[0]}"
           set -e
           duration=$(( $(date +%s) - start ))
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
           echo "duration=$duration" >> "$GITHUB_OUTPUT"
 
-          # 실행 기록(모델명·AI 모드·소요시간·needsReview) + 실패 시 알림 1건. 비밀값은 남기지 않는다.
+          # 실행 기록(관측) — 실패해도 남긴다(아티팩트로 업로드). provider·model 은 실행 로그에서 읽는다(추측 금지).
+          provider="$(jq -r '.provider? // "unknown"' "$STATE/extract-run.json" 2>/dev/null || echo unknown)"
+          model="$(jq -r '.model? // ""' "$STATE/extract-run.json" 2>/dev/null || echo '')"
           node .github/scripts/batch_state.mjs record-run \
-            --rc="$rc" --ai="$AI" --model="$SUNMOON_AI_MODEL" --duration="$duration" \
-            --json=data/timetable.json --log="$STATE/last-run.log" --startedAt="$startedAt" || true
+            --rc="$rc" --ai="$provider" --model="$model" --duration="$duration" \
+            --startedAt="$startedAt" \
+            --json=data/timetable.json --log="$STATE/extract-run.json" --state="$STATE" || true
           exit "$rc"
 
-      # 계약 JSON 최소 검증 — 반입 경로와 같은 검사기(scrape.yml 과 동일 기준).
-      - name: 계약 JSON 최소 검증
+      - name: 계약 JSON 최소 검증 (반입 경로와 같은 검사기)
         run: node .github/scripts/verify_contract.mjs data/timetable.json
 
       - name: "테스트 (단위·골든) — scrape/deploy 와 같은 게이트"
         run: npm run test
 
-      - name: 발행 요약
+      # 폴백은 "조용한 성공"이 아니다 — 런 요약에 경고로 올리고, 아티팩트에 남는 메타를 그대로 요약에 붙인다.
+      - name: "발행 요약 · AI 폴백 점검 (폴백이면 런 요약에 경고)"
         run: |
           set -euo pipefail
+          STATE="$RUNNER_TEMP/sunmoon-batch"
           node .github/scripts/batch_state.mjs summarize --json=data/timetable.json | tee -a "$GITHUB_STEP_SUMMARY"
+          META="$STATE/extract-run.json"
+          if [ -f "$META" ]; then
+            meta="$(jq -r '"provider=\(.provider) model=\(.model // "n/a") calls=\(.calls) truncated=\(.truncated) fallbackReason=\(.fallbackReason // "-")"' "$META")"
+            printf 'AI 추출 메타: %s\n' "$meta" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$(jq -r '.provider' "$META")" != "api" ]; then
+              echo "::warning title=AI 규칙전용 폴백::외부 AI 로 보강하지 못해 규칙 전용으로 발행했다 — ${meta} (AI_API_KEY·벤더 상태 확인 — docs/02 부록 A-2)"
+            fi
+          else
+            echo "::warning title=실행 메타 없음::${META} 가 없다 — 추출이 아주 일찍 실패했을 수 있다."
+          fi
+          echo "산출물 extraction.provider=$(jq -r '.source.extraction.provider? // "unknown"' data/timetable.json)"
 
-      # ── 변경 시에만 커밋(AC-A1) ───────────────────────────────────────────────
-      # `source.fetchedAt`(수집 시각)은 실행마다 달라지므로 제외하고 **내용**만 비교한다(scrape.yml 과 동일 규칙).
+      # ── 변경 시에만 커밋(AC-A1) ────────────────────────────────────────────────
+      # `source.fetchedAt`(수집 시각)은 실행마다 달라지므로 제외하고 **내용**만 비교한다(scrape.yml 과 같은 규칙).
       # 무변경이면 새 파일을 버리고(HEAD 복원) 커밋 0건으로 끝난다.
       - name: 변경 감지 (fetchedAt 제외 — 내용 무변경이면 커밋 0건)
         id: diff
+        if: steps.extract.outcome == 'success'
         run: |
           set -euo pipefail
+          norm() { jq -S 'del(.source.fetchedAt)'; }
           if ! git cat-file -e "HEAD:data/timetable.json" 2>/dev/null; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "기존 data/timetable.json 이 HEAD 에 없다 → 커밋한다"
-          elif diff -q <(git show HEAD:data/timetable.json | jq -S 'del(.source.fetchedAt)') \
-                       <(jq -S 'del(.source.fetchedAt)' data/timetable.json) >/dev/null; then
+            echo "기존 data/timetable.json 이 HEAD 에 없다(최초 발행) → 커밋한다"
+          elif diff -q <(git show HEAD:data/timetable.json | norm) <(norm < data/timetable.json) >/dev/null; then
             git checkout -- data/timetable.json
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "fetchedAt 외 내용 동일 → 데이터 변경 없음 → 커밋 0건"
+            echo "fetchedAt 외 내용 동일 → 데이터 변경 없음 → 커밋 0건(fetchedAt = 마지막 내용 변경 시각 유지)"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "data/timetable.json 내용 변경 감지 → 커밋한다"
           fi
 
-      - name: 반영 — main 커밋 (mode=commit & 변경 있음)
+      # ── 발행: main 커밋 (변경 있음 & mode=commit) ──────────────────────────────
+      - name: 반영 — main 커밋 (bot 작성자 · 변경 있음 · mode=commit)
         if: steps.extract.outcome == 'success' && steps.diff.outputs.changed == 'true' && (inputs.mode || 'commit') == 'commit'
         env:
           REASON: ${{ inputs.reason || '스케줄/수동 배치' }}
@@ -251,80 +215,91 @@ jobs:
           SUMMARY="$(node .github/scripts/summarize.mjs data/timetable.json)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/timetable.json
+          git add data/timetable.json        # 자기 경로만 — `git add -A` 금지(T20 수용기준 7)
           git commit -m "data: 배치 v2 반영 — ${SUMMARY} (${REASON})"
           git push
           echo "커밋·push 완료: ${SUMMARY}"
 
-      - name: 반영 — 검토용 PR (mode=pr & 변경 있음)
-        if: steps.extract.outcome == 'success' && steps.diff.outputs.changed == 'true' && inputs.mode == 'pr'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REASON: ${{ inputs.reason || '스케줄/수동 배치' }}
-        run: |
-          set -euo pipefail
-          SUMMARY="$(node .github/scripts/summarize.mjs data/timetable.json)"
-          BR="data/batch-$(date -u +%Y%m%d-%H%M%S)"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BR"
-          git add data/timetable.json
-          git commit -m "data: 배치 v2 반영 — ${SUMMARY} (${REASON})"
-          git push -u origin "$BR"
-          gh pr create --base main --head "$BR" \
-            --title "data: 배치 v2 반영 — ${SUMMARY}" \
-            --body "배치 v2 발행(workflow ${GITHUB_RUN_ID}). 사유: ${REASON} / 요약: ${SUMMARY}"
-
-      # 배치가 성공하면(발행 여부와 무관) "마지막 성공 시각"을 기록한다 — 24h 초과 지표의 원천.
-      - name: 배치 성공 기록 (last-success.json)
+      # 배치가 성공하면(발행 여부와 무관) "마지막 성공 기록"을 남긴다 — 아티팩트로 보존된다.
+      # (호스티드 러너는 $HOME 이 실행마다 초기화되므로 24h 신선도 판단의 원천은 **런 이력 + 아티팩트**다:
+      #  `gh run list --workflow extract.yml` · 업로드된 last-success.json — docs/02 부록 A-2.)
+      - name: 발행 성공 기록 (last-success.json)
         if: steps.extract.outcome == 'success'
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          STATE="$RUNNER_TEMP/sunmoon-batch"
+          provider="$(jq -r '.provider? // "unknown"' "$STATE/extract-run.json" 2>/dev/null || echo unknown)"
+          model="$(jq -r '.model? // ""' "$STATE/extract-run.json" 2>/dev/null || echo '')"
           node .github/scripts/batch_state.mjs record-success \
-            --ai="${{ steps.ollama.outputs.ai }}" --model="$SUNMOON_AI_MODEL" \
-            --duration="${{ steps.extract.outputs.duration }}" --json=data/timetable.json
+            --ai="$provider" --model="$model" \
+            --duration="${{ steps.extract.outputs.duration }}" --json=data/timetable.json --state="$STATE" || true
 
-      # ── 실패 시 발행 금지 + 마지막 정상 JSON 유지(FR-A4·AC-A5) ────────────────
-      # 추출 단계가 실패하면 그 자체로 이후 스텝(검증·테스트·커밋)이 전부 건너뛰어진다 = 발행 0건.
-      # 여기서는 남아 있을 수 있는 반쪽 산출물을 커밋본으로 되돌리고 원인을 기록한다.
-      - name: 실패 처리 — 마지막 정상 JSON 복원 + 원인 기록
+      # ── 실패 시 발행 금지 + 마지막 정상 JSON 유지(FR-A4 · AC-5) ────────────────
+      # 추출·검증·테스트 중 하나라도 실패하면 이후 스텝(커밋)이 실행되지 않는다 = 발행 0건.
+      # 여기서는 남아 있을 수 있는 반쪽 산출물을 커밋본(HEAD)으로 되돌리고 원인을 기록한다.
+      - name: 실패 처리 — 마지막 정상 JSON 복원 + 원인 기록(발행 금지)
         if: failure()
         run: |
           set -uo pipefail
-          STATE="${SUNMOON_STATE_DIR:-$HOME/.sunmoon-shuttle-batch}"
-          git checkout -- data/timetable.json 2>/dev/null || true
-          if [ -f "${RUNNER_TEMP}/prev-timetable.json" ]; then
-            cp "${RUNNER_TEMP}/prev-timetable.json" data/timetable.json
-          fi
-          echo "::error title=배치 실패(발행 없음)::추출/검증 실패 — data/timetable.json 을 마지막 정상(커밋본)으로 되돌렸다. 앱은 계속 동작한다."
-          # 추출 단계 자체가 실패한 경우에는 record-run 이 이미 알림을 남겼다(중복 금지).
-          if [ "${{ steps.extract.outcome }}" = "success" ]; then
-            node .github/scripts/batch_state.mjs record-run --rc=1 \
-              --ai="${{ steps.ollama.outputs.ai }}" --model="$SUNMOON_AI_MODEL" \
-              --duration="${{ steps.extract.outputs.duration }}" --json=data/timetable.json \
-              --log="$STATE/last-run.log" || true
+          STATE="$RUNNER_TEMP/sunmoon-batch"
+          echo "::error title=배치 실패(발행 없음)::추출/검증/테스트 실패 — data/timetable.json 을 마지막 정상(커밋본)으로 되돌린다. 앱은 계속 동작한다(AC-5)."
+          if git cat-file -e "HEAD:data/timetable.json" 2>/dev/null; then
+            git checkout -- data/timetable.json
+            echo "복원: HEAD:data/timetable.json ($(git show HEAD:data/timetable.json | wc -c) bytes)"
+            echo "복원 후 해시: $(git show HEAD:data/timetable.json | shasum -a 256 | head -1)"
+          else
+            echo "::warning title=커밋본 없음::HEAD 에 data/timetable.json 이 없다 — 되돌릴 기준본이 없다."
           fi
           echo "--- 되돌린 뒤 상태 ---"
           git status --short
-          echo "--- 계약 JSON 은 커밋본 그대로인지(해시) ---"
-          git show HEAD:data/timetable.json | shasum -a 256 | head -1
+          if [ -f "$STATE/run.log" ]; then
+            echo "--- 실행 로그 끝 40줄 ---"
+            tail -40 "$STATE/run.log"
+          fi
+          # 추출 스텝 자체가 실패했으면 그 안에서 record-run 이 이미 알림을 남겼다(중복 금지).
+          if [ "${{ steps.extract.outcome }}" = "success" ]; then
+            provider="$(jq -r '.provider? // "unknown"' "$STATE/extract-run.json" 2>/dev/null || echo unknown)"
+            node .github/scripts/batch_state.mjs record-run --rc=1 \
+              --ai="$provider" \
+              --duration="${{ steps.extract.outputs.duration }}" --json=data/timetable.json \
+              --log="$STATE/extract-run.json" --state="$STATE" || true
+          fi
 
-      # 로그·JSON 아티팩트 업로드(공개 저장소 — 아티팩트 스토리지 무료).
-      - name: "아티팩트 준비 (로그·JSON·알림)"
+      # ── 아티팩트: 실행 로그 · data/timetable.json · extraction 메타 (실패해도 업로드) ──
+      # 호스티드 러너에는 로컬 상태가 남지 않으므로 **관측의 영속 근거가 이 아티팩트**다(보존 30일).
+      - name: "아티팩트 준비 (실행 로그 · data/timetable.json · extraction 메타)"
         if: always()
         run: |
           set -uo pipefail
-          STATE="${SUNMOON_STATE_DIR:-$HOME/.sunmoon-shuttle-batch}"
+          STATE="$RUNNER_TEMP/sunmoon-batch"
           mkdir -p batch-artifacts
-          [ -f "$STATE/last-run.log" ] && cp "$STATE/last-run.log" batch-artifacts/ || true
-          [ -f "$STATE/last-run.json" ] && cp "$STATE/last-run.json" batch-artifacts/ || true
-          [ -f "$STATE/alerts.log" ] && cp "$STATE/alerts.log" batch-artifacts/ || true
-          [ -f data/timetable.json ] && cp data/timetable.json batch-artifacts/timetable.json || true
+          copy() {
+            if [ -f "$1" ]; then cp "$1" "batch-artifacts/$2"; fi
+          }
+          copy "$STATE/run.log" run.log
+          copy "$STATE/extract-run.json" extraction-meta.json
+          copy "$STATE/alerts.log" alerts.log
+          copy "$STATE/last-run.json" last-run.json
+          copy "$STATE/last-success.json" last-success.json
+          copy data/timetable.json timetable.json
+          # 요약본(사람이 바로 읽는 메타): provider·model·calls·truncated·fallbackReason — 비밀값 아님
+          if [ -f "$STATE/extract-run.json" ]; then
+            jq -c '{provider, model, calls, truncated, promptTokens, completionTokens, totalTokens, fallbackReason, aiStatus, aiError, needsReview, durationMs}' \
+              "$STATE/extract-run.json" > batch-artifacts/extraction-meta.summary.json || true
+          fi
+          if [ -f data/timetable.json ]; then
+            printf 'artifact schemaVersion=%s contentHash=%s fetchedAt=%s\n' \
+              "$(jq -r '.schemaVersion // "n/a"' data/timetable.json)" \
+              "$(jq -r '.source.contentHash // "n/a"' data/timetable.json)" \
+              "$(jq -r '.source.fetchedAt // "n/a"' data/timetable.json)" >> batch-artifacts/extraction-meta.summary.json || true
+          fi
           ls -la batch-artifacts/ || true
+          echo "--- extraction 메타 요약(비밀값 아님) ---"
+          cat batch-artifacts/extraction-meta.summary.json 2>/dev/null || echo "(메타 없음)"
 
       - name: 아티팩트 업로드
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: batch-${{ github.run_id }}
           path: batch-artifacts

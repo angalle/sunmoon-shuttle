@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # .github/runner/recover.sh — sunmoon-shuttle 배치 v2 러너/배치 복구·감시 (T15 infraprojectcreator)
 #
+# ⚠️ 현재 미사용 — 호스티드 러너 사용 중 (T20, 2026-10-06)
+#    `extract.yml` 은 `runs-on: ubuntu-latest` 로 돌고, AI 보강은 외부 OpenAI 호환 API 를 쓴다.
+#    이 스크립트(러너 재기동·로컬 모델 재기동·LaunchAgent 감시)는 **대안 경로 문서**로만 남긴다.
+#    감시가 필요할 때의 현행 수단: GitHub 의 런 이력(`gh run list --workflow extract.yml`)과
+#    워크플로가 업로드하는 아티팩트(run.log·extraction-meta.json·last-success.json) — docs/02 부록 A-2.
+#    정리·재도입 절차는 같은 디렉터리 README.md 참조(제거는 총괄 승인 필요 — 임의 실행 금지).
+#
 # docs/02-monitoring.md 부록 A 의 "복구 절차"를 실행 가능한 형태로 굳힌 스크립트다.
 #   · 러너 재기동(launchd) → GitHub 에 online 복귀까지 확인
 #   · Ollama 재기동 → 127.0.0.1:11434 응답 확인
