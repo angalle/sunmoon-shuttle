@@ -1,0 +1,48 @@
+ios_pwa_smoke: base=/sunmoon-shuttle/ now=2026-10-05T14:40:00+09:00 asan-ktx 평일=42 토=4 manifest icons=4
+
+검사 결과:
+  PASS  [A.render] iPhone 뷰포트(390x844)에서 첫 화면 렌더
+  PASS  [A.rows] 시간표 행 수 = data/timetable.json(그 요일 전체 회차) — day=sunday rows=16 json(그 요일)=16
+  PASS  [A.next-departure] 다음 출발 행이 강조되어 시각이 보인다 — next=16:00
+  PASS  [A.ua-ios-hint] iPhone UA → 설치 안내가 iOS 문구("홈 화면에 추가") — "ios"
+  PASS  [A.theme-color-runtime] theme-color 가 --color-bg 토큰 값으로 실제로 채워진다(빈 값·하드코딩 아님) — content="#12161b" · 토큰 --color-bg=#12161b
+  PASS  [A.apple-meta-runtime] apple-mobile-web-app-capable/title 이 DOM 에 있다 — capable=yes title=셔틀버스
+  PASS  [A.viewport-runtime] viewport-fit=cover 가 실제로 적용 — width=device-width, initial-scale=1.0, viewport-fit=cover
+  PASS  [A.manifest-parse] 브라우저가 manifest 를 오류 없이 파싱(Page.getAppManifest) — url=http://127.0.0.1:54795/sunmoon-shuttle/manifest.webmanifest critical=[]
+  PASS  [A.manifest-declared-icons] 파싱된 manifest 아이콘 4종(192/512/maskable-192/512) — browser=4 file=4
+  PASS  [A.assets-200] manifest·아이콘 8종 HTTP 200 — manifest.webmanifest:200 apple-touch-icon.png:200 favicon.svg:200 icons/favicon-32.png:200 icons/icon-192.png:200 icons/icon-512.png:200 icons/maskable-192.png:200 icons/maskable-512.png:200
+  PASS  [A.manifest-mime] manifest Content-Type = application/manifest+json — application/manifest+json; charset=utf-8
+  PASS  [A.sw-registered] Service Worker 등록 성공
+  PASS  [A.reload-ready] 재로드 후 화면 렌더(SW 제어 상태)
+  PASS  [A.sw-controller] SW 가 페이지를 제어(clients.claim)
+  PASS  [A.idb-record] IndexedDB 캐시 레코드 저장(contentHash·저장시각) — {"contentHash":"sha256:e0952e99ade9e3800e3b1a0c4ccb386596ee1b98b8990174e90e34caaf3b5729","cachedAtMs":1791178800000,"routeCount":5}
+  PASS  [A.no-horizontal-overflow] 가로 스크롤(페이지 전체) 없음 — iPhone 폭에서 잘리지 않음 — docScrollWidth=390 innerWidth=390
+  PASS  [A.safe-area-wiring] 안전영역 토큰이 레이아웃 여백을 실제로 바꾼다(노치 주입 모사: 59px) — padding-top 16px → 59px (토큰 기본값=0px, 표 오버플로=auto)
+  PASS  [A.console-errors] 앱이 낸 콘솔 오류 0
+  PASS  [B.offline-first-screen] 오프라인 새로고침 후 첫 화면
+  PASS  [B.offline-rows] 오프라인 시간표 행 수 = 계약 JSON(그 요일 전체 회차) — day=sunday rows=16 json=16
+  PASS  [B.offline-next-departure] 오프라인에서도 다음 출발 행 강조가 동작 — next=16:00
+  PASS  [B.offline-day-switch] 오프라인 요일 전환(토요일 행 수 = 계약 JSON) — selected=shuttle-day-tab-saturday rows=12 json=12
+  PASS  [B.console-errors] 오프라인에서 앱이 낸 콘솔 오류 0
+  INFO  Phase D 준비 — SW 해제 + 캐시 삭제 + sw.js 404: {"unregistered":1,"caches":2}
+  PASS  [D.no-idb-render] IndexedDB 없는 환경에서도 화면이 뜬다(예외 없음)
+  PASS  [D.no-idb-rows] IndexedDB 없음 → 네트워크 경로로 데이터 표시(행 수 = 계약 JSON) — day=saturday rows=12 json=12
+  PASS  [D.no-idb-source] IndexedDB 없음 → 캐시 폴백 배너 없이 네트워크 성공으로 처리 — null
+  PASS  [D.no-idb-not-error-ui] 오류 UI(F8)로 가지 않는다 — 조용한 실패도 아니다
+  PASS  [D.no-idb-detect] 앱이 IndexedDB 부재를 감지(읽기 시도가 no-op) — "no-indexeddb"
+  PASS  [D.no-idb-console-errors] IndexedDB 없는 환경에서 앱이 낸 콘솔 오류 0
+  PASS  [C.standalone-mode] 홈 화면 실행 모사(--app=)에서 display-mode: standalone = true — {"standalone":true,"hint":null,"hasApp":true,"listDay":"sunday","rows":16}
+  PASS  [C.standalone-rows] 전체화면에서도 시간표 렌더(행 수 = 계약 JSON) — day=sunday rows=16 json=16
+  PASS  [C.standalone-no-hint] 이미 설치(standalone) 상태면 설치 안내를 띄우지 않는다 — hint=null
+  INFO  브라우저가 낸 자원 실패 로그 1건(요청 실패 주입·sw.js 404 의 필연적 결과 — 앱 오류 아님)
+  INFO  log: A bad HTTP response code (404) was received when fetching the script. ()
+  INFO  콘솔 경고 1건: console.warn: [sw] Service Worker 등록 실패 — 네트워크 계층 없이 동작합니다. TypeError: Failed to register a ServiceWorker for scope ('http://127.0.0.1:54795/sunmoon-shuttle/') with script ('http://127.0.0.1:54795/sunmoon-shuttle/sw.js'): A bad HTTP response code (404) was received when fetching the script.
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T9-1-아이폰뷰포트-온라인.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T9-2-오프라인-첫화면.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T9-3-오프라인-요일전환.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T9-5-IndexedDB없음-폴백.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T9-4-standalone-전체화면.png
+
+IOS PWA SMOKE: PASS
