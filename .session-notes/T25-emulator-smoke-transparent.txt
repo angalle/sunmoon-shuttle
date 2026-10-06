@@ -1,0 +1,57 @@
+### 0. 환경
+  AVD=meteor-dodge-api35 · 2026-10-06 13:21:48 KST
+  기기: Android 15 (API 35) · 1080x2400 @Physical density: 420
+### 1. APK 자산 확인
+  PASS  APK 자산 assets/public/index.html            true
+         1825 01-01-1981 01:01 assets/public/index.html
+  PASS  APK 자산 assets/public/data/timetable.json   true
+         141831 01-01-1981 01:01 assets/public/data/timetable.json
+  PASS  APK 자산 res/drawable-xxhdpi-v4/splash_logo.png true
+         3110 01-01-1981 01:01 res/drawable-xxhdpi-v4/splash_logo.png
+  PASS  APK 자산 res/drawable/splash.xml             true
+         460 01-01-1981 01:01 res/drawable/splash.xml
+### 2. 설치
+Performing Streamed Install
+Success
+### 3. 콜드 스타트 + 프레임 연속 촬영 (스플래시 → 전환 → 본문)
+### 4. 프레임별 측정 (t = am start 기준 ms · 본문SSIM = 최종 프레임과의 구조 유사도)
+  프레임      t(ms)   전체    중앙    파랑비 본문SSIM 상태바 판정
+  launch-01.png  38      #ebf1f7   #6794be   0.578  0.830224 #ffffff   스플래시/전환
+  launch-02.png  245     #ebf1f7   #6794be   0.578  0.834572 #fafafa   스플래시/전환
+  launch-03.png  360     #ebf1f7   #6794be   0.578  0.834572 #fafafa   스플래시/전환
+  launch-04.png  489     #ebf1f7   #6794be   0.578  0.834572 #fafafa   스플래시/전환
+  launch-05.png  648     #ffffff   #ffffff   0.000  0.861868 #f7f8f8   빈 흰 화면
+  launch-06.png  768     #f6f8fb   #c8d5e1   0.151  0.843036 #fafafa   스플래시/전환
+  launch-07.png  877     #f6f8fb   #c8d5e1   0.151  0.843036 #fafafa   스플래시/전환
+  launch-08.png  977     #f6f8fb   #c8d5e1   0.151  0.843036 #fafafa   스플래시/전환
+  launch-09.png  1087    #f2f3f5   #e6e9ec   0.033  1.000000 #fafafa   본문
+  launch-10.png  1195    #f2f3f5   #e6e9ec   0.033  1.000000 #fafafa   본문
+  launch-11.png  1306    #f2f3f5   #e6e9ec   0.033  1.000000 #fafafa   본문
+  launch-12.png  1415    #f2f3f5   #e6e9ec   0.033  1.000000 #fafafa   본문
+  body.png       7705    #f2f3f5   #e6e9ec   0.033  1.000000 #fafafa   본문(최종)
+  PASS  네이티브 스플래시 프레임 존재     true
+  PASS  본문 프레임 도달                        true
+  PASS  스플래시~본문 사이 빈 흰 화면 수(공백 0) 0
+  대표 프레임: 스플래시=launch-01 · 전환=launch-08 · 본문=launch-09
+  프레임 시각(ms): launch-01 38 launch-02 245 launch-03 360 launch-04 489 launch-05 648 launch-06 768 launch-07 877 launch-08 977 launch-09 1087 launch-10 1195 launch-11 1306 launch-12 1415 body 7705 
+### 5. logcat 판정
+  PASS  logcat FATAL EXCEPTION(main)                   0
+  PASS  logcat FATAL EXCEPTION(crash 버퍼)           0
+  PASS  logcat ANR                                     0
+  PASS  앱 콘솔 오류(Capacitor/Console)           0
+  PASS  WebView 렌더러 크래시                    0
+  PASS  앱 프로세스 생존                        true
+  logcat 493 줄 · 앱 pid=5178 · 콘솔 로그 0줄
+  실행 로그: 10-06 13:21:49.355   576   599 I ActivityTaskManager: Displayed com.angalle.sunmoonshuttle/.MainActivity for user 0: +479ms
+### 6. 오프라인(비행기 모드) 재실행
+  PASS  비행기 모드 켜짐                        1
+  PASS  오프라인 FATAL EXCEPTION                   0
+  PASS  오프라인 앱 콘솔 오류                 0
+  PASS  오프라인 프로세스 생존               true
+  온라인 본문 vs 오프라인 본문 SSIM(All) = 0.997555  (1.000 에 가까우면 같은 화면)
+  PASS  오프라인 본문 = 온라인 본문과 동일 화면(SSIM≥0.95) PASS
+### 7. 뒤로가기(앱 종료) 확인
+  뒤로가기 후 ActivityRecord 매칭 줄 수: 0
+
+스크린샷: .session-notes/T25-1-스플래시직후.png · .session-notes/T25-2-전환직후.png · .session-notes/T25-3-본문.png · .session-notes/T25-6-오프라인.png
+T25 EMULATOR SMOKE: PASS

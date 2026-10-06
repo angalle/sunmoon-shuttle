@@ -20,7 +20,7 @@
  */
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -28,10 +28,23 @@ const TOKENS = join(ROOT, 'src/adapters/in/web/shared/ui/styles/tokens.css');
 const OUT_DIR = join(ROOT, 'public/icons');
 const PUBLIC_DIR = join(ROOT, 'public');
 
+/**
+ * 이 파일은 **모듈이면서 실행 스크립트**다(T25).
+ * - `node scripts/generate_icons.mjs` → 아래 main() 이 돌아 PWA 아이콘을 다시 만든다.
+ * - `import … from './generate_icons.mjs'` → 도형·래스터라이저·PNG 인코더만 가져다 쓴다.
+ *   T25 의 안드로이드 리소스 생성기(`scripts/generate_android_res.mjs`)가 이 프리미티브를
+ *   **그대로** 써서 스플래시 로고·런처 아이콘을 만든다(별도 제작 금지 = 같은 소스 증명).
+ */
+export const IS_DIRECT_RUN =
+  process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+export { ROOT, TOKENS };
+
+
 // ───────────────────────── 토큰에서 색 읽기 ─────────────────────────
 
 /** `tokens.css` 의 첫 `:root`(라이트) 에서 색 토큰을 읽는다 — 아이콘 색의 단일출처. */
-function readToken(name) {
+export function readToken(name) {
   const css = readFileSync(TOKENS, 'utf8');
   const match = new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{3,8})\\s*;`).exec(css);
   if (match === null || match[1] === undefined) {
@@ -40,7 +53,7 @@ function readToken(name) {
   return match[1];
 }
 
-function parseHex(hex) {
+export function parseHex(hex) {
   const body = hex.slice(1);
   const full =
     body.length === 3
@@ -60,14 +73,14 @@ function parseHex(hex) {
 // ───────────────────────── 도형 (단위공간 0..1) ─────────────────────────
 
 /** 둥근 사각형 SDF — 중심(cx,cy)·반폭(hw,hh)·모서리 반지름 r. 음수면 내부. */
-function sdRoundRect(px, py, cx, cy, hw, hh, r) {
+export function sdRoundRect(px, py, cx, cy, hw, hh, r) {
   const qx = Math.abs(px - cx) - hw + r;
   const qy = Math.abs(py - cy) - hh + r;
   return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
 }
 
 /** 버스 글리프 — 단위공간(0..1) 안의 도형 목록. 뒤에 있는 도형이 위에 그려진다. */
-function busGlyph() {
+export function busGlyph() {
   const c = 0.5;
   // 창문 띠: 3칸이 **정확히 같은 폭**이 되도록 구분선 위치를 계산한다(좌우 대칭).
   const stripHalf = 0.3;
@@ -89,7 +102,7 @@ function busGlyph() {
 }
 
 /** 노면 표시 — 글리프 아래 **길이가 같은** 점선 2개(차량이 도로 위에 있음을 나타낸다). */
-function roadGlyph() {
+export function roadGlyph() {
   const c = 0.5;
   return [
     { kind: 'rr', cx: c - 0.16, cy: c + 0.335, hw: 0.13, hh: 0.028, r: 0.028, tone: 'fg' },
@@ -97,14 +110,14 @@ function roadGlyph() {
   ];
 }
 
-function inShape(shape, x, y) {
+export function inShape(shape, x, y) {
   if (shape.kind === 'rr') return sdRoundRect(x, y, shape.cx, shape.cy, shape.hw, shape.hh, shape.r) <= 0;
   return Math.hypot(x - shape.cx, y - shape.cy) <= shape.r;
 }
 
 // ───────────────────────── 래스터라이저 ─────────────────────────
 
-const SS = 4; // 축당 슈퍼샘플 수 → 16 샘플/픽셀
+export const SS = 4; // 축당 슈퍼샘플 수 → 16 샘플/픽셀
 
 /**
  * 아이콘 한 장을 RGBA 버퍼로 그린다.
@@ -112,7 +125,7 @@ const SS = 4; // 축당 슈퍼샘플 수 → 16 샘플/픽셀
  * - `full` = false → 모서리가 둥근 사각형 배경, 바깥은 투명
  * - `glyphScale`   → 글리프를 캔버스 중앙에 이 비율로 축소(안전영역 확보)
  */
-function renderIcon(size, { full, glyphScale, radiusRatio, bg, fg }) {
+export function renderIcon(size, { full, glyphScale, radiusRatio, bg, fg }) {
   const glyph = [...busGlyph(), ...roadGlyph()];
   const out = Buffer.alloc(size * size * 4);
 
@@ -186,7 +199,7 @@ function chunk(type, data) {
   return Buffer.concat([length, typed, crc]);
 }
 
-function encodePng(size, rgba) {
+export function encodePng(size, rgba) {
   const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(size, 0);
@@ -251,4 +264,4 @@ function main() {
   console.log(`합계 ${written.length}개 · ${total} bytes`);
 }
 
-main();
+if (IS_DIRECT_RUN) main();

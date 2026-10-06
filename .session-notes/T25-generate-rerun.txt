@@ -1,0 +1,33 @@
+T25 안드로이드 네이티브 리소스 생성
+  토큰 단일출처: accent=#0b5497 onAccent=#ffffff bg(light)=#ffffff bg(dark)=#12161b splashLogo=96dp
+  ✓ 같은 소스 확인: icon-192.png 재생성 바이트 동일 (sha256 02aebcc899e6…)
+  android/app/src/main/res/values/ic_launcher_background.xml — 221 bytes (unchanged, 적응형 아이콘 배경 = --color-accent)
+  android/app/src/main/res/values/colors.xml — 298 bytes (unchanged, 라이트 배경)
+  android/app/src/main/res/values-night/colors.xml — 268 bytes (unchanged, 다크 배경)
+  android/app/src/main/res/values/bools.xml — 239 bytes (unchanged, 라이트 상태바)
+  android/app/src/main/res/values-night/bools.xml — 225 bytes (unchanged, 다크 상태바)
+  android/app/src/main/res/drawable/splash.xml — 786 bytes (unchanged, 실행 테마 배경)
+  android/app/src/main/res/mipmap-mdpi/ic_launcher.png — 48x48, 507 bytes, sha256 182809d0f525…  (mdpi(x1) 레거시 런처)
+  android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png — 48x48, 672 bytes, sha256 a1fd2f2913e6…  (mdpi(x1) 원형 런처)
+  android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png — 108x108, 594 bytes, sha256 e8b7e4ff95fa…  (mdpi(x1) 적응형 전경(108dp·안전 68dp))
+  android/app/src/main/res/drawable-mdpi/splash_logo.png — 96x96, 947 bytes, sha256 9fa04eddde40…  (mdpi(x1) 스플래시 로고 96dp)
+  android/app/src/main/res/mipmap-hdpi/ic_launcher.png — 72x72, 713 bytes, sha256 c2ecddfe19cc…  (hdpi(x1.5) 레거시 런처)
+  android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png — 72x72, 924 bytes, sha256 f618bd6007b0…  (hdpi(x1.5) 원형 런처)
+  android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png — 162x162, 934 bytes, sha256 e70552a02c3b…  (hdpi(x1.5) 적응형 전경(108dp·안전 68dp))
+  android/app/src/main/res/drawable-hdpi/splash_logo.png — 144x144, 1541 bytes, sha256 fc80a9986a7d…  (hdpi(x1.5) 스플래시 로고 96dp)
+  android/app/src/main/res/mipmap-xhdpi/ic_launcher.png — 96x96, 947 bytes, sha256 9fa04eddde40…  (xhdpi(x2) 레거시 런처)
+  android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png — 96x96, 1243 bytes, sha256 159cd9dbf584…  (xhdpi(x2) 원형 런처)
+  android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png — 216x216, 1243 bytes, sha256 fc4617bd48c5…  (xhdpi(x2) 적응형 전경(108dp·안전 68dp))
+  android/app/src/main/res/drawable-xhdpi/splash_logo.png — 192x192, 2076 bytes, sha256 02aebcc899e6…  (xhdpi(x2) 스플래시 로고 96dp)
+  android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png — 144x144, 1541 bytes, sha256 fc80a9986a7d…  (xxhdpi(x3) 레거시 런처)
+  android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png — 144x144, 1923 bytes, sha256 b6ddaf127901…  (xxhdpi(x3) 원형 런처)
+  android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png — 324x324, 1962 bytes, sha256 a7f7fb266e12…  (xxhdpi(x3) 적응형 전경(108dp·안전 68dp))
+  android/app/src/main/res/drawable-xxhdpi/splash_logo.png — 288x288, 3110 bytes, sha256 629b996dfe54…  (xxhdpi(x3) 스플래시 로고 96dp)
+  android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png — 192x192, 2076 bytes, sha256 02aebcc899e6…  (xxxhdpi(x4) 레거시 런처)
+  android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png — 192x192, 2597 bytes, sha256 f590dfeef172…  (xxxhdpi(x4) 원형 런처)
+  android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png — 432x432, 2727 bytes, sha256 ba81bf38c163…  (xxxhdpi(x4) 적응형 전경(108dp·안전 68dp))
+  android/app/src/main/res/drawable-xxxhdpi/splash_logo.png — 384x384, 4427 bytes, sha256 4798a39c7d6c…  (xxxhdpi(x4) 스플래시 로고 96dp)
+
+쓰기 26개 · 삭제 0개
+accent 휘도 69.8 → 적응형 전경 대비는 흰 글리프(#FFFFFF)로 확보
+완료. 다음: bash android/build-release.sh   (웹 빌드 → cap sync → AAB)

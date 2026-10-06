@@ -1,0 +1,9 @@
+아이콘 생성 (색 단일출처: tokens.css) — accent=#0b5497 onAccent=#ffffff
+  public/icons/icon-192.png — 192x192, 2076 bytes
+  public/icons/icon-512.png — 512x512, 6317 bytes
+  public/icons/maskable-192.png — 192x192, 1295 bytes
+  public/icons/maskable-512.png — 512x512, 4294 bytes
+  public/icons/apple-touch-icon-180.png — 180x180, 1223 bytes
+  public/icons/favicon-32.png — 32x32, 344 bytes
+  public/apple-touch-icon.png — 180x180, 1223 bytes
+합계 7개 · 16772 bytes

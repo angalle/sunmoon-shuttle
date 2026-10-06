@@ -1,8 +1,8 @@
-# android/ — Capacitor 안드로이드 패키징 (T8 · InfraProjectCreator)
+# android/ — Capacitor 안드로이드 패키징 (T8·T25 · InfraProjectCreator)
 
 웹 자산(`dist/`)을 **한 줄도 고치지 않고** Capacitor 로 감싸 AAB/APK 를 만든다.
-계약: `docs/01-architecture.md` §6(배포/실행) · `docs/03-verification.md` AC-7.
-증거 원문·실측값: `.session-notes/T8-증거.md`, `.session-notes/T8-*.log`.
+계약: `docs/01-architecture.md` §6(배포/실행) · `docs/03-verification.md` AC-7 · `docs/07-mobile-ux.md` §3·§5·AC-U8.
+증거 원문·실측값: `.session-notes/T8-증거.md`, `.session-notes/T8-*.log`, **`.session-notes/T25-증거.md`**(스플래시·아이콘·상태바·서명·에뮬 스모크).
 
 ## 실행 3단계 (재현)
 
@@ -58,7 +58,7 @@ PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
 | `appName` | `셔틀버스 Shuttle` | PWA `short_name`(홈 화면 라벨)과 일치 → APK 설치본과 PWA 설치본의 이름이 갈라지지 않는다. 바꾸려면 값 수정 후 `cap sync` |
 | `webDir` | `dist` | vite 산출물. `base './'` 라 `https://localhost/` 에서 상대경로 그대로 동작 |
 | `server.androidScheme` | `https` | 앱 내부 오리진을 https 로 → **보안 컨텍스트**라서 `sw.js`(SW)와 IndexedDB 캐시(T6)가 실제로 동작. http 로 바꾸면 오프라인 캐시가 조용히 죽는다 |
-| `backgroundColor` | `#f4f6f9` | 첫 페인트 전 WebView 배경 = `manifest.background_color`(라이트). 한계: 다크 모드 기기에서는 첫 프레임이 밝게 번쩍일 수 있다(정적 1색). 다크 대응 스플래시는 `@capacitor/splash-screen` 플러그인(무료)이 필요해 이번 범위 밖. 삭제하면 기본 `#ffffff` |
+| `backgroundColor` | 전역 `#ffffff` / `android` `#ffffff00` | **T25 갱신**. 전역값 = 첫 페인트 전 WebView 배경 = `manifest.background_color`(라이트 `#ffffff`). `android.backgroundColor` 는 **투명**(`#RRGGBBAA` = `#ffffff00`)이라 WebView 가 불투명 흰 판을 깔지 않고 그 아래 **실행 테마의 스플래시(흰 배경 + 96dp 로고)** 가 보인다 — 실측: 네이티브 스플래시가 덮는 구간 385ms → 457ms. 되돌리기: `#ffffff` 로 바꾸고 `cap sync` + 재빌드. 한계: 웹 페이지가 자기 `body` 배경(`--color-bg`)을 칠하는 순간부터는 창 배경이 가려진다(§T25 소견) |
 | `webContentsDebuggingEnabled` | 미설정 | Capacitor 기본값(디버그 true / 릴리스 false). 릴리스에서 원격 디버깅이 열리지 않게 그대로 둔다 |
 | `compileSdk`/`targetSdk` | 36 | `platforms;android-36` 설치돼 있음. Play 신규·업데이트 요건. 되돌리기: `variables.gradle` 두 줄을 35 로 |
 | `minSdk` | 23 | Capacitor 7 기본. WebView 가 Play 로 자동 갱신되어 낮게 잡아도 최신 엔진 |
@@ -105,3 +105,59 @@ PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
 | `We recommend using a newer Android Gradle plugin to use compileSdk = 36` | AGP 8.7.2 의 테스트 상한 35 | **경고(빌드 성공)**. 없애려면 AGP↑ = JDK 21 필요. 문서화만 하고 억제하지 않는다 |
 | `npx cap ...` 이 보안 게이트에 막힘(`Tirith … package 'cap'`) | 이 실행 환경의 npx 패키지 실행기 검사 | `node_modules/.bin/cap …` 또는 `npm run cap:sync` 를 쓴다 |
 | `npm install @capacitor/*` 가 차단(`BLOCKED: Security scan … threat intelligence`) | 게이트의 위협 인텔 조회가 이 환경에서 실패(패키지 문제 아님) | `npm pack <pkg>@<ver>` 로 tarball 을 받아 설치 → `package.json`/`package-lock.json` 스펙만 registry(`^7.6.9`)로 정리(실측 `npm ci --dry-run` 통과) |
+
+---
+
+# T25 — 네이티브 스플래시 · 상태바 · 아이콘 정합 (T24 앱 셸 뒤)
+
+웹 앱 셸·스플래시(T24)가 정해진 뒤, **안드로이드 시작 화면이 웹 스플래시와 같은 색·로고**가 되도록
+네이티브 리소스를 맞춘다. 원문·실측: `.session-notes/T25-증거.md`.
+
+## 생성기 하나로 (별도 제작 금지)
+
+```bash
+node scripts/generate_android_res.mjs     # 리소스 생성(멱등) — 색은 tokens.css 에서 읽는다
+bash android/build-release.sh             # 웹 빌드 → cap sync → AAB
+bash scripts/t25_artifact_check.sh        # 산출물(AAB/APK) 안의 리소스가 생성물과 같은가
+bash scripts/t25_emulator_smoke.sh        # 에뮬레이터: 스플래시→본문 전환·크래시·오프라인 (작업 후 에뮬 종료)
+```
+
+`scripts/generate_android_res.mjs` 는 웹 아이콘 생성기 `scripts/generate_icons.mjs` 의
+도형·래스터라이저·PNG 인코더를 **그대로 import** 한다 → 웹 스플래시 로고(`public/icons/icon-192.png`),
+안드로이드 스플래시 로고(`drawable-*/splash_logo.png`), 런처 아이콘(`mipmap-*/ic_launcher.png`)이
+**같은 그림**이다(192px 판 3개의 sha256 이 동일함을 실측으로 확인). 생성기는 시작할 때
+`icon-192.png` 을 같은 프리미티브로 다시 그려 **바이트 동일**을 검사한다.
+
+## 리소스 지도
+
+| 리소스 | 무엇 | 값·근거 |
+|---|---|---|
+| `drawable/splash.xml` | 실행 테마 배경(=`windowBackground`) | layer-list: `@color/splash_background` + `@drawable/splash_logo`(`gravity=center`). 전체화면 PNG 를 쓰면 화면비가 다른 기기에서 로고가 늘어난다 |
+| `drawable-<dpi>/splash_logo.png` | 스플래시 로고 | 96dp(`tokens.css --splash-logo-size`) — mdpi 96 · hdpi 144 · xhdpi 192 · xxhdpi 288 · xxxhdpi 384 |
+| `mipmap-<dpi>/ic_launcher.png` · `_round.png` | 레거시(API<26) 런처 | 48dp — 둥근 사각/원 타일 + 흰 버스 글리프 |
+| `mipmap-<dpi>/ic_launcher_foreground.png` | 적응형 아이콘 전경 | 108dp 레이어, 글리프는 중앙 **68dp** 상자(안전원 66dp 안) |
+| `values/ic_launcher_background.xml` | 적응형 배경색 | `#0B5497` = `tokens.css --color-accent` |
+| `values/colors.xml` · `values-night/colors.xml` | 스플래시·상태바 배경 | `#FFFFFF`(=`--color-bg` 라이트) / `#12161B`(다크) |
+| `values/bools.xml` · `values-night/bools.xml` | 상태바 아이콘 밝기 | 라이트 → `windowLightStatusBar=true`(어두운 아이콘), 다크 → `false` |
+| `values/styles.xml` | `AppTheme.NoActionBarLaunch` | `android:background=@drawable/splash`(API<31) + `windowSplashScreenBackground`·`windowSplashScreenAnimatedIcon`(API31+ 시스템 스플래시) + `statusBarColor`·`windowLightStatusBar` |
+
+⚠️ **XML 주석에 `--` 를 쓰면 aapt2 가 빌드를 실패시킨다**(실측: `주석에서는 "--" 문자열이 허용되지 않습니다`).
+생성기 주석에서 토큰 이름을 쓸 때 `--color-accent` 대신 `color-accent 토큰` 처럼 적는다.
+
+## 실측 결과 (에뮬레이터 Android 15 / API 35 · 1080×2400)
+
+```
+t=52~457ms   네이티브 스플래시(강조색 타일 + 흰 버스, 중앙 파란픽셀 57.8%)
+t=617ms      빈 흰 화면 1프레임(≈160ms)
+t=749~950ms  웹 스플래시(96px 로고 + 제목·스피너·문구)
+t=1056ms~    본문          Displayed +440ms
+logcat FATAL 0 · ANR 0 · 앱 콘솔 오류 0 · 렌더러 크래시 0 / 오프라인 재실행 본문 SSIM 0.999091
+```
+
+**소견(웹 계층 필요)**: 네이티브 스플래시와 웹 스플래시 사이에 로고 없는 흰 프레임이 **1장(≈160ms)** 있다.
+웹 페이지가 자기 `body` 배경(`--color-bg`)을 JS 스플래시보다 먼저 칠하기 때문이고, 색은 같아서 색 번쩍임은 없다.
+네이티브로 제거 불가 → ① `index.html` 인라인 스플래시, 또는 ② `@capacitor/splash-screen` `autoHide:false` +
+웹에서 `SplashScreen.hide()` 중 하나가 필요하다(둘 다 웹 계층 변경).
+
+**미검증**: API<31 경로(창 배경이 곧 스플래시)는 이 맥에 API 35 AVD 만 있어 렌더 확인 못 함(리소스 값만 확인).
+다크 모드 화면 스크린샷도 없음(값만 확인).

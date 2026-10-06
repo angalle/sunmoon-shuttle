@@ -1,0 +1,76 @@
+### 0. 산출물
+  android/app/build/outputs/apk/debug/app-debug.apk             4053139 bytes  sha256 92eaccd46240c519
+  android/app/build/outputs/bundle/release/app-release.aab      2895870 bytes  sha256 f93edaad8f6cf0e2
+### 1. 서명 (jarsigner -verify 원문)
+  PASS  app-release.aab jar verified                   jar verified.
+        서명자: X.509, C=US, O=Android, CN=Android Debug
+  PASS  app-debug.apk jar verified                     jar verified.
+        서명자: X.509, C=US, O=Android, CN=Android Debug
+### 2. 소스 리소스 규격 (file)
+  drawable-mdpi/splash_logo.png                                  PNG image data, 96 x 96, 8-bit/color RGBA, non-interlaced
+  drawable-xxhdpi/splash_logo.png                                PNG image data, 288 x 288, 8-bit/color RGBA, non-interlaced
+  drawable-xxxhdpi/splash_logo.png                               PNG image data, 384 x 384, 8-bit/color RGBA, non-interlaced
+  mipmap-xxxhdpi/ic_launcher.png                                 PNG image data, 192 x 192, 8-bit/color RGBA, non-interlaced
+  mipmap-xxxhdpi/ic_launcher_round.png                           PNG image data, 192 x 192, 8-bit/color RGBA, non-interlaced
+  mipmap-xxxhdpi/ic_launcher_foreground.png                      PNG image data, 432 x 432, 8-bit/color RGBA, non-interlaced
+### 3. APK(debug) — 리소스가 생성물과 **바이트 동일**한가
+  PASS  APK byte  drawable-mdpi/splash_logo.png        9fa04eddde407123bad309db464d79ea902d0bf2cdf9a1898ca6a18afd663d71
+  PASS  APK byte  drawable-xxhdpi/splash_logo.png      629b996dfe5490f7644982276ef1d7b6c21ed389ec6c8e593122bd7881751ba0
+  PASS  APK byte  drawable-xxxhdpi/splash_logo.png     4798a39c7d6c65a9ea0ecd4e2b3311c9065b7422dee47b3697c6e5de657dc805
+  PASS  APK byte  mipmap-xxhdpi/ic_launcher.png        fc80a9986a7d38e5a1a39e98f7a92418ce1363e6589acbe08f9f0bd3f9fd1acd
+  PASS  APK byte  mipmap-xxhdpi/ic_launcher_round.png  b6ddaf127901b787790f584f254fcf97f76089d3e60b11df75f0154b5eb24115
+  PASS  APK byte  mipmap-xxhdpi/ic_launcher_foreground.png a7f7fb266e1217c93b8009a407afb8fe0fc488446e5d312b3e67e630f805d57d
+### 4. AAB(release) — 픽셀이 생성물과 **동일**한가(크런치 허용)
+  PASS  AAB pixel drawable-mdpi/splash_logo.png        27b1819018b3931b426a3c9c2e29e818154668ec1d71b5d0e3e866c0ad065eef
+  PASS  AAB pixel drawable-xxhdpi/splash_logo.png      3b94596b9607a79d7ff0ff7f8793da78ea1dad5669f3692e537d61fcb4415e15
+  PASS  AAB pixel drawable-xxxhdpi/splash_logo.png     26981cd3961f891f5e52eddcd80c34eea99a83ff62ed50dd30f1feed2d95f4ab
+  PASS  AAB pixel mipmap-xxhdpi/ic_launcher.png        e48d2a8f619c6f723c580d0633f0ccd87b48779fff572b6329777c728f07992b
+  PASS  AAB pixel mipmap-xxhdpi/ic_launcher_round.png  3a35448a60e930a983f8c4725d573c72dc2dc37ecdbe585673fe32fd84a3ddaf
+  PASS  AAB pixel mipmap-xxhdpi/ic_launcher_foreground.png ff21695ab19b1815c633213dc665d3cb8d200c68ae659069c9ba3fc8f747f778
+### 5. APK 안의 실행 테마 배경(aapt2 dump xmltree) — layer-list(배경 + gravity=center 로고)
+N: android=http://schemas.android.com/apk/res/android (line=8)
+  E: layer-list (line=8)
+      E: item (line=9)
+        A: http://schemas.android.com/apk/res/android:drawable(0x01010199)=@0x7f050055
+      E: item (line=10)
+        A: http://schemas.android.com/apk/res/android:gravity(0x010100af)=0x00000011
+        A: http://schemas.android.com/apk/res/android:drawable(0x01010199)=@0x7f07006e
+### 6. APK resources.arsc — 스플래시/상태바 색·부울·로고 밀도(실제로 들어간 값)
+    resource 0x7f040002 bool/light_status_bar_icons
+      () true
+      (night) false
+  type color id=05 entryCount=95
+    resource 0x7f050000 color/abc_background_cache_hint_selector_material_dark
+      () (file) res/color/abc_background_cache_hint_selector_material_dark.xml type=XML
+    resource 0x7f050001 color/abc_background_cache_hint_selector_material_light
+--
+    resource 0x7f050055 color/splash_background
+      () #ffffffff
+      (night) #ff12161b
+    resource 0x7f050056 color/status_bar_background
+      () #ffffffff
+      (night) #ff12161b
+    resource 0x7f050057 color/switch_thumb_disabled_material_dark
+      () #ff616161
+    resource 0x7f050058 color/switch_thumb_disabled_material_light
+      () #ffbdbdbd
+--
+    resource 0x7f07006e drawable/splash_logo
+      (mdpi) (file) res/drawable-mdpi-v4/splash_logo.png type=PNG
+      (hdpi) (file) res/drawable-hdpi-v4/splash_logo.png type=PNG
+      (xhdpi) (file) res/drawable-xhdpi-v4/splash_logo.png type=PNG
+      (xxhdpi) (file) res/drawable-xxhdpi-v4/splash_logo.png type=PNG
+      (xxxhdpi) (file) res/drawable-xxxhdpi-v4/splash_logo.png type=PNG
+    resource 0x7f07006f drawable/test_level_drawable
+### 7. APK resources.arsc — 실행 테마(style/AppTheme.NoActionBarLaunch) 실제 값
+    resource 0x7f0e0007 style/AppTheme.NoActionBarLaunch
+      () (style) size=5 parent=style/Theme.SplashScreen (0x7f0e0114)
+        0x010100d4=@drawable/splash
+        0x01010451=@color/status_bar_background
+        0x010104e0=@bool/light_status_bar_icons
+        windowSplashScreenAnimatedIcon(0x7f03012d)=@mipmap/ic_launcher
+        windowSplashScreenBackground(0x7f03012f)=@color/splash_background
+    resource 0x7f0e0008 style/Base.AlertDialog.AppCompat
+      () (style) size=6 parent=0x01030012
+
+T25 ARTIFACT CHECK: PASS

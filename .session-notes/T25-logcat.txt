@@ -1,0 +1,522 @@
+--------- beginning of system
+10-06 13:24:02.016   576  2215 W ActivityTaskManager: callingPackage for (uid=2000, pid=6368) has no WPC
+10-06 13:24:02.017   576  2215 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-06 13:24:02.017   576  2215 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-06 13:24:02.017   576  2215 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+--------- beginning of main
+10-06 13:24:02.017   576  2215 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10208, packageName = null, attributionTag = null, token = android.os.Binder@5ca894, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+10-06 13:24:02.017   576  2215 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-06 13:24:02.017   576  2215 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-06 13:24:02.019   576  2215 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+10-06 13:24:02.020   813   884 V WindowManagerShell: Transition requested (#34): android.os.BinderProxy@a5c6dee TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=84 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity } baseActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} topActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} origActivity=null realActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} numActivities=1 lastActiveTime=701555 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@6ed828f} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{a82591c com.angalle.sunmoonshuttle.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2400 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 34 }
+10-06 13:24:02.020  1263  1263 W SplitSelectStateCtor: Missing session instanceIds
+10-06 13:24:02.020  1263  1263 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+10-06 13:24:02.020   576   850 I AppsFilter: interaction: PackageSetting{957dbcd com.leeheesun.meteordodge/10207} -> PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} BLOCKED
+10-06 13:24:02.021   576   602 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10208, packageName = null, attributionTag = null, token = android.os.Binder@5ca894, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+10-06 13:24:02.021   813   884 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=527
+10-06 13:24:02.021   813   893 D SplashScreenView: Build android.window.SplashScreenView{665b2a1 V.E...... ......ID 0,0-0,0}
+10-06 13:24:02.021   813   893 D SplashScreenView: Icon: view: android.widget.ImageView{f404cc6 V.ED..... ......I. 0,0-0,0 #1020504 android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@ce93487 size: 504
+10-06 13:24:02.021   813   893 D SplashScreenView: Branding: view: android.view.View{4b6afb4 G.ED..... ......I. 0,0-0,0 #1020503 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+10-06 13:24:02.023   429   429 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+10-06 13:24:02.032  1263  1263 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=84, baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity }
+10-06 13:24:02.034   576   756 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+10-06 13:24:02.034   576   756 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10208 package com.angalle.sunmoonshuttle isStopped false
+10-06 13:24:02.037   381   381 D Zygote  : Forked child process 6371
+10-06 13:24:02.037   576   611 I ActivityManager: Start proc 6371:com.angalle.sunmoonshuttle/u0a208 for next-top-activity {com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity}
+10-06 13:24:02.041   576   852 D CoreBackPreview: Window{9b23d73 u0 Splash Screen com.angalle.sunmoonshuttle}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@e4f8948, mPriority=0, mIsAnimationCallback=false}
+10-06 13:24:02.046  6371  6371 I .sunmoonshuttle: Late-enabling -Xcheck:jni
+10-06 13:24:02.058  6371  6371 I .sunmoonshuttle: Using CollectorTypeCMC GC.
+10-06 13:24:02.059  6371  6371 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+10-06 13:24:02.066   432   459 I adbd    : jdwp connection from 6371
+10-06 13:24:02.069   813  4614 V WindowManagerShell: onTransitionReady(transaction=2473901163449)
+10-06 13:24:02.069   813   884 V WindowManagerShell: onTransitionReady (#34) android.os.BinderProxy@a5c6dee: {id=34 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@98f8611} m=OPEN f=NONE leash=Surface(name=Task=84)/@0xed296aa sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@f1b7376} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb0e229b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-06 13:24:02.069   813   884 V WindowManagerShell: Playing animation for (#34) android.os.BinderProxy@a5c6dee@0
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@4276f6c
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@2458935
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@b67c1ca
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@4753f3b
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@1d21658
+10-06 13:24:02.069   813   884 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@95283b1
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@8283096
+10-06 13:24:02.069   813   884 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=34 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@98f8611} m=OPEN f=NONE leash=Surface(name=Task=84)/@0xed296aa sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@f1b7376} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb0e229b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-06 13:24:02.069   813   884 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[OPEN,TO_FRONT] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@3f45b57, appThread = android.app.IApplicationThread$Stub$Proxy@f299644, debugName = OverlaySwipeBack }}
+10-06 13:24:02.069   813   884 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@d15e32d, appThread = android.app.IApplicationThread$Stub$Proxy@f57a062, debugName = LauncherToDream }}
+10-06 13:24:02.069   813   884 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@8f955f3, appThread = android.app.IApplicationThread$Stub$Proxy@74bd2b0, debugName = QuickstepLaunchHome }}
+10-06 13:24:02.069   813   884 V WindowManagerShell:  Delegate animation for (#34) to null
+10-06 13:24:02.069   813   884 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@44f7e9
+10-06 13:24:02.069   813   884 V WindowManagerShell: start default transition animation, info = {id=34 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@98f8611} m=OPEN f=NONE leash=Surface(name=Task=84)/@0xed296aa sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@f1b7376} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb0e229b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}]}
+10-06 13:24:02.069   813   884 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@63f6de4 animAttr=0x13 type=OPEN isEntrance=false
+10-06 13:24:02.069   576   599 V WindowManager: Sent Transition (#34) createdAt=10-06 13:24:02.017 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=84 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.angalle.sunmoonshuttle/.MainActivity } baseActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} topActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} origActivity=null realActivity=ComponentInfo{com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity} numActivities=1 lastActiveTime=701555 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{3828d1d Task{76289fb #84 type=standard A=10208:com.angalle.sunmoonshuttle}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{7031b92 com.angalle.sunmoonshuttle.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2400 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 34 }
+10-06 13:24:02.069   576   599 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+10-06 13:24:02.069   576   599 V WindowManager:     info={id=34 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+10-06 13:24:02.069   576   599 V WindowManager:         {WCT{RemoteToken{3828d1d Task{76289fb #84 type=standard A=10208:com.angalle.sunmoonshuttle}}} m=OPEN f=NONE leash=Surface(name=Task=84)/@0x96193e1 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1},
+10-06 13:24:02.069   576   599 V WindowManager:         {WCT{RemoteToken{9328aca Task{ae4c7de #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x70bddbf sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 taskParent=-1}
+10-06 13:24:02.069   576   599 V WindowManager:     ]}
+10-06 13:24:02.069   813   884 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@3778450 animAttr=0x12 type=OPEN isEntrance=true
+10-06 13:24:02.073   813   884 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@44f7e9
+10-06 13:24:02.073   576   850 W UserManagerService: Requested status bar icon for non-badged user 0
+10-06 13:24:02.076  1263  1495 D EGL_emulation: app_time_stats: avg=1948.90ms min=1948.90ms max=1948.90ms count=1
+10-06 13:24:02.082   813   884 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#34) android.os.BinderProxy@a5c6dee@0
+10-06 13:24:02.082   576   599 V WindowManager: Finish Transition (#34): created at 10-06 13:24:02.017 collect-started=0.01ms request-sent=1.68ms started=2.441ms ready=38.412ms sent=50.719ms finished=64.416ms
+10-06 13:24:02.082   813   884 V WindowManagerShell: Track 0 became idle
+10-06 13:24:02.082   813   884 V WindowManagerShell: All active transition animations finished
+10-06 13:24:02.087   576   852 W UserManagerService: Requested status bar icon for non-badged user 0
+10-06 13:24:02.087   576   850 W UserManagerService: Requested status bar icon for non-badged user 0
+10-06 13:24:02.088   813   977 D EGL_emulation: app_time_stats: avg=1922.22ms min=1922.22ms max=1922.22ms count=1
+10-06 13:24:02.105  1263  1495 D EGL_emulation: app_time_stats: avg=13519.19ms min=88.25ms max=26950.14ms count=2
+10-06 13:24:02.106  6371  6371 W ziparchive: Unable to open '/data/app/~~JHZeIyXq2pMn08sHEmY3yg==/com.angalle.sunmoonshuttle-ci1BlIHfrqFzudWiPghIOw==/base.dm': No such file or directory
+10-06 13:24:02.106  6371  6371 W ziparchive: Unable to open '/data/app/~~JHZeIyXq2pMn08sHEmY3yg==/com.angalle.sunmoonshuttle-ci1BlIHfrqFzudWiPghIOw==/base.dm': No such file or directory
+10-06 13:24:02.107  1263  1263 D VRI[NexusLauncherActivity]: visibilityChanged oldVisibility=true newVisibility=false
+10-06 13:24:02.115  6385  6385 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.116  6385  6385 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.125  1263  1263 D NexusLauncherModelDelegate: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=7}
+10-06 13:24:02.143   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.143  6385  6388 I Gralloc4: mapper 4.x is not supported
+--------- beginning of kernel
+10-06 13:24:02.147   157   157 I servicemanager: Caller(pid=6385,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.204  6371  6371 D nativeloader: Configuring clns-7 for other apk /data/app/~~JHZeIyXq2pMn08sHEmY3yg==/com.angalle.sunmoonshuttle-ci1BlIHfrqFzudWiPghIOw==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~JHZeIyXq2pMn08sHEmY3yg==/com.angalle.sunmoonshuttle-ci1BlIHfrqFzudWiPghIOw==/lib/arm64, permitted_path=/data:/mnt/expand:/data/user/0/com.angalle.sunmoonshuttle
+10-06 13:24:02.207  6371  6371 V GraphicsEnvironment: Currently set values for:
+10-06 13:24:02.207  6371  6371 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+10-06 13:24:02.207  6371  6371 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+10-06 13:24:02.207  6371  6371 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+10-06 13:24:02.207  6371  6371 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+10-06 13:24:02.216   576   852 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+10-06 13:24:02.231  6371  6371 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+10-06 13:24:02.232  1421  1421 I GsaVoiceInteractionSrv: (REDACTED) O received %s
+10-06 13:24:02.232  1397  1397 W MediaProvider: WorkProfileOwnerApps cache is empty
+10-06 13:24:02.232  1397  1397 D PickerSyncLockManager: Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@a5504d8[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-06 13:24:02.232  1397  1397 D CloseableReentrantLock: Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@a5504d8[Locked by thread main]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-06 13:24:02.232  1397  1397 D CloseableReentrantLock: Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@a5504d8[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+10-06 13:24:02.234   813   813 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-06 13:24:02.234  1421  1421 I GsaVoiceInteractionSrv: (REDACTED) O received %s
+10-06 13:24:02.234   813   813 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-06 13:24:02.234   813   813 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-06 13:24:02.236  1421  1421 I GsaVoiceInteractionSrv: (REDACTED) O received %s
+10-06 13:24:02.243  4128  4158 W SearchServiceCore: Abort, client detached.
+10-06 13:24:02.243  4128  4158 W SearchServiceCore: Abort, client detached.
+10-06 13:24:02.245  4128  4158 W SearchServiceCore: Abort, client detached.
+10-06 13:24:02.249  1034  6405 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_REMOVED [CONTEXT service_id=17 ]
+10-06 13:24:02.252  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.253  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.253  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.254  6371  6371 W .sunmoonshuttle: Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (unsupported, reflection, allowed)
+10-06 13:24:02.254  1536  6407 V Backup  : [PhotosPackagedAddedIO] Flag is disabled.
+10-06 13:24:02.255  1536  6406 I Auth    : [SupervisedAccountIntentOperation] onHandleIntent(): android.intent.action.PACKAGE_ADDED
+10-06 13:24:02.255  1034  6402 I ProximityAuth: [RecentAppsMediator] Package added: (user=UserHandle{0}) com.angalle.sunmoonshuttle
+10-06 13:24:02.257  6396  6396 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.257  6396  6396 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.263   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.263  6396  6422 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.268   157   157 I servicemanager: Caller(pid=6396,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.265  6371  6371 I WebViewFactory: Loading com.google.android.webview version 124.0.6367.219 (code 636771932)
+10-06 13:24:02.265  1034  6397 I FontLog : Package com.angalle.sunmoonshuttle has no metadata [CONTEXT service_id=132 ]
+10-06 13:24:02.267  6371  6371 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=60bca0f2 mResDir=null mSplitDirs=[] mOverlayDirs=[/product/overlay/EmulationPixel6/EmulationPixel6Overlay.apk,/product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk] mLibDirs=[/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk,/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v35 mCompatInfo={420dpi always-compat} mLoaders=[]}
+10-06 13:24:02.269  1536  6399 W SQLiteLog: (28) double-quoted string literal: "com.angalle.sunmoonshuttle"
+10-06 13:24:02.269  6371  6371 W ziparchive: Unable to open '/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.dm': No such file or directory
+10-06 13:24:02.269  6371  6371 W ziparchive: Unable to open '/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.dm': No such file or directory
+10-06 13:24:02.269  6371  6371 W .sunmoonshuttle: Entry not found
+10-06 13:24:02.270  6371  6371 D nativeloader: Configuring clns-8 for other apk /data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk. target_sdk_version=34, uses_libraries=ALL, library_path=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/lib/arm64:/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk!/lib/arm64-v8a:/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+10-06 13:24:02.270  6371  6371 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+10-06 13:24:02.271  6371  6371 D nativeloader: Configuring clns-9 for other apk /data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/lib/arm64:/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk!/lib/arm64-v8a:/data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5ba91b8 com.android.cts.priv.ctsshim/10189} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5264b91 com.google.android.youtube/10167} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f7a8af6 com.android.internal.display.cutout.emulation.corner/10013} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dc84ef7 com.android.internal.display.cutout.emulation.double/10079} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6833b71 com.google.android.googlequicksearchbox/10143} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{631164 com.google.android.onetimeinitializer/10129} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d30fcd com.google.android.ext.shared/10116} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e3c6082 com.android.virtualmachine.res/10194} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ba8e393 com.android.managedprovisioning.auto_generated_rro_product__/10014} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2f1dfd0 com.android.carrierconfig.auto_generated_rro_vendor__/10085} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e0ddbc9 com.google.android.server.deviceconfig.resources/10196} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b5402ce com.android.systemui.emulation.pixel_3_xl/10008} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4f425ef com.android.systemui.emulation.pixel_4_xl/10076} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{55d28fc com.android.systemui.emulation.pixel_fold/10039} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a0f6b85 com.android.providers.telephony.auto_generated_characteristics_rro/10064} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9317dda com.android.simappdialog.auto_generated_rro_product__/10015} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f07320b com.android.htmlviewer/10115} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6d1d8e8 com.google.android.health.connect.backuprestore/10200} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2e03b01 com.android.systemui.auto_generated_rro_product__/10047} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f399da6 com.google.android.apps.messaging/10137} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{df4e3e7 com.google.android.soundpicker/10164} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a5f9b94 com.google.android.marvin.talkbackoverlay/10089} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{494863d com.google.android.configupdater/10139} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{451ee32 com.android.internal.emulation.pixel_3a_xl/10050} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a21d783 com.android.internal.emulation.pixel_6_pro/10038} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{264dd00 com.android.internal.emulation.pixel_7_pro/10019} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e484939 com.android.internal.emulation.pixel_8_pro/10037} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{62cbb7e com.android.internal.emulation.pixel_9_pro/10006} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3a068df com.android.internal.emulation.pixel_3a/10040} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6bac92c com.android.internal.emulation.pixel_4a/10052} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{955118a com.android.internal.emulation.pixel_6a/10048} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f4cb3fb com.android.internal.emulation.pixel_7a/10066} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1a14c18 com.android.internal.emulation.pixel_8a/10007} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{96ce671 com.google.android.overlay.googlewebview/10034} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dfabc56 com.google.android.apps.safetyhub/10135} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9a894d7 com.google.android.hotspot2.osulogin/10205} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f6b11c4 com.android.simappdialog/10120} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{19878ad com.android.internal.display.cutout.emulation.hole/10030} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ce98630 com.android.internal.display.cutout.emulation.tall/10021} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f70f2a9 com.android.internal.systemui.navbar.threebutton/10081} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{957dbcd com.leeheesun.meteordodge/10207} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4bd002e com.android.camera2/10153} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c1b47cf com.android.internal.ranchu.commonoverlay/10060} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{98d55c com.android.systemui.auto_generated_rro_vendor__/10090} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{cef3c82 com.google.android.deskclock/10151} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{33d1065 com.android.internal.systemui.navbar.twobutton/10062} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f1cf13a com.google.android.as/10132} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dae91eb com.google.android.gm/10166} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a8beb48 com.android.systemui.emulation.pixel_3/10002} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f34de1 com.android.systemui.emulation.pixel_4/10070} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{658e706 com.android.systemui.emulation.pixel_5/10063} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ee261c7 com.android.systemui.emulation.pixel_6/10005} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{71873f4 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b75e71d com.android.systemui.emulation.pixel_8/10077} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b0c6d92 com.android.systemui.emulation.pixel_9/10055} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e995363 com.android.printspooler/10113} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{42db60 com.google.android.connectivity.resources.goldfish.overlay/10086} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{78ed819 com.android.dreams.basic/10127} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9ffd0de com.google.android.networkstack.tethering.emulator/10018} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d43c2bf com.android.providers.settings.auto_generated_rro_product__/10056} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9ea4d8c com.google.android.as.oss/10142} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2abdcd5 com.android.traceur.auto_generated_rro_product__/10016} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2341cea com.android.internal.emulation.pixel_9_pro_fold/10043} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7fbcbdb com.google.android.devicelockcontroller/10195} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4b4b678 com.google.android.dialer/10133} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{95a7151 com.android.internal.emulation.pixel_3/10061} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{faf1db6 com.android.internal.emulation.pixel_4/10051} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9614ab7 com.android.internal.emulation.pixel_5/10000} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3bac224 com.android.internal.emulation.pixel_6/10031} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{983d18d com.android.internal.emulation.pixel_7/10078} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7075f42 com.android.internal.emulation.pixel_8/10020} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c68f989 com.android.internal.emulation.pixel_9/10010} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{db02d8e com.google.android.captiveportallogin/10111} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{bb8d9af android.auto_generated_characteristics_rro/10009} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c6231bc com.google.android.appsearch.apk/10202} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{45ea545 com.android.musicfx/10093} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b05949a com.google.android.apps.docs/10158} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{cbd7293 com.google.android.apps.maps/10157} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{dc361cb com.google.android.markup/10155} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1feada8 com.google.android.rkpdapp/10184} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a4950c1 com.google.android.contacts/10156} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e186066 com.android.server.telecom.auto_generated_rro_product__/10029} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2a44fa7 com.android.phone.auto_generated_characteristics_rro/10075} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{264fc54 com.google.android.overlay.googleconfig/10053} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c62ed56 com.android.chrome/10145} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6d937fd com.android.bips.auto_generated_rro_product__/10012} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{43a1cf2 com.google.android.apps.customization.pixel/10165} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6bc3f43 com.google.android.tag/10098} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a3f89c0 com.google.android.overlay.permissioncontroller/10035} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{38656f9 com.google.android.partnersetup/10131} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c49163e com.google.android.apps.wallpaper.nexus/10146} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1d98c9f com.google.android.apps.nexuslauncher/10178} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{47381ec com.android.theme.font.notoserifsource/10011} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f4c69b5 com.google.android.safetycenter.resources/10185} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2bc584a com.android.internal.display.cutout.emulation.waterfall/10023} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{5453bb com.android.internal.systemui.navbar.transparent/10001} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{30cd0d8 com.google.android.connectivity.resources/10192} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{326ec31 com.android.providers.contacts.auto_generated_rro_product__/10074} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{26faf16 com.google.android.feedback/10174} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1ea7097 com.google.android.printservice.recommendation/10122} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{f371d7 com.google.android.apps.photos/10168} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{561edf7 com.google.android.calendar/10161} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{aea2284 com.google.android.documentsui/10108} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{24d1a6d com.android.systemui.emulation.pixel_3a_xl/10033} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{62fa6a2 com.android.systemui.emulation.pixel_6_pro/10024} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a5b7f33 com.android.systemui.emulation.pixel_7_pro/10022} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e28e2f0 com.android.systemui.emulation.pixel_8_pro/10036} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{22df069 com.android.systemui.emulation.pixel_9_pro/10057} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7058aee com.android.carrierconfig.auto_generated_rro_product__/10084} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fc4db8f com.android.devicediagnostics.auto_generated_rro_product__/10025} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1513e1c com.android.providers.partnerbookmarks/10125} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{62c2a25 com.android.wallpaper.livepicker/10104} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{34367fa com.android.providers.telephony.auto_generated_rro_product__/10004} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{2bda1ab com.android.phone.auto_generated_rro_vendor__/10087} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7422008 com.android.imsserviceentitlement/10141} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b1a43a1 com.android.internal.emulation.pixel_9_pro_xl/10073} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a5009c6 com.google.android.healthconnect.controller/10199} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c32ad87 com.android.internal.emulation.pixel_2_xl/10017} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fdd34b4 com.android.internal.emulation.pixel_3_xl/10044} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e7678dd com.android.internal.emulation.pixel_4_xl/10083} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{932fc52 com.android.internal.emulation.pixel_fold/10065} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d029b23 com.android.bookmarkprovider/10118} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{572e820 com.google.android.overlay.pixelconfigcommon/10028} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d66c5d9 com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10080} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3e08b9e com.android.systemui.emulation.pixel_3a/10069} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b59c67f com.android.systemui.emulation.pixel_4a/10042} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{4ee664c com.android.systemui.emulation.pixel_6a/10049} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{774e695 com.android.systemui.emulation.pixel_7a/10032} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{745c3aa com.android.systemui.emulation.pixel_8a/10041} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9ce4b9b com.google.android.settings.intelligence/10138} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{7db3d7 com.google.android.projection.gearhead/10136} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{cc19b38 com.google.android.uwb.resources/10193} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{19b44c4 com.android.cts.ctsshim/10190} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{10a5711 com.google.android.wifi.resources/10204} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{147076 com.google.android.wifi.dialog/10206} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{43c0677 com.android.wallpaper/10175} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e9132e4 com.google.android.apps.wallpaper/10181} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{1ac534d com.google.android.odad/10128} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{24f1e02 com.android.settings.auto_generated_rro_product__/10027} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e609313 com.android.systemui.emulation.pixel_9_pro_xl/10067} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{fa09950 com.android.companiondevicemanager.auto_generated_characteristics_rro/10058} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{9f7d749 com.android.internal.systemui.navbar.gestural/10059} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d95184e com.google.android.apps.youtube.music/10159} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{374d6f com.android.bluetoothmidiservice/10110} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{3fdfa7c com.android.storagemanager.auto_generated_rro_product__/10082} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{d5d9f05 com.google.android.cellbroadcastreceiver/10191} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{a2e6b5a com.android.phone.auto_generated_rro_product__/10054} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{c15518b com.android.systemui.emulation.pixel_9_pro_fold/10046} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{6e4268 android.auto_generated_rro_product__/10071} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{b9e2681 com.google.android.inputmethod.latin/10163} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{ad7e326 android.auto_generated_rro_vendor__/10088} BLOCKED
+10-06 13:24:02.271   576   594 I AppsFilter: interaction: PackageSetting{c930a56 com.angalle.sunmoonshuttle/10208} -> PackageSetting{e2bed54 com.google.android.apps.restore/10134} BLOCKED
+10-06 13:24:02.278  6371  6371 I cr_WVCFactoryProvider: Loaded version=124.0.6367.219 minSdkVersion=29 isBundle=false multiprocess=true packageId=2
+10-06 13:24:02.288  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.290  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.290  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.291  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.291  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.296  1407  1926 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+10-06 13:24:02.298  6371  6371 D nativeloader: Load /data/app/~~Hd-7YXMGvdL3FEa5NoWNMw==/com.google.android.trichromelibrary_636771932-OtG5fnerk8zylB_KBk7HYQ==/TrichromeLibrary.apk!/lib/arm64-v8a/libmonochrome_64.so using ns clns-9 from class loader (caller=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk): ok
+10-06 13:24:02.299  6371  6371 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using ns clns-9 from class loader (caller=/data/app/~~_cP_Miv9uvvWxg-bCrWu-A==/com.google.android.webview-pOW4ehbzpEBr8zC7EfOBww==/WebViewGoogle.apk): ok
+10-06 13:24:02.301  1536  1536 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+10-06 13:24:02.301  1536  1536 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+10-06 13:24:02.303  6371  6431 I chromium: [1006/132402.303035:INFO:variations_seed_loader.cc(66)] Failed to open file for reading.: No such file or directory (2)
+10-06 13:24:02.303  6371  6431 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.angalle.sunmoonshuttle/app_webview/variations_seed_new"
+10-06 13:24:02.304  6371  6371 I cr_LibraryLoader: Successfully loaded native library
+10-06 13:24:02.305  6371  6371 I cr_CachingUmaRecorder: Flushed 6 samples from 6 histograms, 0 samples were dropped.
+10-06 13:24:02.306  6371  6371 I cr_VariationsUtils: Loaded seed with age 672s
+10-06 13:24:02.306  6371  6371 I cr_CombinedPProvider: #registerProvider() provider:WV.V7@fb1c8b9 isPolicyCacheEnabled:false policyProvidersSize:0
+10-06 13:24:02.307  6371  6371 I cr_PolicyProvider: #setManagerAndSource() 0
+10-06 13:24:02.311   576  1862 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 99009, packageName = null, attributionTag = null, token = android.os.Binder@5ca894, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+10-06 13:24:02.311  6371  6371 I cr_CombinedPProvider: #linkNativeInternal() 1
+10-06 13:24:02.311  6371  6371 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+10-06 13:24:02.311  6371  6371 I cr_PolicyProvider: #notifySettingsAvailable() 0
+10-06 13:24:02.311  6371  6371 I cr_CombinedPProvider: #onSettingsAvailable() 0
+10-06 13:24:02.311  6371  6371 I cr_CombinedPProvider: #flushPolicies()
+10-06 13:24:02.314   874   874 D Zygote  : Forked child process 6435
+10-06 13:24:02.314  6435  6435 E libc    : SetHeapTaggingLevel: re-enabling tagging after it was disabled is not supported
+10-06 13:24:02.315  6435  6435 I ocessService0:0: Using CollectorTypeCMC GC.
+10-06 13:24:02.316  6435  6435 E ocessService0:0: Not starting debugger since process cannot load the jdwp agent.
+10-06 13:24:02.317  6435  6435 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+10-06 13:24:02.320  1536  1536 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+10-06 13:24:02.320  1536  1536 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+10-06 13:24:02.322   576   850 I ActivityManager: Start proc 6435:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i9 for  {com.angalle.sunmoonshuttle/org.chromium.content.app.SandboxedProcessService0:0}
+10-06 13:24:02.324  6435  6435 D CompatChangeReporter: Compat change id reported: 242716250; UID 99009; state: ENABLED
+10-06 13:24:02.325  6435  6435 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+10-06 13:24:02.326  6435  6435 I LoadedApk: No resource references to update in package com.google.android.trichromelibrary
+10-06 13:24:02.326  6435  6435 I cr_WebViewApkApp: Launched version=124.0.6367.219 minSdkVersion=29 isBundle=false processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+10-06 13:24:02.327  6435  6435 I cr_ChildProcessService: Creating new ChildProcessService pid=6435
+10-06 13:24:02.329   157   157 W servicemanager: Isolated app with UID 99009 requested 'network_management', but the service is not allowed for isolated apps.
+10-06 13:24:02.330   157   157 W servicemanager: Isolated app with UID 99009 requested 'connectivity', but the service is not allowed for isolated apps.
+10-06 13:24:02.331   157   157 W servicemanager: Isolated app with UID 99009 requested 'content_capture', but the service is not allowed for isolated apps.
+10-06 13:24:02.337  6371  6445 W chromium: [WARNING:dns_config_service_android.cc(81)] Failed to read DnsConfig.
+10-06 13:24:02.346  2666  2666 D ActivityThread: Package [com.angalle.sunmoonshuttle] reported as REPLACED, but missing application info. Assuming REMOVED.
+10-06 13:24:02.347   576  1862 D ActivityManager: sync unfroze 2666 com.google.android.webview:webview_service for 6
+10-06 13:24:02.366  6371  6371 D Capacitor: Starting BridgeActivity
+10-06 13:24:02.372  6469  6469 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.372  6469  6469 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.379   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.379  6469  6473 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.383   157   157 I servicemanager: Caller(pid=6469,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.383  6371  6371 D Capacitor: Registering plugin instance: CapacitorCookies
+10-06 13:24:02.385  6371  6371 D Capacitor: Registering plugin instance: WebView
+10-06 13:24:02.386  6371  6371 D Capacitor: Registering plugin instance: CapacitorHttp
+10-06 13:24:02.396  6371  6371 W Capacitor: Unable to read file at path public/plugins
+10-06 13:24:02.398  6371  6371 D Capacitor: Loading app at https://localhost
+10-06 13:24:02.402  6371  6453 W cr_media: BLUETOOTH_CONNECT permission is missing.
+10-06 13:24:02.403  6371  6453 W cr_media: registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+10-06 13:24:02.404  6371  6474 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+10-06 13:24:02.407  6435  6452 I cr_LibraryLoader: Successfully loaded native library
+10-06 13:24:02.407  6435  6452 I cr_CachingUmaRecorder: Flushed 2 samples from 2 histograms, 0 samples were dropped.
+10-06 13:24:02.409  6371  6474 I EGL_emulation: Opening libGLESv2_emulation.so
+10-06 13:24:02.410  6371  6371 D Capacitor: App started
+10-06 13:24:02.411  6435  6452 W SystemServiceRegistry: No service published for: uimode
+10-06 13:24:02.415   157   157 W servicemanager: Isolated app with UID 99009 requested 'uimode', but the service is not allowed for isolated apps.
+10-06 13:24:02.413  6435  6452 W chromium: [WARNING:runtime_features.cc(694)] SharedStorage for M118+ cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI,SharedStorageAPIM118 in addition.
+10-06 13:24:02.416  6371  6371 D Capacitor: App resumed
+10-06 13:24:02.418  6371  6371 W HWUI    : Unknown dataspace 0
+10-06 13:24:02.421  1034  1662 I FontLog : Received query name=Google Sans&weight=700&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-06 13:24:02.429  1034  1662 I FontLog : Query [name=Google Sans&weight=700&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.436  1034  1662 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.436  1034  1662 I FontLog : Fetch {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-06 13:24:02.439   576  1862 D CoreBackPreview: Window{51dddbd u0 com.angalle.sunmoonshuttle/com.angalle.sunmoonshuttle.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@9480775, mPriority=0, mIsAnimationCallback=false}
+10-06 13:24:02.442  1034  1662 I FontLog : Pulling font file for id = 50, cache size = 11 [CONTEXT service_id=132 ]
+10-06 13:24:02.444  1034  1662 I FontLog : Received query name=Noto Color Emoji Compat&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-06 13:24:02.445  1034  1662 I FontLog : Query [name=Noto Color Emoji Compat&weight=400&besteffort=false] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.445  1034  1662 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-06 13:24:02.447  1034  1662 I FontLog : Pulling font file for id = 51, cache size = 12 [CONTEXT service_id=132 ]
+10-06 13:24:02.447  6371  6391 W HWUI    : Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+10-06 13:24:02.448  6371  6391 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+10-06 13:24:02.448  1034  1662 I FontLog : Received query name=Google Sans&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-06 13:24:02.448  1034  1662 I FontLog : Query [name=Google Sans&weight=400&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.448  1034  1662 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.449  1034  1662 I FontLog : Fetch {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-06 13:24:02.449  1034  1662 I FontLog : Pulling font file for id = 52, cache size = 13 [CONTEXT service_id=132 ]
+10-06 13:24:02.450  1034  1662 I FontLog : Received query name=Google Sans&weight=500&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-06 13:24:02.450  1034  1662 I FontLog : Query [name=Google Sans&weight=500&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.451  1034  1662 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.451  1034  1662 I FontLog : Fetch {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-06 13:24:02.451  1034  1662 I FontLog : Pulling font file for id = 53, cache size = 14 [CONTEXT service_id=132 ]
+10-06 13:24:02.453  1034  6425 I SQLiteConnectionPool: The connection pool for /data/user/0/com.google.android.gms/databases/metadata.db has been closed but there are still 1 connections in use.  They will be closed as they are released back to the pool.
+10-06 13:24:02.453  1034  6239 W FontLog : Error updating last accessed time for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}. [CONTEXT service_id=132 ]
+10-06 13:24:02.453  1034  6239 W FontLog : java.lang.IllegalStateException: Cannot perform this operation because the connection pool has been closed.
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.throwIfClosedLocked(SQLiteConnectionPool.java:1103)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.waitForConnection(SQLiteConnectionPool.java:794)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.acquireConnection(SQLiteConnectionPool.java:399)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteSession.acquireConnection(SQLiteSession.java:920)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteSession.executeForChangedRowCount(SQLiteSession.java:778)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteStatement.executeUpdateDelete(SQLiteStatement.java:67)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteDatabase.executeSql(SQLiteDatabase.java:2207)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:2183)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at bbkg.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):57)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at angs.c(:com.google.android.gms@242335038@24.23.35 (190400-646585959):50)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at angs.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):76)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at anmg.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):8)
+10-06 13:24:02.453  1034  6239 W FontLog : 	at java.lang.Thread.run(Thread.java:1012)
+10-06 13:24:02.454   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.454  6371  6391 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.458   157   157 I servicemanager: Caller(pid=6371,uid=10208,sid=u:r:untrusted_app:s0:c208,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.489   576   599 W ziparchive: Unable to open '/data/app/~~JHZeIyXq2pMn08sHEmY3yg==/com.angalle.sunmoonshuttle-ci1BlIHfrqFzudWiPghIOw==/base.dm': No such file or directory
+10-06 13:24:02.494   576   599 I ActivityTaskManager: Displayed com.angalle.sunmoonshuttle/.MainActivity for user 0: +473ms
+10-06 13:24:02.499  6371  6445 D Capacitor: Handling local request: https://localhost/
+10-06 13:24:02.504  6494  6494 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.504  6494  6494 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.518   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.521   157   157 I servicemanager: Caller(pid=6494,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.522  6494  6496 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.527   576   693 I ImeTracker: com.angalle.sunmoonshuttle:b4882c8: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-06 13:24:02.527   576   693 I ImeTracker: com.angalle.sunmoonshuttle:b4882c8: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-06 13:24:02.528  6371  6445 D Capacitor: Handling local request: https://localhost/assets/index-qWPrV94-.js
+10-06 13:24:02.532  1329  1329 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3157 
+10-06 13:24:02.533  1329  1329 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 0, locked = false
+10-06 13:24:02.533  1329  1329 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1986 onStartInput(EditorInfo{EditorInfo{packageName=com.angalle.sunmoonshuttle, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=12000000, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-06 13:24:02.533  1329  1329 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 1, locked = false
+10-06 13:24:02.533   813   892 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@ad114d9
+10-06 13:24:02.534   576  1862 W InputManager-JNI: Input channel object '9b23d73 Splash Screen com.angalle.sunmoonshuttle (client)' was disposed without first being removed with the input manager!
+10-06 13:24:02.534   576   850 D CoreBackPreview: Window{9b23d73 u0 Splash Screen com.angalle.sunmoonshuttle EXITING}: Setting back callback null
+10-06 13:24:02.534  1329  1329 I AndroidIME: InputBundleManager.loadActiveInputBundleId():450 loadActiveInputBundleId: und-Latn-x-password, password
+10-06 13:24:02.534  1263  1263 D BaseDepthController: setSurface:
+10-06 13:24:02.534  1263  1263 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+10-06 13:24:02.534  1263  1263 D BaseDepthController: 	mSurface: null
+10-06 13:24:02.534   576  1532 W PackageConfigPersister: App-specific configuration not found for packageName: com.angalle.sunmoonshuttle and userId: 0
+10-06 13:24:02.534  1263  1263 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+10-06 13:24:02.535  1263  1263 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+10-06 13:24:02.535  1263  1263 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:4)
+10-06 13:24:02.535  1263  1263 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:1)
+10-06 13:24:02.535  1263  1263 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:34)
+10-06 13:24:02.535  1263  1263 D StatsLog: LAUNCHER_ONSTOP
+10-06 13:24:02.535   576   850 I AppWidgetServiceImpl: setAppWidgetHidden() 0
+10-06 13:24:02.535  1263  1263 D StatsLog: LAUNCHER_GOOGLE_SEARCH_RESTORE_LIST_SIZE_AFTER_ACTIVITY_RESTART
+10-06 13:24:02.535  1263  1719 D OneSearchSuggestProvider: Shut down the binder channel
+10-06 13:24:02.537  1263  1271 I IPCThreadState: oneway function results for code 2 on binder at 0xb4000076575a9e70 will be dropped but finished with status UNKNOWN_TRANSACTION
+10-06 13:24:02.538  6435  6452 I chromium: [INFO:viewport_data.cc(133)] E2E_Used ViewportFitCover
+10-06 13:24:02.562  6435  6452 I chromium: [INFO:document_style_environment_variables.cc(104)] E2E_Used SafeAreaInsetBottom
+10-06 13:24:02.659  6503  6503 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.660  6503  6503 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.667   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.667  6503  6504 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.671   157   157 I servicemanager: Caller(pid=6503,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.679  6371  6446 D Capacitor: Handling local request: https://localhost/assets/index-8thbg8SN.css
+10-06 13:24:02.680  6371  6458 D Capacitor: Handling local request: https://localhost/sw.js
+10-06 13:24:02.681  6371  6448 D Capacitor: Handling local request: https://localhost/icons/icon-192.png
+10-06 13:24:02.682  6371  6459 D Capacitor: Handling local request: https://localhost/icons/favicon-32.png
+10-06 13:24:02.682  6371  6443 D Capacitor: Handling local request: https://localhost/favicon.svg
+10-06 13:24:02.685  6371  6443 D Capacitor: Handling local request: https://localhost/data/timetable.json
+10-06 13:24:02.725  6371  6376 I .sunmoonshuttle: Compiler allocated 5250KB to compile void android.view.ViewRootImpl.performTraversals()
+10-06 13:24:02.779  6507  6507 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.780  6507  6507 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.785   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.786  6507  6508 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.790   157   157 I servicemanager: Caller(pid=6507,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.880  6511  6511 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.880  6511  6511 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.886   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.886  6511  6512 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.890   157   157 I servicemanager: Caller(pid=6511,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:02.933  1034  1662 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+10-06 13:24:02.933  1034  1662 I FontLog : Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+10-06 13:24:02.934  1034  1662 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+10-06 13:24:02.935  1034  1662 I FontLog : Pulling font file for id = 54, cache size = 15 [CONTEXT service_id=132 ]
+10-06 13:24:02.936  1034  1662 I FontLog : Pulling font file for id = 54, cache size = 15 [CONTEXT service_id=132 ]
+10-06 13:24:02.980  6516  6516 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:02.980  6516  6516 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:02.986   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:02.986  6516  6517 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:02.990   157   157 I servicemanager: Caller(pid=6516,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:03.085  6520  6520 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:03.085  6520  6520 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:03.092   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:03.096   157   157 I servicemanager: Caller(pid=6520,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:03.092  6520  6521 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:03.195  6524  6524 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:03.195  6524  6524 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:03.201   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:03.201  6524  6525 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:03.205   157   157 I servicemanager: Caller(pid=6524,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:03.303  6528  6528 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:03.303  6528  6528 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:03.309   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:03.309  6528  6529 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:03.314   157   157 I servicemanager: Caller(pid=6528,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:03.412  6532  6532 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:03.412  6532  6532 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:03.418   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:03.418  6532  6533 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:03.422   157   157 I servicemanager: Caller(pid=6532,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:04.086  6371  6391 D EGL_emulation: app_time_stats: avg=266.68ms min=13.42ms max=1086.86ms count=6
+10-06 13:24:04.571  6371  6443 D Capacitor: Handling local request: https://localhost/sw.js
+10-06 13:24:05.153   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-06 13:24:05.153   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-06 13:24:05.153   576   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10138} in 1ms
+10-06 13:24:05.154   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-06 13:24:05.155   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-06 13:24:05.155   576   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20138} in 2ms
+10-06 13:24:05.567   576  1462 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+10-06 13:24:06.218   380  6247 W resolv  : SSL_connect write error 0, mark 0xf006c: Try again
+10-06 13:24:06.218   380  6247 W resolv  : TLS Handshake failed
+10-06 13:24:06.218   380  6247 W resolv  : query failed
+10-06 13:24:06.218   380  6247 W resolv  : validateDnsTlsServer returned 0 for {10.0.2.3/}
+10-06 13:24:06.218   380  6247 W resolv  : Validation failed
+10-06 13:24:06.810   576   672 D ActivityManager: freezing 2788 com.google.android.gms.ui
+10-06 13:24:06.810   576   672 D ActivityManager: freezing 1935 com.google.android.gms.unstable
+10-06 13:24:07.582   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-06 13:24:07.583   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-06 13:24:07.583   576   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10152} in 2ms
+10-06 13:24:07.583   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-06 13:24:07.585   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-06 13:24:07.585   576   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20152} in 2ms
+10-06 13:24:07.989  6371  6534 D ProfileInstaller: Installing profile for com.angalle.sunmoonshuttle
+10-06 13:24:08.383   380   499 I netd    : tetherGetStats() -> {[]} <1.26ms>
+10-06 13:24:09.681   380  6292 W resolv  : SSL_connect write error 0, mark 0xf006d: Try again
+10-06 13:24:09.681   380  6292 W resolv  : TLS Handshake failed
+10-06 13:24:09.681   380  6291 W resolv  : SSL_connect write error 0, mark 0xf006d: Try again
+10-06 13:24:09.681   380  6291 W resolv  : TLS Handshake failed
+10-06 13:24:09.681   380  6292 W resolv  : query failed
+10-06 13:24:09.681   380  6291 W resolv  : query failed
+10-06 13:24:09.681   380  6291 W resolv  : validateDnsTlsServer returned 0 for {10.0.2.3/}
+10-06 13:24:09.681   380  6292 W resolv  : validateDnsTlsServer returned 0 for {10.0.2.4/}
+10-06 13:24:09.681   380  6291 W resolv  : Validation failed
+10-06 13:24:09.681   380  6292 W resolv  : Validation failed
+10-06 13:24:09.725  6537  6537 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+10-06 13:24:09.725  6537  6537 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+10-06 13:24:09.732   159   159 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+10-06 13:24:09.732  6537  6538 I Gralloc4: mapper 4.x is not supported
+10-06 13:24:09.736   157   157 I servicemanager: Caller(pid=6537,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+10-06 13:24:09.786   576   728 D ConnectivityService: handleLingerComplete for [108 CELLULAR]
+10-06 13:24:09.786   576   728 I ConnectivityService: Update capabilities for net 108 : -FOREGROUND
+10-06 13:24:09.787   380   499 I netd    : networkSetPermissionForNetwork(108, 1) <1.04ms>
+10-06 13:24:09.787   576   728 W IPCThreadState: Sending oneway calls to frozen process.
+10-06 13:24:11.717   576   672 D ActivityManager: freezing 1216 android.process.acore
+10-06 13:24:11.718   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-06 13:24:11.718   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-06 13:24:11.718   576   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10091} in 1ms
+10-06 13:24:11.807   380   499 I netd    : tetherGetStats() -> {[]} <0.25ms>
+10-06 13:24:12.534   576   672 D ActivityManager: freezing 2666 com.google.android.webview:webview_service
+10-06 13:24:12.535   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+10-06 13:24:12.535   576   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+10-06 13:24:12.535   576   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10152} in 1ms
+10-06 13:24:12.613   167   167 I logd    : logdr: UID=2000 GID=2000 PID=6539 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

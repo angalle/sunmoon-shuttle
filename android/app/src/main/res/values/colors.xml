@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 생성물: scripts/generate_android_res.mjs (T25) — = tokens.css 의 color-bg 토큰 (라이트) · 웹 스플래시 배경 -->
+<resources>
+    <color name="splash_background">#FFFFFF</color>
+    <color name="status_bar_background">#FFFFFF</color>
+</resources>

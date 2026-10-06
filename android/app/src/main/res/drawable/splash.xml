@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  생성물: scripts/generate_android_res.mjs (T25) — Capacitor 실행 테마(AppTheme.NoActionBarLaunch)의 배경.
+  웹 스플래시(organisms/SplashScreen.ts: 배경 = color-bg 토큰 + ./icons/icon-192.png 96px)와 색·로고가 같다.
+  background = @color/splash_background(라이트 #ffffff / 다크는 values-night), 로고 = @drawable/splash_logo(96dp).
+  로고를 늘리지 않으려고 bitmap 을 gravity=center 로 얹는다(전체화면 PNG 를 windowBackground 로 쓰면 화면비에서 늘어난다).
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background" />
+    <item android:drawable="@drawable/splash_logo" android:gravity="center" />
+</layer-list>
