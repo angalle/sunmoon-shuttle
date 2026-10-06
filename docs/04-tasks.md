@@ -82,7 +82,7 @@
 | **T19 AI 계층 API 모드** — OpenAI 호환(`AI_BASE_URL`/`AI_MODEL`/`AI_API_KEY`) + 키 없음·실패 시 규칙 전용 폴백 + 비용 가드·모의서버 테스트 | `t_89869521` | apiprojectcreator | **완료(done)** — API 어댑터+모드 CLI+폴백·비용가드, 363 tests·모의서버 28건(실 과금 0) |
 | **T20 extract.yml 호스티드 러너 전환** — `ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트, self-hosted·Ollama 의존 제거 | `t_8322b6e9` | infraprojectcreator | **완료(done)** — actionlint 0·호스티드 러너·시크릿 env 주입·변경시만 발행·아티팩트. **CI 실측은 push 보류로 미실측** |
 
-| **T21 스키마 v3 (편별 요일 조건 구조화)** — `금(X)` 59행→`excludedDays:["fri"]`·`월~화 2대`→`dayScope`·`0:15`→`durationMinutes`·방학 기간 수집·게이트 목록화 | `t_6e8253fc` | apiprojectcreator | todo(부모 T19) — **계약: `docs/06-data-model.md`** |
+| **T21 스키마 v3 (편별 요일 조건 구조화)** — `금(X)` 59행→`excludedDays:["fri"]`·`월~화 2대`→`dayScope`·`0:15`→`durationMinutes`·방학 기간 수집·게이트 목록화 | `t_6e8253fc` | apiprojectcreator | **완료(done)** — v3 발행(금(X) 59/59 매핑·note 잔존 0)·게이트 [1,2,3]·401 tests·스모크 4종 PASS |
 | **T22 앱 판정·표시** — `tripStatus`(오늘 운행 편만)·사유 배지·`약 N분 소요`·방학 배너 + 금요일 스크린샷 | `t_88a65081` | frontendprojectcreator | todo(부모 T21) — docs/06 §2·§5 구현 |
 
 ## 상태
