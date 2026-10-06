@@ -8,7 +8,14 @@
  * 그 자리를 **다음 출발 자동 스크롤** 계약이 대신한다(§9-3).
  */
 import { describe, expect, it } from 'vitest';
-import { AUTO_SCROLL_COOLDOWN_MS } from '../../../../src/adapters/in/web/features/schedule/pages/SchedulePage';
+import {
+  AUTO_SCROLL_COOLDOWN_MS,
+  INSTANT_SCROLL_WINDOW_MS,
+  MOVE_ANIMATION_MS,
+  MOVE_SETTLE_MS,
+  moveScrollStyle,
+} from '../../../../src/adapters/in/web/features/schedule/pages/SchedulePage';
+import { UI_TEXT } from '../../../../src/adapters/in/web/features/schedule/types/texts';
 import {
   SPLASH_FADE_MS,
   SPLASH_MAX_MS,
@@ -59,5 +66,26 @@ describe('스플래시 표시 시간 — 최소 400ms · 최대 2.5s', () => {
 describe('자동 스크롤 계약 (T27 · docs/07 §9-3)', () => {
   it('사용자가 스크롤한 뒤 3초 동안은 다시 스크롤하지 않는다', () => {
     expect(AUTO_SCROLL_COOLDOWN_MS).toBe(3000);
+  });
+});
+
+describe('이동 버튼 계약 (T28 · docs/07 §10-1)', () => {
+  it('두 버튼의 접근성 이름이 문서 그대로다(화면 문구는 아이콘+라벨 없음)', () => {
+    expect(UI_TEXT.moveNowLabel).toBe('현재 시간으로');
+    expect(UI_TEXT.moveTopLabel).toBe('맨 위로');
+  });
+
+  it('이동 방식 — reduced-motion 이면 즉시(애니메이션 0), 아니면 짧은 애니메이션', () => {
+    expect(moveScrollStyle(true)).toBe('instant');
+    expect(moveScrollStyle(false)).toBe('animate');
+  });
+
+  it('이동 애니메이션은 문서 계약(150~200ms) 안이고, 보정 타이머가 그 뒤에 온다', () => {
+    expect(MOVE_ANIMATION_MS).toBeGreaterThanOrEqual(150);
+    expect(MOVE_ANIMATION_MS).toBeLessThanOrEqual(200);
+    expect(MOVE_SETTLE_MS).toBeGreaterThan(0);
+    // 프로그램 스크롤 계측 창은 애니메이션보다 길어야 한다(사용자 스크롤 오인 방지).
+    expect(INSTANT_SCROLL_WINDOW_MS).toBeGreaterThan(0);
+    expect(MOVE_ANIMATION_MS + MOVE_SETTLE_MS).toBeLessThan(AUTO_SCROLL_COOLDOWN_MS);
   });
 });

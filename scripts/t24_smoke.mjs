@@ -16,10 +16,15 @@
  *  AC-U4  safe-area: 노치·홈 인디케이터(47/34px 주입)에서 상단 바·본문이 잘리지 않는다
  *  AC-U5  **스켈레톤**(캐시 없는 첫 실행 · 카드 3장) · 스플래시가 **2.5s 상한**에서 스스로 빠져나온다
  *  AC-U6  `prefers-reduced-motion: reduce` 에서 전환 애니메이션 **0**(계산값 실측 — 일반 모드와 대조)
+ *  AC-U10 이동 버튼 2개(우하단 `현재 시간으로`·`맨 위로`) + 폰트 한 단계 축소 (T28 · §10)
+ *         - AC-U10-1 `현재 시간으로` → 다음 출발 행이 상단 바 아래로(전/후 scrollTop·행 y 실측, 억제 상태에서도 동작)
+ *         - AC-U10-2 `맨 위로` → `scrollTop = 0`
+ *         - AC-U10-3 터치 ≥48×48 · `aria-label` · 키보드 포커스 · safe-area bottom+16px · 마지막 행 겹침 0
+ *         - AC-U10-4 행 시각 15px · 보조 13px · 토큰 11px · 상단 바 15px · 11px 미만 0건 · 행 높이 48px 이상
  *  회귀   화면 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 정보 시트가 출처·데이터 갱신·정차창을 갖는다 · 콘솔 오류 0
  *
  * 사용: node scripts/t24_smoke.mjs [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
- * 산출물: .session-notes/T27-*.png
+ * 산출물: .session-notes/T27-*.png · .session-notes/T28-*.png
  * 종료코드: 검사 하나라도 실패하면 1.
  */
 import { spawn } from 'node:child_process';
@@ -246,6 +251,18 @@ async function showDayTab(dayType) {
   );
 }
 
+/** 이동 버튼 클릭(T28 §10-1) — 실제 사용자 클릭과 같은 경로(HTMLElement.click). */
+async function clickMove(id) {
+  return (
+    (await evaluate(`
+      const node = document.querySelector('[data-testid="${id}"]');
+      if (node === null) return false;
+      node.click();
+      return true;
+    `)) === true
+  );
+}
+
 /**
  * 스플래시가 **완전히 사라질 때까지** 기다린다(노드 제거 + 계측 `hiddenAt` 기록).
  * 표시 시간(t = hiddenAt - shownAt)은 **전환이 끝난 뒤에** 읽어야 한다 — 하한 400ms 는
@@ -345,6 +362,71 @@ const BODY_PROBE = `
     legacyNodes: ['next-bus-card', 'shortcut-card', 'app-tabs', 'source-footer', 'data-refresh', 'source-details']
       .filter((id) => document.querySelector('#shuttle-main [data-testid="' + id + '"]') !== null),
     panelText,
+  };
+`;
+
+/**
+ * T28 §10-1 · §10-2 — 우하단 이동 버튼 + 폰트 실측(증거·검사 공용).
+ * 버튼은 아이콘만 보이므로 문구 대신 `aria-label`·기하(48px·safe-area·겹침)·동작으로 판정한다.
+ * `minText` 는 **화면에 실제로 보이는 텍스트 중 가장 작은 폰트**다(§10-2 하한 11px 실측).
+ */
+const MOVE_PROBE = `
+  const stack = document.querySelector('[data-testid="move-buttons"]');
+  const nowButton = document.querySelector('[data-testid="move-now"]');
+  const topButton = document.querySelector('[data-testid="move-top"]');
+  const scroller = document.querySelector('.shuttle-scroll');
+  const appbar = document.querySelector('.shuttle-appbar');
+  const rows = [...document.querySelectorAll('[data-testid="timetable-row"]')];
+  const next = rows.find((row) => row.dataset.next === 'true') ?? null;
+  const last = rows.length === 0 ? null : rows[rows.length - 1];
+  const rectOf = (node) => {
+    if (node === null) return null;
+    const r = node.getBoundingClientRect();
+    return { top: Math.round(r.top), bottom: Math.round(r.bottom), left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width), height: Math.round(r.height) };
+  };
+  const fontOf = (node) => (node === null ? null : parseFloat(getComputedStyle(node).fontSize));
+  const stackRect = rectOf(stack);
+  let minText = null;
+  for (const node of document.querySelectorAll('.shuttle-app *')) {
+    const own = [...node.childNodes].filter((child) => child.nodeType === 3).map((child) => child.textContent.trim()).join('').trim();
+    if (own === '') continue;
+    if (node.closest('.shuttle-sr-only') !== null) continue;
+    const box = node.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) continue;
+    const style = getComputedStyle(node);
+    if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) continue;
+    const size = parseFloat(style.fontSize);
+    if (minText === null || size < minText.size) {
+      const cls = typeof node.className === 'string' && node.className !== '' ? '.' + node.className.split(' ').join('.') : '';
+      minText = { size, text: own.slice(0, 24), label: node.tagName.toLowerCase() + cls };
+    }
+  }
+  return {
+    stackPresent: stack !== null,
+    nowPresent: nowButton !== null,
+    topPresent: topButton !== null,
+    labels: [nowButton === null ? null : nowButton.getAttribute('aria-label'), topButton === null ? null : topButton.getAttribute('aria-label')],
+    nowRect: rectOf(nowButton),
+    topRect: rectOf(topButton),
+    stackRect,
+    position: stack === null ? null : getComputedStyle(stack).position,
+    zIndex: stack === null ? 0 : parseFloat(getComputedStyle(stack).zIndex) || 0,
+    gapBottom: stackRect === null ? null : Math.round(window.innerHeight - stackRect.bottom),
+    gapRight: stackRect === null ? null : Math.round(window.innerWidth - stackRect.right),
+    scrollTop: scroller === null ? null : Math.round(scroller.scrollTop),
+    nextTop: next === null ? null : Math.round(next.getBoundingClientRect().top),
+    appbarBottom: appbar === null ? null : Math.round(appbar.getBoundingClientRect().bottom),
+    rowHeight: rows.length === 0 ? null : Math.round(rows[0].getBoundingClientRect().height),
+    lastBottom: last === null ? null : Math.round(last.getBoundingClientRect().bottom),
+    innerHeight: window.innerHeight,
+    fonts: {
+      clock: fontOf(document.querySelector('[data-testid="app-clock"]')),
+      rowTime: fontOf(document.querySelector('.shuttle-departure__time')),
+      rowMeta: fontOf(document.querySelector('.shuttle-departure__dir')),
+      token: fontOf(document.querySelector('[data-testid="row-token"]')),
+    },
+    minText,
+    scrollBar: window.__shuttleScroll ?? null,
   };
 `;
 
@@ -578,6 +660,147 @@ async function main() {
       JSON.stringify({ nextTop: scrolled.nextTop, appbarBottom: scrolled.appbarBottom }),
     );
 
+    /* ── AC-U10 이동 버튼 2개 (T28 · docs/07 §10-1) ──────────────────── */
+    const move0 = await evaluate(MOVE_PROBE);
+    check(
+      'AC-U10-3 두 버튼이 우하단 **세로 스택**으로 있다(아이콘 + `aria-label` — 화면 문구 없음)',
+      move0.stackPresent === true &&
+        move0.nowPresent === true &&
+        move0.topPresent === true &&
+        move0.labels[0] === '현재 시간으로' &&
+        move0.labels[1] === '맨 위로' &&
+        move0.position === 'absolute' &&
+        move0.zIndex > 0 &&
+        move0.nowRect !== null &&
+        move0.topRect !== null &&
+        move0.topRect.top >= move0.nowRect.bottom - 1,
+      JSON.stringify({ labels: move0.labels, position: move0.position, zIndex: move0.zIndex, now: move0.nowRect, top: move0.topRect }),
+    );
+    check(
+      'AC-U10-3 두 버튼 터치 타깃 ≥48×48 (실측)',
+      move0.nowRect !== null && move0.topRect !== null && move0.nowRect.width >= 48 && move0.nowRect.height >= 48 && move0.topRect.width >= 48 && move0.topRect.height >= 48,
+      JSON.stringify({ now: move0.nowRect, top: move0.topRect }),
+    );
+    const moveFocus = await evaluate(`
+      return ['move-now', 'move-top'].map((id) => {
+        const node = document.querySelector('[data-testid="' + id + '"]');
+        if (node === null) return false;
+        node.focus();
+        const ok = document.activeElement === node;
+        node.blur();
+        return ok;
+      });
+    `);
+    check(
+      'AC-U10-3 두 버튼이 키보드 포커스를 받는다(focus() → activeElement 실측)',
+      Array.isArray(moveFocus) && moveFocus.every((value) => value === true),
+      JSON.stringify(moveFocus),
+    );
+    const safeGap = await evaluate(`
+      document.documentElement.style.setProperty('--safe-area-bottom', '34px');
+      const stack = document.querySelector('[data-testid="move-buttons"]');
+      const rect = stack.getBoundingClientRect();
+      const out = { gapBottom: Math.round(window.innerHeight - rect.bottom), gapRight: Math.round(window.innerWidth - rect.right), innerHeight: window.innerHeight };
+      document.documentElement.style.removeProperty('--safe-area-bottom');
+      return out;
+    `);
+    check(
+      'AC-U10-3 safe-area bottom(34px) + 16px 만큼 띄운다(하단 여백 실측)',
+      safeGap.gapBottom >= 34 + 16 - 1 && safeGap.gapRight >= 16 - 1,
+      JSON.stringify(safeGap),
+    );
+    // 본문 하단 여백(clearance) — 맨 아래까지 스크롤해도 마지막 행이 버튼과 겹치지 않아야 한다.
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 999999; return true;`);
+    await delay(250);
+    const atBottom = await evaluate(MOVE_PROBE);
+    check(
+      'AC-U10-3 맨 아래까지 스크롤해도 마지막 행이 버튼 스택과 겹치지 않는다(겹침 0 실측)',
+      atBottom.lastBottom !== null && atBottom.stackRect !== null && atBottom.lastBottom <= atBottom.stackRect.top + 1,
+      JSON.stringify({ lastBottom: atBottom.lastBottom, stackTop: atBottom.stackRect === null ? null : atBottom.stackRect.top, scrollTop: atBottom.scrollTop }),
+    );
+    const moveShot1 = await capture('T28-1-이동버튼-본문-390x844.png');
+    info(`AC-U10-3 스크린샷(우하단 이동 버튼): ${moveShot1.slice(ROOT.length)}`);
+
+    /* AC-U10-2 `맨 위로` → scrollTop = 0 */
+    const beforeTop = await evaluate(`const s = document.querySelector('.shuttle-scroll'); return { scrollTop: Math.round(s.scrollTop) };`);
+    await clickMove('move-top');
+    await delay(700);
+    const afterTop = await evaluate(MOVE_PROBE);
+    check(
+      'AC-U10-2 `맨 위로` 클릭 → scrollTop = 0 (수치)',
+      beforeTop.scrollTop > 0 && afterTop.scrollTop === 0,
+      JSON.stringify({ before: beforeTop, after: { scrollTop: afterTop.scrollTop, buttons: afterTop.scrollBar === null ? null : afterTop.scrollBar.buttonScrolls } }),
+    );
+    const moveShot3 = await capture('T28-3-맨위로-클릭후.png');
+    info(`AC-U10-2 스크린샷(맨 위로 클릭 후): ${moveShot3.slice(ROOT.length)}`);
+
+    /* AC-U10-1 `현재 시간으로` → 다음 출발 행이 상단 바 아래로(클릭 전/후 수치) */
+    const beforeNow = await evaluate(MOVE_PROBE);
+    await clickMove('move-now');
+    await delay(800);
+    const afterNow = await evaluate(MOVE_PROBE);
+    check(
+      'AC-U10-1 `현재 시간으로` 클릭 → 다음 출발 행이 상단 바 아래로 이동(전/후 scrollTop + 행 y좌표)',
+      beforeNow.scrollTop === 0 &&
+        beforeNow.nextTop !== null &&
+        beforeNow.appbarBottom !== null &&
+        afterNow.scrollTop !== null &&
+        afterNow.scrollTop > 0 &&
+        afterNow.nextTop !== null &&
+        afterNow.appbarBottom !== null &&
+        afterNow.innerHeight !== null &&
+        beforeNow.nextTop > afterNow.nextTop &&
+        afterNow.nextTop >= afterNow.appbarBottom &&
+        afterNow.nextTop <= afterNow.innerHeight - 48,
+      JSON.stringify({
+        before: { scrollTop: beforeNow.scrollTop, nextTop: beforeNow.nextTop, appbarBottom: beforeNow.appbarBottom },
+        after: { scrollTop: afterNow.scrollTop, nextTop: afterNow.nextTop, appbarBottom: afterNow.appbarBottom, innerHeight: afterNow.innerHeight },
+      }),
+    );
+    const moveShot2 = await capture('T28-2-현재시간으로-클릭후.png');
+    info(`AC-U10-1 스크린샷(현재 시간으로 클릭 후): ${moveShot2.slice(ROOT.length)}`);
+
+    /* AC-U10-1(2) 사용자 스크롤로 억제된 상태에서도 버튼은 동작한다(억제 해제) */
+    const suppressed = await evaluate(`
+      const s = document.querySelector('.shuttle-scroll');
+      s.scrollTop = 0;                                  // 사용자 스크롤 → 자동 스크롤 억제 창(3초) 진입
+      const bar = window.__shuttleScroll ?? {};
+      const probe = { userScrollAt: performance.now() };
+      return { scrollTop: Math.round(s.scrollTop), buttonScrolls: bar.buttonScrolls ?? -1, skipped: bar.skipped ?? -1, probe };
+    `);
+    await delay(150);
+    await clickMove('move-now');
+    await delay(800);
+    const afterForce = await evaluate(MOVE_PROBE);
+    check(
+      'AC-U10-1 사용자 스크롤로 억제된 상태(3초 이내)에서도 `현재 시간으로`는 동작한다(억제 해제 실측)',
+      suppressed.scrollTop === 0 &&
+        afterForce.scrollTop !== null &&
+        afterForce.scrollTop > 0 &&
+        afterForce.scrollBar !== null &&
+        afterForce.scrollBar.lastUserScrollAt !== null &&
+        afterForce.scrollBar.buttonScrolls > suppressed.buttonScrolls &&
+        afterForce.nextTop !== null &&
+        afterForce.appbarBottom !== null &&
+        afterForce.nextTop >= afterForce.appbarBottom,
+      JSON.stringify({
+        before: { scrollTop: suppressed.scrollTop, buttonScrolls: suppressed.buttonScrolls, skipped: suppressed.skipped },
+        after: { scrollTop: afterForce.scrollTop, buttonScrolls: afterForce.scrollBar === null ? null : afterForce.scrollBar.buttonScrolls, userScrollAt: afterForce.scrollBar === null ? null : afterForce.scrollBar.lastUserScrollAt },
+      }),
+    );
+
+    /* AC-U10-4 폰트 한 단계 축소 실측(§10-2) */
+    check(
+      'AC-U10-4 폰트 실측 — 행 시각 15px · 행 보조 13px · 조건 토큰 11px · 상단 바 15px',
+      afterForce.fonts.clock === 15 && afterForce.fonts.rowTime === 15 && afterForce.fonts.rowMeta === 13 && afterForce.fonts.token === 11,
+      JSON.stringify(afterForce.fonts),
+    );
+    check(
+      'AC-U10-4 화면 텍스트 중 11px 미만 0건(하한 실측) · 행 높이 ≥48px(불변)',
+      afterForce.minText !== null && afterForce.minText.size >= 11 && afterForce.rowHeight !== null && afterForce.rowHeight >= 48,
+      JSON.stringify({ minText: afterForce.minText, rowHeight: afterForce.rowHeight }),
+    );
+
     /* ── AC-U3 두 크기에서 가로 스크롤 0 + 스크린샷 ────────────────── */
     const sizes = [
       { label: '390×844(iPhone)', width: 390, height: 844 },
@@ -742,6 +965,19 @@ async function main() {
       reducedFadeMs >= 400 && reducedFadeMs <= 2500,
       `t=${String(reducedFadeMs)}ms`,
     );
+    /* §10-1 — reduced-motion 에서는 **이동 버튼도 즉시**다(60ms 값 = 600ms 값 → 추가 애니메이션 0). */
+    await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
+    await delay(150);
+    await clickMove('move-now');
+    await delay(60);
+    const moveImmediate = await evaluate(`return Math.round(document.querySelector('.shuttle-scroll').scrollTop);`);
+    await delay(600);
+    const moveSettled = await evaluate(`return Math.round(document.querySelector('.shuttle-scroll').scrollTop);`);
+    check(
+      'AC-U10-1(보조) reduced-motion 에서 `현재 시간으로`는 즉시 이동(60ms 값 = 600ms 값)',
+      moveImmediate > 0 && moveImmediate === moveSettled,
+      `60ms=${String(moveImmediate)} 600ms=${String(moveSettled)}`,
+    );
     await capture('T27-7-reduced-motion-본문.png');
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
 
@@ -812,12 +1048,12 @@ async function main() {
     for (const line of failures) console.log(line);
     process.exitCode = 1;
   } else {
-    console.log('\nT27 SMOKE: PASS');
+    console.log('\nT27·T28 SMOKE: PASS');
   }
 }
 
 main().catch((error) => {
-  console.error(`T27 SMOKE: ERROR — ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`T27·T28 SMOKE: ERROR — ${error instanceof Error ? error.message : String(error)}`);
   console.log('\n여기까지의 검사 결과:');
   for (const line of notes) console.log(line);
   for (const line of failures) console.log(line);

@@ -85,3 +85,36 @@ describe('스타일 규율 — 하드코딩 색 0건', () => {
     expect(hits, `app.css 색 하드코딩: ${hits.join(', ')}`).toEqual([]);
   });
 });
+
+/**
+ * T28 §10-2 — "폰트 좀 더 작게" 한 단계 축소. 문서의 표(15/13/11/15px)와 **하한 11px** 를
+ * 토큰 값에서 계산해 고정한다(화면 실측은 `scripts/t24_smoke.mjs` AC-U10-4 가 낸다).
+ */
+describe('T28 타이포 — 폰트 한 단계 축소 + 하한 11px (docs/07 §10-2)', () => {
+  /** `--font-size-*` 토큰 값을 px 로 환산(rem 은 루트 기본 16px 기준). */
+  function fontSizePx(raw: string): number {
+    const trimmed = raw.trim();
+    if (trimmed.endsWith('rem')) return parseFloat(trimmed) * 16;
+    if (trimmed.endsWith('px')) return parseFloat(trimmed);
+    throw new Error(`px 로 환산할 수 없는 폰트 토큰 값: ${raw}`);
+  }
+
+  it('축소 토큰이 문서 표 그대로 15 / 13 / 11 / 15px 로 정의된다', () => {
+    expect(fontSizePx(value(tokens.light, 'font-size-clock'))).toBe(15);
+    expect(fontSizePx(value(tokens.light, 'font-size-row-time'))).toBe(15);
+    expect(fontSizePx(value(tokens.light, 'font-size-row-meta'))).toBe(13);
+    expect(fontSizePx(value(tokens.light, 'font-size-caption'))).toBe(11);
+  });
+
+  it('모든 폰트 크기 토큰이 하한 11px 이상이다(미만 0건)', () => {
+    const sizes = Object.entries(tokens.light).filter(([name]) => name.startsWith('font-size-'));
+    expect(sizes.length).toBeGreaterThanOrEqual(10);
+    const tooSmall = sizes.filter(([, raw]) => fontSizePx(raw) < 11).map(([name, raw]) => `${name}=${raw}`);
+    expect(tooSmall, `11px 미만 토큰: ${tooSmall.join(', ')}`).toEqual([]);
+  });
+
+  it('행 높이·터치 타깃은 줄이지 않는다(48px 유지) — 이동 버튼도 48px', () => {
+    expect(tokens.light['touch-target-min']).toBe('48px');
+    expect(tokens.light['floating-button-size']).toBe('48px');
+  });
+});
