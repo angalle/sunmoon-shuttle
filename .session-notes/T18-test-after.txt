@@ -1,0 +1,13 @@
+
+> sunmoon-shuttle@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+
+
+ Test Files  25 passed (25)
+      Tests  334 passed (334)
+   Start at  09:10:45
+   Duration  642ms (tests 57%, transform 29%, import 11%, worker 2%)
+

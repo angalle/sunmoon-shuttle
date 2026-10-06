@@ -1,0 +1,49 @@
+
+> sunmoon-shuttle@0.0.0 verify:offline
+> node scripts/offline_smoke.mjs --shots=none
+
+offline_smoke: base=/sunmoon-shuttle/ now=2026-10-05T14:40:00+09:00 expired=2026-10-10T14:40:00+09:00 routes=5 asan-ktx 평일=42 토=4
+
+검사 결과:
+  PASS  온라인 1차 로드 완료(데이터 표시)
+  PASS  SW 등록 성공
+  PASS  SW 가 페이지를 제어(claim) — 다음 로드부터 캐시가 응답한다
+  PASS  SW 셸 프리캐시(index.html) 준비 — 오프라인 첫 화면의 전제
+  PASS  SW 제어 상태 재로드 완료
+  PASS  SW 데이터 캐시(data/timetable.json) 준비
+  INFO  SW 캐시: {"keys":["sunmoon-shuttle-shell-2026-10-05.1","sunmoon-shuttle-data-2026-10-05.1"],"shell":true,"data":true,"active":"activated"}
+  PASS  IndexedDB 캐시 레코드 저장(원문·contentHash·fetchedAt·저장시각) — {"keys":["cachedAtMs","contentHash","fetchedAt","raw","schemaVersion"],"contentHash":"sha256:a38d713a5d7dd9f79534e0ad1c36ab47cf3e905eb824326447b8f09b88673865","fetchedAt":"2026-10-06T09:00:00+09:00","cachedAtMs":1791178800000,"hasRaw":true,"routeCount":5}
+  PASS  IndexedDB 원문이 앱 데이터와 같은 노선 수 — idb=5 json=5
+  PASS  온라인: 캐시 폴백 배너 없음(네트워크 성공) — null
+  PASS  온라인: 콘솔 오류 0
+  PASS  오프라인 새로고침 후 첫 화면이 뜬다(AC-6)
+  INFO  오프라인 화면 데이터 출처: SW 캐시(앱 입장에서는 네트워크 성공)
+  PASS  오프라인: 앱 셸이 그려짐(빈 화면 아님)
+  PASS  오프라인: SW 가 계속 제어
+  PASS  오프라인: 평일 보드가 계약 데이터로 그려진다(보드 ready · 출발 행 ≥1) — listStatus=ready rows=5 counts= (총 16편 · 남은 10편)
+  PASS  오프라인: 홈에 `원본` 0회 · 학교 링크 ≤1(대표 출처 1줄) — 원본=0 schoolLinks=1
+  PASS  오프라인: 다음 버스 카운트다운 표시 — hero=오늘 16:00 출발 remaining=천안역 · 학교에서 출발 · 16:30 도착 · 약 1시간 20분 후
+  PASS  오프라인: 요일 탭(토요일) 전환
+  PASS  오프라인: 토요일 탭 전환 후에도 보드가 데이터로 그려진다 — selected=shuttle-day-tab-saturday listStatus=ready
+  PASS  오프라인: 평일 탭 복귀 후에도 카운트다운 유지 — remaining=천안역 · 학교에서 출발 · 16:30 도착 · 약 1시간 20분 후
+  PASS  오프라인: 앱이 낸 콘솔 오류 0 (AC-6)
+  INFO  SW 해제 + SW 캐시 삭제 + 재등록 차단(sw.js→404): {"unregistered":1,"caches":["sunmoon-shuttle-shell-2026-10-05.1","sunmoon-shuttle-data-2026-10-05.1"]} (IndexedDB 는 남긴다 — 앱 캐시 폴백 검증)
+  PASS  수집 실패 후에도 화면이 뜬다(빈 화면 아님)
+  PASS  수집 실패 검증 조건: SW 미제어(앱 계층 폴백을 본다) — controller=false
+  PASS  수집 실패: 마지막 정상 데이터 표시(보드가 데이터로 그려짐) — listStatus=ready rows=5
+  PASS  수집 실패: 캐시 폴백 안내를 문구로 표시 — {"source":"cache","text":"오프라인 — 마지막으로 받은 데이터를 표시합니다최신 데이터를 받지 못했습니다: ./data/timetable.json: 네트워크 요청 실패: Failed to fetch마지막으로 받은 시각: 방금"}
+  PASS  수집 실패: 오류 UI(F8)로 가지 않는다 — 데이터가 있으므로
+  PASS  수집 실패: 앱이 낸 콘솔 오류 0 (AC-5)
+  INFO  만료 경로 상태: {"hasApp":true,"hasCard":true,"cardStatus":"ready","heroTime":"오늘 16:00 출발","remaining":"천안역 · 학교에서 출발 · 16:30 도착 · 약 1시간 20분 후","listStatus":"ready","departureRows":5,"restRows":1,"boardCounts":" (총 12편 · 남은 6편)","refreshLine":"데이터 갱신: 2026-10-06 09:00 (KST) (4일 전)","selectedTab":"shuttle-day-tab-saturday","offlineNotice":{"source":"cache-expired","text":"오프라인 — 마지막으로 받은 데이터를 표시합니다최신 데이터를 받지 못했습니다: ./data/timetable.json: 네트워크 요청 실패: Failed to fetch마지막으로 받은 시각: 5일 전 (24시간 초과)이 캐시는 24시간이 지났습니다 — 최신 시간표인지 확인이 필요합니다."},"errorBanner":false,"swController":false,"schoolLinks":1,"visibleSourceCount":0}
+  PASS  만료 검증 조건: SW 미제어(앱 계층 만료 판정을 본다) — controller=false
+  PASS  만료 캐시도 유지하고 "24시간 초과"를 알린다 — {"source":"cache-expired","text":"오프라인 — 마지막으로 받은 데이터를 표시합니다최신 데이터를 받지 못했습니다: ./data/timetable.json: 네트워크 요청 실패: Failed to fetch마지막으로 받은 시각: 5일 전 (24시간 초과)이 캐시는 24시간이 지났습니다 — 최신 시간표인지 확인이 필요합니다."}
+  INFO  IndexedDB 삭제: deleted
+  PASS  캐시가 없으면 오류 UI + 원본 링크를 보여준다(조용한 실패 금지)
+  INFO  브라우저가 낸 자원 실패 로그 6건(요청 실패 주입·sw.js 404 의 필연적 결과 — 앱 오류 아님)
+  INFO  log: A bad HTTP response code (404) was received when fetching the script. ()
+  INFO  log: Failed to load resource: net::ERR_FAILED (http://127.0.0.1:50293/sunmoon-shuttle/data/timetable.json)
+  INFO  log: A bad HTTP response code (404) was received when fetching the script. ()
+  INFO  log: Failed to load resource: net::ERR_FAILED (http://127.0.0.1:50293/sunmoon-shuttle/data/timetable.json)
+  INFO  콘솔 경고 5건: console.warn: [sw] Service Worker 등록 실패 — 네트워크 계층 없이 동작합니다. TypeError: Failed to register a ServiceWorker for scope ('http://127.0.0.1:50293/sunmoon-shuttle/') with script ('http://127.0.0.1:50293/sunmoon-shuttle/sw.js'): A bad HTTP response code (404) was received when fetching the script. | console.warn: [schedule] 최신 데이터를 받지 못했습니다 — 마지막으로 받은 데이터로 표시합니다 ./data/timetable.json: 네트워크 요청 실패: Failed to fetch | console.warn: [sw] Service Worker 등록 실패 — 네트워크 계층 없이 동작합니다. TypeError: Failed to register a ServiceWorker for scope ('http://127.0.0.1:50293/sunmoon-shuttle/') with script ('http://127.0.0.1:50293/sunmoon-shuttle/sw.js'): A bad HTTP response code (404) was received when fetching the script.
+
+OFFLINE SMOKE: PASS
