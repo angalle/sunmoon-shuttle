@@ -134,6 +134,29 @@ export const UI_TEXT = {
   boardWarningsNoticeDetail: ' — 아래 출처의 학교 안내 페이지에서 확인해 주세요.',
   /** 다른 날 미리보기(요일 탭 · 보조) */
   boardOtherDaysTitle: '다른 날 미리보기',
+
+  /* ── schema v2 표시(T17) — 값은 `data/timetable.json` 에서만 오고 여기엔 **틀 문구**만 둔다. ── */
+
+  /** 홈 상단 — 다가오는 운행 변동(오늘 이후 14일 내 · 최대 2줄). 값·날짜는 dateRules[] 에서만. */
+  upcomingChangeTitle: '다가오는 운행 변동',
+  /** `dateRules[].kind = no-service` 의 상태 문구 */
+  upcomingNoService: '운행 없음',
+  /** `dateRules[].kind = alternate-schedule` — 앞에 요일 라벨(`effect.timetable`)을 붙인다 */
+  upcomingAlternateSuffix: '시간표로 운행',
+  /** `effect.timetable` 을 요일로 해석할 수 없을 때만 쓰는 대체 문구(추측 금지) */
+  upcomingAlternateFallback: '대체 시간표로 운행',
+
+  /** 홈 상단 — 오늘이 방학 기간(terms, 시작·끝이 모두 있는 항목)일 때만 */
+  vacationTitle: '방학 기간입니다',
+  vacationSourcePrefix: '방학 시간표',
+  vacationSourceLinkLabel: '방학 시간표 안내 페이지',
+
+  /** 접힘 1개(안내 패널)에 정리하는 정차 시간창(stopWindows) */
+  stopWindowTitle: '정차 시간 안내',
+
+  /** 다음 출발 카드·목록의 도착 예정 옆 보조 문구 — `약 15분 소요`(분 값은 tripNotes 에서) */
+  durationNotePrefix: '약',
+  durationNoteSuffix: '분 소요',
 } as const;
 
 /**

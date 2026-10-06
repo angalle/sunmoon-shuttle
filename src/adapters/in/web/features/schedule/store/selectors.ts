@@ -8,7 +8,8 @@
  *  - 표시 문자열: shared/lib/format (KST 변환은 domain/rules/kst 사용)
  */
 import { dayTypeFromDate, dayTypeLabel } from '../../../../../../domain/rules/dayType';
-import { kstDayFromInstant, type KstDay } from '../../../../../../domain/rules/kst';
+import { addKstDays, formatIsoDate, kstDayFromInstant, type KstDay } from '../../../../../../domain/rules/kst';
+import { isDayType, type DayType } from '../../../../../../domain/entities/DayType';
 import {
   DEFAULT_NEXT_DEPARTURE_COUNT,
   nextDepartures,
@@ -17,17 +18,17 @@ import {
 } from '../../../../../../domain/rules/nextDeparture';
 import { resolveDayService, resolveTripService } from '../../../../../../domain/rules/serviceDay';
 import { tripDepartureTime } from '../../../../../../domain/entities/Trip';
-import type { DayType } from '../../../../../../domain/entities/DayType';
 import {
   ageHours,
   formatAge,
   formatKstClockLabel,
   formatKstDayLabel,
   formatKstInstant,
+  formatMonthDayWeekday,
   formatRemaining,
 } from '../../../shared/lib/format';
 import type { Notice, TripRow } from '../types/contract';
-import type { DayTableView, RouteView, TimetableModel } from '../types/model';
+import type { DateRuleView, DayTableView, RouteView, TimetableModel } from '../types/model';
 import { DAY_TAB_LABEL, UI_TEXT } from '../types/texts';
 import type { ScheduleState } from './scheduleStore';
 
@@ -323,6 +324,179 @@ export function noticeGroups(model: TimetableModel): NoticeGroupsView {
   return { noService, alternate, notices };
 }
 
+/* ─────────────── v2: 다가오는 운행 변동 · 방학 · 정차 창 (T17) ───────────────
+ * 값은 전부 schema v2 데이터(`dateRules[]`·`terms[]`·`stopWindows[]`)에서만 온다.
+ * 여기서 하는 일은 **표시를 위한 날짜 창 필터**(오늘 ~ +14일)와 문구 조립뿐이다 —
+ * 날짜·기간의 해석(연도 추론·기간의 의미·중복 통합)은 T16 산출물(JSON)이 이미 끝냈고 앱은 다시 판정하지 않는다.
+ * `needsReview=true` 항목은 **내부 플래그**라 화면에 올리지 않는다(태스크 ⑥ · 로그·검증 전용).
+ */
+
+/** 다가오는 변동을 안내하는 창(일) — 태스크 지시: 오늘 이후 14일 내 */
+export const UPCOMING_RULE_WINDOW_DAYS = 14;
+/** 홈 상단에 올리는 최대 줄 수 — 넘치면 가까운 날짜부터 2줄만 남긴다(지시 ①) */
+export const UPCOMING_RULE_LINE_LIMIT = 2;
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export interface UpcomingChangeView {
+  readonly key: string;
+  readonly kind: 'no-service' | 'alternate-schedule';
+  /** `10월 9일 (금)` · 기간 규칙이면 `9월 24일 (목) ~ 9월 26일 (토)` */
+  readonly dateText: string;
+  /** 데이터에서 뽑은 표기 이름(예 `한글날`) — 못 뽑았으면 null */
+  readonly label: string | null;
+  /** `운행 없음` · `일요일 시간표로 운행` */
+  readonly statusText: string;
+  /** 화면에 그대로 쓰는 한 줄 — `10월 9일 (금) 한글날 — 운행 없음` */
+  readonly text: string;
+}
+
+export interface UpcomingChangesView {
+  readonly lines: readonly UpcomingChangeView[];
+  /** 창 안의 규칙 수(잘린 것 포함) */
+  readonly total: number;
+  /** 2줄 상한을 넘어 화면에 없는 수 */
+  readonly hiddenCount: number;
+}
+
+/**
+ * 홈 상단 "다가오는 운행 변동"(지시 ①) — `dateRules[]` 중 오늘 이후 14일 내 `no-service`·
+ * `alternate-schedule` 을 가까운 순서로 **최대 2줄**.
+ * 오늘이 포함된 규칙은 상단 배너(`serviceNoticeView` → `resolveDayService`)가 우선이므로 여기서 뺀다
+ * (지시 ② — 같은 날 두 번 말하지 않는다).
+ */
+export function upcomingChanges(state: ScheduleState): UpcomingChangesView {
+  const model = state.model;
+  if (model === null) return { lines: [], total: 0, hiddenCount: 0 };
+  const today = kstDayFromInstant(new Date(state.nowMs));
+  const todayIso = formatIsoDate(today);
+  const windowEndIso = formatIsoDate(addKstDays(today, UPCOMING_RULE_WINDOW_DAYS));
+  const relevant = model.dateRules
+    .filter((rule) => isUpcomingRule(rule, todayIso, windowEndIso))
+    .sort(compareDateRules);
+  return {
+    lines: relevant.slice(0, UPCOMING_RULE_LINE_LIMIT).map(toUpcomingChangeView),
+    total: relevant.length,
+    hiddenCount: Math.max(0, relevant.length - UPCOMING_RULE_LINE_LIMIT),
+  };
+}
+
+/** 안내 대상 규칙인가 — ① kind ② needsReview 제외 ③ 오늘은 배너 담당(중복 금지) ④ 14일 창 안 */
+function isUpcomingRule(rule: DateRuleView, todayIso: string, windowEndIso: string): boolean {
+  if (rule.kind !== 'no-service' && rule.kind !== 'alternate-schedule') return false;
+  if (rule.needsReview) return false;
+  if (rule.start === null || !ISO_DATE.test(rule.start)) return false;
+  const end = rule.end !== null && ISO_DATE.test(rule.end) ? rule.end : rule.start;
+  if (end < todayIso) return false;
+  if (rule.start <= todayIso && todayIso <= end) return false;
+  return rule.start <= windowEndIso;
+}
+
+/** 가까운 날짜 → 기간 끝 → kind 순(`YYYY-MM-DD` 는 문자열 비교가 곧 날짜 비교다). */
+function compareDateRules(a: DateRuleView, b: DateRuleView): number {
+  const aStart = a.start ?? '';
+  const bStart = b.start ?? '';
+  if (aStart !== bStart) return aStart < bStart ? -1 : 1;
+  const aEnd = a.end ?? '';
+  const bEnd = b.end ?? '';
+  if (aEnd !== bEnd) return aEnd < bEnd ? -1 : 1;
+  if (a.kind !== b.kind) return a.kind < b.kind ? -1 : 1;
+  return (a.label ?? '') < (b.label ?? '') ? -1 : 1;
+}
+
+function toUpcomingChangeView(rule: DateRuleView): UpcomingChangeView {
+  const start = rule.start ?? '';
+  const end = rule.end;
+  const dateText =
+    end === null || end === start
+      ? formatMonthDayWeekday(start)
+      : `${formatMonthDayWeekday(start)} ~ ${formatMonthDayWeekday(end)}`;
+  const statusText = ruleStatusText(rule);
+  const namePart = rule.label === null ? '' : ` ${rule.label}`;
+  return {
+    key: `${rule.kind}:${start}:${end ?? ''}`,
+    kind: rule.kind === 'no-service' ? 'no-service' : 'alternate-schedule',
+    dateText,
+    label: rule.label,
+    statusText,
+    text: `${dateText}${namePart} — ${statusText}`,
+  };
+}
+
+/** 상태 문구 — 대체 시간표는 `effect.timetable`(예 `sunday`)을 요일 라벨로 옮겨 만든다(데이터에서만). */
+function ruleStatusText(rule: DateRuleView): string {
+  if (rule.kind === 'no-service') return UI_TEXT.upcomingNoService;
+  const timetable = rule.effect['timetable'];
+  if (isDayType(timetable)) return `${dayTypeLabel(timetable)} ${UI_TEXT.upcomingAlternateSuffix}`;
+  return UI_TEXT.upcomingAlternateFallback;
+}
+
+export interface VacationView {
+  /** 데이터의 기간 이름(예 `방학`) */
+  readonly label: string;
+  /** 배너 1줄 — `<기간 이름> — 방학 기간입니다` */
+  readonly text: string;
+  /** 그 기간에 적용되는 시간표 페이지(원본에 없으면 null → 링크를 그리지 않는다) */
+  readonly sourceUrl: string | null;
+  readonly sourceLabel: string;
+}
+
+/**
+ * 오늘이 **방학 기간**인가(`terms[]`, 지시 ⑤).
+ * 시작·끝이 **모두 있고**(기간 미상 항목은 판단하지 않는다 — 추측 금지) `needsReview` 가 아닌 항목만 본다.
+ * 해당 기간이 없으면 아무것도 표시하지 않는다(null). 링크는 `timetableSource` 가 있을 때만 그린다.
+ */
+export function vacationNotice(state: ScheduleState): VacationView | null {
+  const model = state.model;
+  if (model === null) return null;
+  const todayIso = formatIsoDate(kstDayFromInstant(new Date(state.nowMs)));
+  for (const term of model.terms) {
+    if (term.kind !== 'vacation') continue;
+    if (term.needsReview) continue;
+    if (term.start === null || term.end === null) continue;
+    if (!ISO_DATE.test(term.start) || !ISO_DATE.test(term.end)) continue;
+    if (term.start <= todayIso && todayIso <= term.end) {
+      return {
+        label: term.label,
+        text: `${term.label} — ${UI_TEXT.vacationTitle}`,
+        sourceUrl: term.timetableSource,
+        sourceLabel: UI_TEXT.vacationSourceLinkLabel,
+      };
+    }
+  }
+  return null;
+}
+
+export interface StopWindowLineView {
+  readonly key: string;
+  /** 화면에 그대로 쓰는 한 줄 — `학생회관 승강장 (학기 중): 13:30~15:30 · 19:30~막차까지` */
+  readonly text: string;
+}
+
+/**
+ * 정차 시간창(`routes[].stopWindows[]`, 지시 ④) — 도착 옆 한 줄이 아니라 **접힘 1개**에 모아 보여준다
+ * (홈 본문은 심플하게 유지). 여러 노선이 같은 원본 문장을 공유하므로 같은 문구는 한 줄로 합친다.
+ * 표기는 데이터의 `windows[].raw`(원문 그대로)를 쓴다.
+ */
+export function stopWindowLines(model: TimetableModel): readonly StopWindowLineView[] {
+  const out: StopWindowLineView[] = [];
+  const seen = new Set<string>();
+  for (const route of model.routes) {
+    for (const stopWindow of route.stopWindows) {
+      if (stopWindow.needsReview) continue;
+      const times = stopWindow.windows.map((window) => window.raw).filter((raw) => raw.trim() !== '');
+      if (times.length === 0) continue;
+      const location =
+        stopWindow.term === null ? stopWindow.location : `${stopWindow.location} (${stopWindow.term})`;
+      const text = `${location}: ${times.join(' · ')}`;
+      if (seen.has(text)) continue;
+      seen.add(text);
+      out.push({ key: text, text });
+    }
+  }
+  return out;
+}
+
 /* ───────────────────────── V1 간편 홈 보드 (T12) ───────────────────────── */
 
 /** 목록에 한 번에 보여줄 최대 편수 — 나머지는 "더 보기"로 접는다. (T13: 12 → 5, 더 심플하게) */
@@ -357,6 +531,11 @@ export interface DepartureEventView {
   readonly remainingMinutes: number;
   /** 남은 시간 문구(`formatRemaining`) */
   readonly remaining: string;
+  /**
+   * 방향별 소요시간 보조 문구(`약 15분 소요`) — `routes[].tripNotes[]` 의 **조건 없는** 소요시간만.
+   * 조건부(예 `교통정체` 08:00~9:00)는 적용 시각 판정이 필요해 앱이 고르지 않고 **표시하지 않는다**(null).
+   */
+  readonly durationNote: string | null;
   /** 원본 특이사항 + 도메인 주석(예: `금(X)`, `월~화 2대 운행`) */
   readonly notes: readonly string[];
   readonly dayType: DayType;
@@ -626,9 +805,29 @@ function departureEvent(route: RouteView, departure: NextDeparture): DepartureEv
     departureAt: departure.departureAt,
     remainingMinutes: departure.remainingMinutes,
     remaining: formatRemaining(departure.remainingSeconds),
+    durationNote: durationNoteFor(route, direction),
     notes: uniqueNotes([...rawNotes(row), ...departure.annotations]),
     dayType: departure.dayType,
   };
+}
+
+/**
+ * 방향별 소요시간 문구(`약 15분 소요`, 지시 ③) — `routes[].tripNotes[]` 에서만 온다.
+ *  - 방향이 맞고(또는 `both`) `minutes` 가 있으며 **조건 표기가 없는** 항목만 쓴다.
+ *    조건부 소요시간(`교통정체` 08:00~9:00 / `이외 시간`)은 어느 값이 적용되는지 판정하려면
+ *    기간·시각 해석이 필요한데, 앱은 그 판정을 하지 않는다(태스크: 판정 로직 신규 작성 금지) → 숨긴다.
+ *  - 해당하는 항목이 없으면 null(문구를 그리지 않는다 — 추측 금지).
+ */
+function durationNoteFor(route: RouteView, direction: DepartureDirection): string | null {
+  const wanted = direction === 'out' ? 'outbound' : 'inbound';
+  for (const tripNote of route.tripNotes) {
+    if (tripNote.needsReview) continue;
+    if (tripNote.minutes === null) continue;
+    if (tripNote.conditions.length > 0) continue;
+    if (tripNote.direction !== wanted && tripNote.direction !== 'both') continue;
+    return `${UI_TEXT.durationNotePrefix} ${String(tripNote.minutes)}${UI_TEXT.durationNoteSuffix}`;
+  }
+  return null;
 }
 
 /** 그 요일 표에서 회차 행을 찾는다 — 순번 우선, 없으면 출발 시각으로 되짚는다. */

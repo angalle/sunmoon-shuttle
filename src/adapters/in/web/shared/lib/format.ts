@@ -53,6 +53,19 @@ export function formatKstDate(isoDate: string, weekdayLabels: readonly string[])
   return `${isoDate} (${label})`;
 }
 
+/**
+ * `YYYY-MM-DD` → `10월 9일 (금)` — 날짜 문자열(스키마 v2 `dateRules[].start`)을 화면 문구로.
+ * 달력 계산은 도메인 상수(`WEEKDAY_LABELS`)만 쓰고, 형식이 어긋나면 원문 그대로 돌려준다(추측 금지).
+ */
+export function formatMonthDayWeekday(isoDate: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  if (match === null) return isoDate;
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const weekday = WEEKDAY_LABELS[new Date(Date.UTC(Number(match[1]), month - 1, day)).getUTCDay()] ?? '';
+  return `${String(month)}월 ${String(day)}일 (${weekday})`;
+}
+
 /** 기준 시각 대비 경과 시간을 사람 문구로: `방금` · `37분 전` · `5시간 전` · `46일 전`. */
 export function formatAge(fromIso: string, nowMs: number): string {
   const from = new Date(fromIso).getTime();

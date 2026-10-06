@@ -28,7 +28,17 @@ import type {
   SourcePage,
   TripRow,
 } from '../types/contract';
-import type { DayTableView, RouteView, SourceView, TimetableModel } from '../types/model';
+import type {
+  DateRuleView,
+  DayTableView,
+  RouteView,
+  SourceView,
+  StopWindowTimeView,
+  StopWindowView,
+  TermView,
+  TimetableModel,
+  TripNoteView,
+} from '../types/model';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -76,6 +86,9 @@ export function parseTimetable(raw: unknown): TimetableModel {
   const busRefs = parseBusRefs(requireArray(root['busRefs'], '$.busRefs'));
   const contacts = parseContacts(root['contacts']);
   const source = parseSource(requireRecord(root['source'], '$.source'));
+  // v2 — 없으면 빈 배열(v1 파일도 그대로 동작 = 무중단 하위호환).
+  const dateRules = parseDateRules(root['dateRules']);
+  const terms = parseTerms(root['terms']);
 
   const schedule: Schedule = {
     schemaVersion,
@@ -97,6 +110,8 @@ export function parseTimetable(raw: unknown): TimetableModel {
     holidayPeriod,
     dayTypes,
     routes: routeViews,
+    dateRules,
+    terms,
     notices,
     busRefs,
     contacts,
@@ -135,6 +150,11 @@ function parseRoute(raw: unknown, path: string): ParsedRoute {
     isDayType(value),
   );
 
+  // v2 보조 데이터(없으면 빈 배열). v2 항목은 **표시 보조**라 한 항목이 깨져도 앱이 죽지 않게
+  // 항목 단위로 걸러 낸다(정본 검증은 T16 파이프라인 몫 — normalize 는 v1 계약만 강제한다).
+  const tripNotes = parseTripNotes(record['tripNotes']);
+  const stopWindows = parseStopWindows(record['stopWindows']);
+
   const representative = byDayViews.weekday ?? null;
   const rawTrips = record['trips'];
   let topLevelTrips: Trip[];
@@ -160,6 +180,8 @@ function parseRoute(raw: unknown, path: string): ParsedRoute {
       status,
       suspendedReason,
       offDays,
+      tripNotes,
+      stopWindows,
       byDay: {
         weekday: byDayViews.weekday ?? null,
         saturday: byDayViews.saturday ?? null,
@@ -327,6 +349,141 @@ function parsePeriod(raw: unknown, path: string): SemesterPeriod {
     endsOn: requireString(record['endsOn'], `${path}.endsOn`),
     kind: kind === 'holiday' ? 'holiday' : 'semester',
   };
+}
+
+/* ───────────────── schema v2 보조 데이터 (T17 — 표시 전용) ─────────────────
+ * T16 파이프라인이 발행한 v2 배열(`dateRules[]`·`terms[]`·`routes[].tripNotes[]`·`stopWindows[]`)을
+ * **읽기만** 한다. 정본 검증(인용 부분문자열·kind 필수 키·날짜 형식·중복)은 T16 검증기가 이미 했으므로
+ * 여기서 다시 판정하지 않는다(판정 로직 신규 작성 금지).
+ *
+ * 대신 이 파일의 원칙을 따라 **관용**적으로 읽는다:
+ *  - 키가 없거나 배열이 아니면 `[]` — v1 파일이 정확히 이 경우다(무중단 하위호환).
+ *  - 항목 하나가 깨져 있으면 그 항목만 버린다 — 표시 보조 데이터 때문에 홈 전체가 죽으면 안 된다(AC-5).
+ */
+
+/** 배열이 아닌 값(없음·null·객체)은 "항목 없음". 배열이면 객체 항목만 남긴다. */
+function optionalEntries(value: unknown): readonly Record<string, unknown>[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is Record<string, unknown> => recordOrNull(item) !== null);
+}
+
+function recordOrNull(value: unknown): Record<string, unknown> | null {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function nullableString(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() !== '' ? value : null;
+}
+
+function numberOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function needsReviewOf(record: Record<string, unknown>): boolean {
+  return record['needsReview'] === true;
+}
+
+function dayTypesOf(value: unknown): DayType[] {
+  return Array.isArray(value) ? value.filter((item): item is DayType => isDayType(item)) : [];
+}
+
+function stringListOf(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+/**
+ * v2 규칙의 **표기 이름** — 원문 인용에서 이름 부분만 뽑는다(값은 데이터에서만 온다 · 하드코딩 금지).
+ *   `*개교기념일[10. 28.(수)]: 셔틀버스 운행 없음` → `개교기념일`
+ * 대괄호 표기가 없으면 null 이고, 화면은 날짜·상태만 보여준다(추측 금지).
+ */
+export function dateRuleLabel(sourceQuote: string): string | null {
+  const match = /^[\s*\-–—]*(.+?)\s*\[/.exec(sourceQuote);
+  const label = match?.[1]?.trim() ?? '';
+  return label === '' ? null : label;
+}
+
+function parseDateRules(raw: unknown): DateRuleView[] {
+  const out: DateRuleView[] = [];
+  for (const record of optionalEntries(raw)) {
+    const kind = nullableString(record['kind']);
+    if (kind === null) continue;
+    const quote = record['sourceQuote'];
+    out.push({
+      kind,
+      start: nullableString(record['start']),
+      end: nullableString(record['end']),
+      dayTypes: dayTypesOf(record['dayTypes']),
+      scope: stringListOf(record['scope']),
+      effect: recordOrNull(record['effect']) ?? {},
+      label: typeof quote === 'string' ? dateRuleLabel(quote) : null,
+      needsReview: needsReviewOf(record),
+    });
+  }
+  return out;
+}
+
+function parseTerms(raw: unknown): TermView[] {
+  const out: TermView[] = [];
+  for (const record of optionalEntries(raw)) {
+    const label = nullableString(record['label']);
+    if (label === null) continue;
+    out.push({
+      kind: record['kind'] === 'vacation' ? 'vacation' : 'semester',
+      label,
+      start: nullableString(record['start']),
+      end: nullableString(record['end']),
+      timetableSource: nullableString(record['timetableSource']),
+      needsReview: needsReviewOf(record),
+    });
+  }
+  return out;
+}
+
+function parseTripNotes(raw: unknown): TripNoteView[] {
+  const out: TripNoteView[] = [];
+  for (const record of optionalEntries(raw)) {
+    const direction = record['direction'];
+    // 방향 표기가 규약 밖이면 그 항목을 쓴다 — 소요시간을 엉뚱한 방향에 붙이지 않는다.
+    if (direction !== 'inbound' && direction !== 'outbound' && direction !== 'both') continue;
+    out.push({
+      direction,
+      minutes: numberOrNull(record['minutes']),
+      segment: nullableString(record['segment']),
+      conditions: stringListOf(record['conditions']),
+      note: nullableString(record['note']),
+      needsReview: needsReviewOf(record),
+    });
+  }
+  return out;
+}
+
+function parseStopWindows(raw: unknown): StopWindowView[] {
+  const out: StopWindowView[] = [];
+  for (const record of optionalEntries(raw)) {
+    const location = nullableString(record['location']);
+    if (location === null) continue;
+    out.push({
+      location,
+      term: nullableString(record['term']),
+      dayTypes: dayTypesOf(record['dayTypes']),
+      windows: parseTimeWindows(record['windows']),
+      needsReview: needsReviewOf(record),
+    });
+  }
+  return out;
+}
+
+function parseTimeWindows(raw: unknown): StopWindowTimeView[] {
+  const out: StopWindowTimeView[] = [];
+  for (const record of optionalEntries(raw)) {
+    const start = nullableString(record['start']);
+    const rawText = nullableString(record['raw']);
+    if (start === null || rawText === null) continue;
+    out.push({ start, end: nullableString(record['end']), raw: rawText });
+  }
+  return out;
 }
 
 /* ───────────────────────── 원시 값 가드 ───────────────────────── */

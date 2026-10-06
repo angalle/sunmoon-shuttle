@@ -82,10 +82,11 @@ export function departureList(props: DepartureListProps): HTMLElement {
 }
 
 function departureRow(event: DepartureEventView): HTMLElement {
-  const detail =
-    event.arrival === null
-      ? event.directionLabel
-      : `${event.directionLabel} · ${event.arrival} ${UI_TEXT.boardArrivalSuffix}`;
+  const parts = [event.directionLabel];
+  if (event.arrival !== null) parts.push(`${event.arrival} ${UI_TEXT.boardArrivalSuffix}`);
+  // T17 ③ — 소요시간(데이터에 있을 때만) 보조 문구.
+  if (event.durationNote !== null) parts.push(event.durationNote);
+  const detail = parts.join(' · ');
   return el('li', { class: 'shuttle-departure', dataset: { testid: 'departure-row', direction: event.direction, dayOffset: String(event.dayOffset) } }, [
     el('span', { class: 'shuttle-departure__time', text: event.departure }),
     el('span', { class: 'shuttle-departure__body' }, [

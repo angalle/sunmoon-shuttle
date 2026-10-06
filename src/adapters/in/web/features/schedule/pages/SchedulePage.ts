@@ -7,6 +7,9 @@
  * T14 홈 구조 — 앱은 **수집된 JSON 만** 읽어 보여준다(학교 사이트를 실시간으로 읽지 않는다):
  *  ① 상태줄: 앱 제목 + 새 소개문구 + 오늘 날짜·현재 시각(KST, 주입된 clock)
  *  ② 공지 배너(조건부): 오늘 운행 없음 / 대체 시간표 — `resolveDayService` 결과만
+ *  ②b 방학 기간 배너(조건부, T17): `terms[]` 로 오늘이 방학 구간일 때 1줄(+시간표 소스 링크)
+ *  ②c 다가오는 운행 변동(조건부, T17): `dateRules[]` 중 오늘 이후 14일 내 최대 2줄
+ *     (오늘 몫은 ② 배너가 단독으로 말한다 — 중복 금지)
  *  ③ 다음 출발 카드: 노선 통합 상위 3편 + 미해석 표기 안내 1줄(판단에 영향 줄 때만)
  *  ④ 방향 필터 칩 + 오늘 남은 출발 목록(다음 5편 + "더 보기")
  *  ⑤ 요일 탭(보조 "다른 날 미리보기") — 기본값은 **오늘 자동**, `?day=` 오버라이드 유지
@@ -36,7 +39,10 @@ import {
   freshnessView,
   noticeGroups,
   serviceNoticeView,
+  stopWindowLines,
   todayBoardView,
+  upcomingChanges,
+  vacationNotice,
   type DirectionFilter,
   type TodayBoardView,
 } from '../store/selectors';
@@ -51,6 +57,8 @@ import { noticePanel } from '../components/organisms/NoticePanel';
 import { serviceNoticeBanner } from '../components/organisms/ServiceNoticeBanner';
 import { sourceFooter } from '../components/organisms/SourceFooter';
 import { upcomingBoardCard } from '../components/organisms/UpcomingBoardCard';
+import { upcomingChangeBanner } from '../components/organisms/UpcomingChanges';
+import { vacationNoticeBanner } from '../components/organisms/VacationNotice';
 import type { InstallHintPlatform } from '../api/installHintApi';
 
 const TAB_ID_PREFIX = 'shuttle-day';
@@ -60,6 +68,8 @@ const NOTICE_HEADING_ID = 'shuttle-v1-notice-heading';
 const BOARD_HEADING_ID = 'shuttle-v1-board-heading';
 const BOARD_LIST_HEADING_ID = 'shuttle-v1-board-list-heading';
 const REFRESH_HEADING_ID = 'shuttle-data-refresh-heading';
+const UPCOMING_HEADING_ID = 'shuttle-upcoming-change-heading';
+const VACATION_HEADING_ID = 'shuttle-vacation-heading';
 
 export interface SchedulePageOptions {
   readonly onRetry: () => void;
@@ -76,6 +86,8 @@ export function createSchedulePage(
   const clockHost = el('div', { dataset: { testid: 'clock-host' } });
   const bannerHost = el('div', { dataset: { testid: 'banner' } });
   const serviceNoticeHost = el('div', { dataset: { testid: 'service-notice-host' } });
+  const vacationHost = el('div', { dataset: { testid: 'vacation-host' } });
+  const upcomingHost = el('div', { dataset: { testid: 'upcoming-host' } });
   const boardHost = el('div', { dataset: { testid: 'board-host' } });
   const tabsHost = el('div', { dataset: { testid: 'tabs-host' } });
   const installHost = el('div', { dataset: { testid: 'install-host' } });
@@ -95,6 +107,8 @@ export function createSchedulePage(
       el('main', { class: 'shuttle-main', attrs: { id: 'shuttle-main', tabindex: '-1' } }, [
         bannerHost,
         serviceNoticeHost,
+        vacationHost,
+        upcomingHost,
         boardHost,
         el('section', { class: 'shuttle-section', dataset: { testid: 'other-days' } }, [
           el('h2', { class: 'shuttle-section__title', text: UI_TEXT.boardOtherDaysTitle }),
@@ -188,6 +202,28 @@ export function createSchedulePage(
     ]);
   };
 
+  /**
+   * ②b 방학 기간(terms) · ②c 다가오는 운행 변동(dateRules) — T17. 둘 다 **조건부**이고,
+   * 해당 데이터가 없으면 자리(빈 배너·빈 제목)도 남기지 않는다(T14 심플 유지).
+   * 값 조립은 선택자가 한다(여기서 날짜를 계산하지 않는다).
+   *
+   * 우선순위(지시 ②): **오늘**의 운행 변동은 위 ② 공지 배너(`resolveDayService`)가 단독으로 말한다 —
+   * `upcomingChanges` 는 오늘이 포함된 규칙을 제외하고 **앞으로 올 날짜**만 안내한다(같은 날 두 번 말하지 않음).
+   *
+   * 반환값 `vacationSourceShown`: 방학 배너가 학교 링크를 그렸는가 — 푸터가 대표 링크를 접는 데 쓴다
+   * (화면의 학교 링크를 1개로 유지 — T14 계약).
+   */
+  const renderServiceExtras = (state: ScheduleState): { readonly vacationSourceShown: boolean } => {
+    const vacation = vacationNotice(state);
+    replaceChildren(vacationHost, [
+      vacation === null ? null : vacationNoticeBanner({ view: vacation, headingId: VACATION_HEADING_ID }),
+    ]);
+    replaceChildren(upcomingHost, [
+      upcomingChangeBanner({ view: upcomingChanges(state), headingId: UPCOMING_HEADING_ID }),
+    ]);
+    return { vacationSourceShown: vacation !== null && vacation.sourceUrl !== null };
+  };
+
   /** ③④ 다음 출발 카드 + 방향 필터 + 오늘 남은 출발 목록. */
   const renderBoard = (view: TodayBoardView): void => {
     replaceChildren(boardHost, [
@@ -232,6 +268,7 @@ export function createSchedulePage(
 
     replaceChildren(bannerHost, [renderBanner(state, options)]);
     renderServiceNotice(state);
+    const serviceExtras = renderServiceExtras(state);
     replaceChildren(tabsHost, [
       dayTabsMolecule({
         tabs: state.model === null ? dayTabsWithoutModel(state.nowMs, DAY_TYPES) : dayTabs(state),
@@ -254,9 +291,20 @@ export function createSchedulePage(
 
     const model = state.model;
     replaceChildren(noticeHost, [
-      noticePanel({ groups: noticeGroups(model), busRefs: model.busRefs, headingId: 'shuttle-notice-heading' }),
+      noticePanel({
+        groups: noticeGroups(model),
+        busRefs: model.busRefs,
+        stopWindows: stopWindowLines(model),
+        headingId: 'shuttle-notice-heading',
+      }),
     ]);
-    replaceChildren(footerHost, [sourceFooter({ model, headingId: 'shuttle-source-heading' })]);
+    replaceChildren(footerHost, [
+      sourceFooter({
+        model,
+        headingId: 'shuttle-source-heading',
+        hideSourceLink: serviceExtras.vacationSourceShown,
+      }),
+    ]);
     renderLive(state);
     restoreFocus(focusKey);
   };

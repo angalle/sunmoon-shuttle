@@ -4,13 +4,15 @@
  */
 import { el } from '../../../../shared/lib/dom';
 import type { BusRef } from '../../types/contract';
-import type { NoticeGroupsView } from '../../store/selectors';
+import type { NoticeGroupsView, StopWindowLineView } from '../../store/selectors';
 import { UI_TEXT } from '../../types/texts';
 import { noticeList } from '../molecules/NoticeList';
 
 export interface NoticePanelProps {
   readonly groups: NoticeGroupsView;
   readonly busRefs: readonly BusRef[];
+  /** T17 ④ — 정차 시간창(`routes[].stopWindows[]`) 접힘 1개. 없으면 섹션을 그리지 않는다. */
+  readonly stopWindows: readonly StopWindowLineView[];
   readonly headingId: string;
 }
 
@@ -20,6 +22,7 @@ export function noticePanel(props: NoticePanelProps): HTMLElement {
     subSection(UI_TEXT.noticeNoServiceTitle, props.groups.noService),
     subSection(UI_TEXT.noticeAlternateTitle, props.groups.alternate),
     subSection(UI_TEXT.noticeTitle, props.groups.notices),
+    stopWindowSection(props.stopWindows),
     busRefSection(props.busRefs),
   ];
 
@@ -33,6 +36,23 @@ export function noticePanel(props: NoticePanelProps): HTMLElement {
 function subSection(title: string, items: NoticeGroupsView['noService']): HTMLElement | null {
   if (items.length === 0) return null;
   return el('div', {}, [el('h3', { class: 'shuttle-card__title', text: title }), noticeList({ items })]);
+}
+
+/**
+ * T17 ④ — 정차 시간창(`routes[].stopWindows[]`)을 **접힘 1개**에 정리해 노출한다.
+ * 홈 본문(첫 화면)에는 넣지 않는다 — 이 패널 자체가 요일 탭 아래 보조 영역이고, 안은 `<details>` 다.
+ * 줄이 없으면 섹션을 만들지 않는다(빈 접힘 금지).
+ */
+function stopWindowSection(lines: readonly StopWindowLineView[]): HTMLElement | null {
+  if (lines.length === 0) return null;
+  return el('details', { class: 'shuttle-details', dataset: { testid: 'stop-window-details' } }, [
+    el('summary', { text: UI_TEXT.stopWindowTitle }),
+    el(
+      'ul',
+      { class: 'shuttle-list', dataset: { testid: 'stop-window-list' } },
+      lines.map((line) => el('li', { text: line.text })),
+    ),
+  ]);
 }
 
 function busRefSection(busRefs: readonly BusRef[]): HTMLElement | null {

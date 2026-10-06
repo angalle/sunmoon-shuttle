@@ -16,10 +16,21 @@ import { UI_TEXT } from '../../types/texts';
 export interface SourceFooterProps {
   readonly model: TimetableModel;
   readonly headingId: string;
+  /**
+   * T17 — 방학 배너가 자기 소스 링크(같은 학교 도메인)를 그릴 때 `true` 로 온다.
+   * 화면에 학교 링크가 **2개**가 되면 T14 계약(`학교 링크 ≤1`)이 깨지므로, 그때는 대표 링크 문구만
+   * 남기고 앵커를 접는다(배너 쪽 링크가 그 기간의 정본 페이지다).
+   */
+  readonly hideSourceLink?: boolean;
 }
 
 export function sourceFooter(props: SourceFooterProps): HTMLElement {
   const { source, contacts } = props.model;
+  const sourceLine =
+    props.hideSourceLink === true
+      ? // 방학 배너가 링크를 갖는다 — 여기서는 어떤 페이지인지만 문구로 남긴다.
+        el('span', { text: `${UI_TEXT.sourceLinePrefix}: ${UI_TEXT.sourceLineLabel}` })
+      : el('span', { text: `${UI_TEXT.sourceLinePrefix}: ${UI_TEXT.sourceLineLabel} — ` });
 
   return el(
     'footer',
@@ -29,12 +40,14 @@ export function sourceFooter(props: SourceFooterProps): HTMLElement {
       el('p', { text: UI_TEXT.unofficialNotice }),
       // 출처 1줄 — 대표 URL 하나만 링크한다(노선·요일별 링크 목록 금지, T14).
       el('p', { dataset: { testid: 'source-line' } }, [
-        el('span', { text: `${UI_TEXT.sourceLinePrefix}: ${UI_TEXT.sourceLineLabel} — ` }),
-        el('a', {
-          attrs: { href: source.url, target: '_blank', rel: 'noopener noreferrer' },
-          dataset: { testid: 'source-link' },
-          text: UI_TEXT.sourceLinkLabel,
-        }),
+        sourceLine,
+        props.hideSourceLink === true
+          ? null
+          : el('a', {
+              attrs: { href: source.url, target: '_blank', rel: 'noopener noreferrer' },
+              dataset: { testid: 'source-link' },
+              text: UI_TEXT.sourceLinkLabel,
+            }),
       ]),
       // 개인정보처리방침(T11) — 앱과 같은 출처의 정적 페이지로 간다(내부 링크 → rel/target 불필요).
       el('p', {}, [

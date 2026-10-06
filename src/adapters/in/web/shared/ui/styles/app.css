@@ -571,6 +571,22 @@ body {
   font-size: var(--font-size-sm);
 }
 
+/* ②b·②c (T17) — 다가오는 운행 변동 · 방학 배너. 값은 dateRules[]·terms[] 에서만, 색·간격은 토큰만. */
+.shuttle-notice__list {
+  margin: 0;
+  padding-left: var(--space-4);
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* 배너 안의 링크(방학 시간표 소스) — 터치 타깃 48px 계약을 지킨다(a11y_smoke 실측). */
+.shuttle-notice a {
+  color: var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
+}
+
 /* ⑦ 요일 탭을 감싸는 보조 구역("다른 날 미리보기") */
 .shuttle-section {
   display: flex;

@@ -78,10 +78,13 @@ export function upcomingBoardCard(props: UpcomingBoardCardProps): HTMLElement {
   );
 }
 
-/** `학교에서 출발 · 08:25 도착` — 도착 시각이 없으면 방향만. */
+/** `학교에서 출발 · 08:25 도착 · 약 20분 소요` — 도착 시각·소요시간은 데이터에 있을 때만 붙인다. */
 function detailOf(event: DepartureEventView): string {
-  if (event.arrival === null) return event.directionLabel;
-  return `${event.directionLabel} · ${event.arrival} ${UI_TEXT.boardArrivalSuffix}`;
+  const parts = [event.directionLabel];
+  if (event.arrival !== null) parts.push(`${event.arrival} ${UI_TEXT.boardArrivalSuffix}`);
+  // T17 ③ — 방향별 소요시간(`routes[].tripNotes[]`)을 도착 예정 **옆에** 보조 문구로. 없으면 붙이지 않는다.
+  if (event.durationNote !== null) parts.push(event.durationNote);
+  return parts.join(' · ');
 }
 
 function nextRow(event: DepartureEventView): HTMLElement {
