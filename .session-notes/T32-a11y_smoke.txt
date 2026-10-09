@@ -1,0 +1,56 @@
+a11y_smoke: http://127.0.0.1:55612/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00 (base=/sunmoon-shuttle/, now=2026-10-05T14:40:00+09:00)
+
+  PASS  앱 렌더(다음 버스 카드)
+  PASS  매니페스트 파싱 성공(브라우저 오류 0) — []
+  PASS  매니페스트 display=standalone — display=standalone
+  PASS  start_url/scope 가 하위 경로 상대값 — start_url=./ scope=./
+  PASS  아이콘 응답 ./icons/icon-192.png (192x192, any) — status=200 실제=192x192 2076B
+  PASS  아이콘 응답 ./icons/icon-512.png (512x512, any) — status=200 실제=512x512 6317B
+  PASS  아이콘 응답 ./icons/maskable-192.png (192x192, maskable) — status=200 실제=192x192 1295B
+  PASS  아이콘 응답 ./icons/maskable-512.png (512x512, maskable) — status=200 실제=512x512 4294B
+  PASS  apple-touch-icon 응답 200 — status=200
+  PASS  [light] 대비 미달 0건 (텍스트 64개 실측)
+  PASS  [light] 터치 타깃 규격(기본 48×48 · §12-5 탭 44·칩 40 가로 ≥48) (요소 19개 실측)
+  PASS  [light] theme-color 메타 = --color-bg(#fff) — meta=#fff
+  PASS  [light] prefers-color-scheme 반영 — matches=false
+  PASS  [light] 수평 스크롤 없음(본문 폭 390px · scrollWidth=390) — scrollLeft→0 offenders=[]
+  PASS  [light] 빈 화면 아님(화면 요소 287개 · body bg=rgb(255, 255, 255)) — elements=287
+  INFO  light 토큰: bg=#fff surface=#fff text=#0f1720 touch-min=48px safe-top=0px
+  PASS  Tab 키로 첫 포커스(스킵 링크) 도달 — {"tag":"a","className":"shuttle-skip-link","outlineStyle":"solid","outlineWidth":"3px","outlineColor":"rgb(11, 84, 151)"}
+  PASS  포커스 링이 실제로 그려진다(:focus-visible, outline ≥3px·none 아님) — outline=solid 3px rgb(11, 84, 151)
+  PASS  설치 안내 노드 0건(§13-2 — 컴포넌트·판정 API 삭제) — install-hint=false
+  PASS  본문 금지 문자열 0건(홈 화면·전체화면·한 번만·하세요·합니다) — AC-U13-1 실측
+  PASS  본문 텍스트 노드 허용 구역(값·상태·컨트롤 라벨) 밖 0건 (노드 62개 실측)
+  INFO  §9-4 예외 구역(상단 상태 1줄·오류/오프라인 배너)의 금지 문자열: 합니다
+  PASS  다크 모드에서도 앱 렌더
+  PASS  [dark] 대비 미달 0건 (텍스트 64개 실측)
+  PASS  [dark] 터치 타깃 규격(기본 48×48 · §12-5 탭 44·칩 40 가로 ≥48) (요소 19개 실측)
+  PASS  [dark] theme-color 메타 = --color-bg(#12161b) — meta=#12161b
+  PASS  [dark] prefers-color-scheme 반영 — matches=true
+  PASS  [dark] 수평 스크롤 없음(본문 폭 390px · scrollWidth=390) — scrollLeft→0 offenders=[]
+  PASS  [dark] 빈 화면 아님(화면 요소 287개 · body bg=rgb(18, 22, 27)) — elements=287
+  PASS  다크 토큰이 라이트와 실제로 다르다 — light bg=#fff text=#0f1720 / dark bg=#12161b text=#eef2f6
+  PASS  새로고침 후에도 설치 안내 문구 0건(§13-2) — 다크 모드 재실측 — hint=false 위반=[] §9-4 예외=["합니다"]
+  INFO  Emulation.setSafeAreaInsets 미지원 → env() 폴백(0px)으로 확인: {"code":-32601,"message":"'Emulation.setSafeAreaInsets' wasn't found"}
+  PASS  안전영역 토큰 주입 시 본문 패딩이 커진다(전체화면 대응 실측) — padding-top=59px padding-bottom=48px
+  INFO  CDP display-mode 에뮬레이션 미지원 → --app= 모드로 실제 standalone 확인
+  PASS  --app= 모드에서 앱 렌더
+  PASS  display-mode: standalone 실측 — standalone=true
+  PASS  standalone 에서도 설치 안내 문구 0건(§13-2) — hint=false 위반=[]
+  INFO  스크린샷이 비어 있음(base64 13884자) → 기기 에뮬레이션 해제 후 재시도
+  PASS  푸터에 개인정보처리방침 링크가 있다(href=./privacy.html) — {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:55612/sunmoon-shuttle/privacy.html"}
+  PASS  privacy.html 응답 200 — status=200 6238B
+  PASS  privacy.html 렌더(h1 = 개인정보처리방침) — {"h1":"개인정보처리방침","title":"개인정보처리방침 — 선문대 셔틀버스 시간표(비공식)"}
+  PASS  필수 문구 5종이 화면에 있다(수집·제3자·광고·비공식·시행일)
+  PASS  privacy.css 적용 실측(body 배경 = 토큰 색) — bg=rgb(255, 255, 255) color=rgb(15, 23, 32)
+  PASS  앱으로 돌아가는 링크(href=./) — href=./
+  PASS  privacy.html 가로 스크롤 없음 — scrollWidth=390
+  PASS  [privacy] 대비 미달 0건 (텍스트 42개 실측)
+  PASS  privacy.html 콘솔 오류 0(지금까지 누적 기준)
+  PASS  방침 페이지 → 앱 복귀 렌더
+  PASS  콘솔 오류 0
+
+검사 44건 · 실패 0건
+리포트: /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T7-a11y-report.md
+
+A11Y SMOKE: PASS

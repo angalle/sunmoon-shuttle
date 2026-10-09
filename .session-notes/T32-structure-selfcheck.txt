@@ -1,0 +1,9 @@
+### 구조 규칙 자기검사 (T32 — src 변경 없음, 회귀 확인)
+--- ① shared/ → features/ import ---
+(0건)
+--- ② shared/ → store/api import ---
+(0건)
+--- ② atoms → store/api import ---
+(0건)
+--- ③ 하드코딩 색상 (tokens.css 제외) ---
+(0건)

@@ -17,7 +17,7 @@
  * 배포 시 할 일: `SW_VERSION` 을 새 값으로 올린다(예: `2026-10-05.2`). 그 외에는 손댈 필요가 없다.
  */
 
-const SW_VERSION = '2026-10-05.1';
+const SW_VERSION = '2026-10-09.1';
 const CACHE_PREFIX = 'sunmoon-shuttle';
 const SHELL_CACHE = `${CACHE_PREFIX}-shell-${SW_VERSION}`;
 const DATA_CACHE = `${CACHE_PREFIX}-data-${SW_VERSION}`;

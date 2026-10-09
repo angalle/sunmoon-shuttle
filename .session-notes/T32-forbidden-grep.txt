@@ -1,0 +1,13 @@
+### AC-U14-3 grep (금지어: 홈 화면|전체화면|한 번만)
+--- dist/** ---
+(0건)
+--- android/app/src/main/assets/public/** ---
+android/app/src/main/assets/public/index.html:5:홈 화면
+android/app/src/main/assets/public/assets/index-qWPrV94-.js:1:홈 화면
+android/app/src/main/assets/public/assets/index-qWPrV94-.js:1:전체화면
+android/app/src/main/assets/public/assets/index-qWPrV94-.js:1:홈 화면
+android/app/src/main/assets/public/assets/index-qWPrV94-.js:1:홈 화면
+android/app/src/main/assets/public/assets/index-qWPrV94-.js:1:홈 화면
+android/app/src/main/assets/public/assets/index-qWPrV94-.js:1:한 번만
+android/app/src/main/assets/public/privacy.html:55:홈 화면
+android/app/src/main/assets/public/privacy.html:55:한 번만

@@ -86,8 +86,16 @@ describe('② 필수 문구 — 카드 지시 6항목', () => {
   });
 
   it('로컬 저장만 한다는 사실과 저장 항목을 밝힌다(IndexedDB·contentHash·fetchedAt·localStorage)', () => {
-    for (const phrase of ['IndexedDB', 'contentHash', 'fetchedAt', 'localStorage', '설치 안내']) {
+    for (const phrase of ['IndexedDB', 'contentHash', 'fetchedAt', 'localStorage', '화면 설정']) {
       expect(html, `누락: ${phrase}`).toContain(phrase);
+    }
+  });
+
+  it('없어진 설치 안내 플래그 설명이 남아 있지 않다(docs/07 §14 · T31 로 기능 삭제)', () => {
+    // “설치 안내를 한 번만 보여주기 위한 localStorage 플래그”는 T31(docs/07 §13-2)로 **사라진 기능**이다.
+    // 방침이 없는 기능을 설명하지 않도록 문구를 지웠고, 이 검사가 그 삭제를 고정한다(AC-U14-4).
+    for (const phrase of ['설치 안내', '홈 화면에 추가', '플래그(값: yes)']) {
+      expect(html, `잔존 문구: ${phrase}`).not.toContain(phrase);
     }
   });
 

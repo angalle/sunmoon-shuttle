@@ -1,0 +1,40 @@
+t32_sw_evidence: 옛 셸=assets/index-qWPrV94-.js (SW 2026-10-05.1) → 새 셸=assets/index-403hrULs.js (SW 2026-10-09.1)
+
+검사 결과:
+  PASS  SW_VERSION 이 올라갔다(2026-10-05.1 → 최신 빌드 날짜) — old=2026-10-05.1 new=2026-10-09.1
+  PASS  옛 셸과 새 셸의 번들 해시가 다르다(교체 판정 근거) — old=assets/index-qWPrV94-.js new=assets/index-403hrULs.js
+  PASS  ① 옛 셸 로드 — SW 등록
+  PASS  ① 옛 셸 — SW 가 페이지를 제어(clients.claim)
+  INFO  ① 옛 셸 상태: {"bundle":"./assets/index-qWPrV94-.js","forbidden":{"홈 화면":2,"전체화면":1,"한 번만":1,"하세요":1,"합니다":0},"cacheKeys":["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"]}
+  INFO  ① 캐시 저장소 물증: {"hasCachedIndex":true,"cachedIndexHasOldBundle":true,"cachedIndexHasNewBundle":false,"oldBundleAssetCached":true,"newBundleAssetCached":false}
+  PASS  ① 옛 셸이 실제로 옛 번들을 실행한다(캐시 저장의 전제) — bundle=./assets/index-qWPrV94-.js
+  PASS  ① 옛 버전 캐시 키가 저장되어 있다(SW 2026-10-05.1) — ["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"]
+  PASS  ① 캐시된 index.html 이 **옛 셸**이다(옛 번들 참조 · 새 번들 없음) — {"hasCachedIndex":true,"cachedIndexHasOldBundle":true,"cachedIndexHasNewBundle":false,"oldBundleAssetCached":true,"newBundleAssetCached":false}
+  PASS  ① 옛 셸 화면에 지운 문구가 남아 있다(사용자가 본 그 화면 — 재현의 증거) — {"홈 화면":2,"전체화면":1,"한 번만":1,"하세요":1,"합니다":0}
+  INFO  ① 안내 카드 스크롤 위치: {"top":495,"inViewport":true}
+  INFO  ① 설치 안내 노드: {"present":true,"visible":true,"text":"홈 화면에 추가하면 앱처럼 전체화면으로 열립니다 Safari 하단의 공유 버튼 → “홈 화면에 추가”를 선택하세요. Add to Home Screen to open it fullscreen like an app. 이 안내는 한 번만 표시됩니다. 닫기","w":366,"h":245,"top":495,"scrollY":0,"docHeight":844,"viewportHeight":844}
+  PASS  ① 옛 셸에서 설치 안내 카드가 실제로 보인다(스플래시 걷힘 후 · 문구 원문) — {"present":true,"visible":true,"text":"홈 화면에 추가하면 앱처럼 전체화면으로 열립니다 Safari 하단의 공유 버튼 → “홈 화면에 추가”를 선택하세요. Add to Home Screen to open it fullscreen like an app. 이 안내는 한 번만 표시됩니다. 닫기","w":366,"h":245,"top":495,"scrollY":0,"docHeight":844,"viewportHeight":844}
+  INFO  ② 전환기(서버는 새 셸, SW 는 옛 버전) 상태: {"bundle":"./assets/index-qWPrV94-.js","cacheKeys":["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"]}
+  PASS  ② SWR — 서버가 새 셸을 줘도 **캐시된 옛 셸이 먼저** 응답된다(§14-1 의 원인) — bundle=./assets/index-qWPrV94-.js (새 셸=assets/index-403hrULs.js)
+  PASS  ② 옛 버전 캐시 키가 아직 그대로다(무효화 전) — ["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"]
+  INFO  ③ 갱신 전 캐시 키: ["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"] → 갱신 후: ["sunmoon-shuttle-shell-2026-10-09.1"]
+  PASS  ③ activate 가 옛 버전 캐시를 지웠다(이전 버전 키 0개 — SW 2026-10-05.1) — before=["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"] after=["sunmoon-shuttle-shell-2026-10-09.1"]
+  PASS  ③ 새 버전 캐시 키가 생겼다 — ["sunmoon-shuttle-shell-2026-10-09.1"]
+  INFO  ③ 2차 로드 상태: {"bundle":"./assets/index-403hrULs.js","rows":0,"counts":{"홈 화면":0,"전체화면":0,"한 번만":0,"하세요":0,"합니다":0}}
+  PASS  ③ 2차 로드에서 **새 번들**이 적용된다(해시 교체 실측) — bundle=./assets/index-403hrULs.js 기대=assets/index-403hrULs.js
+  PASS  ③ 2차 로드 DOM 금지어 0건(홈 화면·전체화면·한 번만·하세요·합니다) — {"홈 화면":0,"전체화면":0,"한 번만":0,"하세요":0,"합니다":0}
+  PASS  ③ 새 셸이 SW 에 제어된다
+  INFO  ③ 운행일(2026-10-19T08:00:00+09:00) 상태: {"bundle":"./assets/index-403hrULs.js","rows":115,"empty":false,"error":false,"text":"본문으로 건너뛰기 선문대 셔틀버스 시간표 10월 19일 (월) · 08:00 ⓘ 새로고침 평일 토요일 일요일 전체 115 학교 도착 24 터미널 도착 91 시간표 07:30 천안터미널 학교에서 출발 · 08:10 도착 지난 편 07:40 천안역 학교에서 출발 · 08:15 도착 지난 편 08:05 아산(KTX)역 학교에서 출발 · 08:25 도착 · 약 2"}
+  PASS  ③ 운행일 화면에서 시간표가 정상 렌더(행 ≥1 · 오류 UI 아님 · 앱 셸) — rows=115 error=false
+  PASS  ③ 운행일 화면에도 금지어 0건 — {"홈 화면":0,"전체화면":0,"한 번만":0,"하세요":0,"합니다":0}
+  PASS  ④ 오프라인 재로드 후에도 첫 화면이 뜬다(SW 변경으로 오프라인 폴백이 깨지지 않음) — rows=115 bundle=./assets/index-403hrULs.js error=false
+  PASS  전 구간에서 앱 콘솔 오류 0
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T32-1-옛셸-캐시상태.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T32-2-옛셸이-먼저-응답.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T32-3-2차로드-새번들.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T32-4-운행일-새셸.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T32-5-오프라인-폴백.png
+
+T32 SW CACHE EVIDENCE: PASS
