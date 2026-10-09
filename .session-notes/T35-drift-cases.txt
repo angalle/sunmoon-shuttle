@@ -1,0 +1,197 @@
+T35 드리프트/교차검증 발행 경로 증거
+실 데이터: data/timetable.json · 전체 편수 = 148 · schemaVersion = 3
+임시 기준선 디렉터리: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN
+
+########## AC-AI1-6 ① 편수 -10% 초과 → 발행 보류 ##########
+===== CASE tripcount — baseline=base-tripcount.json  =====
+rc=1 · 발행물 존재=NO · 최종 JSON 유지=HEAD(마지막 정상)
+[extract] 드리프트 게이트(§7): 기준 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-tripcount.json · 전체 편 수 174 → 148 (-14.9%) · 신호 1건 · blocked=true
+[extract] 드리프트 게이트 보류 — 신호 1건. **발행하지 않는다**(마지막 정상 JSON 유지). 사람이 비교 표를 보고 승인하면 --force-publish 로 발행한다(docs/08 §7)
+[extract] 보류 산출물: 리포트 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/tripcount.drift.json · 비교 표 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/tripcount.drift.txt · 초안 .session-notes/T34-ai-table-draft.json · 스냅샷 11개
+{"checked":true,"blocked":true,"forced":false,"threshold":0.1,"totals":{"before":174,"after":148,"deltaPct":-14.9},"reasons":["trip-count: 전체 편 수 174 → 148 (-14.9%) · 임계 ±10%"]}
+--- 비교 표 ---
+T35 드리프트 게이트 — checked=true blocked=true forced=false
+직전 발행본: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-tripcount.json · 임계 ±10% · 건너뜀 사유: -
+전체 편 수: 174 → 148 (-14.9%)
+
+노선×요일 비교 (편 수 · 열 의미 키 집합)
+| 노선 | 요일 | 직전 | 신규 | 열 키 변경 |
+|---|---|---|---|---|
+| asan-ktx | weekday | 68 | 42 | - |
+| asan-ktx | saturday | 4 | 4 | - |
+| asan-ktx | sunday | 6 | 6 | - |
+| cheonan-station | weekday | 33 | 33 | - |
+| cheonan-station | saturday | 4 | 4 | - |
+| cheonan-station | sunday | 5 | 5 | - |
+| cheonan-terminal | weekday | 38 | 38 | - |
+| cheonan-terminal | saturday | 4 | 4 | - |
+| cheonan-terminal | sunday | 5 | 5 | - |
+| onyang | weekday | 7 | 7 | - |
+| onyang | saturday | 0 | 0 | - |
+| onyang | sunday | 0 | 0 | - |
+| cheonan-campus | weekday | 0 | 0 | - |
+| cheonan-campus | saturday | 0 | 0 | - |
+| cheonan-campus | sunday | 0 | 0 | - |
+
+########## AC-AI1-6 ② 노선 소실 → 발행 보류 ##########
+===== CASE routelost — baseline=base-route-lost.json  =====
+rc=1 · 발행물 존재=NO · 최종 JSON 유지=HEAD(마지막 정상)
+[extract] 드리프트 게이트(§7): 기준 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-route-lost.json · 전체 편 수 149 → 148 (-0.7%) · 신호 3건 · blocked=true
+[extract] 드리프트 게이트 보류 — 신호 3건. **발행하지 않는다**(마지막 정상 JSON 유지). 사람이 비교 표를 보고 승인하면 --force-publish 로 발행한다(docs/08 §7)
+[extract] 보류 산출물: 리포트 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/routelost.drift.json · 비교 표 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/routelost.drift.txt · 초안 .session-notes/T34-ai-table-draft.json · 스냅샷 11개
+{"checked":true,"blocked":true,"forced":false,"threshold":0.1,"totals":{"before":149,"after":148,"deltaPct":-0.7},"reasons":["route-lost: 노선 ghost-route 소실(직전 1편) — 직전 발행본에만 있다","day-trips-zero: 노선 ghost-route weekday: 1편 → 0편","byday-key-lost: 노선 ghost-route weekday: byDay 키 소실"]}
+--- 비교 표 ---
+T35 드리프트 게이트 — checked=true blocked=true forced=false
+직전 발행본: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-route-lost.json · 임계 ±10% · 건너뜀 사유: -
+전체 편 수: 149 → 148 (-0.7%)
+
+노선×요일 비교 (편 수 · 열 의미 키 집합)
+| 노선 | 요일 | 직전 | 신규 | 열 키 변경 |
+|---|---|---|---|---|
+| asan-ktx | weekday | 42 | 42 | - |
+| asan-ktx | saturday | 4 | 4 | - |
+| asan-ktx | sunday | 6 | 6 | - |
+| cheonan-station | weekday | 33 | 33 | - |
+| cheonan-station | saturday | 4 | 4 | - |
+| cheonan-station | sunday | 5 | 5 | - |
+| cheonan-terminal | weekday | 38 | 38 | - |
+| cheonan-terminal | saturday | 4 | 4 | - |
+| cheonan-terminal | sunday | 5 | 5 | - |
+| onyang | weekday | 7 | 7 | - |
+| onyang | saturday | 0 | 0 | - |
+| onyang | sunday | 0 | 0 | - |
+| cheonan-campus | weekday | 0 | 0 | - |
+| cheonan-campus | saturday | 0 | 0 | - |
+| cheonan-campus | sunday | 0 | 0 | - |
+
+########## AC-AI1-6 ③ 노선×요일 편수 >0→0 → 발행 보류 ##########
+===== CASE dayzero — baseline=base-day-zero.json  =====
+rc=1 · 발행물 존재=NO · 최종 JSON 유지=HEAD(마지막 정상)
+[extract] 드리프트 게이트(§7): 기준 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-day-zero.json · 전체 편 수 151 → 148 (-2%) · 신호 1건 · blocked=true
+[extract] 드리프트 게이트 보류 — 신호 1건. **발행하지 않는다**(마지막 정상 JSON 유지). 사람이 비교 표를 보고 승인하면 --force-publish 로 발행한다(docs/08 §7)
+[extract] 보류 산출물: 리포트 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/dayzero.drift.json · 비교 표 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/dayzero.drift.txt · 초안 .session-notes/T34-ai-table-draft.json · 스냅샷 11개
+{"checked":true,"blocked":true,"forced":false,"threshold":0.1,"totals":{"before":151,"after":148,"deltaPct":-2},"reasons":["day-trips-zero: 노선 onyang saturday: 3편 → 0편"]}
+--- 비교 표 ---
+T35 드리프트 게이트 — checked=true blocked=true forced=false
+직전 발행본: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-day-zero.json · 임계 ±10% · 건너뜀 사유: -
+전체 편 수: 151 → 148 (-2%)
+
+노선×요일 비교 (편 수 · 열 의미 키 집합)
+| 노선 | 요일 | 직전 | 신규 | 열 키 변경 |
+|---|---|---|---|---|
+| asan-ktx | weekday | 42 | 42 | - |
+| asan-ktx | saturday | 4 | 4 | - |
+| asan-ktx | sunday | 6 | 6 | - |
+| cheonan-station | weekday | 33 | 33 | - |
+| cheonan-station | saturday | 4 | 4 | - |
+| cheonan-station | sunday | 5 | 5 | - |
+| cheonan-terminal | weekday | 38 | 38 | - |
+| cheonan-terminal | saturday | 4 | 4 | - |
+| cheonan-terminal | sunday | 5 | 5 | - |
+| onyang | weekday | 7 | 7 | - |
+| onyang | saturday | 3 | 0 | - |
+| onyang | sunday | 0 | 0 | - |
+| cheonan-campus | weekday | 0 | 0 | - |
+| cheonan-campus | saturday | 0 | 0 | - |
+| cheonan-campus | sunday | 0 | 0 | - |
+
+########## AC-AI1-6 ④ 열 의미 키 변경 → 발행 보류 ##########
+===== CASE keyshift — baseline=base-keys.json  =====
+rc=1 · 발행물 존재=NO · 최종 JSON 유지=HEAD(마지막 정상)
+[extract] 드리프트 게이트(§7): 기준 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-keys.json · 전체 편 수 148 → 148 (+0%) · 신호 1건 · blocked=true
+[extract] 드리프트 게이트 보류 — 신호 1건. **발행하지 않는다**(마지막 정상 JSON 유지). 사람이 비교 표를 보고 승인하면 --force-publish 로 발행한다(docs/08 §7)
+[extract] 보류 산출물: 리포트 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/keyshift.drift.json · 비교 표 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/keyshift.drift.txt · 초안 .session-notes/T34-ai-table-draft.json · 스냅샷 11개
+{"checked":true,"blocked":true,"forced":false,"threshold":0.1,"totals":{"before":148,"after":148,"deltaPct":0},"reasons":["column-keys-changed: 노선 asan-ktx saturday: 열 키 [seq, depCampus] → [seq, depCampus, depStation, arrCampus]"]}
+--- 비교 표 ---
+T35 드리프트 게이트 — checked=true blocked=true forced=false
+직전 발행본: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-keys.json · 임계 ±10% · 건너뜀 사유: -
+전체 편 수: 148 → 148 (+0%)
+
+노선×요일 비교 (편 수 · 열 의미 키 집합)
+| 노선 | 요일 | 직전 | 신규 | 열 키 변경 |
+|---|---|---|---|---|
+| asan-ktx | weekday | 42 | 42 | - |
+| asan-ktx | saturday | 4 | 4 | O |
+| asan-ktx | sunday | 6 | 6 | - |
+| cheonan-station | weekday | 33 | 33 | - |
+| cheonan-station | saturday | 4 | 4 | - |
+| cheonan-station | sunday | 5 | 5 | - |
+| cheonan-terminal | weekday | 38 | 38 | - |
+| cheonan-terminal | saturday | 4 | 4 | - |
+| cheonan-terminal | sunday | 5 | 5 | - |
+| onyang | weekday | 7 | 7 | - |
+| onyang | saturday | 0 | 0 | - |
+| onyang | sunday | 0 | 0 | - |
+| cheonan-campus | weekday | 0 | 0 | - |
+| cheonan-campus | saturday | 0 | 0 | - |
+| cheonan-campus | sunday | 0 | 0 | - |
+
+########## AC-AI1-6 ⑤ --force-publish → 발행되되 drift.forced=true 기록 ##########
+===== CASE forced — baseline=base-tripcount.json --force-publish =====
+rc=0 · 발행물 존재=YES · 최종 JSON 유지=NEW
+[extract] ⚠️ --force-publish: 드리프트 보류를 해제하고 발행한다 — 사유는 aiExtract.drift.reasons 로 남긴다(조용한 우회 금지)
+[extract] 드리프트 게이트(§7): 기준 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-tripcount.json · 전체 편 수 174 → 148 (-14.9%) · 신호 1건 · blocked=false (강제 발행)
+[extract] 드리프트(§7): checked=true blocked=false forced=true reasons=1
+[extract] 드리프트 산출물: 리포트 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/forced.drift.json · 비교 표 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/forced.drift.txt
+{"checked":true,"blocked":false,"forced":true,"threshold":0.1,"totals":{"before":174,"after":148,"deltaPct":-14.9},"reasons":["trip-count: 전체 편 수 174 → 148 (-14.9%) · 임계 ±10%"]}
+발행물 기록 aiExtract.drift = {"checked":true,"blocked":false,"forced":true,"reasons":["trip-count: 전체 편 수 174 → 148 (-14.9%) · 임계 ±10%"]}
+--- 비교 표 ---
+T35 드리프트 게이트 — checked=true blocked=false forced=true
+직전 발행본: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/base-tripcount.json · 임계 ±10% · 건너뜀 사유: -
+전체 편 수: 174 → 148 (-14.9%)
+
+노선×요일 비교 (편 수 · 열 의미 키 집합)
+| 노선 | 요일 | 직전 | 신규 | 열 키 변경 |
+|---|---|---|---|---|
+| asan-ktx | weekday | 68 | 42 | - |
+| asan-ktx | saturday | 4 | 4 | - |
+| asan-ktx | sunday | 6 | 6 | - |
+| cheonan-station | weekday | 33 | 33 | - |
+| cheonan-station | saturday | 4 | 4 | - |
+| cheonan-station | sunday | 5 | 5 | - |
+| cheonan-terminal | weekday | 38 | 38 | - |
+| cheonan-terminal | saturday | 4 | 4 | - |
+| cheonan-terminal | sunday | 5 | 5 | - |
+| onyang | weekday | 7 | 7 | - |
+| onyang | saturday | 0 | 0 | - |
+| onyang | sunday | 0 | 0 | - |
+| cheonan-campus | weekday | 0 | 0 | - |
+| cheonan-campus | saturday | 0 | 0 | - |
+| cheonan-campus | sunday | 0 | 0 | - |
+
+########## 회귀 ⑥ 기준선 그대로(변화 없음) → 보류 없이 발행 ##########
+===== CASE normal — baseline=timetable.json  =====
+rc=0 · 발행물 존재=YES · 최종 JSON 유지=NEW
+[extract] 드리프트 게이트(§7): 기준 data/timetable.json · 전체 편 수 148 → 148 (+0%) · 신호 0건 · blocked=false
+[extract] 드리프트(§7): checked=true blocked=false forced=false reasons=0
+[extract] 드리프트 산출물: 리포트 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/normal.drift.json · 비교 표 /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN/normal.drift.txt
+{"checked":true,"blocked":false,"forced":false,"threshold":0.1,"totals":{"before":148,"after":148,"deltaPct":0},"reasons":[]}
+발행물 기록 aiExtract.drift = {"checked":true,"blocked":false,"reasons":[]}
+--- 비교 표 ---
+T35 드리프트 게이트 — checked=true blocked=false forced=false
+직전 발행본: data/timetable.json · 임계 ±10% · 건너뜀 사유: -
+전체 편 수: 148 → 148 (+0%)
+
+노선×요일 비교 (편 수 · 열 의미 키 집합)
+| 노선 | 요일 | 직전 | 신규 | 열 키 변경 |
+|---|---|---|---|---|
+| asan-ktx | weekday | 42 | 42 | - |
+| asan-ktx | saturday | 4 | 4 | - |
+| asan-ktx | sunday | 6 | 6 | - |
+| cheonan-station | weekday | 33 | 33 | - |
+| cheonan-station | saturday | 4 | 4 | - |
+| cheonan-station | sunday | 5 | 5 | - |
+| cheonan-terminal | weekday | 38 | 38 | - |
+| cheonan-terminal | saturday | 4 | 4 | - |
+| cheonan-terminal | sunday | 5 | 5 | - |
+| onyang | weekday | 7 | 7 | - |
+| onyang | saturday | 0 | 0 | - |
+| onyang | sunday | 0 | 0 | - |
+| cheonan-campus | weekday | 0 | 0 | - |
+| cheonan-campus | saturday | 0 | 0 | - |
+| cheonan-campus | sunday | 0 | 0 | - |
+
+########## AC-AI1-7 회귀 — 규칙 정본 부분(source 제외)이 기존 발행본과 동일한가 ##########
+규칙 정본(source 제외) 동일 = true · 발행본 source.aiExtract = {"pagesSent":0,"pagesSkippedByHash":0,"calls":0,"totalTokens":0,"agreedRows":0,"rawAgreedRows":0,"disagreedRows":0,"rawDisagreedRows":0,"keyShiftRows":0,"nullMismatchRows":0,"contradictedRows":0,"rowSetMismatchRows":0,"adoptedPages":[],"drift":{"checked":true,"blocked":false,"reasons":[]}}
+  PASS  AC-AI1-7 — 정상 입력(--no-ai) 발행 결과의 규칙 정본이 기존 발행본과 동일
+임시 기준선·산출물 정리 완료(/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T/t35.c5lh54/t35.HXObSN) — 재현은 이 스크립트 재실행.

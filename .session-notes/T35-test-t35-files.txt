@@ -1,0 +1,37 @@
+
+ RUN  v5.0.3 /Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 정규화 — 공백·null/""·시각 표기 > 공백·전각/반각·\u00a0 를 접고, null 과 "" 를 같은 것으로 본다 1ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 정규화 — 공백·null/""·시각 표기 > 시각은 **시(hour) 0패딩만** — 분 자리는 변형하지 않는다 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 3등급 — ① 값 모순만 차단한다 > 정규화 후 같으면 일치(공백·null/""·시 0패딩 차이는 불일치가 아니다) 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 3등급 — ① 값 모순만 차단한다 > ② key-shift — 같은 행에 값이 있지만 다른 의미 키로 배정된 경우는 **경고**(차단 아님) 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 3등급 — ① 값 모순만 차단한다 > ③ null-vs-값 — 한쪽만 값이면 **경고**(차단 아님) 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 3등급 — ① 값 모순만 차단한다 > ① 값 모순 — 양쪽 다 값이 있는데 다르고 그 값이 다른 키에도 없으면 **차단** 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 3등급 — ① 값 모순만 차단한다 > 행 집합 불일치(한쪽에만 있는 행)는 **차단** 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 3등급 — ① 값 모순만 차단한다 > 정규화 전(T34 정의) 카운트를 함께 남긴다 — `rawAgreedRows`/`rawDisagreedRows` 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 AC-AI1-4b — 병합 셀 2페이지가 ① 0건으로 분류되고 발행이 멈추지 않는다 > 정답 초안 10페이지: ① 0 · ② 70(32 + 38) · 정규화 전 78/70 (T34 실측과 같은 수치) 45ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 Stage B — 규칙 0건 페이지에서만 AI 초안을 채택한다 > 규칙 0건 → 교차검증 차단 없음(비교 대상 없음) · 계약 열 일치 → 채택 + extractedBy/needsReview 2ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 Stage B — 규칙 0건 페이지에서만 AI 초안을 채택한다 > 채택 조건 미충족(계약 열 불일치) → 채택 0건 · v1 기준선 검증 실패(= 발행 보류) 1ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 Stage B — 규칙 0건 페이지에서만 AI 초안을 채택한다 > 검증 4종을 못 넘는 초안(환각)은 Stage B 에서도 채택되지 않는다 1ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 Stage B — 규칙 0건 페이지에서만 AI 초안을 채택한다 > AC-AI1-4d — ② key-shift ≥1 이면 Stage B 채택 게이트(`adoptable`)가 거짓 0ms
+ ✓ tests/extract/ai-crosscheck.test.ts > T35 Stage B — 규칙 0건 페이지에서만 AI 초안을 채택한다 > AC-AI1-4d — 규칙 0건 페이지는 비교 대상이 없어 ①/②가 구조적으로 0 → 실제 게이트는 검증 4종 + 계약 열 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > 임계값은 10% 이고, 신호가 없으면 blocked=false 1ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > -15% 는 보류, +8% 는 통과(정상 개편 오작동 방지) 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > 노선 소실 → 보류 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > 특정 노선×요일 편 수 >0 → 0 이면 보류 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > byDay 키 소실 → 보류 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > 열 의미 키 집합 변경 → 보류 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > 기준선이 없으면 게이트를 켜지 않는다(checked=false + 사유) 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > --force-publish 는 보류를 해제하고 강제 발행 사실을 남긴다 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 §7 드리프트 신호 — 임계 ±10% > parseBaseline — 손상 JSON·routes 없는 JSON 은 null(추측 금지) 0ms
+ ✓ tests/extract/drift-gate.test.ts > T35 AC-AI1-6 — 발행 경로 통합(보류·강제 발행·정상) > ① 편수 10% 초과 감소 → **발행 보류**(exit 1 · 발행물 0건 · 비교 표 아티팩트) 55ms
+ ✓ tests/extract/drift-gate.test.ts > T35 AC-AI1-6 — 발행 경로 통합(보류·강제 발행·정상) > ⑤ --force-publish → 발행되되 `drift.forced: true` 기록(조용한 우회 금지) 37ms
+ ✓ tests/extract/drift-gate.test.ts > T35 AC-AI1-6 — 발행 경로 통합(보류·강제 발행·정상) > ② 노선 소실 · ④ 열 키 변경 → 보류(수치·사유 기록) 68ms
+ ✓ tests/extract/drift-gate.test.ts > T35 AC-AI1-6 — 발행 경로 통합(보류·강제 발행·정상) > ⑥ 정상 재실행(직전 발행본 그대로) → 보류 없음 · 드리프트 리포트에 통과 기록 36ms
+ ✓ tests/extract/drift-gate.test.ts > T35 AC-AI1-6 — 발행 경로 통합(보류·강제 발행·정상) > 기준선 파일이 없으면 게이트를 켜지 않고 발행한다(checked=false + 사유) 33ms
+
+ Test Files  2 passed (2)
+      Tests  28 passed (28)
+   Start at  10:14:46
+   Duration  402ms (tests 59%, transform 30%, import 11%, worker 1%)
+

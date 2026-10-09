@@ -1,0 +1,2 @@
+85 {"checked":true,"blocked":true,"totals":{"before":100,"after":85,"deltaPct":-15},"reasons":["trip-count: 전체 편 수 100 → 85 (-15%) · 임계 ±10%"]}
+108 {"checked":true,"blocked":false,"totals":{"before":100,"after":108,"deltaPct":8},"reasons":[]}

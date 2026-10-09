@@ -50,7 +50,7 @@ const OUT = 'tmp/test-out.json';
 const LOG = 'tmp/test-run.json';
 
 describe('T16 CLI 인자', () => {
-  it('기본값 — 출력 data/timetable.json · 로그 .session-notes/T16-extract-run.json · AI 모드 api(T19 신규 기본) · T34 표 산출물 경로', () => {
+  it('기본값 — 출력 data/timetable.json · 로그 .session-notes/T16-extract-run.json · AI 모드 api(T19 신규 기본) · T34/T35 산출물 경로', () => {
     expect(parseExtractArgs([])).toEqual({
       files: [],
       out: 'data/timetable.json',
@@ -65,7 +65,19 @@ describe('T16 CLI 인자', () => {
       aiCachePath: '.session-notes/T34-ai-table-cache.json',
       aiDraftPath: '.session-notes/T34-ai-table-draft.json',
       aiReportPath: '.session-notes/T34-ai-table-report.json',
+      baselinePath: 'data/timetable.json',
+      driftReportPath: '.session-notes/T35-drift-report.json',
+      driftTablePath: '.session-notes/T35-drift-compare.txt',
+      forcePublish: false,
     });
+  });
+
+  it('T35 --baseline/--force-publish/--drift-report/--drift-table 를 읽는다', () => {
+    const args = parseExtractArgs(['--baseline', 'tmp/prev.json', '--force-publish', '--drift-report', 'tmp/d.json', '--drift-table', 'tmp/d.txt']);
+    expect(args).toMatchObject({ baselinePath: 'tmp/prev.json', forcePublish: true, driftReportPath: 'tmp/d.json', driftTablePath: 'tmp/d.txt' });
+    expect(parseExtractArgs([]).forcePublish).toBe(false);
+    // 빈 문자열 = 게이트 끔(부분 비교를 하지 않는다)
+    expect(parseExtractArgs(['--baseline', '']).baselinePath).toBe('');
   });
 
   it('--no-ai · --dry-run · --model=<이름> · --out/--log/--now 를 읽는다', () => {

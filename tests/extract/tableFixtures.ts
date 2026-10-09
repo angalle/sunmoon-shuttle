@@ -106,6 +106,67 @@ export function draftBody(draft: AiTablePageDraft): unknown {
   return { choices: [{ message: { content: JSON.stringify(draft) } }] };
 }
 
+const TIME_TOKEN = /\d{1,2}:\d{2}/;
+
+/**
+ * **① 값 모순 주입**(T35 AC-AI1-4c①) — 첫 두 행에서 `arrCampus`(없으면 값이 서로 다른 첫 시각 열)의
+ * 값을 **맞바꾼다**. 검증 4종은 통과한다(시각 **집합**·행 수·앵커 불변) → 교차검증만 ① 값 모순으로
+ * 판정 → `runExtract` 가 **발행을 보류**한다(exit 1 · 산출물 0건).
+ */
+export function contradictedDraftFromPrompt(prompt: string): AiTablePageDraft | null {
+  const faithful = faithfulDraftFromPrompt(prompt);
+  if (faithful === null) return null;
+  const [first, second] = faithful.rows;
+  if (first === undefined || second === undefined) return faithful;
+  const timeKeys = faithful.columns
+    .map((column) => column.key)
+    .filter((key) => key !== 'seq' && (TIME_TOKEN.test(String(first.values[key] ?? '')) || TIME_TOKEN.test(String(second.values[key] ?? ''))));
+  const ordered = ['arrCampus', ...timeKeys.filter((key) => key !== 'arrCampus')];
+  for (const key of ordered) {
+    const a = first.values[key] ?? null;
+    const b = second.values[key] ?? null;
+    if (a === null || b === null || a === b) continue;
+    return {
+      ...faithful,
+      rows: faithful.rows.map((row, index) =>
+        index === 0
+          ? { ...row, values: { ...row.values, [key]: b } }
+          : index === 1
+            ? { ...row, values: { ...row.values, [key]: a } }
+            : row,
+      ),
+    };
+  }
+  return faithful;
+}
+
+/**
+ * **③ null-vs-값 주입**(T35 AC-AI1-4c③) — 시각이 아닌 열(`note` 우선)의 첫 행에만 값을 넣는다
+ * (규칙 정본은 그 열이 비어 있다). 시각 집합·행 수·앵커는 불변 → 검증 4종 통과 → 교차검증 ③ 경고만
+ * → **규칙 정본으로 정상 발행**한다(§5: 표현 차이로 앱을 멈추지 않는다).
+ */
+export function nullMismatchDraftFromPrompt(prompt: string): AiTablePageDraft | null {
+  const faithful = faithfulDraftFromPrompt(prompt);
+  if (faithful === null) return null;
+  const first = faithful.rows[0];
+  if (first === undefined) return faithful;
+  const timeKeys = new Set<string>();
+  for (const row of faithful.rows) {
+    for (const [key, value] of Object.entries(row.values)) {
+      if (typeof value === 'string' && TIME_TOKEN.test(value)) timeKeys.add(key);
+    }
+  }
+  const columns = faithful.columns.filter((column) => column.key !== 'seq' && !timeKeys.has(column.key));
+  const chosen = columns.find((column) => column.key === 'note') ?? columns[columns.length - 1];
+  if (chosen === undefined) return faithful;
+  // 값은 **그 표의 머리글 토큰** — 페이지 본문에 존재하므로 ① 셀 앵커를 깨지 않는다(시각 토큰 아님).
+  const value = chosen.header === '' ? '비고' : chosen.header;
+  return {
+    ...faithful,
+    rows: faithful.rows.map((row, index) => (index === 0 ? { ...row, values: { ...row.values, [chosen.key]: value } } : row)),
+  };
+}
+
 /**
  * 표 프롬프트에는 표 초안을, 문장 분류 프롬프트에는 빈 규칙을 돌려주는 핸들러.
  * `inject` 로 초안을 변형한다(환각·누락 주입).

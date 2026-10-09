@@ -205,5 +205,6 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 | **AI 폴백 발생**(`extraction.fallbackReason` 비어있지 않음) | 3회 연속 | `AI_API_KEY` 설정·벤더 상태 확인(발행은 계속되므로 앱 영향 없음) |
 | **AI 호출 수/잘림(truncated)** | 호출 0 또는 잘림 발생 | 프롬프트·입력 상한 점검 |
 | 발행 검증 불일치(`needsReview`>0 또는 exit≠0) | ≥1 | 발행 중단 확인(마지막 정상 JSON 유지) — 원문 대조 |
+| **T35 발행 보류**(교차검증 ① 값 모순 · 드리프트 ±10%/노선 소실/편수 0/열 키 변경) | ≥1 | `extract.yml` **실패 = 발행 0건**(마지막 정상 JSON 유지) + 아티팩트 `T35-drift-compare.txt`(비교 표)·`T34-ai-table-draft.json`(AI 초안) 확인 → 승인 시 `--force-publish` 로 재실행(강제 사실은 발행 JSON `extraction.aiExtract.drift.forced` 에 남는다 — docs/08 §5·§7) |
 | 워크플로 실패율 | 2회 연속 | `gh run view` 로그 → 원인별(네트워크/API/스키마) 대응 |
 | Pages 배포 지연 | 커밋 후 10분 | `deploy.yml` 런 확인 |

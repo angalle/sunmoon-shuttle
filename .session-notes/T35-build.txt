@@ -1,0 +1,4 @@
+dist/assets/index-BX2z0Mh1.css  22.49 kB │ gzip:  4.32 kB
+dist/assets/index-403hrULs.js   66.97 kB │ gzip: 21.89 kB
+
+✓ built in 25ms

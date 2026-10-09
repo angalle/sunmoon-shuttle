@@ -13,22 +13,30 @@
  * 인증 헤더 값은 **출력하지 않는다**(존재 여부만) — 키가 로그로 새지 않게.
  */
 
-import { hallucinatedDraftFromPrompt, tableAwareHandler } from './tableFixtures.js';
+import { contradictedDraftFromPrompt, hallucinatedDraftFromPrompt, nullMismatchDraftFromPrompt, tableAwareHandler } from './tableFixtures.js';
 import type { AiTablePageDraft } from '../../tools/extract/types.js';
 import { startMockApi } from './mock-ai-server.js';
 
-type Mode = 'faithful' | 'hallucinate';
+type Mode = 'faithful' | 'hallucinate' | 'contradict' | 'nullmiss';
 
 const port = Number(process.argv[2] ?? '8792');
-const mode: Mode = process.argv[3] === 'hallucinate' ? 'hallucinate' : 'faithful';
+const requested = process.argv[3] ?? 'faithful';
+const mode: Mode =
+  requested === 'hallucinate' || requested === 'contradict' || requested === 'nullmiss' ? requested : 'faithful';
 /** 표에 없는 시각(환각 주입값) — 실측 로그에 그대로 남는다 */
 const FAKE_TIME = process.argv[4] ?? '23:59';
 
 let tableRequests = 0;
 
-const handler = tableAwareHandler((draft: AiTablePageDraft, prompt: string) =>
-  mode === 'hallucinate' ? (hallucinatedDraftFromPrompt(prompt, FAKE_TIME) ?? draft) : draft,
-);
+/** T35 주입 모드: `contradict`(① 값 모순 → 발행 보류) · `nullmiss`(③ null-vs-값 → 경고 후 발행) */
+const mutate = (draft: AiTablePageDraft, prompt: string): AiTablePageDraft => {
+  if (mode === 'hallucinate') return hallucinatedDraftFromPrompt(prompt, FAKE_TIME) ?? draft;
+  if (mode === 'contradict') return contradictedDraftFromPrompt(prompt) ?? draft;
+  if (mode === 'nullmiss') return nullMismatchDraftFromPrompt(prompt) ?? draft;
+  return draft;
+};
+
+const handler = tableAwareHandler(mutate);
 
 const server = await startMockApi((request, index) => {
   const prompt = String(request.body.messages?.[0]?.content ?? '');

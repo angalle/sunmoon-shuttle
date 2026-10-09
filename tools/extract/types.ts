@@ -361,14 +361,21 @@ export interface AiTableValidation {
   readonly failures: readonly string[];
 }
 
-/** 드리프트 게이트 결과(§7 — T35 가 채운다. T34 는 `checked: false` 로 자리만 만든다) */
+/** 드리프트 게이트 결과(§7 — T35) */
 export interface AiExtractDrift {
   readonly checked: boolean;
   readonly blocked: boolean;
+  /** `--force-publish` 로 차단을 해제하고 발행한 사실(조용한 우회 금지) — 강제가 아니면 필드를 만들지 않는다 */
+  readonly forced?: boolean;
   readonly reasons: readonly string[];
 }
 
-/** 발행 JSON `source.extraction.aiExtract` (§8 — 키 이름 고정) */
+/**
+ * 발행 JSON `source.extraction.aiExtract` (§8 — 키 이름 고정).
+ *
+ * T35 개정(§5 정규화 교차검증): `agreedRows` 는 **정규화 후 일치** 행 수다.
+ * 정규화 전(T34 정의) 수치는 `rawAgreedRows`/`rawDisagreedRows` 로 함께 남겨 추세를 볼 수 있게 한다.
+ */
 export interface AiExtractMeta {
   /** AI 에게 실제로 보낸(호출한) 페이지 수 — 호출 상한 12 이내 */
   readonly pagesSent: number;
@@ -378,10 +385,23 @@ export interface AiExtractMeta {
   readonly calls: number;
   /** 토큰 **추정치**(§6 비용 가드) */
   readonly totalTokens: number;
-  /** 규칙 결과와 행 단위로 일치한 수(T34 는 **단순 카운트**, 정식 비교는 T35 §5) */
+  /** 규칙 결과와 **정규화 후 행 단위로 일치**한 수(§5 T35) */
   readonly agreedRows: number;
+  /** 정규화 전(T34 정의) 일치 — 추세 비교용 */
+  readonly rawAgreedRows: number;
+  /** 정규화 전(T34 정의) 불일치 — `rawDisagreedRows` 와 같은 값(하위 호환 키) */
   readonly disagreedRows: number;
-  /** Stage B 로 AI 초안을 **채택한** 페이지(§5 — T34 는 항상 빈 배열, 채택은 T35/사용자 승인) */
+  /** 정규화 전(T34 정의) 불일치 — T34 실측 70 의 그 수치 */
+  readonly rawDisagreedRows: number;
+  /** ② key-shift 행(같은 행·다른 열 배정) — **경고**(Stage A 발행 진행 · Stage B 채택 금지) */
+  readonly keyShiftRows: number;
+  /** ③ null-vs-값 행 — **경고** */
+  readonly nullMismatchRows: number;
+  /** ① 값 모순 행 — **차단**(발행 보류) */
+  readonly contradictedRows: number;
+  /** 행 집합 불일치(한쪽에만 있는 행) — **차단** */
+  readonly rowSetMismatchRows: number;
+  /** Stage B 로 AI 초안을 **채택한** 페이지(§5 — 규칙 0건 + 검증 4종 통과 + ①·② 0건) */
   readonly adoptedPages: readonly string[];
   readonly drift: AiExtractDrift;
 }

@@ -138,6 +138,11 @@ jobs:
 
           flags=(--ai=api)
           if [ "${{ inputs.mode || 'commit' }}" = "none" ]; then flags+=(--dry-run); fi
+          # T35: 드리프트(§7)·교차검증(§5)·AI 초안 산출물은 **러너 상태 디렉터리**에 쓴다 —
+          #  발행 보류(exit 1) 로 끝나도 아래 아티팩트 스텝이 사람이 판단할 비교 표를 올린다.
+          flags+=(--baseline data/timetable.json)
+          flags+=(--drift-report "$STATE/T35-drift-report.json" --drift-table "$STATE/T35-drift-compare.txt")
+          flags+=(--ai-draft "$STATE/T34-ai-table-draft.json" --ai-report "$STATE/T34-ai-table-report.json")
 
           echo "입력: data/raw/*.html (커밋된 스냅샷 · 원격 수집 없음)"
           echo "실행: npm run extract -- ${flags[*]} --log <state>/extract-run.json"
@@ -256,6 +261,16 @@ jobs:
             echo "--- 실행 로그 끝 40줄 ---"
             tail -40 "$STATE/run.log"
           fi
+          # T35: 드리프트/교차검증 보류면 **비교 표**를 런 요약에 붙인다(사람이 승인 판단 — docs/08 §5·§7).
+          if [ -f "$STATE/T35-drift-compare.txt" ]; then
+            echo "::warning title=T35 발행 보류::드리프트/교차검증 게이트가 발행을 보류했다 — 비교 표(아티팩트 T35-drift-compare.txt)를 보고 승인하면 --force-publish 로 재실행한다."
+            {
+              echo "### T35 드리프트 비교 표 (발행 보류 근거)"
+              echo '```'
+              cat "$STATE/T35-drift-compare.txt"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          fi
           # 추출 스텝 자체가 실패했으면 그 안에서 record-run 이 이미 알림을 남겼다(중복 금지).
           if [ "${{ steps.extract.outcome }}" = "success" ]; then
             provider="$(jq -r '.provider? // "unknown"' "$STATE/extract-run.json" 2>/dev/null || echo unknown)"
@@ -282,9 +297,15 @@ jobs:
           copy "$STATE/last-run.json" last-run.json
           copy "$STATE/last-success.json" last-success.json
           copy data/timetable.json timetable.json
+          # T35 드리프트 게이트 산출물 — 보류 시 **비교 표 + 원본 스냅샷 목록 + AI 초안/검증 리포트**가
+          #  아티팩트로 올라가야 사람이 5분 안에 승인(`--force-publish`) 여부를 판단할 수 있다(docs/08 §7).
+          copy "$STATE/T35-drift-report.json" T35-drift-report.json
+          copy "$STATE/T35-drift-compare.txt" T35-drift-compare.txt
+          copy "$STATE/T34-ai-table-draft.json" T34-ai-table-draft.json
+          copy "$STATE/T34-ai-table-report.json" T34-ai-table-report.json
           # 요약본(사람이 바로 읽는 메타): provider·model·calls·truncated·fallbackReason — 비밀값 아님
           if [ -f "$STATE/extract-run.json" ]; then
-            jq -c '{provider, model, calls, truncated, promptTokens, completionTokens, totalTokens, fallbackReason, aiStatus, aiError, needsReview, durationMs}' \
+            jq -c '{provider, model, calls, truncated, promptTokens, completionTokens, totalTokens, fallbackReason, aiStatus, aiError, needsReview, durationMs, drift}' \
               "$STATE/extract-run.json" > batch-artifacts/extraction-meta.summary.json || true
           fi
           if [ -f data/timetable.json ]; then

@@ -1,0 +1,71 @@
+
+
+> sunmoon-shuttle@0.0.0 extract
+> tsx tools/extract/index.ts --local --ai=api --out tmp/t35-evidence/contradict-out.json --log tmp/t35-evidence/contradict-log.json --ai-cache tmp/t35-evidence/contradict-cache.json --ai-draft tmp/t35-evidence/contradict-draft.json --ai-report tmp/t35-evidence/contradict-report.json --drift-report tmp/t35-evidence/contradict-drift.json --drift-table tmp/t35-evidence/contradict-drift.txt
+
+[extract] 기간 스냅샷 1개: data/raw/terms/2026-2학기-방학.html
+[extract] AI 표 검증 통과(data/raw/2026-2학기-asan-ktx-일요일.html) — 열 4개 · 행 6개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-asan-ktx-일요일.html) 차단 — 행 1: arrCampus: AI="12:35" ≠ 규칙="09:35"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-asan-ktx-일요일.html) 차단 — 행 2: arrCampus: AI="09:35" ≠ 규칙="12:35"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-asan-ktx-일요일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="12:35" ≠ 규칙="09:35" · 행 2: arrCampus: AI="09:35" ≠ 규칙="12:35"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-asan-ktx-토요일.html) — 열 4개 · 행 4개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-asan-ktx-토요일.html) 차단 — 행 1: arrCampus: AI="12:35" ≠ 규칙="08:35"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-asan-ktx-토요일.html) 차단 — 행 2: arrCampus: AI="08:35" ≠ 규칙="12:35"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-asan-ktx-토요일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="12:35" ≠ 규칙="08:35" · 행 2: arrCampus: AI="08:35" ≠ 규칙="12:35"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-asan-ktx-평일.html) — 열 5개 · 행 42개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-asan-ktx-평일.html) 차단 — 행 1: arrCampus: AI="08:50" ≠ 규칙="08:40"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-asan-ktx-평일.html) 차단 — 행 2: arrCampus: AI="08:40" ≠ 규칙="08:50"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-asan-ktx-평일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="08:50" ≠ 규칙="08:40" · 행 2: arrCampus: AI="08:40" ≠ 규칙="08:50"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-station-일요일.html) — 열 4개 · 행 5개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-일요일.html) 차단 — 행 1: arrCampus: AI="13:00" ≠ 규칙="10:00"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-일요일.html) 차단 — 행 2: arrCampus: AI="10:00" ≠ 규칙="13:00"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-cheonan-station-일요일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="10:00" · 행 2: arrCampus: AI="10:00" ≠ 규칙="13:00"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-station-토요일.html) — 열 4개 · 행 4개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-토요일.html) 차단 — 행 1: arrCampus: AI="13:00" ≠ 규칙="09:00"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-토요일.html) 차단 — 행 2: arrCampus: AI="09:00" ≠ 규칙="13:00"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-cheonan-station-토요일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="09:00" · 행 2: arrCampus: AI="09:00" ≠ 규칙="13:00"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-station-평일.html) — 열 7개 · 행 33개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-평일.html) 차단 — 행 1: arrCampus: AI=null ↔ 규칙=08:45 (다른 열로 배정됨) · depStation: AI="08:30" ≠ 규칙="08:15" · viaYongam: AI=08:45 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-평일.html) 차단 — 행 2: arrCampus: AI=금(X) ↔ 규칙=09:00 (다른 열로 배정됨) · depStation: AI="08:15" ≠ 규칙="08:30" · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaYongam: AI=09:00 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-평일.html) 차단 — 행 3: arrCampus: AI=null ↔ 규칙=09:10 (다른 열로 배정됨) · viaYongam: AI=09:10 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-평일.html) 차단 — 행 4: arrCampus: AI=금(X) ↔ 규칙=09:15 (다른 열로 배정됨) · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaYongam: AI=09:15 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-평일.html) 차단 — 행 6: arrCampus: AI=null ↔ 규칙=09:20 (다른 열로 배정됨) · viaYongam: AI=09:20 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-station-평일.html) 차단 — 행 7: arrCampus: AI=금(X) ↔ 규칙=09:30 (다른 열로 배정됨) · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaYongam: AI=09:30 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-cheonan-station-평일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI=null ↔ 규칙=08:45 (다른 열로 배정됨) · depStation: AI="08:30" ≠ 규칙="08:15" · viaYongam: AI=08:45 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨) · 행 2: arrCampus: AI=금(X) ↔ 규칙=09:00 (다른 열로 배정됨) · depStation: AI="08:15" ≠ 규칙="08:30" · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaYongam: AI=09:00 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨) · 행 3: arrCampus: AI=null ↔ 규칙=09:10 (다른 열로 배정됨) · viaYongam: AI=09:10 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-terminal-일요일.html) — 열 4개 · 행 5개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-일요일.html) 차단 — 행 1: arrCampus: AI="13:00" ≠ 규칙="10:00"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-일요일.html) 차단 — 행 2: arrCampus: AI="10:00" ≠ 규칙="13:00"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-cheonan-terminal-일요일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="10:00" · 행 2: arrCampus: AI="10:00" ≠ 규칙="13:00"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-terminal-토요일.html) — 열 4개 · 행 4개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-토요일.html) 차단 — 행 1: arrCampus: AI="13:00" ≠ 규칙="09:00"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-토요일.html) 차단 — 행 2: arrCampus: AI="09:00" ≠ 규칙="13:00"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-cheonan-terminal-토요일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="09:00" · 행 2: arrCampus: AI="09:00" ≠ 규칙="13:00"
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-terminal-평일.html) — 열 8개 · 행 38개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-평일.html) 차단 — 행 1: arrCampus: AI=null ↔ 규칙=08:50 (다른 열로 배정됨) · depTerminal: AI="08:15" ≠ 규칙="08:10" · viaHomeMart: AI=08:50 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-평일.html) 차단 — 행 2: arrCampus: AI=null ↔ 규칙=08:55 (다른 열로 배정됨) · depTerminal: AI="08:10" ≠ 규칙="08:15" · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaHomeMart: AI=08:55 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=금(X) ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-평일.html) 차단 — 행 3: arrCampus: AI=null ↔ 규칙=09:05 (다른 열로 배정됨) · viaHomeMart: AI=09:05 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-평일.html) 차단 — 행 4: arrCampus: AI=null ↔ 규칙=09:10 (다른 열로 배정됨) · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaHomeMart: AI=09:10 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=금(X) ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-평일.html) 차단 — 행 5: arrCampus: AI=null ↔ 규칙=09:15 (다른 열로 배정됨) · viaHomeMart: AI=09:15 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증(data/raw/2026-2학기-cheonan-terminal-평일.html) 차단 — 행 6: arrCampus: AI=null ↔ 규칙=09:20 (다른 열로 배정됨) · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaHomeMart: AI=09:20 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=금(X) ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-cheonan-terminal-평일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI=null ↔ 규칙=08:50 (다른 열로 배정됨) · depTerminal: AI="08:15" ≠ 규칙="08:10" · viaHomeMart: AI=08:50 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · 행 2: arrCampus: AI=null ↔ 규칙=08:55 (다른 열로 배정됨) · depTerminal: AI="08:10" ≠ 규칙="08:15" · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaHomeMart: AI=08:55 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=금(X) ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · 행 3: arrCampus: AI=null ↔ 규칙=09:05 (다른 열로 배정됨) · viaHomeMart: AI=09:05 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract] AI 표 검증 통과(data/raw/2026-2학기-onyang-평일.html) — 열 8개 · 행 7개
+[extract] ⛔ 교차검증(data/raw/2026-2학기-onyang-평일.html) 차단 — 행 1: arrCampus: AI="09:15" ≠ 규칙="08:40"
+[extract] ⛔ 교차검증(data/raw/2026-2학기-onyang-평일.html) 차단 — 행 2: arrCampus: AI="08:40" ≠ 규칙="09:15"
+[extract] ⛔ 교차검증 차단(data/raw/2026-2학기-onyang-평일.html) — AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="09:15" ≠ 규칙="08:40" · 행 2: arrCampus: AI="08:40" ≠ 규칙="09:15"
+[extract] AI 표 대상 아님(data/raw/2026-2학기-cheonan-campus-평일.html) — 시간표 표가 없는 페이지(운행 중단 등)
+[extract] AI 표: 대상 10개(표 없음 1개) · 보낸 페이지 10 · 해시 캐시 0 · 호출 10회 · 토큰(추정) 19621
+[extract] AI 표 검증 4종: 통과 0개 · 폐기 0개 · 치명 0건 · 상한초과 0개
+[extract] 교차검증(§5 정규화 후): 일치 62행 · ② key-shift 66행(경고) · ③ null-vs-값 0행(경고) · ① 값 모순 20행(차단) · 정규화 전 62/148행 · Stage B 채택 0페이지
+[extract]   data/raw/2026-2학기-asan-ktx-일요일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="12:35" ≠ 규칙="09:35" · 행 2: arrCampus: AI="09:35" ≠ 규칙="12:35"
+[extract]   data/raw/2026-2학기-asan-ktx-토요일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="12:35" ≠ 규칙="08:35" · 행 2: arrCampus: AI="08:35" ≠ 규칙="12:35"
+[extract]   data/raw/2026-2학기-asan-ktx-평일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="08:50" ≠ 규칙="08:40" · 행 2: arrCampus: AI="08:40" ≠ 규칙="08:50"
+[extract]   data/raw/2026-2학기-cheonan-station-일요일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="10:00" · 행 2: arrCampus: AI="10:00" ≠ 규칙="13:00"
+[extract]   data/raw/2026-2학기-cheonan-station-토요일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="09:00" · 행 2: arrCampus: AI="09:00" ≠ 규칙="13:00"
+[extract]   data/raw/2026-2학기-cheonan-station-평일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI=null ↔ 규칙=08:45 (다른 열로 배정됨) · depStation: AI="08:30" ≠ 규칙="08:15" · viaYongam: AI=08:45 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨) · 행 2: arrCampus: AI=금(X) ↔ 규칙=09:00 (다른 열로 배정됨) · depStation: AI="08:15" ≠ 규칙="08:30" · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaYongam: AI=09:00 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨) · 행 3: arrCampus: AI=null ↔ 규칙=09:10 (다른 열로 배정됨) · viaYongam: AI=09:10 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+[extract]   data/raw/2026-2학기-cheonan-terminal-일요일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="10:00" · 행 2: arrCampus: AI="10:00" ≠ 규칙="13:00"
+[extract]   data/raw/2026-2학기-cheonan-terminal-토요일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="13:00" ≠ 규칙="09:00" · 행 2: arrCampus: AI="09:00" ≠ 규칙="13:00"
+[extract]   data/raw/2026-2학기-cheonan-terminal-평일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI=null ↔ 규칙=08:50 (다른 열로 배정됨) · depTerminal: AI="08:15" ≠ 규칙="08:10" · viaHomeMart: AI=08:50 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · 행 2: arrCampus: AI=null ↔ 규칙=08:55 (다른 열로 배정됨) · depTerminal: AI="08:10" ≠ 규칙="08:15" · note: AI=null ↔ 규칙=금(X) (다른 열로 배정됨) · viaHomeMart: AI=08:55 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=금(X) ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · 행 3: arrCampus: AI=null ↔ 규칙=09:05 (다른 열로 배정됨) · viaHomeMart: AI=09:05 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+[extract]   data/raw/2026-2학기-onyang-평일.html: AI ① 값 모순 2건 · 행 집합 불일치 0건 — 행 1: arrCampus: AI="09:15" ≠ 규칙="08:40" · 행 2: arrCampus: AI="08:40" ≠ 규칙="09:15"
+[extract] 교차검증 차단 — 발행 보류(10페이지). 규칙 정본과 AI 초안이 **모순**된다(docs/08 §5)
+[extract] AI 표 산출물: 초안 tmp/t35-evidence/contradict-draft.json · 검증 리포트 tmp/t35-evidence/contradict-report.json(T35 교차검증 입력)
+[extract] 보류 산출물: 리포트 tmp/t35-evidence/contradict-drift.json · 비교 표 tmp/t35-evidence/contradict-drift.txt · 초안 tmp/t35-evidence/contradict-draft.json · 스냅샷 11개

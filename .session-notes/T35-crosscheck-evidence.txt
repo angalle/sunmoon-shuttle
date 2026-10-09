@@ -1,0 +1,6 @@
+T35 교차검증 증거 요약 — 2026-10-09 10:12:20 +0900
+  ① 값 모순 주입: exit=1(기대 1) · 발행물 0건 · 보류 리포트 holdReason=crosscheck-contradiction
+  ② 정답 초안: exit=0(기대 0) · ①0 ②70 ③0 · agreed 78 · raw 78/70
+  ③ null-vs-값 주입: exit=0(기대 0) · ③1행 · ①0
+  모의 서버 표 요청: contradict=10 · faithful=10 · nullmiss=10
+  종합: PASS

@@ -1,0 +1,13 @@
+2026-2학기-asan-ktx-일요일.html rows=6 agreed=6 shift=0 null=0 contra=0 rowset=0 raw=6/0 blocked=false
+2026-2학기-asan-ktx-토요일.html rows=4 agreed=4 shift=0 null=0 contra=0 rowset=0 raw=4/0 blocked=false
+2026-2학기-asan-ktx-평일.html rows=42 agreed=42 shift=0 null=0 contra=0 rowset=0 raw=42/0 blocked=false
+2026-2학기-cheonan-station-일요일.html rows=5 agreed=5 shift=0 null=0 contra=0 rowset=0 raw=5/0 blocked=false
+2026-2학기-cheonan-station-토요일.html rows=4 agreed=4 shift=0 null=0 contra=0 rowset=0 raw=4/0 blocked=false
+2026-2학기-cheonan-station-평일.html rows=33 agreed=1 shift=32 null=0 contra=0 rowset=0 raw=1/32 blocked=false
+   shift detail: 행 1: arrCampus: AI=null ↔ 규칙=08:45 (다른 열로 배정됨) · viaYongam: AI=08:45 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨) | 행 2: arrCampus: AI=null ↔ 규칙=09:00 (다른 열로 배정됨) · viaYongam: AI=09:00 ↔ 규칙=5분~10분 소요예상 (다른 열로 배정됨)
+2026-2학기-cheonan-terminal-일요일.html rows=5 agreed=5 shift=0 null=0 contra=0 rowset=0 raw=5/0 blocked=false
+2026-2학기-cheonan-terminal-토요일.html rows=4 agreed=4 shift=0 null=0 contra=0 rowset=0 raw=4/0 blocked=false
+2026-2학기-cheonan-terminal-평일.html rows=38 agreed=0 shift=38 null=0 contra=0 rowset=0 raw=0/38 blocked=false
+   shift detail: 행 1: arrCampus: AI=null ↔ 규칙=08:50 (다른 열로 배정됨) · viaHomeMart: AI=08:50 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) | 행 2: arrCampus: AI=null ↔ 규칙=08:55 (다른 열로 배정됨) · viaHomeMart: AI=08:55 ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨) · viaSeoulJeong: AI=null ↔ 규칙=5분~20분 소요예상 (다른 열로 배정됨)
+2026-2학기-onyang-평일.html rows=7 agreed=7 shift=0 null=0 contra=0 rowset=0 raw=7/0 blocked=false
+TOTALS {"agreedRows":78,"keyShiftRows":70,"nullMismatchRows":0,"contradictedRows":0,"rowSetMismatchRows":0,"rawAgreedRows":78,"rawDisagreedRows":70}

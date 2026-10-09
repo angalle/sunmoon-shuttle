@@ -21,6 +21,10 @@ import { mergeAiDrafts } from './merge.js';
 import { buildPrompt, createDisabledStructurer, DEFAULT_MODEL, DEFAULT_TIMEOUT_MS, promptTemplateSha256 } from './ai.js';
 import { emptyAiExtractMeta, MAX_AI_TABLE_CALLS, parseTableCache, runAiTable, serializeTableCache } from './aiTableRun.js';
 import type { AiTablePageJob, AiTableRunOutcome } from './aiTableRun.js';
+import { adoptAiRows } from './aiAdopt.js';
+import type { AdoptionRequest } from './aiAdopt.js';
+import { checkDrift, driftTableText, forceDrift, parseBaseline, DRIFT_TRIP_THRESHOLD } from './driftGate.js';
+import type { DriftReport } from './driftGate.js';
 import type { AiTableExtractor } from './aiTable.js';
 import type { AiStructurer, TermSource } from './types.js';
 import { buildEnrichedTimetable, withExtractionMeta } from './enrich.js';
@@ -85,6 +89,12 @@ export const DEFAULT_AI_CACHE = '.session-notes/T34-ai-table-cache.json';
 export const DEFAULT_AI_DRAFT = '.session-notes/T34-ai-table-draft.json';
 /** T34: AI 표 **검증 리포트**(검증 4종 판정·비용 기록) */
 export const DEFAULT_AI_REPORT = '.session-notes/T34-ai-table-report.json';
+/** T35: 직전 발행본(= 비교 기준). 발행 전 드리프트 게이트 §7 입력 */
+export const DEFAULT_BASELINE = DEFAULT_OUT;
+/** T35: 드리프트 게이트 **보류 리포트**(사유·비교 표·아티팩트 목록 — JSON) */
+export const DEFAULT_DRIFT_REPORT = '.session-notes/T35-drift-report.json';
+/** T35: 사람이 5분 안에 판단하는 **비교 표**(텍스트) */
+export const DEFAULT_DRIFT_TABLE = '.session-notes/T35-drift-compare.txt';
 export const EXTRACTOR = 'tools/extract (schema v3)';
 
 export interface ExtractArgs {
@@ -108,11 +118,20 @@ export interface ExtractArgs {
   readonly aiDraftPath: string;
   /** T34: AI 표 검증 리포트 경로 */
   readonly aiReportPath: string;
+  /** T35: 직전 발행본 경로(§7 드리프트 비교 기준). 빈 문자열이면 게이트를 켜지 않는다 */
+  readonly baselinePath: string;
+  /** T35: 드리프트 보류 리포트 경로 */
+  readonly driftReportPath: string;
+  /** T35: 드리프트 비교 표(텍스트) 경로 */
+  readonly driftTablePath: string;
+  /** T35: 보류를 해제하고 강제 발행(`aiExtract.drift.forced = true` 기록 — 조용한 우회 금지) */
+  readonly forcePublish: boolean;
 }
 
 export const USAGE = [
   '사용법: npm run extract [-- --ai=api|ollama|off] [--local] [data/raw/*.html] [--out data/timetable.json]',
   '          [--model=<이름>] [--dry-run] [--log .session-notes/T16-extract-run.json] [--term-page <html>]…',
+  '          [--baseline data/timetable.json] [--force-publish] [--drift-report <json>] [--drift-table <txt>]',
   '',
   '  --ai=api              OpenAI 호환 외부 API 로 AI 보강한다(기본. AI_BASE_URL·AI_MODEL·AI_API_KEY)',
   '  --ai=ollama           로컬 Ollama 로 AI 보강한다(대안. 기본 모델 ' + DEFAULT_MODEL + ')',
@@ -132,6 +151,15 @@ export const USAGE = [
   '  --ai-cache <경로>     AI 표 내용 해시 캐시(기본 ' + DEFAULT_AI_CACHE + ')',
   '  --ai-draft <경로>     AI 표 초안 산출물(기본 ' + DEFAULT_AI_DRAFT + ')',
   '  --ai-report <경로>    AI 표 검증 리포트(기본 ' + DEFAULT_AI_REPORT + ')',
+  '',
+  '  T35 교차검증·드리프트(docs/08 §5·§7): 규칙 정본 vs AI 초안을 **정규화 후** 행 단위로 비교한다.',
+  '   ① 값 모순 = 발행 보류(exit 1) · ② key-shift · ③ null-vs-값 = 경고(발행 진행).',
+  '   발행 직전 직전 발행본(--baseline)과 비교해 편수 ±' + String(DRIFT_TRIP_THRESHOLD * 100) + '% 이상 변동·노선 소실·편수 0·요일 버킷 소실·',
+  '   열 키 변경 중 하나라도 걸리면 발행 보류(exit 1) + 원본/초안/비교 표 아티팩트. 규칙 0건 페이지는 AI 초안 채택 후보(Stage B).',
+  '  --baseline <경로>     직전 발행본(드리프트 비교 기준 · 기본 ' + DEFAULT_BASELINE + ' · 빈 문자열이면 게이트 끔)',
+  '  --force-publish       드리프트 보류를 해제하고 발행(사실을 aiExtract.drift.forced=true 로 기록 — 조용한 우회 금지)',
+  '  --drift-report <경로> 드리프트·교차검증 리포트 JSON(기본 ' + DEFAULT_DRIFT_REPORT + ')',
+  '  --drift-table <경로>  드리프트 비교 표 텍스트(기본 ' + DEFAULT_DRIFT_TABLE + ')',
   '',
   '  ※ 키 없음·401/403·타임아웃·5xx(재시도 1회)면 자동으로 규칙 전용으로 폴백한다(경고 기록 — 배치 유지).',
 ].join('\n');
@@ -153,6 +181,10 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     aiCachePath: string;
     aiDraftPath: string;
     aiReportPath: string;
+    baselinePath: string;
+    driftReportPath: string;
+    driftTablePath: string;
+    forcePublish: boolean;
   } = {
     files: [],
     out: DEFAULT_OUT,
@@ -167,17 +199,22 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     aiCachePath: DEFAULT_AI_CACHE,
     aiDraftPath: DEFAULT_AI_DRAFT,
     aiReportPath: DEFAULT_AI_REPORT,
+    baselinePath: DEFAULT_BASELINE,
+    driftReportPath: DEFAULT_DRIFT_REPORT,
+    driftTablePath: DEFAULT_DRIFT_TABLE,
+    forcePublish: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (token === undefined) continue;
-    if (token === '--local' || token === '--no-ai' || token === '--dry-run' || token === '--inject-fabricated') {
+    if (token === '--local' || token === '--no-ai' || token === '--dry-run' || token === '--inject-fabricated' || token === '--force-publish') {
       if (token === '--no-ai') {
         args.noAi = true;
         args.aiMode = 'off';
       }
       if (token === '--dry-run') args.dryRun = true;
       if (token === '--inject-fabricated') args.injectFabricated = true;
+      if (token === '--force-publish') args.forcePublish = true;
       continue;
     }
     if (token === '--ai' || token.startsWith('--ai=')) {
@@ -202,7 +239,7 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
       if (inline === undefined) i += 1;
       continue;
     }
-    if (token === '--out' || token === '--log' || token === '--now' || token === '--term-page' || token === '--ai-cache' || token === '--ai-draft' || token === '--ai-report') {
+    if (token === '--out' || token === '--log' || token === '--now' || token === '--term-page' || token === '--ai-cache' || token === '--ai-draft' || token === '--ai-report' || token === '--baseline' || token === '--drift-report' || token === '--drift-table') {
       const value = argv[i + 1];
       if (value === undefined || value.startsWith('--')) throw new ExtractError(`${token} 뒤에 값이 필요합니다`);
       if (token === '--out') args.out = value;
@@ -211,6 +248,9 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
       else if (token === '--ai-cache') args.aiCachePath = value;
       else if (token === '--ai-draft') args.aiDraftPath = value;
       else if (token === '--ai-report') args.aiReportPath = value;
+      else if (token === '--baseline') args.baselinePath = value;
+      else if (token === '--drift-report') args.driftReportPath = value;
+      else if (token === '--drift-table') args.driftTablePath = value;
       else {
         if (!ISO_OFFSET_PATTERN.test(value)) throw new ExtractError(`--now 값이 ISO8601(+오프셋) 형식이 아닙니다 — "${value}"`);
         args.now = value;
@@ -270,6 +310,24 @@ interface RunRecord {
   noAi: boolean;
   /** T34 AI 표 추출 요약 — 단계가 꺼져 있으면 `enabled: false`(기존 소비자 무영향) */
   aiTable: AiTableRunRecord;
+  /** T35 드리프트 게이트(§7) — 발행 직전 직전 발행본과의 비교 결과 */
+  drift: DriftRunRecord;
+}
+
+/** T35 §7 드리프트 게이트 실행 기록(로그용 — 발행물 계약은 `source.extraction.aiExtract.drift`) */
+export interface DriftRunRecord {
+  readonly checked: boolean;
+  readonly blocked: boolean;
+  /** `--force-publish` 로 보류를 해제하고 발행했는가 */
+  readonly forced: boolean;
+  readonly reasons: readonly string[];
+  readonly signals: readonly string[];
+  readonly baseline: string | null;
+  readonly baselineIssue: string | null;
+  readonly threshold: number;
+  readonly totals: { readonly before: number; readonly after: number; readonly deltaPct: number };
+  readonly reportPath: string;
+  readonly tablePath: string;
 }
 
 /** T34 AI 표 추출 단계의 실행 기록(로그용 — 발행물 계약은 `source.extraction.aiExtract`) */
@@ -282,8 +340,21 @@ export interface AiTableRunRecord {
   readonly pagesSkippedByHash: number;
   readonly calls: number;
   readonly totalTokens: number;
+  /** §5 교차검증 합계(정규화 후) */
   readonly agreedRows: number;
+  readonly keyShiftRows: number;
+  readonly nullMismatchRows: number;
+  readonly contradictedRows: number;
+  readonly rowSetMismatchRows: number;
+  /** 정규화 전(T34 정의) — 추세 비교용 */
+  readonly rawAgreedRows: number;
+  readonly rawDisagreedRows: number;
+  /** 하위 호환 필드(정규화 전 불일치와 같은 값) */
   readonly disagreedRows: number;
+  /** §5 차단(① 값 모순·행 집합 불일치) 페이지 */
+  readonly blockedPages: readonly { readonly page: string; readonly reason: string }[];
+  /** Stage B 로 채택한 페이지 */
+  readonly adoptedPages: readonly string[];
   readonly droppedPages: readonly string[];
   readonly cappedPages: readonly string[];
   readonly noTablePages: readonly string[];
@@ -348,12 +419,6 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     deps.error(`[extract] 조립 실패: ${message(error)}`);
     return 1;
   }
-  const baseIssues = validateTimetable(base);
-  if (baseIssues.length > 0) {
-    deps.error(`[extract] v1 기준선 검증 실패 — ${baseIssues.length}건(파서 회귀 의심)`);
-    for (const issue of baseIssues) deps.error(`[extract]   ${issue.where}: ${issue.message}`);
-    return 1;
-  }
 
   const sources: SnapshotSource[] = toSources(snapshotInputs);
   const { candidates, rejected } = harvestCandidates(sources);
@@ -414,6 +479,56 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     return 1;
   }
 
+  // ③-c T35 §5 교차검증 **차단**(① 값 모순·행 집합 불일치) — 발행 보류 + 아티팩트(원본·초안·비교 표).
+  //      경고(② key-shift·③ null-vs-값)는 위에서 로그만 남기고 규칙 정본 발행을 계속한다.
+  const blockedPages = aiTable.outcome?.blockedPages ?? [];
+  if (blockedPages.length > 0) {
+    for (const page of blockedPages) deps.error(`[extract]   ${page.page}: ${page.reason}`);
+    deps.error(
+      `[extract] 교차검증 차단 — 발행 보류(${String(blockedPages.length)}페이지). 규칙 정본과 AI 초안이 **모순**된다(docs/08 §5)`,
+    );
+    const hold = writeHoldArtifacts(deps, args, aiTable.outcome, null, 'crosscheck-contradiction', files);
+    writeLog(deps, args, buildRecord(args, files, candidates.length, { accepted: 0, dropped: [], merged: [], repairs: [], conflicts: 0 }, rules, aiResult, deps.nowMs() - started, [], [], [], true, {
+      candidatesRejected: rejected,
+      promptChars,
+      termPages: termFiles,
+      aiTable: aiTable.record,
+      drift: hold.driftRecord,
+    }));
+    return 1;
+  }
+
+  // ③-d Stage B(docs/08 §5): 규칙이 행을 0건 만든 페이지에서만 AI 초안을 **실제로 채택**한다
+  //      (검증 4종 통과 + ①·② 0건 + 계약 열 집합 일치 — `aiTableRun` 이 판정, 여기서 타임테이블에 반영).
+  const adoption = adoptAiRows(base, adoptionRequests(aiTable.outcome));
+  const publishBase = adoption.timetable;
+  if (adoption.adopted.length > 0) {
+    for (const page of adoption.adopted) {
+      deps.log(`[extract] Stage B 채택 반영(${page.page}) — 노선 ${page.routeId}/${page.dayType} ${String(page.rows)}행 · extractedBy="ai" · needsReview=true`);
+    }
+  }
+
+  // ②-b v1 기준선 검증 — **채택 반영본**으로 검사한다(규칙이 행을 못 만든 페이지를 AI 가 채웠으면 통과해야 한다).
+  const baseIssues = validateTimetable(publishBase);
+  if (baseIssues.length > 0) {
+    const hasEmptyRulePage = (aiTable.outcome?.pages ?? []).some((page) => page.status === 'dropped' || page.status === 'blocked');
+    deps.error(
+      hasEmptyRulePage
+        ? `[extract] v1 기준선 검증 실패 — ${String(baseIssues.length)}건. AI 채택이 성립하지 않아 **발행 보류**(규칙 0건 페이지 미채택, docs/08 §5)`
+        : `[extract] v1 기준선 검증 실패 — ${String(baseIssues.length)}건(파서 회귀 의심)`,
+    );
+    for (const issue of baseIssues) deps.error(`[extract]   ${issue.where}: ${issue.message}`);
+    const hold = writeHoldArtifacts(deps, args, aiTable.outcome, null, 'rule-baseline', files);
+    writeLog(deps, args, buildRecord(args, files, candidates.length, { accepted: 0, dropped: [], merged: [], repairs: [], conflicts: 0 }, rules, aiResult, deps.nowMs() - started, [], [], [], true, {
+      candidatesRejected: rejected,
+      promptChars,
+      termPages: termFiles,
+      aiTable: aiTable.record,
+      drift: hold.driftRecord,
+    }));
+    return 1;
+  }
+
   // ④ 병합·중복 제거
   const merged = mergeAiDrafts({
     ruleDateRules: rules.dateRules,
@@ -450,7 +565,7 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     notices: rules.notices,
     dedupedNotices: rules.dedupedNotices,
   };
-  let enriched = buildEnrichedTimetable(base, parts);
+  let enriched = buildEnrichedTimetable(publishBase, parts);
   if (args.injectFabricated) {
     enriched = { ...enriched, dateRules: [...enriched.dateRules, fabricatedRule(sources)] };
     deps.log('[extract] ⚠️ --inject-fabricated: 원본에 없는 문장을 주입했다(검증 FAIL 이어야 정상)');
@@ -462,12 +577,35 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   const reviewReasons = issues.filter((issue) => !issue.fatal).map((issue) => `${issue.where}: ${issue.message}`);
   const needsReview = countNeedsReview(enriched);
 
+  // ⑥-b §7 드리프트 게이트(T35) — 발행 **직전 발행본**과 비교해 편수·노선·요일·열 키를 본다.
+  const baseline = readBaseline(args, deps);
+  let drift = checkDrift({
+    baseline: baseline.baseline,
+    baselinePath: baseline.path,
+    baselineIssue: baseline.issue,
+    next: enriched,
+  });
+  if (drift.checked && drift.blocked && args.forcePublish) {
+    drift = forceDrift(drift);
+    deps.log(`[extract] ⚠️ --force-publish: 드리프트 보류를 해제하고 발행한다 — 사유는 aiExtract.drift.reasons 로 남긴다(조용한 우회 금지)`);
+  }
+  const driftRecord = toDriftRunRecord(drift, args);
+  if (drift.checked) {
+    deps.log(
+      `[extract] 드리프트 게이트(§7): 기준 ${drift.baseline ?? '-'} · 전체 편 수 ${String(drift.totals.before)} → ${String(drift.totals.after)} (${drift.totals.deltaPct >= 0 ? '+' : ''}${String(drift.totals.deltaPct)}%) · 신호 ${String(drift.signals.length)}건 · blocked=${String(drift.blocked)}${drift.forced ? ' (강제 발행)' : ''}`,
+    );
+  } else {
+    deps.log(`[extract] 드리프트 게이트(§7): 켜지 않음 — ${drift.skippedReason ?? '사유 없음'}`);
+  }
+  for (const signal of drift.signals) deps.log(`[extract]   ⚠️ ${signal.id}: ${signal.detail}`);
+
   const record = buildRecord(args, files, candidates.length, merged, rules, aiResult, deps.nowMs() - started, fatalIssues, reviewReasons, issues, fatalIssues.length > 0, {
     candidatesRejected: rejected,
     needsReview,
     promptChars,
     termPages: termFiles,
     aiTable: aiTable.record,
+    drift: driftRecord,
   });
 
   if (fatalIssues.length > 0) {
@@ -477,7 +615,20 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     return 1;
   }
 
+  // ⑥-c 드리프트 **보류** — 발행하지 않고 exit 1(워크플로 실패 = 알림). 원본·AI 초안·비교 표를 아티팩트로 남긴다.
+  if (drift.blocked) {
+    deps.error(
+      `[extract] 드리프트 게이트 보류 — 신호 ${String(drift.signals.length)}건. **발행하지 않는다**(마지막 정상 JSON 유지). 사람이 비교 표를 보고 승인하면 --force-publish 로 발행한다(docs/08 §7)`,
+    );
+    for (const reason of drift.reasons) deps.error(`[extract]   ${reason}`);
+    const hold = writeHoldArtifacts(deps, args, aiTable.outcome, drift, 'drift-gate', files);
+    writeLog(deps, args, { ...record, output: null, drift: hold.driftRecord });
+    if (!args.dryRun) return 1;
+    deps.log('[extract] --dry-run: 발행이 없으므로 종료코드는 0 이다(보류 사실은 위 리포트·로그에 남겼다)');
+  }
+
   const gaps = computeGapCoverage(enriched);
+  const aiExtract = aiTable.outcome?.meta ?? emptyAiExtractMeta();
   const meta: ExtractionMeta = {
     extractor: EXTRACTOR,
     schemaVersion: 3,
@@ -506,7 +657,15 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     reviewReasons,
     gaps,
     // §8 AI 표 추출 기록 — AI 단계를 안 돌린 실행도 0 값으로 남긴다(소비자가 필드 존재를 가정)
-    aiExtract: aiTable.outcome?.meta ?? emptyAiExtractMeta(),
+    aiExtract: {
+      ...aiExtract,
+      drift: {
+        checked: drift.checked,
+        blocked: drift.blocked,
+        ...(drift.forced ? { forced: true } : {}),
+        reasons: drift.reasons,
+      },
+    },
   };
   const final: EnrichedTimetable = withExtractionMeta(enriched, meta);
 
@@ -520,6 +679,8 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
 
   // T34 산출물(초안 JSON + 검증 리포트) — 발행이 확정된 뒤에만 쓴다(치명 실패 시 산출물 0건)
   if (aiTable.outcome !== null) writeAiTableArtifacts(deps, args, aiTable.outcome);
+  // T35 산출물(드리프트 비교 표·리포트) — 정상 발행에서도 남긴다(사람이 추세를 본다)
+  writeDriftArtifacts(deps, args, aiTable.outcome, drift, files);
 
   const serialized = `${JSON.stringify(final, null, 2)}\n`;
   try {
@@ -572,7 +733,15 @@ function disabledAiTableRecord(args: ExtractArgs): AiTableRunRecord {
     calls: 0,
     totalTokens: 0,
     agreedRows: 0,
+    keyShiftRows: 0,
+    nullMismatchRows: 0,
+    contradictedRows: 0,
+    rowSetMismatchRows: 0,
+    rawAgreedRows: 0,
+    rawDisagreedRows: 0,
     disagreedRows: 0,
+    blockedPages: [],
+    adoptedPages: [],
     droppedPages: [],
     cappedPages: [],
     noTablePages: [],
@@ -582,6 +751,170 @@ function disabledAiTableRecord(args: ExtractArgs): AiTableRunRecord {
     cachePath: args.aiCachePath,
     draftPath: args.aiDraftPath,
     reportPath: args.aiReportPath,
+  };
+}
+
+/** 드리프트 게이트를 돌리지 않은 실행의 기록값(소비자가 필드 존재를 가정한다) */
+function emptyDriftRecord(args: ExtractArgs, issue: string | null): DriftRunRecord {
+  return {
+    checked: false,
+    blocked: false,
+    forced: false,
+    reasons: [],
+    signals: [],
+    baseline: args.baselinePath === '' ? null : args.baselinePath,
+    baselineIssue: issue,
+    threshold: DRIFT_TRIP_THRESHOLD,
+    totals: { before: 0, after: 0, deltaPct: 0 },
+    reportPath: args.driftReportPath,
+    tablePath: args.driftTablePath,
+  };
+}
+
+function toDriftRunRecord(drift: DriftReport, args: ExtractArgs): DriftRunRecord {
+  return {
+    checked: drift.checked,
+    blocked: drift.blocked,
+    forced: drift.forced,
+    reasons: drift.reasons,
+    signals: drift.signals.map((signal) => `${signal.id}: ${signal.detail}`),
+    baseline: drift.baseline,
+    baselineIssue: drift.skippedReason,
+    threshold: drift.threshold,
+    totals: drift.totals,
+    reportPath: args.driftReportPath,
+    tablePath: args.driftTablePath,
+  };
+}
+
+/** 직전 발행본 읽기 — 없거나 손상이면 `baseline: null` + 사유(추측하지 않는다: 게이트를 켜지 않는다) */
+function readBaseline(args: ExtractArgs, deps: ExtractDeps): { baseline: ReturnType<typeof parseBaseline>; path: string | null; issue: string | null } {
+  if (args.baselinePath === '') return { baseline: null, path: null, issue: '--baseline 이 비었다(게이트 끔)' };
+  let raw: string;
+  try {
+    raw = deps.readTextFile(args.baselinePath);
+  } catch (error) {
+    return { baseline: null, path: args.baselinePath, issue: `직전 발행본을 읽을 수 없다: ${message(error)}` };
+  }
+  const parsed = parseBaseline(raw);
+  if (parsed === null) {
+    return { baseline: null, path: args.baselinePath, issue: `직전 발행본을 해석할 수 없다(형식 오류): ${args.baselinePath}` };
+  }
+  return { baseline: parsed, path: args.baselinePath, issue: null };
+}
+
+/** Stage B 채택 요청 — `aiTableRun` 이 채택 판정한 페이지만 넘어온다(여기서 다시 판단하지 않는다) */
+function adoptionRequests(outcome: AiTableRunOutcome | null): AdoptionRequest[] {
+  if (outcome === null) return [];
+  const requests: AdoptionRequest[] = [];
+  for (const page of outcome.pages) {
+    if (page.status !== 'adopted' || page.draft === null) continue;
+    requests.push({
+      page: page.page,
+      routeId: page.routeId,
+      dayType: page.dayType,
+      draft: page.draft,
+      evidence: page.reason ?? '검증 4종 통과 · 교차검증 ①0 ②0',
+    });
+  }
+  return requests;
+}
+
+/** T35 산출물 — 드리프트/교차검증 **리포트 JSON + 비교 표 텍스트**(사람이 5분 안에 판단하는 근거) */
+function writeDriftArtifacts(
+  deps: ExtractDeps,
+  args: ExtractArgs,
+  outcome: AiTableRunOutcome | null,
+  drift: DriftReport,
+  files: readonly string[],
+): { readonly reportPath: string; readonly tablePath: string } {
+  const payload = {
+    generatedAt: deps.nowIso(),
+    schemaVersion: 1,
+    gate: 'T35-drift+crosscheck',
+    published: true,
+    drift,
+    crossCheck: outcome === null ? null : crossCheckSummary(outcome),
+    inputs: { snapshots: [...files], baseline: args.baselinePath, aiDraft: args.aiDraftPath, aiReport: args.aiReportPath },
+  };
+  try {
+    deps.writeTextFile(args.driftReportPath, `${JSON.stringify(payload, null, 2)}\n`);
+    deps.writeTextFile(args.driftTablePath, driftTableText(drift));
+    deps.log(`[extract] 드리프트 산출물: 리포트 ${args.driftReportPath} · 비교 표 ${args.driftTablePath}`);
+  } catch (error) {
+    deps.error(`[extract] 드리프트 산출물 저장 실패: ${message(error)}`);
+  }
+  return { reportPath: args.driftReportPath, tablePath: args.driftTablePath };
+}
+
+/**
+ * **발행 보류** 시 산출물(docs/08 §5·§7) — 원본 스냅샷 목록 · AI 초안/리포트 · 비교 표를 남겨
+ * 사람이 5분 안에 판단할 수 있게 한다. **발행물(data/timetable.json)은 쓰지 않는다**.
+ */
+function writeHoldArtifacts(
+  deps: ExtractDeps,
+  args: ExtractArgs,
+  outcome: AiTableRunOutcome | null,
+  drift: DriftReport | null,
+  reason: string,
+  files: readonly string[],
+): { readonly driftRecord: DriftRunRecord } {
+  const reportPath = args.driftReportPath;
+  const tablePath = args.driftTablePath;
+  const driftRecord: DriftRunRecord =
+    drift === null
+      ? { ...emptyDriftRecord(args, '발행 보류(교차검증·기준선) — 드리프트 게이트까지 가지 않았다'), blocked: true, reasons: [reason] }
+      : toDriftRunRecord(drift, args);
+  const payload = {
+    generatedAt: deps.nowIso(),
+    schemaVersion: 1,
+    gate: 'T35-drift+crosscheck',
+    published: false,
+    holdReason: reason,
+    drift,
+    crossCheck: outcome === null ? null : crossCheckSummary(outcome),
+    blockedPages: outcome?.blockedPages ?? [],
+    inputs: { snapshots: [...files], baseline: args.baselinePath === '' ? null : args.baselinePath, aiDraft: args.aiDraftPath, aiReport: args.aiReportPath },
+  };
+  try {
+    deps.writeTextFile(reportPath, `${JSON.stringify(payload, null, 2)}\n`);
+    deps.writeTextFile(
+      tablePath,
+      drift === null
+        ? `T35 발행 보류 — 사유: ${reason}\n(드리프트 게이트 미평가 · 원본: ${files.join(', ')})\n`
+        : driftTableText(drift),
+    );
+    if (outcome !== null) writeAiTableArtifacts(deps, args, outcome);
+    deps.log(`[extract] 보류 산출물: 리포트 ${reportPath} · 비교 표 ${tablePath} · 초안 ${args.aiDraftPath} · 스냅샷 ${String(files.length)}개`);
+  } catch (error) {
+    deps.error(`[extract] 보류 산출물 저장 실패: ${message(error)}`);
+  }
+  return { driftRecord };
+}
+
+/** 교차검증 요약(리포트·보류 아티팩트 공통) */
+function crossCheckSummary(outcome: AiTableRunOutcome): Record<string, unknown> {
+  const meta = outcome.meta;
+  return {
+    agreedRows: meta.agreedRows,
+    keyShiftRows: meta.keyShiftRows,
+    nullMismatchRows: meta.nullMismatchRows,
+    contradictedRows: meta.contradictedRows,
+    rowSetMismatchRows: meta.rowSetMismatchRows,
+    rawAgreedRows: meta.rawAgreedRows,
+    rawDisagreedRows: meta.rawDisagreedRows,
+    adoptedPages: meta.adoptedPages,
+    blockedPages: outcome.blockedPages,
+    perPage: outcome.reportArtifact.pages.map((page) => ({
+      page: page.page,
+      status: page.status,
+      agreedRows: page.agreedRows,
+      keyShiftRows: page.keyShiftRows,
+      nullMismatchRows: page.nullMismatchRows,
+      contradictedRows: page.contradictedRows,
+      rawAgreedRows: page.rawAgreedRows,
+      rawDisagreedRows: page.rawDisagreedRows,
+    })),
   };
 }
 
@@ -665,12 +998,15 @@ async function extractAiTable(
   }
 
   const meta = outcome.meta;
-  const passed = outcome.pages.filter((page) => page.status === 'ok' || page.status === 'cached').length;
+  const passed = outcome.pages.filter((page) => page.status === 'ok' || page.status === 'cached' || page.status === 'adopted').length;
   deps.log(
     `[extract] AI 표: 대상 ${String(jobs.length)}개(표 없음 ${String(noTablePages.length)}개) · 보낸 페이지 ${String(meta.pagesSent)} · 해시 캐시 ${String(meta.pagesSkippedByHash)} · 호출 ${String(meta.calls)}회 · 토큰(추정) ${String(meta.totalTokens)}`,
   );
   deps.log(
-    `[extract] AI 표 검증 4종: 통과 ${String(passed)}개 · 폐기 ${String(outcome.dropped.length)}개 · 치명 ${String(outcome.fatalIssues.length)}건 · 상한초과 ${String(outcome.capped.length)}개 · 규칙 일치 ${String(meta.agreedRows)}/${String(meta.agreedRows + meta.disagreedRows)}행`,
+    `[extract] AI 표 검증 4종: 통과 ${String(passed)}개 · 폐기 ${String(outcome.dropped.length)}개 · 치명 ${String(outcome.fatalIssues.length)}건 · 상한초과 ${String(outcome.capped.length)}개`,
+  );
+  deps.log(
+    `[extract] 교차검증(§5 정규화 후): 일치 ${String(meta.agreedRows)}행 · ② key-shift ${String(meta.keyShiftRows)}행(경고) · ③ null-vs-값 ${String(meta.nullMismatchRows)}행(경고) · ① 값 모순 ${String(meta.contradictedRows)}행${meta.contradictedRows > 0 ? '(차단)' : ''} · 정규화 전 ${String(meta.rawAgreedRows)}/${String(meta.rawAgreedRows + meta.rawDisagreedRows)}행 · Stage B 채택 ${String(meta.adoptedPages.length)}페이지`,
   );
 
   return {
@@ -684,7 +1020,15 @@ async function extractAiTable(
       calls: meta.calls,
       totalTokens: meta.totalTokens,
       agreedRows: meta.agreedRows,
+      keyShiftRows: meta.keyShiftRows,
+      nullMismatchRows: meta.nullMismatchRows,
+      contradictedRows: meta.contradictedRows,
+      rowSetMismatchRows: meta.rowSetMismatchRows,
+      rawAgreedRows: meta.rawAgreedRows,
+      rawDisagreedRows: meta.rawDisagreedRows,
       disagreedRows: meta.disagreedRows,
+      blockedPages: outcome.blockedPages,
+      adoptedPages: meta.adoptedPages,
       droppedPages: outcome.dropped,
       cappedPages: outcome.capped,
       noTablePages,
@@ -745,6 +1089,7 @@ function buildRecord(
     readonly promptChars?: number;
     readonly termPages?: readonly string[];
     readonly aiTable?: AiTableRunRecord;
+    readonly drift?: DriftRunRecord;
   },
 ): RunRecord {
   return {
@@ -784,6 +1129,7 @@ function buildRecord(
     dryRun: args.dryRun,
     noAi: args.noAi,
     aiTable: extra?.aiTable ?? disabledAiTableRecord(args),
+    drift: extra?.drift ?? emptyDriftRecord(args, '기록 없음'),
   };
   void allIssues;
 }
@@ -819,7 +1165,10 @@ function logSummary(
   }
   const aiExtract = timetable.source.extraction.aiExtract;
   deps.log(
-    `[extract] AI 표(§8 기록): 보낸 페이지 ${String(aiExtract.pagesSent)} · 해시 캐시 ${String(aiExtract.pagesSkippedByHash)} · 호출 ${String(aiExtract.calls)}회 · 토큰(추정) ${String(aiExtract.totalTokens)} · 규칙 일치 ${String(aiExtract.agreedRows)}/${String(aiExtract.agreedRows + aiExtract.disagreedRows)}행 · 채택 페이지 ${String(aiExtract.adoptedPages.length)}(Stage B 는 T35)`,
+    `[extract] AI 표(§8 기록): 보낸 페이지 ${String(aiExtract.pagesSent)} · 해시 캐시 ${String(aiExtract.pagesSkippedByHash)} · 호출 ${String(aiExtract.calls)}회 · 토큰(추정) ${String(aiExtract.totalTokens)} · 교차검증(정규화 후) 일치 ${String(aiExtract.agreedRows)}행 · ① 값 모순 ${String(aiExtract.contradictedRows)} · ② key-shift ${String(aiExtract.keyShiftRows)} · ③ null-vs-값 ${String(aiExtract.nullMismatchRows)} · 정규화 전 ${String(aiExtract.rawAgreedRows)}/${String(aiExtract.rawAgreedRows + aiExtract.rawDisagreedRows)}행 · Stage B 채택 페이지 ${String(aiExtract.adoptedPages.length)}`,
+  );
+  deps.log(
+    `[extract] 드리프트(§7): checked=${String(aiExtract.drift.checked)} blocked=${String(aiExtract.drift.blocked)} forced=${String(aiExtract.drift.forced ?? false)} reasons=${String(aiExtract.drift.reasons.length)}`,
   );
   deps.log(`[extract] dateRules ${String(timetable.dateRules.length)}건 · terms ${String(timetable.terms.length)}건 · notices 중복 제거 ${String(timetable.source.extraction.dedupedNotices)}건`);
   deps.log(

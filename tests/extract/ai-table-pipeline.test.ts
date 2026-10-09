@@ -327,9 +327,10 @@ describe('T34 통합 AC-AI1-2 — 정상 응답 → 검증 수치 · §8 기록 
     expect(Number(aiExtract['calls'])).toBeGreaterThanOrEqual(TABLE_PAGES);
     expect(Number(aiExtract['totalTokens'])).toBeGreaterThan(0);
     expect(Number(aiExtract['agreedRows'])).toBeGreaterThan(50);
-    expect(Number(aiExtract['agreedRows']) + Number(aiExtract['disagreedRows'])).toBe(148); // 10개 표 전체 행
+    expect(Number(aiExtract['agreedRows']) + Number(aiExtract['disagreedRows'])).toBe(148); // 10개 표 전체 행(정규화 후 일치 + 정규화 전 불일치)
     expect(aiExtract['adoptedPages']).toEqual([]);
-    expect(aiExtract['drift']).toEqual({ checked: false, blocked: false, reasons: [] });
+    // T35: 드리프트 게이트는 발행 직전 발행본과 비교한다 — 이 실행은 편수·열이 그대로라 통과(차단 0)
+    expect(aiExtract['drift']).toEqual({ checked: true, blocked: false, reasons: [] });
 
     const report = JSON.parse(harness.written.get(REPORT) ?? '{}') as {
       pages: { page: string; status: string; checks: { id: string; ok: boolean }[] }[];
@@ -464,9 +465,16 @@ describe('T34 통합 AC-AI1-7 — 회귀(규칙 정본) · 폴백 · DeepSeek �
       calls: 0,
       totalTokens: 0,
       agreedRows: 0,
+      rawAgreedRows: 0,
       disagreedRows: 0,
+      rawDisagreedRows: 0,
+      keyShiftRows: 0,
+      nullMismatchRows: 0,
+      contradictedRows: 0,
+      rowSetMismatchRows: 0,
       adoptedPages: [],
-      drift: { checked: false, blocked: false, reasons: [] },
+      // §7 드리프트는 켜져 있다(직전 발행본과 편수·열 동일 → 통과)
+      drift: { checked: true, blocked: false, reasons: [] },
     });
     expect(harness.logs.join('\n')).toContain('AI 표 추출: --ai=off');
     expect(harness.written.has(DRAFT)).toBe(false);
