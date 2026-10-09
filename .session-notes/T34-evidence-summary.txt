@@ -1,0 +1,7 @@
+T34 AI 표 추출기 증거 요약 — 2026-10-09 09:41:20 +0900
+  AC-AI1-1 exit=1 (기대 1) · 발행물/초안/리포트 0건 · 사유 로그 T34-ac-ai1-1-stderr.txt
+  AC-AI1-2 run1 리포트: 
+  AC-AI1-3 run1 calls=10 → run2 calls=0 → run3 calls=1(바뀐 1개 페이지)
+  AC-AI1-7 --no-ai exit=0 · 규칙 정본 비교는 위 PASS/FAIL 참조
+  모의 서버 표 요청 수: hallucinate=10 · faithful=11
+  종합: PASS

@@ -1,0 +1,12 @@
+T34 실 DeepSeek 실행 요약 — 2026-10-09 09:53:11 +0900
+  model=deepseek-v4-flash · --now 2026-10-09T10:00:00+09:00 · run1 exit=0 · run2 exit=0 (기대 0/0)
+  run1 로그: [extract] AI 표: 대상 10개(표 없음 1개) · 보낸 페이지 10 · 해시 캐시 0 · 호출 11회 · 토큰(추정) 19346 [extract] AI 표 검증 4종: 통과 9개 · 폐기 0개 · 치명 0건 · 상한초과 0개 · 규칙 일치 77/115행 
+  run2 로그: [extract] AI 표: 대상 10개(표 없음 1개) · 보낸 페이지 1 · 해시 캐시 9 · 호출 2회 · 토큰(추정) 5388 [extract] AI 표 검증 4종: 통과 10개 · 폐기 0개 · 치명 0건 · 상한초과 0개 · 규칙 일치 78/148행 
+  발행본 aiExtract = {"pagesSent":0,"pagesSkippedByHash":10,"calls":0,"totalTokens":0,"agreedRows":78,"disagreedRows":70,"adoptedPages":[],"drift":{"checked":false,"blocked":false,"reasons":[]}}
+  규칙 정본(source 제외) 실행 전후 동일 = true
+  provider=api · model=deepseek-v4-flash
+  ── 검증 리포트(실 API) 페이지별 대조 수치(앞 3건) ──
+    2026-2학기-asan-ktx-일요일.html [cached] 원문 시각 18개 == 추출 시각 18개 | 추출 행 6개 == 원문 행 6개 · 순번 1..6
+    2026-2학기-asan-ktx-토요일.html [cached] 원문 시각 12개 == 추출 시각 12개 | 추출 행 4개 == 원문 행 4개 · 순번 1..4
+    2026-2학기-asan-ktx-평일.html [cached] 원문 시각 97개 == 추출 시각 97개 | 추출 행 42개 == 원문 행 42개 · 순번 1..42
+    전체: 통과 0개 · 폐기 0개 · 치명 0건 · agreedRows=78 · disagreedRows=70 · calls=0 · tokens=0

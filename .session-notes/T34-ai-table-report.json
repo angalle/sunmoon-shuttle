@@ -1,0 +1,390 @@
+{
+  "generatedAt": "2026-10-09T09:53:11+09:00",
+  "cap": 12,
+  "pagesSent": 0,
+  "pagesSkippedByHash": 10,
+  "calls": 0,
+  "promptTokens": 0,
+  "completionTokens": 0,
+  "totalTokens": 0,
+  "agreedRows": 78,
+  "disagreedRows": 70,
+  "pages": [
+    {
+      "page": "data/raw/2026-2학기-asan-ktx-일요일.html",
+      "routeId": "asan-ktx",
+      "dayType": "sunday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:6ff6a0d53e6730aac1c0ffb617e12a8f167bcfff3f59b579adcd2241d292ba87",
+      "calls": 0,
+      "agreedRows": 6,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 18개 == 추출 시각 18개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 6개 == 원문 행 6개 · 순번 1..6"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 4개·행 6개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-asan-ktx-토요일.html",
+      "routeId": "asan-ktx",
+      "dayType": "saturday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:c964a3f1f3e8804e5794c17b73720d7eab396158539ed10daa514328d3ff7ecb",
+      "calls": 0,
+      "agreedRows": 4,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 12개 == 추출 시각 12개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 4개 == 원문 행 4개 · 순번 1..4"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 4개·행 4개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "routeId": "asan-ktx",
+      "dayType": "weekday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:a0701b2dd60a9ab4c62d45da2f606c30d0664cbe26eeffcfc61f24eb347c1cd9",
+      "calls": 0,
+      "agreedRows": 42,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 97개 == 추출 시각 97개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 42개 == 원문 행 42개 · 순번 1..42"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 5개·행 42개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-station-일요일.html",
+      "routeId": "cheonan-station",
+      "dayType": "sunday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:8c24e0fdbfadb7f9d05c3dc213f15bfa66247f81404f5d3d40b0ffcfd24c6a7f",
+      "calls": 0,
+      "agreedRows": 5,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 15개 == 추출 시각 15개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 5개 == 원문 행 5개 · 순번 1..5"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 4개·행 5개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-station-토요일.html",
+      "routeId": "cheonan-station",
+      "dayType": "saturday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:23bc0c3656e1e30ee4d28bc9d88bdda1a9a74a284c48c78b613f82798b3a2949",
+      "calls": 0,
+      "agreedRows": 4,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 12개 == 추출 시각 12개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 4개 == 원문 행 4개 · 순번 1..4"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 4개·행 4개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-station-평일.html",
+      "routeId": "cheonan-station",
+      "dayType": "weekday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:429d7e05d1e99b91bf75e778f6091424193396252c53d881b64c426c76948001",
+      "calls": 0,
+      "agreedRows": 1,
+      "disagreedRows": 32,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 80개 == 추출 시각 80개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 33개 == 원문 행 33개 · 순번 1..33"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 7개·행 33개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-terminal-일요일.html",
+      "routeId": "cheonan-terminal",
+      "dayType": "sunday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:8b3a698d34829116d0d9c7837a373c3c53309fc798232f72ed063874c3d545fb",
+      "calls": 0,
+      "agreedRows": 5,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 15개 == 추출 시각 15개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 5개 == 원문 행 5개 · 순번 1..5"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 4개·행 5개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-terminal-토요일.html",
+      "routeId": "cheonan-terminal",
+      "dayType": "saturday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:d5ccf8f5cab620c036f941978418711f9e515110dc71f9e6c1124bbea0506944",
+      "calls": 0,
+      "agreedRows": 4,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 12개 == 추출 시각 12개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 4개 == 원문 행 4개 · 순번 1..4"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 4개·행 4개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-terminal-평일.html",
+      "routeId": "cheonan-terminal",
+      "dayType": "weekday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:6823ab08cf7c9a383313d9c636878af5ff26cf76778d5076378e80ac9914ca01",
+      "calls": 0,
+      "agreedRows": 0,
+      "disagreedRows": 38,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 67개 == 추출 시각 67개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 38개 == 원문 행 38개 · 순번 1..38"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 8개·행 38개 — 의미 키 사전 통과"
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-onyang-평일.html",
+      "routeId": "onyang",
+      "dayType": "weekday",
+      "status": "cached",
+      "reason": null,
+      "contentHash": "sha256:6c70b644a6e57ed4992901cc3d15ce1b7d4e70223b63b719f79a99d87187dc4b",
+      "calls": 0,
+      "agreedRows": 7,
+      "disagreedRows": 0,
+      "checks": [
+        {
+          "id": "cell-anchor",
+          "ok": true,
+          "severity": "fatal",
+          "detail": "모든 셀 값·머리글이 원문에 존재한다"
+        },
+        {
+          "id": "time-set",
+          "ok": true,
+          "severity": "drop",
+          "detail": "원문 시각 25개 == 추출 시각 25개"
+        },
+        {
+          "id": "row-count",
+          "ok": true,
+          "severity": "drop",
+          "detail": "추출 행 7개 == 원문 행 7개 · 순번 1..7"
+        },
+        {
+          "id": "schema",
+          "ok": true,
+          "severity": "drop",
+          "detail": "열 8개·행 7개 — 의미 키 사전 통과"
+        }
+      ]
+    }
+  ],
+  "dropped": [],
+  "capped": [],
+  "noTable": [
+    "data/raw/2026-2학기-cheonan-campus-평일.html"
+  ],
+  "fatal": []
+}

@@ -310,6 +310,82 @@ export interface AiStructurer {
   structure(candidates: readonly Candidate[]): Promise<AiStructureResult>;
 }
 
+// ─────────────────────────── AI 표 추출기(시간표 전용 — T34 · docs/08) ───────────────────────────
+
+/**
+ * AI 가 만든 **열 매핑** 1건.
+ * `header` 는 원문 머리글(**그대로 복사** — 공백만 정리), `key` 는 의미 키(아래 사전의 enum).
+ * 수치는 담지 않는다 — 시각·행 수는 **원문 토큰**만 쓴다(§3).
+ */
+export interface AiTableColumn {
+  readonly header: string;
+  readonly key: string;
+}
+
+/** AI 가 만든 **행** 1건 — `seq` 는 원문 `순`(정수), `values` 는 나머지 열의 원문 셀 값(또는 null = 빈칸/Χ) */
+export interface AiTableRow {
+  readonly seq: number | null;
+  readonly values: Readonly<Record<string, string | null>>;
+}
+
+/** 페이지 1개(= 시간표 표 1개)의 AI 초안 (§2 — 열 매핑 + 행 배열) */
+export interface AiTablePageDraft {
+  readonly page: string;
+  readonly columns: readonly AiTableColumn[];
+  readonly rows: readonly AiTableRow[];
+}
+
+/** 검증 4종 식별자(§4) */
+export type AiTableCheckId = 'cell-anchor' | 'time-set' | 'row-count' | 'schema';
+
+/**
+ * 실패의 **무게**(T34 결정 — docs/08 §2·§3·§4와 T19 ⑤ 선례를 합친 것):
+ *  - `fatal` : 원문에 **없는** 값·시각·행을 만들었다(환각) → 검증 실패 + **발행 중단(exit 1 · 산출물 0건)**
+ *  - `drop`  : 원문의 값을 **빠뜨렸거나** 스키마가 깨졌다(누락·형식) → **AI 초안 폐기** 후 규칙 정본으로 발행(사유 기록)
+ */
+export type AiTableCheckSeverity = 'fatal' | 'drop';
+
+export interface AiTableCheck {
+  readonly id: AiTableCheckId;
+  readonly ok: boolean;
+  readonly severity: AiTableCheckSeverity;
+  /** 사람이 읽는 판정 근거(위반 값 목록 포함) */
+  readonly detail: string;
+}
+
+export interface AiTableValidation {
+  readonly ok: boolean;
+  readonly fatal: boolean;
+  readonly checks: readonly AiTableCheck[];
+  /** 실패한 검사만 모은 사유(로그·리포트용) */
+  readonly failures: readonly string[];
+}
+
+/** 드리프트 게이트 결과(§7 — T35 가 채운다. T34 는 `checked: false` 로 자리만 만든다) */
+export interface AiExtractDrift {
+  readonly checked: boolean;
+  readonly blocked: boolean;
+  readonly reasons: readonly string[];
+}
+
+/** 발행 JSON `source.extraction.aiExtract` (§8 — 키 이름 고정) */
+export interface AiExtractMeta {
+  /** AI 에게 실제로 보낸(호출한) 페이지 수 — 호출 상한 12 이내 */
+  readonly pagesSent: number;
+  /** 내용 해시가 같아 **호출하지 않고** 캐시를 재사용한 페이지 수 */
+  readonly pagesSkippedByHash: number;
+  /** 실제 HTTP 호출 수(재시도 포함) */
+  readonly calls: number;
+  /** 토큰 **추정치**(§6 비용 가드) */
+  readonly totalTokens: number;
+  /** 규칙 결과와 행 단위로 일치한 수(T34 는 **단순 카운트**, 정식 비교는 T35 §5) */
+  readonly agreedRows: number;
+  readonly disagreedRows: number;
+  /** Stage B 로 AI 초안을 **채택한** 페이지(§5 — T34 는 항상 빈 배열, 채택은 T35/사용자 승인) */
+  readonly adoptedPages: readonly string[];
+  readonly drift: AiExtractDrift;
+}
+
 // ─────────────────────────── 병합 결과 ───────────────────────────
 
 export interface DroppedDraft {
@@ -378,6 +454,8 @@ export interface ExtractionMeta {
   readonly dedupedNotices: number;
   readonly reviewReasons: readonly string[];
   readonly gaps: readonly GapCoverage[];
+  /** §8 AI 표 추출 기록(T34) — AI 를 안 쓴 실행도 0 값으로 존재한다 */
+  readonly aiExtract: AiExtractMeta;
 }
 
 /**

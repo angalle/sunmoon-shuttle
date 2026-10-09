@@ -50,7 +50,7 @@ const OUT = 'tmp/test-out.json';
 const LOG = 'tmp/test-run.json';
 
 describe('T16 CLI 인자', () => {
-  it('기본값 — 출력 data/timetable.json · 로그 .session-notes/T16-extract-run.json · AI 모드 api(T19 신규 기본)', () => {
+  it('기본값 — 출력 data/timetable.json · 로그 .session-notes/T16-extract-run.json · AI 모드 api(T19 신규 기본) · T34 표 산출물 경로', () => {
     expect(parseExtractArgs([])).toEqual({
       files: [],
       out: 'data/timetable.json',
@@ -62,6 +62,9 @@ describe('T16 CLI 인자', () => {
       dryRun: false,
       injectFabricated: false,
       now: null,
+      aiCachePath: '.session-notes/T34-ai-table-cache.json',
+      aiDraftPath: '.session-notes/T34-ai-table-draft.json',
+      aiReportPath: '.session-notes/T34-ai-table-report.json',
     });
   });
 

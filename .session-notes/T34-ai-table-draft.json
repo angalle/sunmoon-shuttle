@@ -1,0 +1,1832 @@
+{
+  "generatedAt": "2026-10-09T09:53:11+09:00",
+  "schemaVersion": 1,
+  "provider": "api",
+  "model": "deepseek-v4-flash",
+  "promptTemplateSha256": "sha256:e2b22ab644ce40036d09ca7c674fcea961a3677908e4661323f5fa5a7faa7498",
+  "pages": [
+    {
+      "page": "data/raw/2026-2학기-asan-ktx-일요일.html",
+      "routeId": "asan-ktx",
+      "dayType": "sunday",
+      "contentHash": "sha256:6ff6a0d53e6730aac1c0ffb617e12a8f167bcfff3f59b579adcd2241d292ba87",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "천안아산역",
+          "key": "depStation"
+        },
+        {
+          "header": "아산캠퍼스 (도착)",
+          "key": "arrCampus"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "9:00",
+            "depStation": "9:20",
+            "arrCampus": "9:35"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": "12:00",
+            "depStation": "12:20",
+            "arrCampus": "12:35"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": "16:10",
+            "depStation": "16:30",
+            "arrCampus": "16:45"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "18:20",
+            "depStation": "18:40",
+            "arrCampus": "18:55"
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": "19:10",
+            "depStation": "19:30",
+            "arrCampus": "19:45"
+          }
+        },
+        {
+          "seq": 6,
+          "values": {
+            "depCampus": "20:00",
+            "depStation": "20:20",
+            "arrCampus": "20:35"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-asan-ktx-토요일.html",
+      "routeId": "asan-ktx",
+      "dayType": "saturday",
+      "contentHash": "sha256:c964a3f1f3e8804e5794c17b73720d7eab396158539ed10daa514328d3ff7ecb",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "천안아산역",
+          "key": "depStation"
+        },
+        {
+          "header": "아산캠퍼스 (도착)",
+          "key": "arrCampus"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "8:00",
+            "depStation": "8:20",
+            "arrCampus": "8:35"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": "12:00",
+            "depStation": "12:20",
+            "arrCampus": "12:35"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": "16:10",
+            "depStation": "16:30",
+            "arrCampus": "16:45"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "18:20",
+            "depStation": "18:40",
+            "arrCampus": "18:55"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-asan-ktx-평일.html",
+      "routeId": "asan-ktx",
+      "dayType": "weekday",
+      "contentHash": "sha256:a0701b2dd60a9ab4c62d45da2f606c30d0664cbe26eeffcfc61f24eb347c1cd9",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 출발",
+          "key": "depCampus"
+        },
+        {
+          "header": "천안아산역 출발",
+          "key": "depStation"
+        },
+        {
+          "header": "아산캠퍼스 도착",
+          "key": "arrCampus"
+        },
+        {
+          "header": "운행 특이사항",
+          "key": "note"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "8:05",
+            "depStation": "8:25",
+            "arrCampus": "8:40",
+            "note": "0:15"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:35",
+            "arrCampus": "8:50",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:40",
+            "arrCampus": "8:55",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:45",
+            "arrCampus": "9:00",
+            "note": "월~화 2대 운행"
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:50",
+            "arrCampus": "9:05",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 6,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:55",
+            "arrCampus": "9:10",
+            "note": null
+          }
+        },
+        {
+          "seq": 7,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:00",
+            "arrCampus": "9:15",
+            "note": "월~목 2대 운행"
+          }
+        },
+        {
+          "seq": 8,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:05",
+            "arrCampus": "9:20",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 9,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:10",
+            "arrCampus": "9:25",
+            "note": null
+          }
+        },
+        {
+          "seq": 10,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:15",
+            "arrCampus": "9:30",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 11,
+          "values": {
+            "depCampus": "9:30",
+            "depStation": "9:50",
+            "arrCampus": "10:05",
+            "note": null
+          }
+        },
+        {
+          "seq": 12,
+          "values": {
+            "depCampus": "9:50",
+            "depStation": "10:10",
+            "arrCampus": "10:25",
+            "note": null
+          }
+        },
+        {
+          "seq": 13,
+          "values": {
+            "depCampus": "10:20",
+            "depStation": "10:40",
+            "arrCampus": "10:55",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 14,
+          "values": {
+            "depCampus": "10:30",
+            "depStation": "10:50",
+            "arrCampus": "11:05",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 15,
+          "values": {
+            "depCampus": "10:45",
+            "depStation": "11:05",
+            "arrCampus": "11:20",
+            "note": null
+          }
+        },
+        {
+          "seq": 16,
+          "values": {
+            "depCampus": "10:55",
+            "depStation": "11:15",
+            "arrCampus": "11:30",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 17,
+          "values": {
+            "depCampus": "11:25",
+            "depStation": "11:45",
+            "arrCampus": "12:00",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 18,
+          "values": {
+            "depCampus": "11:45",
+            "depStation": "12:05",
+            "arrCampus": "12:20",
+            "note": null
+          }
+        },
+        {
+          "seq": 19,
+          "values": {
+            "depCampus": "12:15",
+            "depStation": "12:35",
+            "arrCampus": "12:50",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 20,
+          "values": {
+            "depCampus": "12:35",
+            "depStation": "12:55",
+            "arrCampus": "13:10",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 21,
+          "values": {
+            "depCampus": "13:10",
+            "depStation": "13:30",
+            "arrCampus": "13:45",
+            "note": null
+          }
+        },
+        {
+          "seq": 22,
+          "values": {
+            "depCampus": "13:40",
+            "depStation": "14:00",
+            "arrCampus": "14:15",
+            "note": null
+          }
+        },
+        {
+          "seq": 23,
+          "values": {
+            "depCampus": "13:50",
+            "depStation": "14:10",
+            "arrCampus": "14:25",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 24,
+          "values": {
+            "depCampus": "14:40",
+            "depStation": "15:00",
+            "arrCampus": "15:15",
+            "note": null
+          }
+        },
+        {
+          "seq": 25,
+          "values": {
+            "depCampus": "14:50",
+            "depStation": "15:10",
+            "arrCampus": "15:25",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 26,
+          "values": {
+            "depCampus": "15:30",
+            "depStation": "15:50",
+            "arrCampus": "16:05",
+            "note": null
+          }
+        },
+        {
+          "seq": 27,
+          "values": {
+            "depCampus": "15:35",
+            "depStation": "15:55",
+            "arrCampus": "16:10",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 28,
+          "values": {
+            "depCampus": "15:40",
+            "depStation": "16:00",
+            "arrCampus": "16:15",
+            "note": null
+          }
+        },
+        {
+          "seq": 29,
+          "values": {
+            "depCampus": "15:50",
+            "depStation": "16:10",
+            "arrCampus": "16:25",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 30,
+          "values": {
+            "depCampus": "16:30",
+            "depStation": "16:50",
+            "arrCampus": "17:05",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 31,
+          "values": {
+            "depCampus": "16:40",
+            "depStation": "17:00",
+            "arrCampus": "17:15",
+            "note": null
+          }
+        },
+        {
+          "seq": 32,
+          "values": {
+            "depCampus": "16:50",
+            "depStation": "17:10",
+            "arrCampus": "17:25",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 33,
+          "values": {
+            "depCampus": "17:00",
+            "depStation": "17:20",
+            "arrCampus": "17:35",
+            "note": null
+          }
+        },
+        {
+          "seq": 34,
+          "values": {
+            "depCampus": "17:30",
+            "depStation": "17:50",
+            "arrCampus": "18:05",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 35,
+          "values": {
+            "depCampus": "17:40",
+            "depStation": "18:00",
+            "arrCampus": "18:15",
+            "note": null
+          }
+        },
+        {
+          "seq": 36,
+          "values": {
+            "depCampus": "17:50",
+            "depStation": "18:10",
+            "arrCampus": "18:25",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 37,
+          "values": {
+            "depCampus": "18:15",
+            "depStation": "18:35",
+            "arrCampus": "18:50",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 38,
+          "values": {
+            "depCampus": "18:35",
+            "depStation": "18:55",
+            "arrCampus": "19:10",
+            "note": null
+          }
+        },
+        {
+          "seq": 39,
+          "values": {
+            "depCampus": "18:45",
+            "depStation": "19:05",
+            "arrCampus": "19:20",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 40,
+          "values": {
+            "depCampus": "19:45",
+            "depStation": "20:05",
+            "arrCampus": "20:20",
+            "note": null
+          }
+        },
+        {
+          "seq": 41,
+          "values": {
+            "depCampus": "20:45",
+            "depStation": "21:05",
+            "arrCampus": "21:20",
+            "note": null
+          }
+        },
+        {
+          "seq": 42,
+          "values": {
+            "depCampus": "21:15",
+            "depStation": "21:35",
+            "arrCampus": "21:50",
+            "note": null
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-station-일요일.html",
+      "routeId": "cheonan-station",
+      "dayType": "sunday",
+      "contentHash": "sha256:8c24e0fdbfadb7f9d05c3dc213f15bfa66247f81404f5d3d40b0ffcfd24c6a7f",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "천안역",
+          "key": "depStation"
+        },
+        {
+          "header": "아산캠퍼스 (도착)",
+          "key": "arrCampus"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "9:00",
+            "depStation": "9:30",
+            "arrCampus": "10:00"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": "12:00",
+            "depStation": "12:30",
+            "arrCampus": "13:00"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": "16:00",
+            "depStation": "16:30",
+            "arrCampus": "17:00"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "18:10",
+            "depStation": "18:40",
+            "arrCampus": "19:10"
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": "19:00",
+            "depStation": "19:30",
+            "arrCampus": "20:00"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-station-토요일.html",
+      "routeId": "cheonan-station",
+      "dayType": "saturday",
+      "contentHash": "sha256:23bc0c3656e1e30ee4d28bc9d88bdda1a9a74a284c48c78b613f82798b3a2949",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "천안역",
+          "key": "depStation"
+        },
+        {
+          "header": "아산캠퍼스 (도착)",
+          "key": "arrCampus"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "8:00",
+            "depStation": "8:30",
+            "arrCampus": "9:00"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": "12:00",
+            "depStation": "12:30",
+            "arrCampus": "13:00"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": "16:00",
+            "depStation": "16:30",
+            "arrCampus": "17:00"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "18:10",
+            "depStation": "18:40",
+            "arrCampus": "19:10"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-station-평일.html",
+      "routeId": "cheonan-station",
+      "dayType": "weekday",
+      "contentHash": "sha256:429d7e05d1e99b91bf75e778f6091424193396252c53d881b64c426c76948001",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 출발",
+          "key": "depCampus"
+        },
+        {
+          "header": "천안역 출발",
+          "key": "depStation"
+        },
+        {
+          "header": "하이렉스파 건너편",
+          "key": "viaHairexpa"
+        },
+        {
+          "header": "용암마을",
+          "key": "viaYongam"
+        },
+        {
+          "header": "아산캠퍼스도착",
+          "key": "arrCampus"
+        },
+        {
+          "header": "운행 특이사항",
+          "key": "note"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "7:40",
+            "depStation": "8:15",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "8:45",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:30",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:00",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:40",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:10",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:45",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:15",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": null,
+            "depStation": null,
+            "viaHairexpa": "8:50",
+            "viaYongam": "2분~5분 소요",
+            "arrCampus": "9:05",
+            "note": "중간노선 전용"
+          }
+        },
+        {
+          "seq": 6,
+          "values": {
+            "depCampus": null,
+            "depStation": "8:50",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:20",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 7,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:30",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 8,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:05",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:35",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 9,
+          "values": {
+            "depCampus": null,
+            "depStation": "9:30",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "9:55",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 10,
+          "values": {
+            "depCampus": "9:30",
+            "depStation": "10:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "10:25",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 11,
+          "values": {
+            "depCampus": "10:00",
+            "depStation": "10:30",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "10:55",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 12,
+          "values": {
+            "depCampus": "10:10",
+            "depStation": "10:40",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "11:05",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 13,
+          "values": {
+            "depCampus": "10:30",
+            "depStation": "11:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "11:25",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 14,
+          "values": {
+            "depCampus": "11:00",
+            "depStation": "11:30",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "11:55",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 15,
+          "values": {
+            "depCampus": "11:30",
+            "depStation": "12:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "12:25",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 16,
+          "values": {
+            "depCampus": "12:30",
+            "depStation": "13:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "13:25",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 17,
+          "values": {
+            "depCampus": "13:30",
+            "depStation": "14:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "14:25",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 18,
+          "values": {
+            "depCampus": "13:40",
+            "depStation": "14:10",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "14:35",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 19,
+          "values": {
+            "depCampus": "14:30",
+            "depStation": "15:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "15:25",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 20,
+          "values": {
+            "depCampus": "14:40",
+            "depStation": "15:10",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "15:35",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 21,
+          "values": {
+            "depCampus": "15:30",
+            "depStation": "16:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "16:25",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 22,
+          "values": {
+            "depCampus": "15:40",
+            "depStation": "16:10",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "16:35",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 23,
+          "values": {
+            "depCampus": "15:50",
+            "depStation": "16:20",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "16:45",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 24,
+          "values": {
+            "depCampus": "16:30",
+            "depStation": "17:00",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "17:25",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 25,
+          "values": {
+            "depCampus": "16:40",
+            "depStation": "17:10",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "17:35",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 26,
+          "values": {
+            "depCampus": "16:50",
+            "depStation": "17:20",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "17:45",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 27,
+          "values": {
+            "depCampus": "17:40",
+            "depStation": "18:15",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "18:45",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 28,
+          "values": {
+            "depCampus": "17:50",
+            "depStation": "18:25",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "18:55",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 29,
+          "values": {
+            "depCampus": "18:40",
+            "depStation": "19:15",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "19:45",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 30,
+          "values": {
+            "depCampus": "18:50",
+            "depStation": "19:25",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "19:50",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 31,
+          "values": {
+            "depCampus": "19:30",
+            "depStation": "19:55",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "20:20",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 32,
+          "values": {
+            "depCampus": "20:30",
+            "depStation": "20:55",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "21:20",
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 33,
+          "values": {
+            "depCampus": "21:20",
+            "depStation": "21:45",
+            "viaHairexpa": "5분~10분 소요예상",
+            "viaYongam": "22:10",
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-terminal-일요일.html",
+      "routeId": "cheonan-terminal",
+      "dayType": "sunday",
+      "contentHash": "sha256:8b3a698d34829116d0d9c7837a373c3c53309fc798232f72ed063874c3d545fb",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "선문대 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "터미널",
+          "key": "depTerminal"
+        },
+        {
+          "header": "선문대 (도착)",
+          "key": "arrCampus"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "9:00",
+            "depTerminal": "9:30",
+            "arrCampus": "10:00"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": "12:00",
+            "depTerminal": "12:30",
+            "arrCampus": "13:00"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": "16:00",
+            "depTerminal": "16:30",
+            "arrCampus": "17:00"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "18:00",
+            "depTerminal": "18:30",
+            "arrCampus": "19:00"
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": "19:30",
+            "depTerminal": "20:00",
+            "arrCampus": "20:30"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-terminal-토요일.html",
+      "routeId": "cheonan-terminal",
+      "dayType": "saturday",
+      "contentHash": "sha256:d5ccf8f5cab620c036f941978418711f9e515110dc71f9e6c1124bbea0506944",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "선문대 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "터미널",
+          "key": "depTerminal"
+        },
+        {
+          "header": "선문대 (도착)",
+          "key": "arrCampus"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "8:00",
+            "depTerminal": "8:30",
+            "arrCampus": "9:00"
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": "12:00",
+            "depTerminal": "12:30",
+            "arrCampus": "13:00"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": "16:00",
+            "depTerminal": "16:30",
+            "arrCampus": "17:00"
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "18:00",
+            "depTerminal": "18:30",
+            "arrCampus": "19:00"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-cheonan-terminal-평일.html",
+      "routeId": "cheonan-terminal",
+      "dayType": "weekday",
+      "contentHash": "sha256:6823ab08cf7c9a383313d9c636878af5ff26cf76778d5076378e80ac9914ca01",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "터미널",
+          "key": "depTerminal"
+        },
+        {
+          "header": "두정동 맥도날드",
+          "key": "viaDujeong"
+        },
+        {
+          "header": "홈마트 에브리데이",
+          "key": "viaHomeMart"
+        },
+        {
+          "header": "서울대정병원",
+          "key": "viaSeoulJeong"
+        },
+        {
+          "header": "아산캠퍼스 (도착)",
+          "key": "arrCampus"
+        },
+        {
+          "header": "운행 특이사항",
+          "key": "note"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": "7:30",
+            "depTerminal": "8:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "8:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:15",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "8:55",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:25",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "9:05",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "9:10",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:35",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "9:15",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 6,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:40",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "9:20",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 7,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:45",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "9:25",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 8,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "8:50",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "9:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 9,
+          "values": {
+            "depCampus": null,
+            "depTerminal": null,
+            "viaDujeong": "8:55",
+            "viaHomeMart": "5~10분 소요예상",
+            "viaSeoulJeong": "9:10",
+            "arrCampus": null,
+            "note": "중간노선전용"
+          }
+        },
+        {
+          "seq": 10,
+          "values": {
+            "depCampus": null,
+            "depTerminal": "9:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "10:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 11,
+          "values": {
+            "depCampus": "9:30",
+            "depTerminal": "10:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "10:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 12,
+          "values": {
+            "depCampus": "10:00",
+            "depTerminal": "10:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "11:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 13,
+          "values": {
+            "depCampus": "10:30",
+            "depTerminal": "11:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "11:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 14,
+          "values": {
+            "depCampus": "11:00",
+            "depTerminal": "11:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "12:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 15,
+          "values": {
+            "depCampus": "11:30",
+            "depTerminal": "12:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "12:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 16,
+          "values": {
+            "depCampus": "12:00",
+            "depTerminal": "12:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "13:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 17,
+          "values": {
+            "depCampus": "12:30",
+            "depTerminal": "13:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "13:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 18,
+          "values": {
+            "depCampus": "13:00",
+            "depTerminal": "13:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "14:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 19,
+          "values": {
+            "depCampus": "13:30",
+            "depTerminal": "14:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "14:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 20,
+          "values": {
+            "depCampus": "13:50",
+            "depTerminal": "14:20",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "14:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 21,
+          "values": {
+            "depCampus": "14:30",
+            "depTerminal": "15:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "15:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 22,
+          "values": {
+            "depCampus": "14:40",
+            "depTerminal": "15:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "15:40",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 23,
+          "values": {
+            "depCampus": "14:50",
+            "depTerminal": "15:20",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "15:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 24,
+          "values": {
+            "depCampus": "15:30",
+            "depTerminal": "16:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "16:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 25,
+          "values": {
+            "depCampus": "15:40",
+            "depTerminal": "16:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "16:40",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 26,
+          "values": {
+            "depCampus": "15:50",
+            "depTerminal": "16:20",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "16:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 27,
+          "values": {
+            "depCampus": "16:30",
+            "depTerminal": "17:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "17:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 28,
+          "values": {
+            "depCampus": "16:40",
+            "depTerminal": "17:20",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "18:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 29,
+          "values": {
+            "depCampus": "16:50",
+            "depTerminal": "17:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "18:10",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 30,
+          "values": {
+            "depCampus": "17:30",
+            "depTerminal": "18:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "18:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 31,
+          "values": {
+            "depCampus": "17:40",
+            "depTerminal": "18:20",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "19:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 32,
+          "values": {
+            "depCampus": "17:50",
+            "depTerminal": "18:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "19:10",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 33,
+          "values": {
+            "depCampus": "18:30",
+            "depTerminal": "19:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "19:50",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 34,
+          "values": {
+            "depCampus": "18:40",
+            "depTerminal": "19:20",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "20:00",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 35,
+          "values": {
+            "depCampus": "18:50",
+            "depTerminal": "19:30",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "20:10",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 36,
+          "values": {
+            "depCampus": "19:40",
+            "depTerminal": "20:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "20:40",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 37,
+          "values": {
+            "depCampus": "20:40",
+            "depTerminal": "21:10",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "21:40",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": null
+          }
+        },
+        {
+          "seq": 38,
+          "values": {
+            "depCampus": "21:30",
+            "depTerminal": "22:00",
+            "viaDujeong": "5분~20분 소요예상",
+            "viaHomeMart": "22:30",
+            "viaSeoulJeong": null,
+            "arrCampus": null,
+            "note": "금(X)"
+          }
+        }
+      ]
+    },
+    {
+      "page": "data/raw/2026-2학기-onyang-평일.html",
+      "routeId": "onyang",
+      "dayType": "weekday",
+      "contentHash": "sha256:6c70b644a6e57ed4992901cc3d15ce1b7d4e70223b63b719f79a99d87187dc4b",
+      "status": "cached",
+      "columns": [
+        {
+          "header": "순",
+          "key": "seq"
+        },
+        {
+          "header": "아산캠퍼스 (출발)",
+          "key": "depCampus"
+        },
+        {
+          "header": "주은아파트 버스정류장",
+          "key": "viaJueun"
+        },
+        {
+          "header": "온양온천역",
+          "key": "viaOnyangStation"
+        },
+        {
+          "header": "아산터미널",
+          "key": "viaAsanTerminal"
+        },
+        {
+          "header": "권곡초 버스정류장",
+          "key": "viaGweongok"
+        },
+        {
+          "header": "아산캠퍼스 (도착)",
+          "key": "arrCampus"
+        },
+        {
+          "header": "금요일 운행여부",
+          "key": "note"
+        }
+      ],
+      "rows": [
+        {
+          "seq": 1,
+          "values": {
+            "depCampus": null,
+            "viaJueun": "8:00",
+            "viaOnyangStation": "8:10",
+            "viaAsanTerminal": "8:15",
+            "viaGweongok": "경유",
+            "arrCampus": "8:40",
+            "note": null
+          }
+        },
+        {
+          "seq": 2,
+          "values": {
+            "depCampus": null,
+            "viaJueun": null,
+            "viaOnyangStation": "8:45",
+            "viaAsanTerminal": "8:50",
+            "viaGweongok": "경유",
+            "arrCampus": "9:15",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 3,
+          "values": {
+            "depCampus": null,
+            "viaJueun": "8:40",
+            "viaOnyangStation": "8:50",
+            "viaAsanTerminal": "8:55",
+            "viaGweongok": "경유",
+            "arrCampus": "9:20",
+            "note": null
+          }
+        },
+        {
+          "seq": 4,
+          "values": {
+            "depCampus": "10:25",
+            "viaJueun": "경유",
+            "viaOnyangStation": "10:55",
+            "viaAsanTerminal": "11:00",
+            "viaGweongok": "경유",
+            "arrCampus": "11:20",
+            "note": null
+          }
+        },
+        {
+          "seq": 5,
+          "values": {
+            "depCampus": "15:30",
+            "viaJueun": "경유",
+            "viaOnyangStation": "16:00",
+            "viaAsanTerminal": "16:05",
+            "viaGweongok": "경유",
+            "arrCampus": "16:25",
+            "note": null
+          }
+        },
+        {
+          "seq": 6,
+          "values": {
+            "depCampus": "17:30",
+            "viaJueun": "경유",
+            "viaOnyangStation": "18:00",
+            "viaAsanTerminal": "18:05",
+            "viaGweongok": "경유",
+            "arrCampus": "18:25",
+            "note": "금(X)"
+          }
+        },
+        {
+          "seq": 7,
+          "values": {
+            "depCampus": "18:30",
+            "viaJueun": "경유",
+            "viaOnyangStation": "19:00",
+            "viaAsanTerminal": "19:05",
+            "viaGweongok": "경유",
+            "arrCampus": "19:25",
+            "note": null
+          }
+        }
+      ]
+    }
+  ]
+}

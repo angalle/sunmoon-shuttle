@@ -1,0 +1,21 @@
+
+> sunmoon-shuttle@0.0.0 extract
+> tsx tools/extract/index.ts --no-ai --local --out tmp/t34-evidence/noai-out.json --log tmp/t34-evidence/noai-log.json
+
+[extract] 기간 스냅샷 1개: data/raw/terms/2026-2학기-방학.html
+[extract] AI 표 추출: --ai=off — 건너뛴다(규칙 정본만 발행)
+[extract] 입력 스냅샷 11개 · 후보 문장 25개 · 규칙 항목 11개
+[extract] AI: mode=off provider=rule-only status=disabled model=lfm2.5:latest 초안=0 채택=0 버림=0 인용복구=0 충돌=0 (0ms)
+[extract] AI 비용 가드: 호출 0회 · 토큰(추정) prompt 0 + completion 0 = 0 · 잘림 0건
+[extract] 갭 1 시점 조건부 운행 변경: 2건 — dateRules[kind=route-change]
+[extract] 갭 2 방향별 소요시간: 8건 — routes[].tripNotes[]
+[extract] 갭 3 시간창 조건부 정차: 5건 — dateRules[kind=stop-time-window] + routes[].stopWindows[]
+[extract] 갭 4 방학/학기 시간표 구분: 2건 — terms[]
+[extract] 갭 5 기간의 의미 연결: 1건 — dateRules[kind=period-meaning]
+[extract] 갭 6 중복 공지 제거 + 연도 추론: 7건 — notices 중복 제거 + dateRules[yearInferred]
+[extract] AI 표(§8 기록): 보낸 페이지 0 · 해시 캐시 0 · 호출 0회 · 토큰(추정) 0 · 규칙 일치 0/0행 · 채택 페이지 0(Stage B 는 T35)
+[extract] dateRules 9건 · terms 2건 · notices 중복 제거 1건
+[extract] 편별 조건 64건(원문 note 구조화) · 기간 스냅샷 1개
+[extract] needsReview 1건 — 0건의 검증 경고
+[extract] 검증 통과(치명 0) · schemaVersion=3 · v1 표(행·시각·열) 보존 확인
+[extract] 발행: tmp/t34-evidence/noai-out.json (142140 bytes) · schemaVersion=3 · sha256:e0952e99ade9e3800e3b1a0c4ccb386596ee1b98b8990174e90e34caaf3b5729

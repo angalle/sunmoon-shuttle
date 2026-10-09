@@ -1,0 +1,48 @@
+
+ RUN  v5.0.3 /Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+
+ ✓ tests/extract/ai-table.test.ts > T34 표 영역 — 원문 셀 토큰을 그대로 쓴다 > 표가 있는 페이지는 헤더·행을 계약(routeMeta)과 같은 열 수로 뽑는다 6ms
+ ✓ tests/extract/ai-table.test.ts > T34 표 영역 — 원문 셀 토큰을 그대로 쓴다 > 원문 토큰을 보존한다 — `8:05`(정규화 금지)·`Χ`·`0:15` 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 표 영역 — 원문 셀 토큰을 그대로 쓴다 > 시각 집합은 **표 영역** 기준이다 — 안내문 시각(19:30)은 섞이지 않는다 1ms
+ ✓ tests/extract/ai-table.test.ts > T34 표 영역 — 원문 셀 토큰을 그대로 쓴다 > 표가 0개/2개 이상이면 null(추측하지 않는다) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 프롬프트 — 시간표 전용(일반 추출기 아님) > 원문 그대로 복사·`8:05` 예시·JSON 강제·행 수 검증 예고가 들어간다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 프롬프트 — 시간표 전용(일반 추출기 아님) > 의미 키 사전은 계약(routeMeta)에서 파생된다 — 15개 키·라벨 예시 포함 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 프롬프트 — 시간표 전용(일반 추출기 아님) > 프롬프트 해시는 sha256 이고 같은 템플릿이면 안정적이다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 프롬프트 — 시간표 전용(일반 추출기 아님) > buildTablePrompt 는 파일·노선·요일 문맥과 표 영역을 넣는다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 응답 파싱 — 형식 위반은 폐기(조용한 통과 금지) > 정상 JSON·코드펜스·배열 밖 설명을 관용적으로 받는다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 응답 파싱 — 형식 위반은 폐기(조용한 통과 금지) > columns/rows 가 없거나 값 타입이 이상하면 null(초안 폐기) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 응답 파싱 — 형식 위반은 폐기(조용한 통과 금지) > 숫자 셀·문자열 seq 를 관용적으로 정규화한다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 4종 — 정상 통과 > 정답 초안은 4종을 모두 통과한다(수치: 시각 4개·행 2개) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ① 셀 앵커 — 원문에 없는 값은 환각(fatal) > 원문에 없는 셀 값을 만들면 fatal 이다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ① 셀 앵커 — 원문에 없는 값은 환각(fatal) > 원문에 없는 머리글도 fatal 이다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ② 시각 집합 — 초과는 fatal · 누락은 폐기 > 표에 없는 시각을 추가하면 fatal(발행 중단 경로) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ② 시각 집합 — 초과는 fatal · 누락은 폐기 > 표의 시각을 빠뜨리면 폐기(drop) — 발행은 규칙 정본으로 계속 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ③ 행 수 — 초과·순번 조작은 fatal · 누락은 폐기 > 원문에 없는 행을 만들면 fatal 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ③ 행 수 — 초과·순번 조작은 fatal · 누락은 폐기 > 순번이 1..N 이 아니면 fatal(원문 순번 조작) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ③ 행 수 — 초과·순번 조작은 fatal · 누락은 폐기 > 행이 모자라면 폐기(drop) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ④ 스키마 — 사전 밖 key·열 밖 값은 폐기 > 의미 키 사전에 없는 key 는 폐기(drop) 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ④ 스키마 — 사전 밖 key·열 밖 값은 폐기 > columns 에 없는 key 의 값은 폐기 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 검증 ④ 스키마 — 사전 밖 key·열 밖 값은 폐기 > key 가 중복되면 폐기 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 규칙↔AI 단순 일치 카운트(정식 교차검증은 T35) > 같은 행(시각 표기 정규화 포함)은 일치로 센다 0ms
+ ✓ tests/extract/ai-table.test.ts > T34 규칙↔AI 단순 일치 카운트(정식 교차검증은 T35) > 값이 다르거나 행이 남으면 불일치로 센다 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 첫 실행은 보낸 페이지 수만큼 호출하고, 통과분만 캐시에 남긴다 2ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 같은 내용으로 다시 실행하면 **호출 0회** — 캐시를 재사용한다(AC-AI1-3) 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 내용이 바뀐 페이지만 호출한다(AC-AI1-3) 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 모델·프롬프트 템플릿이 바뀌면 캐시를 쓰지 않는다(재현성) 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 호출 상한을 넘으면 남은 페이지는 규칙 전용으로 넘기고 로그를 남긴다(§6 · 상한 12) 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 검증에 실패한 초안은 캐시에 남기지 않는다(다음 실행에서 다시 시도) 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 §6 비용 가드 — 내용 해시 캐시 > 캐시 파일은 왕복 보존되고, 깨진 파일은 빈 캐시 + invalid 로 알린다 0ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-2 — 정상 응답 → 검증 수치 · §8 기록 · 초안/리포트 산출물 > 원문 시각 집합 == 추출 집합 · 행 수 == 원문 행 수(수치 제출) + aiExtract 기록 76ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-1 — 환각 주입은 발행 중단(exit 1 · 산출물 0건) > 표에 없는 시각·행을 만들면 검증 4종에서 실패하고 아무것도 발행하지 않는다 47ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-1 — 환각 주입은 발행 중단(exit 1 · 산출물 0건) > 실발행 없이 검증 실패를 조용히 넘기지 않는다 — 로그에 검증 4종 사유가 남는다 43ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-3 — 해시 캐시 재실행 · 바뀐 페이지만 호출 > 같은 스냅샷 재실행 → calls 0 · 바뀐 1개 페이지 → 그 페이지만 호출 126ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-7 — 회귀(규칙 정본) · 폴백 · DeepSeek 실행 전제 > --no-ai 산출물이 기존 발행본과 **동일**하다(규칙 정본 유지) + aiExtract 는 0값 36ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-7 — 회귀(규칙 정본) · 폴백 · DeepSeek 실행 전제 > AI 키가 없으면 표 추출도 규칙 정본으로 폴백한다(exit 0 · 사유 기록) 41ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-7 — 회귀(규칙 정본) · 폴백 · DeepSeek 실행 전제 > --no-ai 말고도 표 추출 배선이 없으면 단계를 건너뛴다(기존 하네스 호환) 32ms
+ ✓ tests/extract/ai-table-pipeline.test.ts > T34 통합 AC-AI1-7 — 회귀(규칙 정본) · 폴백 · DeepSeek 실행 전제 > loadFixture 는 그대로 동작한다(규칙 파이프라인 회귀 없음) 30ms
+
+ Test Files  2 passed (2)
+      Tests  39 passed (39)
+   Start at  09:53:37
+   Duration  616ms (tests 73%, transform 19%, import 8%)
+

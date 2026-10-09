@@ -16,8 +16,12 @@ import type { Snapshot, Timetable } from '../scraper/types.js';
 import { harvestCandidates, toSources } from './candidates.js';
 import { extractRuleStructures } from './rules.js';
 import { pageText } from './text.js';
+import { findScheduleTable } from './tableRegion.js';
 import { mergeAiDrafts } from './merge.js';
 import { buildPrompt, createDisabledStructurer, DEFAULT_MODEL, DEFAULT_TIMEOUT_MS, promptTemplateSha256 } from './ai.js';
+import { emptyAiExtractMeta, MAX_AI_TABLE_CALLS, parseTableCache, runAiTable, serializeTableCache } from './aiTableRun.js';
+import type { AiTablePageJob, AiTableRunOutcome } from './aiTableRun.js';
+import type { AiTableExtractor } from './aiTable.js';
 import type { AiStructurer, TermSource } from './types.js';
 import { buildEnrichedTimetable, withExtractionMeta } from './enrich.js';
 import { computeGapCoverage, countNeedsReview, hasFatal, validateEnriched } from './validate.js';
@@ -61,6 +65,13 @@ export interface ExtractDeps {
     readonly baseUrl?: string | undefined;
     readonly timeoutMs?: number | undefined;
   }): AiStructurer;
+  /**
+   * T34 AI **표 추출기** 조립(시간표 전용). 없으면 표 추출 단계를 **건너뛴다** —
+   * 기존 하네스(문장 분류만 검증)와 배선 없는 실행은 그대로 동작한다.
+   */
+  readonly createTableExtractor?:
+    | ((options: { readonly model: string; readonly noAi: boolean; readonly provider: AiMode }) => AiTableExtractor)
+    | undefined;
 }
 
 export const DEFAULT_OUT = 'data/timetable.json';
@@ -68,6 +79,12 @@ export const DEFAULT_LOG = '.session-notes/T16-extract-run.json';
 export const DEFAULT_RAW_DIR = 'data/raw';
 /** 기간 수집용 스냅샷(노선 표가 아닌 페이지 — 예: 방학 시간표) 기본 위치 */
 export const DEFAULT_TERM_DIR = 'data/raw/terms';
+/** T34: AI 표 초안 **내용 해시 캐시**(§6 — 내용이 같으면 호출 0회) */
+export const DEFAULT_AI_CACHE = '.session-notes/T34-ai-table-cache.json';
+/** T34: AI 표 **초안 산출물**(T35 교차검증 입력) */
+export const DEFAULT_AI_DRAFT = '.session-notes/T34-ai-table-draft.json';
+/** T34: AI 표 **검증 리포트**(검증 4종 판정·비용 기록) */
+export const DEFAULT_AI_REPORT = '.session-notes/T34-ai-table-report.json';
 export const EXTRACTOR = 'tools/extract (schema v3)';
 
 export interface ExtractArgs {
@@ -85,6 +102,12 @@ export interface ExtractArgs {
   readonly dryRun: boolean;
   readonly injectFabricated: boolean;
   readonly now: string | null;
+  /** T34: AI 표 캐시 파일 경로(§6) */
+  readonly aiCachePath: string;
+  /** T34: AI 표 초안 산출물 경로 */
+  readonly aiDraftPath: string;
+  /** T34: AI 표 검증 리포트 경로 */
+  readonly aiReportPath: string;
 }
 
 export const USAGE = [
@@ -104,6 +127,12 @@ export const USAGE = [
   '  --now <ISO8601+09:00> 수집 시각 고정(결정성 확인용)',
   '  --inject-fabricated   [증거용] 원본에 없는 문장을 주입해 검증 FAIL(exit 1)을 재현한다',
   '',
+  '  T34 AI 표 추출(docs/08): 페이지 표를 열 의미 키·행 JSON 으로 초안화하고 검증 4종(셀 앵커·시각 집합·행 수·스키마)을',
+  '   통과한 것만 산출물·캐시에 남긴다. 내용 해시가 같으면 호출 0회 · 실행당 호출 상한 ' + String(MAX_AI_TABLE_CALLS) + '회.',
+  '  --ai-cache <경로>     AI 표 내용 해시 캐시(기본 ' + DEFAULT_AI_CACHE + ')',
+  '  --ai-draft <경로>     AI 표 초안 산출물(기본 ' + DEFAULT_AI_DRAFT + ')',
+  '  --ai-report <경로>    AI 표 검증 리포트(기본 ' + DEFAULT_AI_REPORT + ')',
+  '',
   '  ※ 키 없음·401/403·타임아웃·5xx(재시도 1회)면 자동으로 규칙 전용으로 폴백한다(경고 기록 — 배치 유지).',
 ].join('\n');
 
@@ -121,6 +150,9 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     dryRun: boolean;
     injectFabricated: boolean;
     now: string | null;
+    aiCachePath: string;
+    aiDraftPath: string;
+    aiReportPath: string;
   } = {
     files: [],
     out: DEFAULT_OUT,
@@ -132,6 +164,9 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
     dryRun: false,
     injectFabricated: false,
     now: null,
+    aiCachePath: DEFAULT_AI_CACHE,
+    aiDraftPath: DEFAULT_AI_DRAFT,
+    aiReportPath: DEFAULT_AI_REPORT,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
@@ -167,12 +202,15 @@ export function parseExtractArgs(argv: readonly string[]): ExtractArgs {
       if (inline === undefined) i += 1;
       continue;
     }
-    if (token === '--out' || token === '--log' || token === '--now' || token === '--term-page') {
+    if (token === '--out' || token === '--log' || token === '--now' || token === '--term-page' || token === '--ai-cache' || token === '--ai-draft' || token === '--ai-report') {
       const value = argv[i + 1];
       if (value === undefined || value.startsWith('--')) throw new ExtractError(`${token} 뒤에 값이 필요합니다`);
       if (token === '--out') args.out = value;
       else if (token === '--log') args.logPath = value;
       else if (token === '--term-page') args.termPages.push(value);
+      else if (token === '--ai-cache') args.aiCachePath = value;
+      else if (token === '--ai-draft') args.aiDraftPath = value;
+      else if (token === '--ai-report') args.aiReportPath = value;
       else {
         if (!ISO_OFFSET_PATTERN.test(value)) throw new ExtractError(`--now 값이 ISO8601(+오프셋) 형식이 아닙니다 — "${value}"`);
         args.now = value;
@@ -230,6 +268,31 @@ interface RunRecord {
   output: string | null;
   dryRun: boolean;
   noAi: boolean;
+  /** T34 AI 표 추출 요약 — 단계가 꺼져 있으면 `enabled: false`(기존 소비자 무영향) */
+  aiTable: AiTableRunRecord;
+}
+
+/** T34 AI 표 추출 단계의 실행 기록(로그용 — 발행물 계약은 `source.extraction.aiExtract`) */
+export interface AiTableRunRecord {
+  readonly enabled: boolean;
+  /** 사용하지 않은 사유(`ai-off` · `not-wired` · `no-table`) */
+  readonly reason: string | null;
+  readonly cap: number;
+  readonly pagesSent: number;
+  readonly pagesSkippedByHash: number;
+  readonly calls: number;
+  readonly totalTokens: number;
+  readonly agreedRows: number;
+  readonly disagreedRows: number;
+  readonly droppedPages: readonly string[];
+  readonly cappedPages: readonly string[];
+  readonly noTablePages: readonly string[];
+  readonly fatalIssues: number;
+  readonly model: string | null;
+  readonly promptTemplateSha256: string | null;
+  readonly cachePath: string;
+  readonly draftPath: string;
+  readonly reportPath: string;
 }
 
 export async function runExtract(argv: readonly string[], deps: ExtractDeps): Promise<number> {
@@ -323,6 +386,34 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     deps.log(`[extract] ⚠️ AI 보강 불가(${aiResult.status}) — 규칙 전용으로 계속한다: ${fallbackReason ?? ''}`);
   }
 
+  // ③-b AI 표 추출(T34 · docs/08 §2~§4·§6·§8) — 시간표 전용 프롬프트로 열 의미 키 매핑 + 행 초안
+  //      → 검증 4종 → 통과분만 캐시·산출물. 환각(원문에 없는 값·시각·행)은 **발행 중단**(AC-AI1-1).
+  const aiTable = await extractAiTable(args, deps, snapshotInputs, base);
+  const aiTableFatal = aiTable.outcome?.fatalIssues ?? [];
+  if (aiTableFatal.length > 0) {
+    for (const issue of aiTableFatal) deps.error(`[extract]   ${issue.where}: ${issue.message}`);
+    deps.error('[extract] AI 표 검증 실패(치명) — **발행하지 않는다**(원문에 없는 값·시각·행 차단, docs/08 §4)');
+    writeLog(
+      deps,
+      args,
+      buildRecord(
+        args,
+        files,
+        candidates.length,
+        { accepted: 0, dropped: [], merged: [], repairs: [], conflicts: 0 },
+        rules,
+        aiResult,
+        deps.nowMs() - started,
+        aiTableFatal,
+        [],
+        [],
+        true,
+        { candidatesRejected: rejected, promptChars, termPages: termFiles, aiTable: aiTable.record },
+      ),
+    );
+    return 1;
+  }
+
   // ④ 병합·중복 제거
   const merged = mergeAiDrafts({
     ruleDateRules: rules.dateRules,
@@ -376,6 +467,7 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     needsReview,
     promptChars,
     termPages: termFiles,
+    aiTable: aiTable.record,
   });
 
   if (fatalIssues.length > 0) {
@@ -413,6 +505,8 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     dedupedNotices: rules.dedupedNotices,
     reviewReasons,
     gaps,
+    // §8 AI 표 추출 기록 — AI 단계를 안 돌린 실행도 0 값으로 남긴다(소비자가 필드 존재를 가정)
+    aiExtract: aiTable.outcome?.meta ?? emptyAiExtractMeta(),
   };
   const final: EnrichedTimetable = withExtractionMeta(enriched, meta);
 
@@ -423,6 +517,9 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     deps.log('[extract] --dry-run: 검증만 수행했다(발행 없음)');
     return 0;
   }
+
+  // T34 산출물(초안 JSON + 검증 리포트) — 발행이 확정된 뒤에만 쓴다(치명 실패 시 산출물 0건)
+  if (aiTable.outcome !== null) writeAiTableArtifacts(deps, args, aiTable.outcome);
 
   const serialized = `${JSON.stringify(final, null, 2)}\n`;
   try {
@@ -457,6 +554,159 @@ function resolveFiles(args: ExtractArgs, deps: ExtractDeps): string[] {
     .filter((file) => file.endsWith('.html'))
     .map((file) => `${DEFAULT_RAW_DIR}/${file}`)
     .sort();
+}
+
+/** T34 AI 표 추출 단계의 결과 — `outcome` 이 null 이면 단계를 돌리지 않았다(사유는 `record.reason`) */
+interface AiTableStep {
+  readonly outcome: AiTableRunOutcome | null;
+  readonly record: AiTableRunRecord;
+}
+
+function disabledAiTableRecord(args: ExtractArgs): AiTableRunRecord {
+  return {
+    enabled: false,
+    reason: null,
+    cap: MAX_AI_TABLE_CALLS,
+    pagesSent: 0,
+    pagesSkippedByHash: 0,
+    calls: 0,
+    totalTokens: 0,
+    agreedRows: 0,
+    disagreedRows: 0,
+    droppedPages: [],
+    cappedPages: [],
+    noTablePages: [],
+    fatalIssues: 0,
+    model: null,
+    promptTemplateSha256: null,
+    cachePath: args.aiCachePath,
+    draftPath: args.aiDraftPath,
+    reportPath: args.aiReportPath,
+  };
+}
+
+/**
+ * ③-b AI 표 추출(T34) — 표 영역이 있는 페이지만 대상.
+ *  - `--ai=off`: 건너뛴다(네트워크 0).  - `createTableExtractor` 미주입(기존 하네스): 건너뛴다.
+ *  - 호출·검증·집계는 `aiTableRun.ts`(순수)가 하고, 여기서는 **캐시 파일 IO·로그**만 붙인다.
+ */
+async function extractAiTable(
+  args: ExtractArgs,
+  deps: ExtractDeps,
+  inputs: readonly { file: string; routeId: string; dayType: Snapshot['dayType']; html: string }[],
+  base: Timetable,
+): Promise<AiTableStep> {
+  const skeleton = disabledAiTableRecord(args);
+  if (args.aiMode === 'off') {
+    deps.log('[extract] AI 표 추출: --ai=off — 건너뛴다(규칙 정본만 발행)');
+    return { outcome: null, record: { ...skeleton, reason: 'ai-off' } };
+  }
+  const factory = deps.createTableExtractor;
+  if (factory === undefined) {
+    deps.log('[extract] AI 표 추출: 조립 배선 없음(createTableExtractor 미주입) — 건너뛴다');
+    return { outcome: null, record: { ...skeleton, reason: 'not-wired' } };
+  }
+
+  const jobs: AiTablePageJob[] = [];
+  const noTablePages: string[] = [];
+  for (const input of inputs) {
+    const region = findScheduleTable(input.html);
+    if (region === null) {
+      // 시간표 표가 없는 페이지(예: 운행 중단 노선) — 표가 없으니 초안도 없다
+      noTablePages.push(input.file);
+      continue;
+    }
+    const route = base.routes.find((entry) => entry.id === input.routeId);
+    jobs.push({
+      request: {
+        page: input.file,
+        routeId: input.routeId,
+        dayType: input.dayType,
+        regionText: region.text,
+        pageText: pageText(input.html),
+      },
+      region,
+      ruleRows: route?.byDay[input.dayType].trips ?? [],
+    });
+  }
+  if (jobs.length === 0) {
+    deps.log(`[extract] AI 표 추출: 대상 0건(표 없는 페이지 ${String(noTablePages.length)}개) — 건너뛴다`);
+    return { outcome: null, record: { ...skeleton, reason: 'no-table', noTablePages } };
+  }
+
+  const extractor = factory({ model: args.model, noAi: args.noAi, provider: args.aiMode });
+  let cacheText: string | null = null;
+  try {
+    cacheText = deps.readTextFile(args.aiCachePath);
+  } catch {
+    // 캐시 파일이 없으면 빈 캐시로 시작한다(오류 아님 — 첫 실행)
+    cacheText = null;
+  }
+  const cached = parseTableCache(cacheText);
+  if (cached.invalid) {
+    deps.log(`[extract] ⚠️ AI 표 캐시 파일을 읽지 못했다(${args.aiCachePath}) — 빈 캐시로 진행한다(호출 증가)`);
+  }
+
+  const outcome = await runAiTable({
+    jobs,
+    noTablePages,
+    extractor,
+    provider: args.aiMode === 'ollama' ? 'ollama' : 'api',
+    cache: cached.cache,
+    cap: MAX_AI_TABLE_CALLS,
+    log: deps.log,
+    nowIso: deps.nowIso,
+    nowMs: deps.nowMs,
+  });
+  try {
+    deps.writeTextFile(args.aiCachePath, serializeTableCache(outcome.cache));
+  } catch (error) {
+    deps.error(`[extract] AI 표 캐시 저장 실패: ${args.aiCachePath} — ${message(error)}`);
+  }
+
+  const meta = outcome.meta;
+  const passed = outcome.pages.filter((page) => page.status === 'ok' || page.status === 'cached').length;
+  deps.log(
+    `[extract] AI 표: 대상 ${String(jobs.length)}개(표 없음 ${String(noTablePages.length)}개) · 보낸 페이지 ${String(meta.pagesSent)} · 해시 캐시 ${String(meta.pagesSkippedByHash)} · 호출 ${String(meta.calls)}회 · 토큰(추정) ${String(meta.totalTokens)}`,
+  );
+  deps.log(
+    `[extract] AI 표 검증 4종: 통과 ${String(passed)}개 · 폐기 ${String(outcome.dropped.length)}개 · 치명 ${String(outcome.fatalIssues.length)}건 · 상한초과 ${String(outcome.capped.length)}개 · 규칙 일치 ${String(meta.agreedRows)}/${String(meta.agreedRows + meta.disagreedRows)}행`,
+  );
+
+  return {
+    outcome,
+    record: {
+      enabled: true,
+      reason: null,
+      cap: MAX_AI_TABLE_CALLS,
+      pagesSent: meta.pagesSent,
+      pagesSkippedByHash: meta.pagesSkippedByHash,
+      calls: meta.calls,
+      totalTokens: meta.totalTokens,
+      agreedRows: meta.agreedRows,
+      disagreedRows: meta.disagreedRows,
+      droppedPages: outcome.dropped,
+      cappedPages: outcome.capped,
+      noTablePages,
+      fatalIssues: outcome.fatalIssues.length,
+      model: outcome.model,
+      promptTemplateSha256: outcome.promptTemplateSha256,
+      cachePath: args.aiCachePath,
+      draftPath: args.aiDraftPath,
+      reportPath: args.aiReportPath,
+    },
+  };
+}
+
+/** T34 산출물 — **초안 JSON + 검증 리포트**(T35 교차검증 입력). 발행 확정 뒤에만 쓴다. */
+function writeAiTableArtifacts(deps: ExtractDeps, args: ExtractArgs, outcome: AiTableRunOutcome): void {
+  try {
+    deps.writeTextFile(args.aiDraftPath, `${JSON.stringify(outcome.draftArtifact, null, 2)}\n`);
+    deps.writeTextFile(args.aiReportPath, `${JSON.stringify(outcome.reportArtifact, null, 2)}\n`);
+    deps.log(`[extract] AI 표 산출물: 초안 ${args.aiDraftPath} · 검증 리포트 ${args.aiReportPath}(T35 교차검증 입력)`);
+  } catch (error) {
+    deps.error(`[extract] AI 표 산출물 저장 실패: ${message(error)}`);
+  }
 }
 
 function fabricatedRule(sources: readonly SnapshotSource[]): DateRule {
@@ -494,6 +744,7 @@ function buildRecord(
     readonly needsReview?: number;
     readonly promptChars?: number;
     readonly termPages?: readonly string[];
+    readonly aiTable?: AiTableRunRecord;
   },
 ): RunRecord {
   return {
@@ -532,6 +783,7 @@ function buildRecord(
     output: aborted ? null : args.out,
     dryRun: args.dryRun,
     noAi: args.noAi,
+    aiTable: extra?.aiTable ?? disabledAiTableRecord(args),
   };
   void allIssues;
 }
@@ -565,6 +817,10 @@ function logSummary(
   for (const gap of timetable.source.extraction.gaps) {
     deps.log(`[extract] 갭 ${String(gap.gap)} ${gap.name}: ${gap.count}건 — ${gap.where}`);
   }
+  const aiExtract = timetable.source.extraction.aiExtract;
+  deps.log(
+    `[extract] AI 표(§8 기록): 보낸 페이지 ${String(aiExtract.pagesSent)} · 해시 캐시 ${String(aiExtract.pagesSkippedByHash)} · 호출 ${String(aiExtract.calls)}회 · 토큰(추정) ${String(aiExtract.totalTokens)} · 규칙 일치 ${String(aiExtract.agreedRows)}/${String(aiExtract.agreedRows + aiExtract.disagreedRows)}행 · 채택 페이지 ${String(aiExtract.adoptedPages.length)}(Stage B 는 T35)`,
+  );
   deps.log(`[extract] dateRules ${String(timetable.dateRules.length)}건 · terms ${String(timetable.terms.length)}건 · notices 중복 제거 ${String(timetable.source.extraction.dedupedNotices)}건`);
   deps.log(
     `[extract] 편별 조건 ${String(countTripConditions(timetable))}건(원문 note 구조화) · 기간 스냅샷 ${String(timetable.source.extraction.termSources.length)}개`,

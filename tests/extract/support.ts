@@ -99,6 +99,7 @@ export const FILE_NAMES = {
 /**
  * `runExtract` 테스트 하네스 — 파일 IO 를 메모리로 바꾼다(디스크 쓰기 0).
  * `createStructurer` 만 주입한다(T19: 모의 서버를 향하는 `createApiStructurer` 등).
+ * T34 부터는 `createTableExtractor`·메모리 파일(캐시 재사용 시나리오)도 주입할 수 있다.
  */
 export interface RunHarness {
   readonly written: Map<string, string>;
@@ -107,23 +108,41 @@ export interface RunHarness {
   readonly deps: ExtractDeps;
 }
 
-export function makeRunHarness(createStructurer: ExtractDeps['createStructurer']): RunHarness {
+export interface RunHarnessOptions {
+  /** T34 AI 표 추출기 조립(없으면 표 추출 단계를 건너뛴다) */
+  readonly createTableExtractor?: ExtractDeps['createTableExtractor'];
+  /**
+   * 메모리 파일 — `readTextFile` 이 실제 파일보다 **먼저** 본다.
+   * `written` 을 넘기면 이전 실행의 산출물(캐시)을 다음 실행이 그대로 읽는다(해시 캐시 시나리오).
+   */
+  readonly files?: Map<string, string>;
+}
+
+export function makeRunHarness(
+  createStructurer: ExtractDeps['createStructurer'],
+  options: RunHarnessOptions = {},
+): RunHarness {
   const written = new Map<string, string>();
   const logs: string[] = [];
   const errors: string[] = [];
+  const files = options.files;
   return {
     written,
     logs,
     errors,
     deps: {
       listFiles: (dir) => readdirSync(dir),
-      readTextFile: (path) => readFileSync(path, 'utf8'),
-      writeTextFile: (path, text) => written.set(path, text),
+      readTextFile: (path) => files?.get(path) ?? readFileSync(path, 'utf8'),
+      writeTextFile: (path, text) => {
+        written.set(path, text);
+        files?.set(path, text);
+      },
       nowIso: () => FIXED_NOW,
       nowMs: () => 1_000,
       log: (line) => logs.push(line),
       error: (line) => errors.push(line),
       createStructurer,
+      ...(options.createTableExtractor === undefined ? {} : { createTableExtractor: options.createTableExtractor }),
     },
   };
 }

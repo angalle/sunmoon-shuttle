@@ -10,8 +10,10 @@
  */
 
 import { createApiStructurer, createDisabledStructurer, createOllamaStructurer, DEFAULT_MODEL } from './ai.js';
+import { createApiTableExtractor, createDisabledTableExtractor, createOllamaTableExtractor } from './aiTable.js';
 import type { AiMode } from './cli.js';
 import type { AiStructurer } from './types.js';
+import type { AiTableExtractor } from './aiTable.js';
 
 /** 환경변수 값(없으면 빈 문자열/undefined) — 이름은 `AI_*` 세 개뿐이다 */
 export interface StructurerEnv {
@@ -46,5 +48,25 @@ export function createStructurerFor(mode: AiMode, options: StructurerOptions): A
     log,
     ...(options.maxPromptChars === undefined ? {} : { maxPromptChars: options.maxPromptChars }),
     ...(options.maxCandidatesPerCall === undefined ? {} : { maxCandidatesPerCall: options.maxCandidatesPerCall }),
+  });
+}
+
+/**
+ * T34 AI **표 추출기** 조립 — `--ai` 모드·`AI_*` 환경변수 배선은 문장 분류기와 **같은 규칙**이다.
+ * (`apiKey` 는 인자로만 전달하고 어디에도 기록하지 않는다.)
+ */
+export function createTableExtractorFor(mode: AiMode, options: StructurerOptions): AiTableExtractor {
+  const log = options.log ?? ((): void => {});
+  const cliModel = options.model.trim();
+
+  if (mode === 'off') return createDisabledTableExtractor(cliModel === '' ? DEFAULT_MODEL : cliModel);
+  if (mode === 'ollama') {
+    return createOllamaTableExtractor({ model: cliModel === '' ? DEFAULT_MODEL : cliModel, log });
+  }
+  return createApiTableExtractor({
+    model: cliModel !== '' ? cliModel : (options.env.AI_MODEL ?? '').trim(),
+    baseUrl: (options.env.AI_BASE_URL ?? '').trim(),
+    apiKey: (options.env.AI_API_KEY ?? '').trim(),
+    log,
   });
 }

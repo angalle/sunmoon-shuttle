@@ -1,0 +1,42 @@
+
+> sunmoon-shuttle@0.0.0 extract
+> tsx tools/extract/index.ts --ai=api --local --now 2026-10-09T10:00:00+09:00 --out data/timetable.json --log .session-notes/T34-live-run1-log.json --ai-cache .session-notes/T34-ai-table-cache.json --ai-draft .session-notes/T34-ai-table-draft.json --ai-report .session-notes/T34-ai-table-report.json
+
+[extract] 기간 스냅샷 1개: data/raw/terms/2026-2학기-방학.html
+[extract] API 재시도 1/1 — The operation was aborted due to timeout
+[extract] AI 표 검증 통과(data/raw/2026-2학기-asan-ktx-일요일.html) — 열 4개 · 행 6개 · 규칙과 일치 6/6행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-asan-ktx-토요일.html) — 열 4개 · 행 4개 · 규칙과 일치 4/4행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-asan-ktx-평일.html) — 열 5개 · 행 42개 · 규칙과 일치 42/42행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-station-일요일.html) — 열 4개 · 행 5개 · 규칙과 일치 5/5행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-station-토요일.html) — 열 4개 · 행 4개 · 규칙과 일치 4/4행
+[extract] API 재시도 1/1 — The operation was aborted due to timeout
+[extract] ⚠️ AI 표 추출 실패(data/raw/2026-2학기-cheonan-station-평일.html) — 규칙 정본으로 진행한다: The operation was aborted due to timeout
+[extract] ⚠️ AI 표 초안 없음(data/raw/2026-2학기-cheonan-station-평일.html) — 규칙 정본으로 진행한다: The operation was aborted due to timeout
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-terminal-일요일.html) — 열 4개 · 행 5개 · 규칙과 일치 5/5행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-terminal-토요일.html) — 열 4개 · 행 4개 · 규칙과 일치 4/4행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-cheonan-terminal-평일.html) — 열 8개 · 행 38개 · 규칙과 일치 0/38행
+[extract] AI 표 검증 통과(data/raw/2026-2학기-onyang-평일.html) — 열 8개 · 행 7개 · 규칙과 일치 7/7행
+[extract] AI 표 대상 아님(data/raw/2026-2학기-cheonan-campus-평일.html) — 시간표 표가 없는 페이지(운행 중단 등)
+[extract] AI 표: 대상 10개(표 없음 1개) · 보낸 페이지 10 · 해시 캐시 0 · 호출 11회 · 토큰(추정) 19346
+[extract] AI 표 검증 4종: 통과 9개 · 폐기 0개 · 치명 0건 · 상한초과 0개 · 규칙 일치 77/115행
+[extract] ⚠️ AI 초안 버림 — term 인데 원문에 날짜가 없다(수치는 AI 가 만들지 않는다): "학기 시간표"
+[extract] ⚠️ AI 초안 버림 — vacation 인데 원문에 날짜가 없다(수치는 AI 가 만들지 않는다): "방학 시간표"
+[extract] ⚠️ AI 초안 버림 — 중복(규칙 산출물 우선) — 같은 semester 항목이 이미 규칙 산출물에 있다(semester 2026-2학기 2026-09-01): "2026-2학기 셔틀버스 시간표(2026.9.1(화)~2026.12.14(월))"
+[extract] ⚠️ AI 초안 버림 — alternate-schedule 인데 원문에 날짜가 없다: "일요일 시간표로 운행"
+[extract] ⚠️ AI 초안 버림 — 중복(규칙 산출물 우선) — 같은 semester 항목이 이미 규칙 산출물에 있다(semester 2026-2학기 2026-09-01): "2026-2학기 셔틀버스 시간표(2026.9.1.(화)~2026.12.14.(월))"
+[extract] 입력 스냅샷 11개 · 후보 문장 25개 · 규칙 항목 11개
+[extract] AI: mode=api provider=api status=ok model=deepseek-v4-flash 초안=15 채택=0 버림=5 인용복구=2 충돌=10 (100798ms)
+[extract] AI 비용 가드: 호출 3회 · 토큰(추정) prompt 2437 + completion 1106 = 3543 · 잘림 0건
+[extract] 갭 1 시점 조건부 운행 변경: 2건 — dateRules[kind=route-change]
+[extract] 갭 2 방향별 소요시간: 8건 — routes[].tripNotes[]
+[extract] 갭 3 시간창 조건부 정차: 5건 — dateRules[kind=stop-time-window] + routes[].stopWindows[]
+[extract] 갭 4 방학/학기 시간표 구분: 2건 — terms[]
+[extract] 갭 5 기간의 의미 연결: 1건 — dateRules[kind=period-meaning]
+[extract] 갭 6 중복 공지 제거 + 연도 추론: 7건 — notices 중복 제거 + dateRules[yearInferred]
+[extract] AI 표(§8 기록): 보낸 페이지 10 · 해시 캐시 0 · 호출 11회 · 토큰(추정) 19346 · 규칙 일치 77/115행 · 채택 페이지 0(Stage B 는 T35)
+[extract] dateRules 9건 · terms 2건 · notices 중복 제거 1건
+[extract] 편별 조건 64건(원문 note 구조화) · 기간 스냅샷 1개
+[extract] needsReview 1건 — 0건의 검증 경고
+[extract] 검증 통과(치명 0) · schemaVersion=3 · v1 표(행·시각·열) 보존 확인
+[extract] AI 표 산출물: 초안 .session-notes/T34-ai-table-draft.json · 검증 리포트 .session-notes/T34-ai-table-report.json(T35 교차검증 입력)
+[extract] 발행: data/timetable.json (142162 bytes) · schemaVersion=3 · sha256:e0952e99ade9e3800e3b1a0c4ccb386596ee1b98b8990174e90e34caaf3b5729

@@ -21,7 +21,7 @@ import { dirname } from 'node:path';
 
 import { runExtract } from './cli.js';
 import type { ExtractDeps } from './cli.js';
-import { createStructurerFor } from './structurer.js';
+import { createStructurerFor, createTableExtractorFor } from './structurer.js';
 import type { StructurerEnv } from './structurer.js';
 
 function pad2(value: number): string {
@@ -68,6 +68,21 @@ const deps: ExtractDeps = {
       AI_API_KEY: readEnv('AI_API_KEY'),
     };
     return createStructurerFor(noAi ? 'off' : provider, {
+      model,
+      env,
+      log: (line) => {
+        console.log(line);
+      },
+    });
+  },
+  // T34: 시간표 전용 **표 추출기** — 같은 `--ai` 모드·`AI_*` 환경변수를 쓴다(시크릿은 값 없이 전달).
+  createTableExtractor: ({ model, noAi, provider }) => {
+    const env: StructurerEnv = {
+      AI_BASE_URL: readEnv('AI_BASE_URL'),
+      AI_MODEL: readEnv('AI_MODEL'),
+      AI_API_KEY: readEnv('AI_API_KEY'),
+    };
+    return createTableExtractorFor(noAi ? 'off' : provider, {
       model,
       env,
       log: (line) => {

@@ -27,21 +27,42 @@ import { createHash } from 'node:crypto';
 
 import { DATE_RULE_KINDS } from './types.js';
 import type { AiProvider, AiRuleDraft, AiStructureResult, AiStructurer, AiUsage, Candidate } from './types.js';
+import {
+  addUsage,
+  createApiChatTransport,
+  createOllamaChatTransport,
+  DEFAULT_API_TIMEOUT_MS,
+  DEFAULT_MODEL,
+  DEFAULT_OLLAMA_TIMEOUT_MS,
+  diffUsage,
+  extractJson,
+  messageOf,
+  newChatUsage,
+  snapshotUsage,
+  type ChatUsageCounters,
+} from './aiTransport.js';
 
-export const DEFAULT_MODEL = 'lfm2.5:latest';
-export const DEFAULT_BASE_URL = 'http://127.0.0.1:11434';
-/** 모델 응답 대기 상한(ms) — 초과 시 폴백 */
-export const DEFAULT_TIMEOUT_MS = 180_000;
-/** OpenAI 호환 API 응답 대기 상한(ms) — 원격이므로 로컬보다 짧게 잡는다 */
-export const DEFAULT_API_TIMEOUT_MS = 60_000;
+// 공용 전송 계층(`aiTransport.ts`)의 공개 이름 — 기존 호출처·테스트가 `ai.js` 경로로 그대로 쓴다.
+export {
+  API_CHAT_PATH,
+  ApiHttpError,
+  asString,
+  DEFAULT_API_TIMEOUT_MS,
+  DEFAULT_BASE_URL,
+  DEFAULT_MODEL,
+  estimateTokens,
+  extractJson,
+  isRetryable,
+  MAX_API_RETRIES,
+  messageOf,
+} from './aiTransport.js';
+
+/** 모델 응답 대기 상한(ms) — 초과 시 폴백(ollama 전송 계층 기본값과 같은 값) */
+export const DEFAULT_TIMEOUT_MS = DEFAULT_OLLAMA_TIMEOUT_MS;
 /** 한 번에 모델에 넘기는 최대 후보 수(초과분은 호출측이 나눠 부른다) */
 export const MAX_CANDIDATES_PER_CALL = 24;
 /** 요청 1건의 입력 길이 상한(문자) — 초과 시 후보 문장을 잘라내고 기록한다 */
 export const MAX_PROMPT_CHARS = 8_000;
-/** 실패 시 재시도 횟수(최초 시도 1 + 재시도 1) */
-export const MAX_API_RETRIES = 1;
-/** OpenAI 호환 chat completions 경로 */
-export const API_CHAT_PATH = '/chat/completions';
 
 /** 프롬프트 템플릿 — 해시가 산출물·로그에 기록된다(재현성). `{{CANDIDATES}}` 만 치환한다. */
 export const PROMPT_TEMPLATE = [
@@ -75,50 +96,16 @@ export function promptTemplateSha256(): string {
   return `sha256:${createHash('sha256').update(PROMPT_TEMPLATE, 'utf8').digest('hex')}`;
 }
 
-/**
- * 토큰 수 **추정**(NFR-A4 비용 추적용 — 정확한 과금값이 아니다).
- * 한글·영문 혼합 문서 기준 1 토큰 ≈ 2 문자 휴리스틱을 쓴다(보수적으로 크게 잡지 않는다).
- */
-export function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 2);
-}
-
-/** 어댑터 내부용 가변 카운터(`AiUsage` 는 발행물 계약이라 readonly 다) */
-export interface AiUsageCounters {
-  calls: number;
-  promptTokens: number;
-  completionTokens: number;
-  truncated: number;
-}
-
-export function newUsageCounters(): AiUsageCounters {
-  return { calls: 0, promptTokens: 0, completionTokens: 0, truncated: 0 };
-}
+/** 어댑터 내부용 가변 카운터(`AiUsage` 는 발행물 계약이라 readonly 다) — 공용 전송 계층 타입 별칭 */
+export type AiUsageCounters = ChatUsageCounters;
+export { newChatUsage as newUsageCounters } from './aiTransport.js';
 
 export function emptyUsage(): AiUsage {
-  return { ...newUsageCounters(), totalTokens: 0 };
+  return { calls: 0, promptTokens: 0, completionTokens: 0, totalTokens: 0, truncated: 0 };
 }
 
-function withUsage(usage: AiUsageCounters): AiUsage {
+function withUsage(usage: ChatUsageCounters): AiUsage {
   return { ...usage, totalTokens: usage.promptTokens + usage.completionTokens };
-}
-
-/** 모델 응답에서 JSON 을 관용적으로 꺼낸다(코드펜스·앞뒤 설명 허용). */
-export function extractJson(raw: string): unknown {
-  const trimmed = raw.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
-  try {
-    return JSON.parse(trimmed);
-  } catch {
-    const start = trimmed.indexOf('{');
-    const end = trimmed.lastIndexOf('}');
-    if (start < 0 || end <= start) {
-      const arrayStart = trimmed.indexOf('[');
-      const arrayEnd = trimmed.lastIndexOf(']');
-      if (arrayStart < 0 || arrayEnd <= arrayStart) return null;
-      return JSON.parse(trimmed.slice(arrayStart, arrayEnd + 1));
-    }
-    return JSON.parse(trimmed.slice(start, end + 1));
-  }
 }
 
 function asString(value: unknown): string | null {
@@ -216,60 +203,37 @@ export interface ApiStructurerOptions {
   readonly log?: ((line: string) => void) | undefined;
 }
 
-/** OpenAI 호환 오류 — 4xx(인증·요청)는 재시도해도 소용없고, 429·5xx 는 재시도 가치가 있다. */
-export class ApiHttpError extends Error {
-  public readonly status: number;
-
-  public constructor(status: number, statusText: string) {
-    super(`HTTP ${String(status)}${statusText === '' ? '' : ` ${statusText}`}`);
-    this.name = 'ApiHttpError';
-    this.status = status;
-  }
-
-  public get retryable(): boolean {
-    return this.status === 429 || this.status >= 500;
-  }
-}
-
-function isRetryable(error: unknown): boolean {
-  if (error instanceof ApiHttpError) return error.retryable;
-  // 타임아웃(AbortError)·네트워크 오류는 재시도한다
-  return true;
-}
-
-interface ApiChatPayload {
-  readonly choices?: readonly { readonly message?: { readonly content?: unknown } }[];
-}
-
 /**
  * 외부 OpenAI 호환 API 구조화 어댑터.
  * 설정이 비어 있으면(키·base URL·모델) **호출하지 않고** `unavailable` 로 끝난다(규칙 전용 폴백).
  */
 export function createApiStructurer(options: ApiStructurerOptions = {}): AiStructurer {
-  const model = options.model ?? '';
-  const baseUrl = (options.baseUrl ?? '').replace(/\/$/, '');
-  const apiKey = options.apiKey ?? '';
-  const timeoutMs = options.timeoutMs ?? DEFAULT_API_TIMEOUT_MS;
   const maxPromptChars = options.maxPromptChars ?? MAX_PROMPT_CHARS;
   const maxCandidatesPerCall = options.maxCandidatesPerCall ?? MAX_CANDIDATES_PER_CALL;
-  const retries = options.retries ?? MAX_API_RETRIES;
-  const fetchImpl = options.fetchImpl ?? globalThis.fetch;
   const nowMs = options.nowMs ?? (() => Date.now());
   const log = options.log ?? (() => {});
+  /**
+   * HTTP·재시도·타임아웃·프롬프트 캐시는 **공용 전송 계층**이 담당한다(중복 구현 금지 — T34).
+   * 프롬프트 캐시는 어댑터 수명 동안 유지된다(어댑터는 실행 1회당 1개 — `structurer.ts`).
+   */
+  const transport = createApiChatTransport({
+    model: options.model ?? '',
+    baseUrl: (options.baseUrl ?? '').replace(/\/$/, ''),
+    apiKey: options.apiKey ?? '',
+    timeoutMs: options.timeoutMs ?? DEFAULT_API_TIMEOUT_MS,
+    ...(options.retries === undefined ? {} : { retries: options.retries }),
+    ...(options.fetchImpl === undefined ? {} : { fetchImpl: options.fetchImpl }),
+    log,
+  });
 
   const provider: AiProvider = 'api';
-  /**
-   * 프롬프트 → 응답 캐시 — **어댑터 수명 동안 유지**된다(같은 실행에서 같은 문장을 두 번 보내지 않는다).
-   * 어댑터는 실행 1회당 1개 만들어지므로(`structurer.ts`) 런 전체가 캐시 범위다.
-   */
-  const cache = new Map<string, string>();
 
   return {
-    model,
+    model: transport.model,
     promptTemplateSha256: promptTemplateSha256(),
     async structure(candidates: readonly Candidate[]): Promise<AiStructureResult> {
       const started = nowMs();
-      const usage = newUsageCounters();
+      const usage = newChatUsage();
       const finish = (
         status: AiStructureResult['status'],
         drafts: AiRuleDraft[],
@@ -278,7 +242,7 @@ export function createApiStructurer(options: ApiStructurerOptions = {}): AiStruc
       ): AiStructureResult => ({
         status,
         provider,
-        model,
+        model: transport.model,
         durationMs: Math.round(nowMs() - started),
         drafts,
         raw,
@@ -286,39 +250,19 @@ export function createApiStructurer(options: ApiStructurerOptions = {}): AiStruc
         usage: withUsage(usage),
       });
 
-      if (candidates.length === 0) return finish('ok', [], '', null);
-      if (apiKey === '') {
-        return finish('unavailable', [], '', 'AI_API_KEY 가 없다 — 규칙 전용으로 폴백한다(--ai=off 와 같은 경로)');
-      }
-      if (baseUrl === '') {
-        return finish('unavailable', [], '', 'AI_BASE_URL 이 없다 — 규칙 전용으로 폴백한다');
-      }
-      if (model === '') {
-        return finish('unavailable', [], '', 'AI_MODEL(--model)이 없다 — 규칙 전용으로 폴백한다');
-      }
-
-      /** 요청 1건 — 실패는 던진다(재시도 판단은 호출측). 키는 헤더로만 나가고 로그에 남기지 않는다. */
-      const requestOnce = async (prompt: string): Promise<string> => {
-        usage.calls += 1;
-        usage.promptTokens += estimateTokens(prompt);
-        const response = await fetchImpl(`${baseUrl}${API_CHAT_PATH}`, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model,
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0,
-            stream: false,
-            response_format: { type: 'json_object' },
-          }),
-          signal: AbortSignal.timeout(timeoutMs),
-        });
-        if (!response.ok) throw new ApiHttpError(response.status, response.statusText);
-        const payload = (await response.json()) as ApiChatPayload;
-        const content = asString(payload.choices?.[0]?.message?.content) ?? '';
-        usage.completionTokens += estimateTokens(content);
-        return content;
+      /** 이 `structure()` 호출에서 나간 비용만 기록한다(전송은 누적, 유스케이스는 호출분 — T19 계약) */
+      const callOnce = async (prompt: string): Promise<string> => {
+        const before = snapshotUsage(transport.usage);
+        try {
+          return await transport.chat(prompt);
+        } finally {
+          addUsage(usage, diffUsage(before, transport.usage));
+        }
       };
+
+      if (candidates.length === 0) return finish('ok', [], '', null);
+      const unavailable = await transport.unavailableReason();
+      if (unavailable !== null) return finish('unavailable', [], '', unavailable);
 
       const drafts: AiRuleDraft[] = [];
       const raws: string[] = [];
@@ -333,29 +277,8 @@ export function createApiStructurer(options: ApiStructurerOptions = {}): AiStruc
             );
           }
           if (capped.group.length === 0) continue;
-          const prompt = buildPrompt(capped.group);
-
-          let content = cache.get(prompt);
-          if (content === undefined) {
-            let lastError: unknown = null;
-            for (let attempt = 0; attempt <= retries; attempt += 1) {
-              try {
-                content = await requestOnce(prompt);
-                break;
-              } catch (error) {
-                lastError = error;
-                if (!isRetryable(error) || attempt === retries) {
-                  throw error;
-                }
-                log(`[extract] API 재시도 ${String(attempt + 1)}/${String(retries)} — ${messageOf(lastError)}`);
-              }
-            }
-            if (content === undefined) throw lastError ?? new Error('API 호출 실패(원인 미상)');
-            cache.set(prompt, content);
-          } else {
-            log('[extract] 캐시 사용 — 같은 프롬프트를 다시 보내지 않는다(비용 가드)');
-          }
-
+          // 같은 프롬프트 재전송 금지(캐시)·재시도·타임아웃은 전송 계층이 처리한다.
+          const content = await callOnce(buildPrompt(capped.group));
           if (content === '') continue;
           raws.push(content);
           drafts.push(...parseAiDrafts(content));
@@ -382,42 +305,29 @@ export interface OllamaStructurerOptions {
   readonly log?: ((line: string) => void) | undefined;
 }
 
-interface OllamaTags {
-  readonly models?: readonly { readonly name?: string }[];
-}
-
 /**
  * 로컬 Ollama 구조화 어댑터. **모델이 없으면 설치하지 않고** `unavailable` 로 끝난다.
  * HTTP 는 Node 내장 `fetch` 만 쓴다(런타임 의존성 0).
  */
 export function createOllamaStructurer(options: OllamaStructurerOptions = {}): AiStructurer {
-  const model = options.model === undefined || options.model === '' ? DEFAULT_MODEL : options.model;
-  const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, '');
-  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  const fetchImpl = options.fetchImpl ?? globalThis.fetch;
   const nowMs = options.nowMs ?? (() => Date.now());
   const log = options.log ?? (() => {});
-
-  async function callJson(path: string, body: unknown): Promise<unknown> {
-    const started = nowMs();
-    const response = await fetchImpl(`${baseUrl}${path}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    if (!response.ok) throw new Error(`HTTP ${String(response.status)} ${response.statusText}`.trim());
-    const payload = (await response.json()) as unknown;
-    log(`[extract] ollama ${path} 응답 ${String(Math.round(nowMs() - started))}ms`);
-    return payload;
-  }
+  // 모델 존재 확인(/api/tags)·호출·타임아웃은 공용 전송 계층이 담당한다(중복 구현 금지 — T34).
+  const transport = createOllamaChatTransport({
+    model: options.model === undefined || options.model === '' ? DEFAULT_MODEL : options.model,
+    ...(options.baseUrl === undefined ? {} : { baseUrl: options.baseUrl }),
+    timeoutMs: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    ...(options.fetchImpl === undefined ? {} : { fetchImpl: options.fetchImpl }),
+    ...(options.nowMs === undefined ? {} : { nowMs: options.nowMs }),
+    log,
+  });
 
   return {
-    model,
+    model: transport.model,
     promptTemplateSha256: promptTemplateSha256(),
     async structure(candidates: readonly Candidate[]): Promise<AiStructureResult> {
       const started = nowMs();
-      const usage = newUsageCounters();
+      const usage = newChatUsage();
       const finish = (
         status: AiStructureResult['status'],
         drafts: AiRuleDraft[],
@@ -426,7 +336,7 @@ export function createOllamaStructurer(options: OllamaStructurerOptions = {}): A
       ): AiStructureResult => ({
         status,
         provider: 'ollama',
-        model,
+        model: transport.model,
         durationMs: Math.round(nowMs() - started),
         drafts,
         raw,
@@ -434,39 +344,27 @@ export function createOllamaStructurer(options: OllamaStructurerOptions = {}): A
         usage: withUsage(usage),
       });
 
+      /** 이 `structure()` 호출에서 나간 비용만 기록한다(전송은 누적, 유스케이스는 호출분 — T19 계약) */
+      const callOnce = async (prompt: string): Promise<string> => {
+        const before = snapshotUsage(transport.usage);
+        try {
+          return await transport.chat(prompt);
+        } finally {
+          addUsage(usage, diffUsage(before, transport.usage));
+        }
+      };
+
       if (candidates.length === 0) return finish('ok', [], '', null);
 
       try {
-        const tagsResponse = await fetchImpl(`${baseUrl}/api/tags`, { signal: AbortSignal.timeout(timeoutMs) });
-        if (!tagsResponse.ok) throw new Error(`/api/tags HTTP ${String(tagsResponse.status)}`);
-        const tags = (await tagsResponse.json()) as OllamaTags;
-        const names = (tags.models ?? []).map((entry) => entry.name ?? '').filter((name) => name !== '');
-        if (!names.includes(model)) {
-          return finish(
-            'unavailable',
-            [],
-            '',
-            `모델 "${model}" 이 로컬 Ollama 에 없다(설치하지 않는다 — --no-ai 폴백). 있는 모델: ${names.join(', ') || '없음'}`,
-          );
-        }
+        const unavailable = await transport.unavailableReason();
+        if (unavailable !== null) return finish('unavailable', [], '', unavailable);
 
         const drafts: AiRuleDraft[] = [];
         const raws: string[] = [];
         const groups: Candidate[][] = chunkCandidates(dedupeCandidates(candidates), MAX_CANDIDATES_PER_CALL);
         for (const group of groups) {
-          const prompt = buildPrompt(group);
-          usage.calls += 1;
-          usage.promptTokens += estimateTokens(prompt);
-          const payload = (await callJson('/api/chat', {
-            model,
-            stream: false,
-            format: 'json',
-            options: { temperature: 0 },
-            messages: [{ role: 'user', content: prompt }],
-          })) as { message?: { content?: unknown; thinking?: unknown } };
-          const content =
-            asString(payload.message?.content) ?? asString(payload.message?.thinking) ?? '';
-          usage.completionTokens += estimateTokens(content);
+          const content = await callOnce(buildPrompt(group));
           if (content === '') continue;
           raws.push(content);
           drafts.push(...parseAiDrafts(content));
@@ -503,6 +401,3 @@ export function createDisabledStructurer(model: string = DEFAULT_MODEL): AiStruc
   };
 }
 
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
