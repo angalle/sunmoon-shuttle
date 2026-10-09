@@ -1,0 +1,5 @@
+> bash scripts/boundary.sh
+
+PASS [경계①/domain 순수성] src/domain — 브라우저·네트워크·환경·시계 API 사용 0건
+PASS [경계②/application→adapters] src/application — adapters import 0건
+BOUNDARY: PASS (위반 0건)

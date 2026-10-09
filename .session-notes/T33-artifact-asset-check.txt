@@ -1,0 +1,37 @@
+### AAB  android/app/build/outputs/bundle/release/app-release.aab
+  크기                                               2897210 bytes
+  sha256                                               77ff750b9b2ac87c44342b27bc88aa41a13fce1cae8b5f8c5e405c7014e1d485
+  PASS  AAB jarsigner -verify                                jar verified.
+  서명자: X.509, C=US, O=Android, CN=Android Debug
+  base/assets/public/ 파일 수                       18개
+  PASS  AAB 옛 번들 없음 (index-qWPrV94-.js)            0
+  PASS  AAB 옛 번들 없음 (index-8thbg8SN.css)           0
+  들어간 번들                                     index-403hrULs.js index-BX2z0Mh1.css 
+  금지어 '홈 화면'                               0건
+  금지어 '전체화면'                             0건
+  금지어 '한 번만'                               0건
+  PASS  AAB 금지어 합계(홈 화면·전체화면·한 번만) 0
+  SW_VERSION (AAB)                                     SW_VERSION = '2026-10-09.1'
+  PASS  AAB SW_VERSION == dist                               SW_VERSION = '2026-10-09.1'
+  PASS  AAB data/timetable.json                              1
+  dist manifest: 5fe341c366f046d7
+
+### APK  android/app/build/outputs/apk/debug/app-debug.apk
+  크기                                               4053139 bytes
+  sha256                                               abd838afd595ed07c342f5f062d2140674a6ce8d52abf59e1335275ca32e5ec8
+  PASS  APK jarsigner -verify                                jar verified.
+  서명자: X.509, C=US, O=Android, CN=Android Debug
+  assets/public/ 파일 수                            18개
+  PASS  APK 옛 번들 없음 (index-qWPrV94-.js)            0
+  PASS  APK 옛 번들 없음 (index-8thbg8SN.css)           0
+  들어간 번들                                     index-403hrULs.js index-BX2z0Mh1.css 
+  금지어 '홈 화면'                               0건
+  금지어 '전체화면'                             0건
+  금지어 '한 번만'                               0건
+  PASS  APK 금지어 합계(홈 화면·전체화면·한 번만) 0
+  SW_VERSION (APK)                                     SW_VERSION = '2026-10-09.1'
+  PASS  APK SW_VERSION == dist                               SW_VERSION = '2026-10-09.1'
+  PASS  APK data/timetable.json                              1
+  dist manifest: 5fe341c366f046d7
+
+T33 ARTIFACT ASSET CHECK: PASS

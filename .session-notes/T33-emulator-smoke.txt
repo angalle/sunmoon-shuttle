@@ -1,0 +1,58 @@
+[emu] meteor-dodge-api35 기동 (-no-window -gpu swiftshader_indirect)
+[emu] sys.boot_completed=1 (대기 1회) · Android 15 (API 35)
+
+### 1. before — 이전 설치본이 있으면 먼저 실행
+  기존 설치본 있음: versionName=0.1.0
+  이전 설치본: 설치안내노드=0 · 금지어=0(본문)/0(HTML) · 번들=./assets/index-403hrULs.js · 행=0 · 빈상태=true · 오류=<null> · 캐시=sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+  설치 안내 노드 예: 
+  INFO  이전 설치본이 이미 새 번들 — before 근거는 run1/웹 스모크(T32) 사용 ./assets/index-403hrULs.js
+  (스크린샷 T33-1-이전설치본-설치안내.png · 104591 bytes)
+
+### 2. 새 debug APK 설치 (adb install -r — 앱 데이터·SW 캐시 유지)
+  Performing Streamed Install
+  Success
+  설치 후 versionName=0.1.0
+
+### 3. 새 빌드 1차 로드
+  Status: ok
+  TotalTime: 709
+  (스크린샷 T33-2-새빌드-1차로드.png · 104591 bytes)
+  1차: 설치안내노드=0 · 금지어=0(본문)/0(HTML) · 번들=./assets/index-403hrULs.js · 행=0 · 빈상태=true · 오류=<null> · 캐시=sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+
+### 4. 새 빌드 2차 로드 (서비스워커가 새 셸로 교체된 뒤)
+  (스크린샷 T33-3-새빌드-2차로드.png · 104591 bytes)
+  2차: 설치안내노드=0 · 금지어=0(본문)/0(HTML) · 번들=./assets/index-403hrULs.js · 행=0 · 빈상태=true · 오류=<null> · 캐시=sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+  시각=10월 9일 (금) · 09:20 · 오프라인안내=<null> · 공지=오늘 셔틀버스 운행이 없습니다 · 사유: 한글날: 셔틀버스 운행 없음 · 다음 운행: 내일 08:00 · dayType=weekday · 행샘플=
+  요일탭=평일,토요일,일요일
+
+### 4b. 운행일 주입 (https://localhost/?now=2026-10-19) — 오늘은 휴일이라 행이 안 그려지므로
+  운행일: 설치안내노드=0 · 금지어=0(본문)/0(HTML) · 번들=./assets/index-403hrULs.js · 행=115 · 빈상태=false · 오류=<null> · 캐시=sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+  시각=10월 19일 (월) · 09:00 · dayType=weekday · 행샘플=07:30천안터미널학교에서 출발 · 08:10 도착지난 편,07:40천안역학교에서 출발 · 08:15 도착지난 편,08:05아산(KTX)역학교에서 출발 · 08:25 도착 · 약 20분 소요지난 편
+  (스크린샷 T33-5-운행일-시간표.png · 227542 bytes)
+
+### 5. logcat 판정 (누적)
+  logcat 1074줄 · 앱 콘솔 0줄 · 10-09 09:20:10.003   568   594 I ActivityTaskManager: Displayed com.angalle.sunmoonshuttle/.MainActivity for user 0: +709ms
+  PASS  logcat FATAL EXCEPTION(main)                               0
+  PASS  logcat FATAL EXCEPTION(crash 버퍼)                       0
+  PASS  logcat ANR                                                 0
+  PASS  앱 콘솔 Error/Uncaught                                  0
+
+### 6. 수용 기준 판정 (AC-U14-3d)
+  PASS  설치 안내 노드 0건(2차 로드)                     0
+  PASS  설치 안내 testid(install-hint) 0건                    0
+  PASS  금지어 0건(본문 innerText)                           0
+  PASS  금지어 0건(HTML outerHTML)                             0
+  PASS  새 번들 로드                                          yes
+  PASS  데이터 오류 화면 없음(data-error)                 <null>
+  PASS  시각 렌더(비어있지 않음)                         yes
+  PASS  앱 셸(appbar) 렌더                                     true
+  PASS  요일 탭(day-tabs) 렌더                                true
+  PASS  오늘 화면 상태(행 있음 또는 '운행 없음' — 한글날) yes
+  PASS  옛 SW 캐시 키(2026-10-05) 없음                       no
+  (참고) 캐시 키: sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+  PASS  운행일 시간표 행 렌더(2026-10-19 · 평일)       yes
+  PASS  운행일에도 설치 안내 0건                         0
+
+[emu] 종료 (adb emu kill)
+
+T33 EMULATOR SMOKE: PASS

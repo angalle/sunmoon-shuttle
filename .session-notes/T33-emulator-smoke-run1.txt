@@ -1,0 +1,45 @@
+[emu] meteor-dodge-api35 기동 (-no-window -gpu swiftshader_indirect)
+[emu] sys.boot_completed=1 (대기 3회) · 15 (API 35)
+
+### 1. before — 이전 설치본이 있으면 먼저 실행 (옛 번들의 설치 안내 카드 실측)
+  기존 설치본 있음: versionName=0.1.0
+  이전 설치본 DOM: 설치안내=1건 · 금지어=4건 · 번들=./assets/index-qWPrV94-.js
+  PASS  이전 설치본에 설치 안내가 보였다(before)     1
+  (스크린샷 T33-1-이전설치본-설치안내.png · 209861 bytes)
+
+### 2. 새 debug APK 설치 (adb install -r)
+  Performing Streamed Install
+  Success
+  설치 후 versionName=0.1.0
+
+### 3. 새 빌드 1차 로드
+  Status: ok
+  TotalTime: 905
+  1차: 설치안내=1건 · 금지어=4건 · 번들=./assets/index-qWPrV94-.js · 캐시=sunmoon-shuttle-shell-2026-10-09.1
+  (스크린샷 T33-2-새빌드-1차로드.png · 209861 bytes)
+
+### 4. 새 빌드 2차 로드 (서비스워커가 새 셸로 교체된 뒤)
+  2차: 설치안내=0건 · 금지어=0건 · 번들=./assets/index-403hrULs.js · 캐시=sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+  시각=10월 9일 (금) · 09:16 · 다음차=<null> · 시간표행=0 · 데이터오류=<null> · 오프라인안내=<null>
+  (스크린샷 T33-3-새빌드-2차로드.png · 103727 bytes)
+
+### 5. logcat 판정 (2차 로드까지 누적)
+  logcat 4982줄 · 앱 콘솔 0줄 · 10-09 09:16:46.256   568   594 I ActivityTaskManager: Displayed com.angalle.sunmoonshuttle/.MainActivity for user 0: +905ms
+  PASS  logcat FATAL EXCEPTION(main)                               0
+  PASS  logcat FATAL EXCEPTION(crash 버퍼)                       0
+  PASS  logcat ANR                                                 0
+  PASS  앱 콘솔 Error/Uncaught                                  0
+
+### 6. 수용 기준 판정 (AC-U14-3d — 새 빌드 2차 로드 기준)
+  PASS  설치 안내 카드 0건                                  0
+  PASS  금지어 0건(본문 innerText)                           0
+  PASS  새 번들 로드                                          yes
+  FAIL  데이터 오류 화면 없음                             기대=null 실제=<null>
+  PASS  시각 렌더(비어있지 않음)                         no
+  PASS  시간표 행 렌더(>0 또는 빈 상태 정상)          yes
+  PASS  옛 SW 캐시 키(2026-10-05) 없음                       no
+  (참고) 캐시 키: sunmoon-shuttle-data-2026-10-09.1,sunmoon-shuttle-shell-2026-10-09.1
+
+[emu] 종료 (adb emu kill)
+
+T33 EMULATOR SMOKE: FAIL

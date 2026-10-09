@@ -25,6 +25,32 @@ bash android/build-release.sh verify     # → 산출물 존재·크기·sha256�
 4. `./android/gradlew -p android bundleRelease | assembleDebug` (JDK17 · ANDROID_HOME · build-tools 36 을 PATH 선두에)
 5. 산출물 확인: `stat` + `shasum -a 256` + `jarsigner -verify`
 
+### 웹만 바뀐 경우 — 자산 재동기화 (T33)
+
+`dist/` 를 새로 만들었는데 **Android 자산을 다시 넣지 않으면 앱은 옛 UI 를 계속 보여준다**.
+실측: T25 빌드 번들 `assets/index-qWPrV94-.js` 가 자산에 남아, **삭제된 설치 안내 카드가 앱에서 계속 보였다**
+(`docs/07-mobile-ux.md` §14-1 표 · §14-2 규칙 "수동 복사 금지 — 스크립트로").
+
+```bash
+npm run build                                  # dist/ 최신화
+node scripts/sync-android-assets.mjs           # dist/ → android/app/src/main/assets/public/  (멱등)
+node scripts/sync-android-assets.mjs --check    # 복사 없이 드리프트만 검사 (IN-SYNC / OUT-OF-SYNC)
+bash android/build-release.sh                   # AAB 재빌드 (내부의 cap sync 가 자산을 다시 넣는다)
+bash scripts/t33_artifact_asset_check.sh        # AAB/APK 안에 옛 번들·금지어 0건 + jarsigner -verify
+bash scripts/t33_emulator_smoke.sh [AVD]        # 에뮬: 설치 안내 0건 · 시간표 렌더 · logcat FATAL 0 (CDP 로 DOM 직접 평가)
+```
+
+- **옛 해시 번들은 남기지 않는다**: 스크립트는 대상을 지우고 `dist/` 를 통째로 넣는다(Capacitor
+  `copyWebDir` 와 같은 의미 — `@capacitor/cli/dist/tasks/copy.js`). 대상에만 남아 있던 파일 중
+  `-<hash>.js|.css|.map` 모양이면 **낡은 웹 자산으로 판정해 버린다**. `cordova.js`·`cordova_plugins.js`
+  (Capacitor 가 쓰는 0바이트 자리표시자)만 보존한다.
+- **멱등**: 2회 실행 시 `CHANGED=0` (수용 기준 AC-U14-3b). 자산 전체의 `manifest` sha256 을 출력하므로
+  실행 간·`cap sync` 산출물 간 대조가 가능하다(실측: 두 도구의 manifest 동일).
+- **추적 대상 아님**: `android/.gitignore` 96행이 `app/src/main/assets/public` 을 무시한다 → 커밋할 자산은 없다.
+  자산은 언제든 위 한 줄로 재생성된다.
+- **금지어 감시**(`docs/07-mobile-ux.md` §14-3 AC-U14-3): 산출물·자산 어디에서도 `홈 화면`·`전체화면`·`한 번만`
+  이 0건이어야 한다. `t33_artifact_asset_check.sh` 가 AAB/APK 내부까지 풀어서 검사한다.
+
 ### 수동 실행 시 툴체인 (스크립트가 자동으로 넣는 값)
 
 ```

@@ -1,0 +1,63 @@
+# T33 AC-U14-3e — Android 자산 목록 · 추적 여부 실측 (2026-10-09)
+# 명령: find android/app/src/main/assets/public -type f | sort   ·   ls -laR   ·   git check-ignore -v
+
+## 1) 파일 목록 (18개)
+android/app/src/main/assets/public/apple-touch-icon.png
+android/app/src/main/assets/public/assets/index-403hrULs.js
+android/app/src/main/assets/public/assets/index-BX2z0Mh1.css
+android/app/src/main/assets/public/cordova.js
+android/app/src/main/assets/public/cordova_plugins.js
+android/app/src/main/assets/public/data/timetable.json
+android/app/src/main/assets/public/favicon.svg
+android/app/src/main/assets/public/icons/apple-touch-icon-180.png
+android/app/src/main/assets/public/icons/favicon-32.png
+android/app/src/main/assets/public/icons/icon-192.png
+android/app/src/main/assets/public/icons/icon-512.png
+android/app/src/main/assets/public/icons/maskable-192.png
+android/app/src/main/assets/public/icons/maskable-512.png
+android/app/src/main/assets/public/index.html
+android/app/src/main/assets/public/manifest.webmanifest
+android/app/src/main/assets/public/privacy.css
+android/app/src/main/assets/public/privacy.html
+android/app/src/main/assets/public/sw.js
+
+## 2) 디렉터리 내용 (ls -laR)
+total 72
+-rw-r--r--   1 leeheesun  staff  1223 Oct  9 09:14 apple-touch-icon.png
+drwxr-xr-x   4 leeheesun  staff   128 Oct  9 09:14 assets
+-rw-r--r--   1 leeheesun  staff     0 Oct  9 09:14 cordova.js            ← Capacitor 자리표시자(0바이트)
+-rw-r--r--   1 leeheesun  staff     0 Oct  9 09:14 cordova_plugins.js    ← Capacitor 자리표시자(0바이트)
+drwxr-xr-x   3 leeheesun  staff    96 Oct  9 09:14 data
+-rw-r--r--   1 leeheesun  staff   997 Oct  9 09:14 favicon.svg
+drwxr-xr-x   8 leeheesun  staff   256 Oct  9 09:14 icons
+-rw-r--r--   1 leeheesun  staff  1824 Oct  9 09:14 index.html
+-rw-r--r--   1 leeheesun  staff  1159 Oct  9 09:14 manifest.webmanifest
+-rw-r--r--   1 leeheesun  staff  3488 Oct  9 09:14 privacy.css
+-rw-r--r--   1 leeheesun  staff  6238 Oct  9 09:14 privacy.html
+-rw-r--r--   1 leeheesun  staff  6659 Oct  9 09:14 sw.js
+
+android/app/src/main/assets/public/assets:
+-rw-r--r--   1 leeheesun  staff  66975 Oct  9 09:14 index-403hrULs.js   ← dist 의 새 번들(T32 이후 빌드)
+-rw-r--r--   1 leeheesun  staff  22495 Oct  9 09:14 index-BX2z0Mh1.css
+  ※ 옛 번들 index-qWPrV94-.js(66,1KB · T25 빌드) · index-8thbg8SN.css(18,2KB) 는 **없음**(제거됨)
+
+android/app/src/main/assets/public/data:
+-rw-r--r--   1 leeheesun  staff  141831 Oct  9 09:14 timetable.json
+
+android/app/src/main/assets/public/icons:
+apple-touch-icon-180.png 1223 · favicon-32.png 344 · icon-192.png 2076 · icon-512.png 6317 ·
+maskable-192.png 1295 · maskable-512.png 4294   (단위 bytes)
+
+## 3) git 추적 여부 — **추적 대상이 아니다**(자산은 빌드 산출물)
+    $ git check-ignore -v android/app/src/main/assets/public/index.html android/app/src/main/assets/public/sw.js
+    android/.gitignore:96:app/src/main/assets/public	android/app/src/main/assets/public/index.html
+    android/.gitignore:96:app/src/main/assets/public	android/app/src/main/assets/public/sw.js
+    check-ignore exit=0
+
+    $ git ls-files android/app/src/main/assets/public | wc -l
+    0
+
+→ android/.gitignore 96행 `app/src/main/assets/public` 로 **자산 전체가 ignore** 된다.
+  즉 "새 번들·삭제된 옛 번들을 함께 커밋"은 **해당 없음**(커밋할 대상이 존재하지 않는다).
+  자산은 `node scripts/sync-android-assets.mjs`(또는 `cap copy|sync android`)로 dist 에서 언제든 재생성된다.
+  android/ 안에서 추적되는 것은 res/(아이콘·스플래시), build.gradle, AndroidManifest.xml, MainActivity.java 등 native 소스뿐이다.

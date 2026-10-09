@@ -1,0 +1,13 @@
+# T33 AC-U14-3a — 금지어 실측 grep (2026-10-09)
+# 명령: grep -rn -e '홈 화면' -e '전체화면' -e '한 번만' <dir>
+
+## android/app/src/main/assets/public/**
+grep exit=1  (1 = 일치 0건)
+총 일치 줄수: 0
+
+## dist/**  (참고: 웹 산출물)
+grep exit=1  (1 = 일치 0건)
+총 일치 줄수: 0
+
+## 옛 해시 번들 이름 잔존 검사
+grep exit=1  (1 = 0건)
