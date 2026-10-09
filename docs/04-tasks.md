@@ -104,7 +104,7 @@
 | **T32 SW 캐시 무효화** — `SW_VERSION` 범프로 옛 셸 교체 + privacy.html 잔존 설명 삭제 | `t_74a7c685` | frontendprojectcreator | **발행(ready·최우선 P20)** — 계약 `docs/07 §14`, AC-U14 (사용자: "지운 문구가 계속 보임") |
 | **T33 Android 자산 재동기화** — dist→assets 스크립트 복사 + AAB 재빌드·에뮬 실측(설치 안내 0) | `t_6704751b` | infraprojectcreator | **완료(done)** — 자산 재동기화(옛 번들 0)·AAB/APK 서명검증 PASS·금지어 4곳 0건·에뮬 전후 스크린샷 |
 
-| **T34 AI 표 추출기** — 시간표 전용 프롬프트로 열 매핑·행 JSON + 검증 4종 + 해시 캐시 | `t_bfddf1bc` | apiprojectcreator | **발행(todo·T33 부모 게이트)** — 계약 `docs/08`, AC-AI1-1·2·3·7 |
+| **T34 AI 표 추출기** — 시간표 전용 프롬프트로 열 매핑·행 JSON + 검증 4종 + 해시 캐시 | `t_bfddf1bc` | apiprojectcreator | **완료(done)** — 환각 차단 exit 1·캐시 calls 10→0→1·검증 4종 OK·578 tests·agreed 78/disagreed 70(②key-shift) |
 | **T35 교차검증 + 드리프트 게이트** — 규칙↔AI 비교·불일치/편수 **±10%**/노선 소실 시 발행 보류·알림(`--force-publish` 승인 시 강제 발행+기록) | `t_31b6c30b` | apiprojectcreator | **발행(todo·T34 부모 게이트)** — 계약 `docs/08 §5·7`, AC-AI1-4·5·6 |
 
 ## 상태
