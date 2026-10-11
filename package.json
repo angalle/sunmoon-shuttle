@@ -11,6 +11,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "demo": "bash scripts/serve-demo.sh",
     "test": "vitest run",
     "test:watch": "vitest",
     "verify:offline": "node scripts/offline_smoke.mjs",

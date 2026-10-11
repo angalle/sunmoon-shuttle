@@ -45,7 +45,21 @@ npm run test           # 3) 테스트 (vitest · tests/**)
 그 밖의 스크립트(이름 고정 — 다른 문서·워크플로가 이 이름을 쓴다):
 `npm run build`(`tsc --noEmit` + `vite build` → `dist/`) · `npm run preview`(빌드 결과 미리보기) ·
 `npm run test:watch`(감시 모드) · `npm run scrape`(원본 HTML → `data/timetable.json`) ·
+`npm run demo`(빌드 + `data/timetable.json` 동봉 + 데모 서버 4190 — 아래 §데모 실행) ·
 `npm run lint:boundary`(헥사고날 경계 검사 — `src/domain` 순수성·`src/application`→`adapters` 금지)
+
+### 데모 실행(T36) — 빌드 · 데이터 동봉 · 정적 서버 한 번에
+```bash
+npm run demo                    # 빌드 → dist/data/timetable.json 동봉 → http://127.0.0.1:4190/ (자체 점검까지)
+npm run demo -- --port=4191     # 포트 변경 (또는 `PORT=4191 npm run demo`)
+npm run demo -- --skip-build    # 빌드 생략(직전 dist 재사용) · `--bind=127.0.0.1` 로컬 전용 바인드
+npm run demo -- --stop          # 이 스크립트가 띄운 데모 서버만 정지(남의 프로세스는 건드리지 않는다)
+```
+- 앱이 읽는 계약 데이터 `data/timetable.json` 은 vite 번들이 아니라 **저장소 루트**에 있고, `npm run build` 는
+  `dist/` 를 통째로 비운다 → 동봉 단계가 없으면 `/data/timetable.json` 404 로 앱이 "데이터 로드 실패" 폴백에
+  떨어진다(T36 재현). `npm run demo` 가 이 순서(빌드 → 동봉 → 서빙)를 매번 보장한다(deploy.yml 과 동일 순서).
+- 포트가 이미 점유돼 있으면 기존 프로세스를 죽이지 않고 안내만 하고 끝난다 → **두 번 실행해도 리스너는 늘지 않는다**.
+- 서버 로그: `.session-notes/demo-server.log`(gitignore) · pid 파일: `dist/.demo-server.pid`(`--stop` 용).
 
 ### 앱 화면(T5) — 렌더 스모크 (헤드리스 Chrome, 의존성 0)
 ```bash
