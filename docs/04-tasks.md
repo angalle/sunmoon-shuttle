@@ -107,6 +107,9 @@
 | **T34 AI 표 추출기** — 시간표 전용 프롬프트로 열 매핑·행 JSON + 검증 4종 + 해시 캐시 | `t_bfddf1bc` | apiprojectcreator | **완료(done)** — 환각 차단 exit 1·캐시 calls 10→0→1·검증 4종 OK·578 tests·agreed 78/disagreed 70(②key-shift) |
 | **T35 교차검증 + 드리프트 게이트** — 규칙↔AI 비교·불일치/편수 **±10%**/노선 소실 시 발행 보류·알림(`--force-publish` 승인 시 강제 발행+기록) | `t_31b6c30b` | apiprojectcreator | **완료(done)** — 3등급 검증(모순만 차단·key-shift 70 경고)·드리프트 ±10% 6케이스 보류·force-publish 기록·607 tests |
 
+| **T36 데모 실행 스크립트** — 빌드 후 dist/data 복사 누락으로 data 404 재발 방지(`npm run demo`) | `t_c1c161d6` | infraprojectcreator | **발행(ready P6)** — 총괄 실측 재발 2회 |
+| **T37 칩 정리 + 오늘로 이동 + 여백 축소** — `전체` 칩 제거(2개 토글)·`현재 시간으로` 즉시 이동(`오늘로 이동합니다` 1.5초)·고정 158→~132px·행 56px | `t_7cdc50f1` | frontendprojectcreator | **발행(ready·최우선 P18)** — 계약 `docs/07 §15`, AC-U15-1~6 |
+
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
 - **배포 주의**: 최신 배포본은 T5 시점(run `37270216029`, 커밋 `0ab0501`) — T6~T9(오프라인·PWA·접근성)는 **아직 미배포**. `main` 은 origin 보다 **12커밋 앞**이며 push(=배포 트리거)는 **사용자 승인 사안**.
