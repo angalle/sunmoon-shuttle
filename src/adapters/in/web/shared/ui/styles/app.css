@@ -88,8 +88,9 @@ body {
   overflow: hidden;
   max-width: 64rem;
   margin: 0 auto;
-  padding: max(var(--space-4), var(--safe-area-top)) max(var(--space-3), var(--safe-area-right))
-    max(var(--space-7), var(--safe-area-bottom)) max(var(--space-3), var(--safe-area-left));
+  /* T37 §15-3 — 셸(=3줄) 좌우 여백 10px · 본문 상·하단 여백 8px(안전영역이 더 크면 그 값을 쓴다) */
+  padding: max(var(--shell-pad-y), var(--safe-area-top)) max(var(--shell-pad-x), var(--safe-area-right))
+    max(var(--shell-pad-y), var(--safe-area-bottom)) max(var(--shell-pad-x), var(--safe-area-left));
 }
 
 /* 본문 스크롤 영역 — 앱바·탭바는 고정이고 여기만 스크롤한다(overscroll 전파 차단) */
@@ -127,22 +128,11 @@ body {
   }
 }
 
-/* ─────────────── 앱바 (56px + safe-area top) ─────────────── */
-.shuttle-appbar {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-height: var(--appbar-height);
-  padding-bottom: var(--space-2);
-  border-bottom: var(--hairline) solid var(--color-border);
-  background: var(--color-bg);
-}
-
-/* ─────────────── 상단 바 (56px + safe-area top, 스크롤해도 고정) ───────────────
+/* ─────────────── 상단 바 (스크롤해도 고정) ───────────────
  * T27 §9-2: 현재 날짜·시각(크게) + ⓘ(정보 시트) + 새로고침. 앱 이름·로고는 두지 않는다.
  * 좁은 화면(360px)에서 시계와 버튼이 한 줄에 안 들어가면 **줄바꿈**되게 둔다(가로 스크롤 금지).
+ * T37 §15-3 — 앱바 52px: 내용 48px(버튼 터치 규격) + 아래 여백 4px. 고정 영역 하단 경계(1px)는
+ * `.shuttle-fixed` 하나만 갖는다(경계선을 두 겹으로 두지 않는다 — 간결화).
  */
 .shuttle-appbar {
   flex: 0 0 auto;
@@ -152,8 +142,7 @@ body {
   justify-content: space-between;
   gap: var(--space-2);
   min-height: var(--appbar-height);
-  padding-bottom: var(--space-2);
-  border-bottom: var(--hairline) solid var(--color-border);
+  padding-bottom: var(--space-1);
   background: var(--color-bg);
 }
 
@@ -223,8 +212,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--fixed-row-gap);
-  /* 고정 영역 아래 경계 — 본문과 시각적으로 나눈다(얇은 1px) */
-  padding-bottom: var(--space-2);
+  /* 고정 영역 아래 경계 — 본문과 시각적으로 나눈다(얇은 1px) + §15-3 로 아래 여백을 2px 로 줄였다 */
+  padding-bottom: var(--fixed-pad-bottom);
   border-bottom: var(--hairline) solid var(--color-border);
   background: var(--color-bg);
 }
@@ -883,28 +872,32 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
-/* ④ 방향 필터 칩 (T29 §11-1 — 상단 고정 3줄의 마지막 줄 · T30 §12-3 — 규격 정리) */
+/* ④ 방향 필터 칩 (T29 §11-1 — 상단 고정 3줄의 마지막 줄 · T30 §12-3 · **T37 §15-1/§15-3**) */
 .shuttle-chips {
   display: flex;
-  /* 3개가 한 줄에 안 들어가면 **가로 스크롤**한다 — 줄바꿈으로 고정 영역 높이를 늘리지 않는다(§11-1) */
+  /* 칩 2개가 한 줄에 들어간다(`전체` 칩 제거 — §15-1). 줄바꿈으로 고정 영역 높이를 늘리지 않는다. */
   flex-wrap: nowrap;
-  /* 칩 사이 8px(§12-3) — 좌우 여백 12px 는 셸(.shuttle-app)이 갖는다(3줄이 같은 축) */
+  /* 칩 사이 8px(§12-3) — 좌우 여백 10px 는 셸(.shuttle-app)이 갖는다(3줄이 같은 축) */
   gap: var(--space-2);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 .shuttle-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-1);
-  /* 칩이 줄어들지 않게(가로 스크롤의 전제) · 폭은 내용에 맞춤(등폭 아님, §12-3) */
+  /* 칩이 줄어들지 않게 · 폭은 내용에 맞춤(등폭 아님, §12-3) */
   flex: 0 0 auto;
-  /* 높이 40px(§12-3) — 가로는 ≥48px 를 유지한다(AC-U12-4) */
+  /*
+   * §15-3 — **보이는 알약 34px · 터치 영역 44px**.
+   * 터치 영역은 알약 **밖 투명 여백**(::after 히트 확장)으로 확보한다 — 요소 자체는 34px 이라
+   * 고정 영역(3줄) 높이가 늘지 않는다. 가로는 ≥48px 를 유지한다.
+   */
+  height: var(--chip-height);
   min-height: var(--chip-height);
   padding: 0 var(--space-3);
-  border: 1px solid var(--color-border-strong);
+  border: var(--hairline) solid var(--color-border-strong);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: var(--color-text);
@@ -913,6 +906,13 @@ body {
   font-size: var(--font-size-row-meta);
   white-space: nowrap;
   cursor: pointer;
+}
+
+/* 터치 확장 — 투명하지만 **포인터를 받는다**(§15-3: 알약 밖 여백으로 44px 확보) */
+.shuttle-chip::after {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--chip-touch-overflow)) 0;
 }
 
 /* 선택 상태는 **배경 톤 + 굵기**(색만으로 전달 금지) — 대비는 `color-on-accent`/`color-accent` 쌍(7.69:1) */
@@ -965,9 +965,13 @@ body {
   font-weight: var(--font-weight-normal);
 }
 
-.shuttle-board__empty {
+/* T37 §15-1 — 목록이 빈 경우의 **얇은 1줄**(방향 필터로 0편이거나 그 요일 표가 비었을 때).
+ * 카드·배너로 만들지 않는다(§9-4 와 같은 톤) — 값·상태를 한 줄로 알린다. */
+.shuttle-timetable__empty {
   margin: 0;
+  padding: var(--row-pad-y) 0;
   color: var(--color-text-muted);
+  font-size: var(--font-size-row-meta);
 }
 
 /*
@@ -1006,6 +1010,8 @@ body {
   font-size: var(--font-size-row-time);
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
+  /* §15-3 — 행 높이 56px 안에 내용이 들어가게 줄 높이만 조인다(행 간격으로 빈 공간을 채우지 않는다) */
+  line-height: var(--row-line-height);
 }
 
 .shuttle-departure__body {
@@ -1016,12 +1022,14 @@ body {
 
 .shuttle-departure__route {
   font-weight: var(--font-weight-bold);
+  line-height: var(--row-line-height);
 }
 
 .shuttle-departure__dir {
   color: var(--color-text-muted);
   /* T28 §10-2 — 행 보조(도착·소요시간) 12 → 13px(§10-2 표준 보조 크기) */
   font-size: var(--font-size-row-meta);
+  line-height: var(--row-line-height);
 }
 
 .shuttle-departure__remaining {
@@ -1051,14 +1059,16 @@ body {
 }
 
 .shuttle-departure {
-  min-height: var(--touch-target-min);
+  /* §15-3 — 행 높이 **56px**(터치 최소 48px 유지) · 좌우 패딩 12px · 위아래 6px(목록 블록 사이 간격 8→6) */
+  min-height: var(--row-height);
   align-items: center;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--row-pad-y) var(--row-pad-x);
   /*
    * 자동 스크롤 목표가 상단 고정 영역에 가려지지 않게 한다(§9-3 · §11-1).
    * 값은 **동적**이다 — 페이지가 고정 영역(3줄)의 실제 높이를 `--fixed-height` 로 내려 준다(하드코딩 금지).
+   * 측정 전에는 토큰 계산식(`--fixed-height-fallback`)으로 물러선다.
    */
-  scroll-margin-top: var(--fixed-height, var(--appbar-height));
+  scroll-margin-top: var(--fixed-height, var(--fixed-height-fallback));
 }
 
 /* 지나간 편 — dim(색·굵기를 낮춘다) */
@@ -1164,20 +1174,5 @@ body {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-/* 액션(`오늘 보기`) — 실제 버튼이고 터치 타깃 48px(토큰) */
-.shuttle-toast__action {
-  flex: 0 0 auto;
-  min-height: var(--touch-target-min);
-  padding: 0 var(--space-3);
-  border: var(--hairline) solid var(--color-accent);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-accent);
-  font: inherit;
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
-  cursor: pointer;
 }
 

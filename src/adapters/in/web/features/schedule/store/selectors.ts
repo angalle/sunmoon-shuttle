@@ -9,7 +9,7 @@
  */
 import { dayTypeFromDate, dayTypeFromWeekday, dayTypeLabel } from '../../../../../../domain/rules/dayType';
 import { addKstDays, formatIsoDate, kstDayFromInstant, kstInstantOf, parseHhMm, type KstDay } from '../../../../../../domain/rules/kst';
-import { isDayType, weekdayCodeOf, type DayType, type WeekdayCode } from '../../../../../../domain/entities/DayType';
+import { isDayType, type DayType, type WeekdayCode } from '../../../../../../domain/entities/DayType';
 import {
   DEFAULT_NEXT_DEPARTURE_COUNT,
   nextDepartures,
@@ -1295,15 +1295,16 @@ export function dayNoticeLine(state: ScheduleState): DayNoticeLine | null {
   return null;
 }
 
-/* ───────────── `현재 시간으로` 안내 — "오늘 아님" (T29 · docs/07 §11-2) ─────────────
- * 버튼은 **선택된 요일 버킷이 오늘과 다를 때** 그냥 스크롤하지 않고 **안내(토스트)** 를 띄운다.
- * 문구·액션 여부를 여기서만 정한다(화면은 그리기만 한다) — 판정 값은 도메인/`timetableView` 에서 온다.
+/* ───────────── `현재 시간으로` 안내 — 오늘이 아니면 **묻지 않고** 이동 (T37 · docs/07 §15-2) ─────────────
+ * 버튼은 **선택된 요일 버킷이 오늘과 다르면** 되묻지 않고 오늘로 옮긴다(요일 전환 + 다음 출발 행 스크롤) —
+ * 그 사실을 `오늘로 이동합니다` 로 **1.5초만** 알린다(액션 버튼 없음). 예전 `오늘 보기` 확인형은 없다.
+ * 문구·이동 여부를 여기서만 정한다(화면은 그리기만 한다) — 판정 값은 도메인/`timetableView` 에서 온다.
  *
- * 우선순위(문서 표를 조건이 겹치지 않게 옮긴 것):
- *   ① 이 시간표에 편이 0건           → `오늘 시간표에 해당하는 편이 없습니다` (+ 오늘이 다른 요일이면 `오늘 보기`)
- *   ② 오늘이 아닌 요일을 보는 중      → `오늘은 <오늘요일>이 아닙니다 · 오늘(<오늘요일>) 시간표로 이동할까요?` + `오늘 보기`
- *   ③ 오늘이고 남은 편이 없음(막차 후) → `오늘 남은 편이 없습니다 · 다음 운행: <날짜(요일)> <시각>` (액션 없음)
- *   ④ 오늘이고 남은 편이 있음         → 안내 없이 다음 출발 행으로 스크롤한다(null)
+ * 우선순위(문서 §15-2 를 조건이 겹치지 않게 옮긴 것):
+ *   ① 선택 요일 ≠ 오늘                 → `오늘로 이동합니다` + **오늘 버킷 전환 + 다음 출발 행 스크롤**(1.5초 안내)
+ *   ② 오늘이고 이 시간표에 편이 0건      → `오늘 시간표에 해당하는 편이 없습니다` (알리기만 — 옮길 대상이 없다)
+ *   ③ 오늘이고 남은 편이 없음(막차 후)    → `오늘 남은 편이 없습니다 · 다음 운행: <날짜(요일)> <시각>` (정보 1줄)
+ *   ④ 오늘이고 남은 편이 있음            → 안내 없이 다음 출발 행으로 스크롤한다(null)
  */
 
 export type MoveNowHintKind = 'no-trips' | 'other-day' | 'today-over';
@@ -1312,14 +1313,8 @@ export interface MoveNowHint {
   readonly kind: MoveNowHintKind;
   /** 토스트에 그대로 쓰는 한 줄 */
   readonly message: string;
-  /** `오늘 보기` 액션(누르면 오늘 요일 버킷으로 전환 + 다음 출발 행으로 스크롤)을 붙일지 */
-  readonly showTodayAction: boolean;
-}
-
-/** 오늘의 달력 요일 — 요일 **구분**(평일/토/일)이 아니라 사람이 읽는 요일 이름을 쓴다(`화요일`). */
-function todayWeekdayText(nowMs: number): string {
-  const code = weekdayCodeOf(kstDayFromInstant(new Date(nowMs)).weekday);
-  return code === null ? '' : `${WEEKDAY_CODE_LABEL[code]}요일`;
+  /** 이 안내와 함께 **오늘 버킷 전환 + 다음 출발 행 스크롤**까지 실행할지(§15-2 ①). */
+  readonly moveToToday: boolean;
 }
 
 export function moveNowHint(state: ScheduleState): MoveNowHint | null {
@@ -1328,20 +1323,15 @@ export function moveNowHint(state: ScheduleState): MoveNowHint | null {
   // 안내는 **필터와 무관**하다 — 필터 때문에 편이 0건이 된 것은 안내 대상이 아니다(칩을 되돌리면 된다).
   const view = timetableView(state, 'all');
 
-  // ① 이 시간표에 편이 하나도 없다 — 스크롤할 대상 자체가 없다(§11-2 표 4행).
-  if (view.rows.length === 0) {
-    return { kind: 'no-trips', message: UI_TEXT.moveNowNoTrips, showTodayAction: !selectedIsToday };
-  }
-  // ② 오늘이 아닌 요일 — 오늘 시간표로 옮겨 줄지 묻는다(§11-2 표 1행).
+  // ① 오늘이 아닌 요일 — **묻지 않고** 오늘로 옮긴다(§15-2). 이동은 페이지가 요일 전환 + 스크롤로 실행한다.
   if (!selectedIsToday) {
-    const today = todayWeekdayText(nowMs);
-    return {
-      kind: 'other-day',
-      message: `${UI_TEXT.moveNowOtherDayPrefix}${today}${UI_TEXT.moveNowOtherDayMiddle}${today}${UI_TEXT.moveNowOtherDaySuffix}`,
-      showTodayAction: true,
-    };
+    return { kind: 'other-day', message: UI_TEXT.moveNowTodayNotice, moveToToday: true };
   }
-  // ③ 오늘이고 남은 편이 없다(막차 이후) — 다음 운행 한 건을 알려준다(§11-2 표 3행).
+  // ② 오늘이고 이 시간표에 편이 하나도 없다 — 스크롤할 대상 자체가 없으니 알리기만 한다(옮길 곳도 없다).
+  if (view.rows.length === 0) {
+    return { kind: 'no-trips', message: UI_TEXT.moveNowNoTrips, moveToToday: false };
+  }
+  // ③ 오늘이고 남은 편이 없다(막차 이후) — 다음 운행 한 건을 알려준다(정보라 남긴다 · 이동하지 않는다).
   if (view.nextKey === null) {
     const next = todayBoardView(state).next.at(0);
     return {
@@ -1350,10 +1340,10 @@ export function moveNowHint(state: ScheduleState): MoveNowHint | null {
         next === undefined
           ? UI_TEXT.moveNowTodayOverNoNext
           : `${UI_TEXT.moveNowTodayOverPrefix}${formatMonthDayWeekday(formatIsoDate(kstDayFromInstant(new Date(next.departureAt))))} ${next.departure}`,
-      showTodayAction: false,
+      moveToToday: false,
     };
   }
-  // ④ 오늘이고 남은 편이 있다 — 안내 없이 다음 출발 행으로 스크롤한다(§11-2 표 2행).
+  // ④ 오늘이고 남은 편이 있다 — 안내 없이 다음 출발 행으로 스크롤한다(§15-2).
   return null;
 }
 

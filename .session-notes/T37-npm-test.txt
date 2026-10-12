@@ -1,0 +1,16 @@
+
+> sunmoon-shuttle@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /Users/leeheesun/Documents/GitHub/sunmoon-shuttle
+
+
+ Test Files  42 passed (42)
+      Tests  611 passed (611)
+   Start at  09:10:07
+   Duration  1.31s (tests 68%, transform 20%, import 11%, worker 1%)
+
+    Isolate  42 workers spawned · ~100ms startup each (spawn + environment, per file)
+             at least ~366ms faster with isolate: false — reuses workers across files instead of one per file
+

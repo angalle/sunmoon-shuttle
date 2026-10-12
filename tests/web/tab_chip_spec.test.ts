@@ -1,20 +1,23 @@
 /**
- * T30 — 탭·칩 UI 정리(텍스트 축소·배치) 규격 검증 (docs/07-mobile-ux.md §12)
+ * T37 — 칩 정리 · "오늘로 이동" · 여백 축소 규격 검증 (docs/07-mobile-ux.md §15)
  *
- * 여기서는 **토큰·소스 계약**을 계산으로 고정한다(화면 실측·기하는 `scripts/t24_smoke.mjs` AC-U12 가 낸다).
- *  · §12-4: 요일 탭 44px · 방향 칩 40px · 오늘 점 4px · 3줄 총 높이 ≈153px(146~160)
- *  · §12-3: 편수 숫자는 라벨(13px)보다 작은 11px 캡션
- *  · §12-1·§12-2: 탭에서 노선 수 부가 텍스트가 사라지고 오늘은 점으로만 표시
+ * 여기서는 **토큰·소스 계약**을 계산으로 고정한다(화면 실측·기하는 `scripts/t24_smoke.mjs` AC-U15 가 낸다).
+ *  · §15-1: 방향 칩은 **2개**(`학교 도착`·`터미널 도착`) — `전체` 칩 없음 · 토글(다시 누르면 해제)
+ *  · §15-2: `현재 시간으로` 는 되묻지 않는다 — `오늘로 이동합니다`(1.5초 · 액션 버튼 없음)
+ *  · §15-3: 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 10 · 행 56 · 고정 영역 128~136px
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { UI_TEXT } from '../../src/adapters/in/web/features/schedule/types/texts';
 import { readTokensFromDisk } from './tokens';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const APP_CSS_PATH = join(ROOT, 'src/adapters/in/web/shared/ui/styles/app.css');
+const APP_CSS = readFileSync(APP_CSS_PATH, 'utf8');
 const tokens = readTokensFromDisk(join(ROOT, 'src/adapters/in/web/shared/ui/styles/tokens.css'));
+const read = (relative: string): string => readFileSync(join(ROOT, relative), 'utf8');
 
 function raw(name: string): string {
   const found = tokens.light[name];
@@ -33,63 +36,99 @@ function lengthPx(name: string, seen: readonly string[] = []): number {
   throw new Error(`px 로 환산할 수 없는 토큰 값: --${name}=${value}`);
 }
 
-describe('T30 규격 — 요일 세그먼트 · 방향 칩 (docs/07 §12-4)', () => {
-  it('요일 탭 44px · 방향 칩 40px · 오늘 점 4px · 선택 하단 라인 2px 로 정의된다', () => {
-    expect(lengthPx('day-tab-height')).toBe(44);
-    expect(lengthPx('chip-height')).toBe(40);
+describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
+  it('앱바 52px(내용 48 + 아래 여백 4) · 요일 40px · 칩 알약 34px · 오늘 점 4px · 선택 라인 2px', () => {
+    expect(lengthPx('appbar-height') + lengthPx('space-1')).toBe(52);
+    expect(lengthPx('day-tab-height')).toBe(40);
+    expect(lengthPx('chip-height')).toBe(34);
     expect(lengthPx('today-dot-size')).toBe(4);
-    expect(lengthPx('today-dot-gap')).toBe(4);
     expect(lengthPx('day-tab-indicator')).toBe(2);
   });
 
-  it('고정 3줄 총 높이가 문서 값(≈153px, 146~160px)에 든다', () => {
-    // 앱바 56 + (줄 간격 4 × 2) + 요일 44 + 칩 40 + 고정 영역 하단 여백 8
+  it('칩 **터치 영역 44px** 를 알약 밖 투명 여백으로 확보한다(§15-3)', () => {
+    expect(lengthPx('chip-touch-height')).toBe(44);
+    expect(lengthPx('chip-touch-height') - lengthPx('chip-height')).toBe(10);
+    expect(raw('chip-touch-overflow')).toBe('calc((var(--chip-touch-height) - var(--chip-height)) / 2)');
+  });
+
+  it('행 높이 56px(터치 최소 48px 이상) · 좌우 여백 10px · 셸 상·하단 여백 8px', () => {
+    expect(lengthPx('row-height')).toBe(56);
+    expect(lengthPx('row-height')).toBeGreaterThanOrEqual(48);
+    expect(lengthPx('shell-pad-x')).toBe(10);
+    expect(lengthPx('shell-pad-y')).toBe(8);
+  });
+
+  it('고정 영역 총 높이가 문서 값(128~136px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
+    // 앱바 48 + 아래 여백 4 + (줄 간격 3 × 2) + 요일 40 + 칩 34 + 고정 영역 아래 여백 2 + 경계 1
     const total =
       lengthPx('appbar-height') +
+      lengthPx('space-1') +
       lengthPx('fixed-row-gap') * 2 +
       lengthPx('day-tab-height') +
       lengthPx('chip-height') +
-      lengthPx('space-2');
-    expect(total).toBeGreaterThanOrEqual(146);
-    expect(total).toBeLessThanOrEqual(160);
+      lengthPx('fixed-pad-bottom') +
+      lengthPx('hairline');
+    expect(total).toBeGreaterThanOrEqual(128);
+    expect(total).toBeLessThanOrEqual(136);
   });
 
-  it('편수 숫자(11px 캡션)가 라벨(13px)보다 작다(§12-3)', () => {
+  it('편수 숫자(11px 캡션)가 라벨(13px)보다 작다(§12-3 유지) · 폰트는 15/13/11 그대로', () => {
     expect(lengthPx('font-size-caption')).toBe(11);
     expect(lengthPx('font-size-row-meta')).toBe(13);
+    expect(lengthPx('font-size-row-time')).toBe(15);
+    expect(lengthPx('font-size-clock')).toBe(15);
     expect(lengthPx('font-size-caption')).toBeLessThan(lengthPx('font-size-row-meta'));
   });
 
   it('app.css 가 3줄 규격을 토큰으로만 쓴다(즉석 px 금지)', () => {
-    const css = readFileSync(APP_CSS_PATH, 'utf8');
-    expect(css).toContain('height: var(--day-tab-height)');
-    expect(css).toContain('min-height: var(--chip-height)');
-    expect(css).toContain('width: var(--today-dot-size)');
-    expect(css).toContain('border-bottom: var(--day-tab-indicator)');
+    expect(APP_CSS).toContain('height: var(--chip-height)');
+    expect(APP_CSS).toContain('height: var(--day-tab-height)');
+    expect(APP_CSS).toContain('width: var(--today-dot-size)');
+    expect(APP_CSS).toContain('border-bottom: var(--day-tab-indicator)');
     // 요일 줄은 등폭 3분할(개별 알약·줄바꿈 금지)
-    expect(css).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
+    expect(APP_CSS).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
+    // 터치 확장은 알약 밖 여백(::after) — 요소 높이를 늘리지 않는다
+    expect(APP_CSS).toContain('inset: calc(-1 * var(--chip-touch-overflow)) 0');
+    // 행 높이·여백도 토큰에서 온다
+    expect(APP_CSS).toContain('min-height: var(--row-height)');
+    expect(APP_CSS).toContain('padding: var(--row-pad-y) var(--row-pad-x)');
+    // 자동 스크롤 오프셋은 동적 값 + 토큰 계산식 폴백(하드코딩 금지)
+    expect(APP_CSS).toContain('scroll-margin-top: var(--fixed-height, var(--fixed-height-fallback))');
   });
 });
 
-describe('T30 소스 계약 — 부가 텍스트 제거 (docs/07 §12-1~§12-3)', () => {
-  const read = (relative: string): string => readFileSync(join(ROOT, relative), 'utf8');
-
-  it('요일 탭은 라벨만 그리고 노선 수 부가 텍스트를 쓰지 않는다(§12-1)', () => {
-    const tabs = read('src/adapters/in/web/features/schedule/components/molecules/DayTabs.ts');
-    expect(tabs).not.toContain('routesWithTable');
-    expect(tabs).not.toContain('boardListCountSuffix');
-  });
-
-  it('오늘 표시는 점(`shuttle-tab__today`) 요소 하나로만 한다(§12-2)', () => {
-    const atom = read('src/adapters/in/web/shared/ui/atoms/TabButton.ts');
-    expect(atom).toContain("'shuttle-tab__today'");
-    expect(atom).toContain("role: 'img'");
-    expect(atom).toContain("'aria-label': props.todayDotLabel");
-  });
-
-  it('방향 칩 편수는 접미사 없이 숫자만 그린다(§12-3)', () => {
+describe('T37 소스 계약 — 칩 2개 · 토글 · 되묻지 않음 (§15-1·§15-2)', () => {
+  it('방향 칩 순서가 `학교 도착`(in) → `터미널 도착`(out) 이고 `전체` 값이 없다', () => {
     const filter = read('src/adapters/in/web/features/schedule/components/molecules/DirectionFilter.ts');
-    expect(filter).not.toContain('boardListCountSuffix');
-    expect(filter).toContain('return String(count);');
+    expect(filter).toContain("export const CHIP_ORDER: readonly DirectionFilter[] = ['in', 'out'];");
+    expect(filter).not.toContain("'all'");
+    expect(filter).toContain('UI_TEXT.filterDirectionSchool');
+    expect(filter).toContain('UI_TEXT.filterDirectionTerminal');
+  });
+
+  it('`전체` 칩 문구 상수(filterDirectionAll)가 UI_TEXT 에서 사라졌다(§15-1)', () => {
+    expect(Object.keys(UI_TEXT)).not.toContain('filterDirectionAll');
+    expect(UI_TEXT.filterDirectionSchool).toBe('학교 도착');
+    expect(UI_TEXT.filterDirectionTerminal).toBe('터미널 도착');
+  });
+
+  it('칩은 토글이다 — 같은 칩을 다시 누르면 해제되어 `all` 로 복귀(§15-1)', () => {
+    const page = read('src/adapters/in/web/features/schedule/pages/SchedulePage.ts');
+    expect(page).toContain("fullFilter = fullFilter === value ? 'all' : value;");
+  });
+
+  it('`오늘로 이동합니다` 안내가 문구 상수에 있고 1.5초 수명을 쓴다(§15-2)', () => {
+    const page = read('src/adapters/in/web/features/schedule/pages/SchedulePage.ts');
+    expect(page).toContain('export const MOVE_NOTICE_MS = 1500;');
+    expect(page).toContain('showToast(hint.message, MOVE_NOTICE_MS);');
+    expect(UI_TEXT.moveNowTodayNotice).toBe('오늘로 이동합니다');
+  });
+
+  it('되묻는 확인형(`오늘 보기` 액션 버튼)이 코드·CSS 에서 사라졌다(§15-2)', () => {
+    const toast = read('src/adapters/in/web/features/schedule/components/molecules/Toast.ts');
+    expect(toast).not.toContain('actionLabel');
+    expect(toast).not.toContain('toast-action');
+    expect(APP_CSS).not.toContain('shuttle-toast__action');
+    expect(Object.keys(UI_TEXT)).not.toContain('moveNowTodayAction');
   });
 });

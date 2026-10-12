@@ -36,11 +36,7 @@ export function dailyTimetable(props: DailyTimetableProps): HTMLElement {
       // 제목은 화면에 보이지 않는다(본문이 곧 시간표다) — 낭독기용 구조만 남긴다.
       el('h2', { class: 'shuttle-sr-only', attrs: { id: props.headingId }, text: UI_TEXT.timetableTitle }),
       view.rows.length === 0
-        ? el('p', {
-            class: 'shuttle-board__empty',
-            dataset: { testid: 'timetable-empty' },
-            text: UI_TEXT.timetableEmptyDay,
-          })
+        ? timetableEmpty(view)
         : el(
             'ul',
             {
@@ -52,6 +48,21 @@ export function dailyTimetable(props: DailyTimetableProps): HTMLElement {
           ),
     ],
   );
+}
+
+/**
+ * 목록이 빈 경우의 **얇은 1줄**(빈 화면 금지) — 원인이 둘이라 문구를 나눈다(§15-1):
+ *  · 방향 필터 때문에 0편(그 요일에 편은 있다: `total > 0`) → `선택한 방향의 편이 없습니다`
+ *    (필터를 **자동 해제하지 않는다** — 칩을 다시 누르면 전체로 돌아온다.)
+ *  · 그 요일 표 자체에 안내할 회차가 없다(`total === 0`) → `이 시간표에 안내할 회차가 없습니다`
+ */
+function timetableEmpty(view: TimetableView): HTMLElement {
+  const filtered = view.total > 0;
+  return el('p', {
+    class: 'shuttle-timetable__empty',
+    dataset: { testid: filtered ? 'timetable-filter-empty' : 'timetable-empty', reason: filtered ? 'filter' : 'day' },
+    text: filtered ? UI_TEXT.timetableEmptyFilter : UI_TEXT.timetableEmptyDay,
+  });
 }
 
 /** 행 하나 — 지난 편 dim · 다음 출발 강조 · 조건 토큰 ≤1. */

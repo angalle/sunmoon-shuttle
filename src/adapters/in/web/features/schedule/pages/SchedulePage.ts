@@ -7,10 +7,10 @@
  * T27 — 시간표 중심 단순화(docs/07-mobile-ux.md §9). T24 의 화면 분리([지금]/[전체] 탭)를 없애고
  * **본문 = 시간표 하나**로 만든다:
  *
- *   상단 고정 영역(§11-1 · T29) — 3줄, 스크롤해도 고정
+ *   상단 고정 영역(§11-1 · T29) — 3줄, 스크롤해도 고정 (§15-3 T37: 앱바 52 · 요일 40 · 칩 알약 34px · 좌우 10px)
  *     ① 현재 날짜·시각(분 단위 갱신) + ⓘ(정보 시트) + 새로고침
  *     ② 요일 전환 3개(평일/토요일/일요일)
- *     ③ 방향 필터 3개(전체/학교 도착/터미널 도착) + 칩마다 편수 — 좁으면 **가로 스크롤**
+ *     ③ 방향 필터 **2개**(학교 도착/터미널 도착) + 칩마다 편수 — 다시 누르면 해제(§15-1 · `전체` 칩 없음)
  *   ── 본문(#shuttle-main, 스크롤 영역) ──────────────────────────────────────
  *     ① 상단 바 아래 **최소 1줄**(예외): 오늘 운행 없음(+다음 운행) · 대체 시간표 · 방학 · 오늘 종료
  *     ② **시간표 목록 하나**(그 요일 전체 회차): 지난 편 dim · 다음 출발 행 살짝 강조(좌측 라인+배경 톤)
@@ -20,7 +20,8 @@
  *     미해석 경고(내부) · 개인정보처리방침 — §9-5 로 본문에서 걷어낸 것들
  *   ── 우하단 이동 버튼 2개(T28 · §10-1) ────────────────────────────────────
  *     `현재 시간으로`(다음 출발 행으로 — §9-3 로직 재사용, **억제 상태여도 동작**) · `맨 위로`
- *     §11-2 — 선택한 요일이 **오늘이 아니면** 그냥 스크롤하지 않고 하단 안내(토스트)를 띄운다.
+ *     §15-2(T37) — 선택한 요일이 **오늘이 아니면 되묻지 않는다**: 오늘 버킷으로 옮기고 짧은 안내
+ *     이동 안내 문구(`UI_TEXT.moveNowTodayNotice`)를 1.5초만 띄운다(액션 버튼 없음 · 예전 `오늘 보기` 확인형 제거).
  *   ── 스플래시 ────────────────────────────────────────────────────────────
  *     진입 시 항상 표시 → 데이터 준비 시 200ms 페이드아웃(최소 400ms / 최대 2.5s — `data/splash.ts`)
  *
@@ -85,10 +86,16 @@ const SOURCE_HEADING_ID = 'shuttle-source-heading';
 export const AUTO_SCROLL_COOLDOWN_MS = 3000;
 
 /**
- * 하단 안내(토스트)가 **스스로 사라지기까지의 시간**(ms) — docs/07 §11-2 는 3초를 요구한다.
+ * 정보성 안내(막차 이후 1줄)가 **스스로 사라지기까지의 시간**(ms) — 정보라 3초를 쓴다.
  * (탭하면 이 시간을 기다리지 않고 즉시 닫힌다.)
  */
 export const TOAST_DURATION_MS = 3000;
+
+/**
+ * T37 §15-2 — 오늘로 **이동 안내**(`UI_TEXT.moveNowTodayNotice`)의 표시 시간(ms). 문서 계약은 1.5초(수용 기준 1.2~2.0초).
+ * "알려주고 바로 실행"하는 안내라 정보성 1줄(3초)보다 짧게 둔다(화면을 오래 붙잡지 않는다).
+ */
+export const MOVE_NOTICE_MS = 1500;
 
 
 /** 즉시 이동(진입 자동 스크롤 §9-3)의 계측 창(ms) — 프로그램 스크롤을 사용자 스크롤로 오인하지 않게 한다. */
@@ -261,9 +268,9 @@ export function createSchedulePage(
     root.querySelector<HTMLElement>('[data-testid="app-info"]')?.focus();
   };
 
-  /* ── 하단 안내(토스트 §11-2) — `현재 시간으로` 가 "그냥 스크롤하면 안 되는" 상황을 알린다 ──
-   *  · 자동 **3초** 후 사라짐(TOAST_DURATION_MS) · **탭하면 즉시 닫힘**(분자가 콜백) · Escape 도 닫힘
-   *  · 문구·`오늘 보기` 액션 유무는 선택자(`moveNowHint`)가 정한다 — 여기서는 표시 수명만 관리한다.
+  /* ── 하단 안내(토스트) — `현재 시간으로` 의 짧은 안내 (§15-2 · T37) ──
+   *  · 액션 버튼이 **없다**(되묻지 않는다) · 탭하거나 Escape 로 즉시 닫힘
+   *  · 수명은 호출자가 정한다: 이동 안내(`moveNowTodayNotice`) = 1.5초(`MOVE_NOTICE_MS`) · 정보 1줄 = 3초
    *  · 요일·필터가 바뀌면(구조 재렌더) 지난 안내는 의미가 없으므로 닫는다.
    */
   let toastTimer: number | null = null;
@@ -276,7 +283,7 @@ export function createSchedulePage(
     if (toastHost.firstChild !== null) replaceChildren(toastHost, []);
   };
 
-  // `오늘 보기`(§11-2) — 오늘 요일 버킷으로 전환하고 **다음 출발 행으로** 스크롤한다.
+  // 오늘로 옮긴다(§15-2 ①②) — 오늘 요일 버킷으로 전환하고 **다음 출발 행으로** 스크롤한다.
   // `scrollToNextDeparture` 는 아래에서 정의되지만, 이 콜백은 사용자 클릭 때만 실행된다.
   const goToToday = (): void => {
     const state = latestState;
@@ -287,15 +294,12 @@ export function createSchedulePage(
     scrollToNextDeparture(true);
   };
 
-  const showToast = (message: string, actionLabel: string | null): void => {
+  /** 한 줄 안내를 `durationMs` 동안 띄운다(액션 버튼 없음 — §15-2). */
+  const showToast = (message: string, durationMs: number): void => {
     closeToast();
     replaceChildren(toastHost, [
       toast({
         message,
-        actionLabel,
-        onAction: () => {
-          goToToday();
-        },
         onDismiss: () => {
           closeToast();
         },
@@ -303,7 +307,7 @@ export function createSchedulePage(
     ]);
     toastTimer = window.setTimeout(() => {
       closeToast();
-    }, TOAST_DURATION_MS);
+    }, durationMs);
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
@@ -353,7 +357,8 @@ export function createSchedulePage(
    */
   const fixedHeight = (): number => {
     const node = root.querySelector<HTMLElement>('[data-testid="fixed-header"]');
-    return node === null ? 56 : Math.round(node.getBoundingClientRect().height);
+    // 조립 전에만 쓰이는 물러섬 값 = 앱바 내용 높이(§15-3). 정상 경로에서는 실제 높이(≈135px)를 잰다.
+    return node === null ? 52 : Math.round(node.getBoundingClientRect().height);
   };
 
   /** 행의 `scroll-margin-top` 이 같은 값을 쓰게 CSS 변수를 갱신한다(동적 — 고정 영역이 커지면 함께 커진다). */
@@ -477,14 +482,22 @@ export function createSchedulePage(
   appNode.appendChild(
     moveButtons({
       onNow: () => {
-        // §11-2 — 오늘이 아닌 요일(또는 스크롤할 편이 없음)이면 그냥 스크롤하지 않고 **안내**를 띄운다.
+        // §15-2(T37) — 오늘이 아니면 **되묻지 않는다**: 오늘 요일 버킷으로 전환 + 다음 출발 행으로 스크롤 +
+        // 짧은 이동 안내(`UI_TEXT.moveNowTodayNotice`, 1.5초 · 액션 버튼 없음).
         const hint = latestState === null ? null : moveNowHint(latestState);
-        if (hint !== null) {
-          showToast(hint.message, hint.showTodayAction ? UI_TEXT.moveNowTodayAction : null);
+        if (hint === null) {
+          closeToast();
+          scrollToNextDeparture(true);
           return;
         }
-        closeToast();
-        scrollToNextDeparture(true);
+        if (hint.moveToToday) {
+          // 요일 전환이 구조 재렌더를 일으켜 안내를 닫으므로 **옮긴 뒤에** 안내를 띄운다(순서가 뒤바뀌면 안내가 사라진다).
+          goToToday();
+          showToast(hint.message, MOVE_NOTICE_MS);
+          return;
+        }
+        // 옮길 대상이 없는 상태(오늘 편 0건·막차 이후)는 정보 1줄만 남긴다 — 이동하지 않는다.
+        showToast(hint.message, TOAST_DURATION_MS);
       },
       onTop: () => {
         closeToast();
@@ -628,9 +641,10 @@ export function createSchedulePage(
         value: fullFilter,
         counts: view?.counts ?? { all: 0, out: 0, in: 0 },
         onSelect: (value: DirectionFilter) => {
-          fullFilter = value;
+          // §15-1(T37) — 칩은 **토글**이다: 같은 칩을 다시 누르면 해제되어 전체(`all`)로 복귀한다.
+          fullFilter = fullFilter === value ? 'all' : value;
           // 필터도 저장한다(§11-1 — 재실행 시 유지). 요일은 지금 선택된 값을 그대로 함께 쓴다.
-          persistViewPrefs(store.getState().dayType, value);
+          persistViewPrefs(store.getState().dayType, fullFilter);
           if (latestState !== null) {
             renderFilter(renderRows(latestState));
             return;

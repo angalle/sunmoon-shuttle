@@ -356,9 +356,22 @@ const TARGET_PROBE = `
    * 요일 세그먼트 탭 44px · 방향 칩 40px(둘 다 **가로 ≥48px 유지**).
    */
   const minSizeOf = (node) => {
-    if (node.classList.contains('shuttle-tab')) return { width: 48, height: 44 };
-    if (node.classList.contains('shuttle-chip')) return { width: 48, height: 40 };
+    // T37 §15-3 — 요일 탭 40px · 방향 칩 **터치 44px**(보이는 알약은 34px 이고, 터치 영역은 알약 밖 투명 여백으로 확보).
+    if (node.classList.contains('shuttle-tab')) return { width: 48, height: 40 };
+    if (node.classList.contains('shuttle-chip')) return { width: 48, height: 44 };
     return { width: 48, height: 48 };
+  };
+  /**
+   * T37 §15-3 — **실제 터치 영역**을 잰다. 칩은 알약(34px) 밖으로 ::after 히트 확장(inset 음수)을 두므로
+   * 요소 사각형에 그 여백을 더해 판정한다(보이는 알약 크기와 터치 크기를 함께 남긴다).
+   */
+  const hitBoxOf = (node, box) => {
+    const after = getComputedStyle(node, '::after');
+    if (after.content === 'none' || after.position !== 'absolute') return box;
+    const top = parseFloat(after.top);
+    const bottom = parseFloat(after.bottom);
+    if (!Number.isFinite(top) || !Number.isFinite(bottom)) return box;
+    return { width: box.width, height: box.height - top - bottom };
   };
   const rows = [];
   for (const node of document.querySelectorAll(selector)) {
@@ -370,11 +383,14 @@ const TARGET_PROBE = `
     if (rect.width === 0 && rect.height === 0) continue;
     const className = typeof node.className === 'string' && node.className !== '' ? '.' + node.className.split(' ').join('.') : '';
     const min = minSizeOf(node);
+    const hit = hitBoxOf(node, rect);
     rows.push({
       label: node.tagName.toLowerCase() + className,
       text: (node.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 28),
-      width: Math.round(rect.width),
-      height: Math.round(rect.height),
+      width: Math.round(hit.width),
+      height: Math.round(hit.height),
+      paintedWidth: Math.round(rect.width),
+      paintedHeight: Math.round(rect.height),
       minWidth: min.width,
       minHeight: min.height,
     });
