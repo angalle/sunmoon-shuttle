@@ -1,0 +1,47 @@
+### AAB  android/app/build/outputs/bundle/release/app-release.aab
+  크기                                                   2897677 bytes
+  sha256                                                   442e8cbc1a7d735bb39384cf8335166bdf057f00dc0eb1061b7e5fae17bd2271
+  PASS  AAB jarsigner -verify                                    jar verified.
+  서명자: X.509, C=US, O=Android, CN=Android Debug
+  base/assets/public/ 파일 수                           18개
+  PASS  AAB 옛 번들 없음 (index-403hrULs.js)                0
+  PASS  AAB 옛 번들 없음 (index-BX2z0Mh1.css)               0
+  PASS  AAB 옛 번들 없음 (index-qWPrV94-.js)                0
+  PASS  AAB 옛 번들 없음 (index-8thbg8SN.css)               0
+  PASS  AAB 새 번들 포함 (index-Ubp09QTp.js)                1
+  PASS  AAB 새 번들 포함 (index-B47UX3pj.css)               1
+  금지어 '홈 화면'                                   0건
+  금지어 '전체화면'                                 0건
+  금지어 '한 번만'                                   0건
+  금지어 '전체 115'                                   0건
+  PASS  AAB 금지어 합계(홈 화면·전체화면·한 번만·전체 115) 0
+  SW_VERSION (AAB)                                         SW_VERSION = '20261012-111305-144-ec56e9d'
+  PASS  AAB SW_VERSION == dist                                   SW_VERSION = '20261012-111305-144-ec56e9d'
+  PASS  AAB data/timetable.json                                  1
+  PASS  AAB 방향 칩 라벨 2개 포함(학교 도착)         1
+  dist manifest: d26448a167bd9328
+
+### APK  android/app/build/outputs/apk/debug/app-debug.apk
+  크기                                                   4053139 bytes
+  sha256                                                   49aed6c298c9e23114d9a56319ddcde23477e0f9fd2c78764e3d29496c1a78f4
+  PASS  APK jarsigner -verify                                    jar verified.
+  서명자: X.509, C=US, O=Android, CN=Android Debug
+  assets/public/ 파일 수                                18개
+  PASS  APK 옛 번들 없음 (index-403hrULs.js)                0
+  PASS  APK 옛 번들 없음 (index-BX2z0Mh1.css)               0
+  PASS  APK 옛 번들 없음 (index-qWPrV94-.js)                0
+  PASS  APK 옛 번들 없음 (index-8thbg8SN.css)               0
+  PASS  APK 새 번들 포함 (index-Ubp09QTp.js)                1
+  PASS  APK 새 번들 포함 (index-B47UX3pj.css)               1
+  금지어 '홈 화면'                                   0건
+  금지어 '전체화면'                                 0건
+  금지어 '한 번만'                                   0건
+  금지어 '전체 115'                                   0건
+  PASS  APK 금지어 합계(홈 화면·전체화면·한 번만·전체 115) 0
+  SW_VERSION (APK)                                         SW_VERSION = '20261012-111305-144-ec56e9d'
+  PASS  APK SW_VERSION == dist                                   SW_VERSION = '20261012-111305-144-ec56e9d'
+  PASS  APK data/timetable.json                                  1
+  PASS  APK 방향 칩 라벨 2개 포함(학교 도착)         1
+  dist manifest: d26448a167bd9328
+
+T40 ARTIFACT ASSET CHECK: PASS

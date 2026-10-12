@@ -1,0 +1,8 @@
+$ grep -rn -F "전체 115" android/app/src/main/assets/public/
+  (0건)
+$ grep -rn -F "홈 화면" android/app/src/main/assets/public/
+  (0건)
+$ grep -rn -F "전체화면" android/app/src/main/assets/public/
+  (0건)
+$ grep -rn -F "한 번만" android/app/src/main/assets/public/
+  (0건)

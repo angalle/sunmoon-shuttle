@@ -51,6 +51,42 @@ bash scripts/t33_emulator_smoke.sh [AVD]        # 에뮬: 설치 안내 0건 · 
 - **금지어 감시**(`docs/07-mobile-ux.md` §14-3 AC-U14-3): 산출물·자산 어디에서도 `홈 화면`·`전체화면`·`한 번만`
   이 0건이어야 한다. `t33_artifact_asset_check.sh` 가 AAB/APK 내부까지 풀어서 검사한다.
 
+### T40 — 웹 변경(방향 택1)을 앱 번들에 재반영 + **SW_VERSION 자동 주입 뒤 바뀐 순서**
+
+T33 이후 웹이 T37(여백)·T38(방향 택1 · `전체` 삭제)·T39(SW 버전 자동 주입)으로 바뀌었지만 앱 번들은
+T33 시점에 멈춰 있었다 → **앱은 `전체` 칩과 두 방향이 섞인 옛 목록을 계속 보여줬다**(에뮬 실측, 아래).
+
+⚠️ **`build-release.sh` 를 그대로 쓰면 안 되는 이유(T39 이후)**: 그 스크립트는 1단계에서 `npm run build` 를
+**다시** 돌린다. T39 부터 `dist/sw.js` 의 `SW_VERSION` 은 빌드 시각(밀리초)+git SHA 로 **자동 주입**되므로,
+자산을 sync 한 뒤 `build-release.sh` 를 돌리면 `dist`(사람이 sync 한 값)와 `assets`(재빌드가 다시 만든 값)의
+`SW_VERSION` 이 **갈라진다**. 그래서 재반영은 단계를 나눠 실행한다:
+
+```bash
+npm run build                                            # ① dist/ 최신화 (SW_VERSION 자동 주입)
+mkdir -p dist/data && cp data/timetable.json dist/data/   # ② 계약 데이터 동봉(빌드가 dist 를 비운다)
+node scripts/sync-android-assets.mjs                      # ③ dist → assets (여기서 dist 를 더 만들지 않는다)
+node scripts/sync-android-assets.mjs                      #    (2회차 CHANGED=0 = 멱등 확인)
+export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH"
+./android/gradlew -p android bundleRelease assembleDebug  # ④ AAB/APK 재빌드 (cap sync 없이 — 자산을 덮지 않는다)
+bash .session-notes/T40-artifact-check.sh                 # ⑤ AAB/APK 내부 자산 == dist · 서명 · 금지어
+```
+
+`cap sync` 를 생략해도 되는 이유: `assets/capacitor.config.json`·`capacitor.plugins.json` 은 이미 있고,
+이번 변경은 웹 자산뿐이다(플러그인/설정은 그대로).
+
+**실측(T40 · AVD `meteor-dodge-api35` · 2026-10-12)**: 자산 재동기화 `CHANGED=7 → 0` · manifest `d26448a167bd9328`
+· 번들 `index-Ubp09QTp.js`(`index-403hrULs.js` 대체) · AAB 2,897,677B `sha256 442e8cbc…` · APK 4,053,139B
+`sha256 49aed6c2…` · `jarsigner -verify` 둘 다 `jar verified.` · `SW_VERSION = '20261012-111305-144-ec56e9d'`
+(dist == assets == AAB 내부) · 에뮬: **before**(T33 앱) 칩 3개(`전체 115` 눌림 · 목록 115행에 두 방향 섞임) →
+**after**(2차 로드) 칩 2개 · 기본 `터미널 도착` 1개 선택 · 목록 91행 전부 `out`(섞임 0) · `전체` 0건 ·
+설치 안내 0건 · logcat FATAL/ANR 0. 증거·도구 원문: `.session-notes/T40-*`.
+
+**되돌리기**: 앱 자산은 추적 대상이 아니라(gitignored) 이전 번들로 되돌리는 커밋이 없다 → 되돌리려면 그 시점
+커밋에서 `npm run build` + `sync-android-assets.mjs` + 위 ④를 다시 실행한다(항상 재생성 가능).
+`SW_VERSION` 은 손으로 올리지 않는다(자동 주입 — 수동 값은 다음 빌드에서 사라진다).
+
 ### 수동 실행 시 툴체인 (스크립트가 자동으로 넣는 값)
 
 ```

@@ -1,0 +1,21 @@
+[preflight] dist  파일 16개 · manifest 73dec0d3e65d6ec4
+            22.2      assets/index-B47UX3pj.css
+            65.5      assets/index-Ubp09QTp.js
+            138.8     data/timetable.json
+            1.8       index.html
+            1.1       manifest.webmanifest
+            6.8       sw.js
+
+[status] 대상 android/app/src/main/assets/public  기존 파일 18개
+[status] dist 에 없는 파일 2개
+         KEEP          0.0       cordova.js   ← Capacitor 자리표시자(보존)
+         KEEP          0.0       cordova_plugins.js   ← Capacitor 자리표시자(보존)
+
+[copy] dist → android/app/src/main/assets/public
+       파일 18개 (dist 16 + 보존 2)  manifest d26448a167bd9328
+[copy] 변경: 추가 0 · 삭제 0 · 내용변경 0  → CHANGED=0
+[copy] SW_VERSION(대상 sw.js) = 20261012-111305-144-ec56e9d
+[copy] 금지어 검사(홈 화면 · 전체화면 · 한 번만): 0건
+
+MANIFEST d26448a167bd9328d37512f5a3ace94835f4f894bdce393800505f9c12d7872f
+SYNC-ANDROID-ASSETS PASS

@@ -1,0 +1,17 @@
+[preflight] dist  파일 16개 · manifest 73dec0d3e65d6ec4
+            22.2      assets/index-B47UX3pj.css
+            65.5      assets/index-Ubp09QTp.js
+            138.8     data/timetable.json
+            1.8       index.html
+            1.1       manifest.webmanifest
+            6.8       sw.js
+
+[status] 대상 android/app/src/main/assets/public  기존 파일 18개
+[status] dist 에 없는 파일 2개
+         KEEP          0.0       cordova.js   ← Capacitor 자리표시자(보존)
+         KEEP          0.0       cordova_plugins.js   ← Capacitor 자리표시자(보존)
+
+[check] 드리프트(dist 관리 파일): 추가 0 · 삭제 0 · 변경 0 · 낡은 번들 0
+[check] 대상 manifest d26448a167bd9328 · dist manifest 73dec0d3e65d6ec4
+
+SYNC-CHECK IN-SYNC
