@@ -245,14 +245,21 @@ async function main() {
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('dist/index.html 이 없습니다 — 먼저 npm run build 를 실행하세요.');
   if (!existsSync(DATA_FILE)) throw new Error('data/timetable.json 이 없습니다.');
 
-  // T27 §9-1: 본문이 `그 요일 전체 회차`가 됐으므로 행 수가 곧 그 요일 판정 편수다(발행물로 대조한다).
+  // T38 §16-2: 화면은 **선택한 방향의 편만** 그린다(기본 `터미널 도착` = `out` · `depCampus` 가 있는 편) → 방향까지 맞춰 센다.
   const raw = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
   const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
-  const expectedRowsOf = (dayType) =>
+  const expectedRowsOf = (dayType, direction = 'out') =>
     raw.routes.reduce((sum, route) => {
       const table = route.byDay?.[dayType];
       if (table === null || table === undefined) return sum;
-      return sum + table.trips.filter((row) => hasDepartureTime(row)).length;
+      return (
+        sum +
+        table.trips.filter(
+          (row) =>
+            hasDepartureTime(row) &&
+            (direction === 'all' || ((row['depCampus'] ?? null) !== null) === (direction === 'out')),
+        ).length
+      );
     }, 0);
   mkdirSync(join(DIST, 'data'), { recursive: true });
   copyFileSync(DATA_FILE, join(DIST, 'data', 'timetable.json'));

@@ -24,7 +24,7 @@
  *  AC-U11 T29 상단 고정 필터(3줄) + "오늘 아님" 안내 (§11 → §15-2 로 대체)
  *         - AC-U11-1 상단 고정 3줄(날짜·시각 / 요일 / 필터) · 스크롤 전/후 좌표 동일 · 요일·필터는 스크롤 영역 밖
  *         - AC-U11-2 칩 **2개**(`학교 도착`·`터미널 도착`) · `전체` 문자열 0건 · 규격(§15-3) · 배경 톤+굵기(대비 ≥4.5:1)
- *         - AC-U11-3 편수 대조(발행물 독립 계산 = 칩 = 목록 행) · 토글 후 복귀 · 토·일에서도 동작 · 재실행 유지
+ *         - AC-U11-3 편수 대조(발행물 독립 계산 = 칩 = 목록 행) · 토·일에서도 동작 · 재실행 유지
  *         - AC-U11-4 요일·필터를 바꾼 뒤 `현재 시간으로` — 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0)
  *  AC-U12 T30 탭·칩 UI 정리 — 텍스트 축소·배치 (§12 규격 → §15-3 수치로 개정)
  *         - AC-U12-1 요일 탭 라벨에 `노선`·`개`·괄호·`오늘` 0건 · 오늘은 **점 1개**(`aria-label="오늘"`) · 등폭 3분할(≤1px) · 40px
@@ -32,11 +32,13 @@
  *         - AC-U12-3 3줄 좌우 여백 10px · 세로 중앙 · 고정 영역 높이 128~136px · 390×844·360×800 동일 규격
  *         - AC-U12-4 규격 변경 후에도 가려짐 0(수치) · 터치 타깃 탭 40px(가로 ≥48px)·칩 **터치 44px**(알약 34px)
  *  AC-U15 T37 칩 정리 · "오늘로 이동" · 여백 축소 (§15)
- *         - AC-U15-1 `전체` 문자열 0건(칩 영역) · 칩 2개 · 기본 선택 0개 + 목록 = 전체 편수 · 토글 2회 후 원래 편수 복귀(수치)
  *         - AC-U15-2 오늘이 아닌 요일에서 `현재 시간으로` → 요일 전환 + 현재 시각 행 스크롤 · `오늘로 이동합니다`(1.2~2.0초 소멸) · `오늘 보기` 버튼 없음
  *         - AC-U15-3 오늘이고 남은 편이 없음(23:00) → `오늘 남은 편이 없습니다 · 다음 운행: …` 1줄 유지(액션 없음)
  *         - AC-U15-4 치수 실측: 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 10 · 행 56 · 고정 영역 128~136px · 터치 위반 0
- *         - AC-U15-6 필터 결과 0편이면 목록 대신 얇은 1줄(필터 자동 해제 0)
+ *  AC-U16 T38 **"전체" 개념 삭제** — 방향은 항상 1개 (§16-2)
+ *         - AC-U16-1 칩 2개 · **항상 정확히 1개 선택**(해제 시도해도 1개 유지 · 기본 `터미널 도착`) · 재실행 유지
+ *         - AC-U16-2 목록의 **모든 행이 같은 방향** — 행 방향 카운트 제출(섞임 0건)
+ *         - AC-U16-3 편수 대조: `학교 도착` 24 · `터미널 도착` 91(발행물 대조) · 0편이면 얇은 1줄 + **전환 수단 1개**
  *  회귀   화면 `원본` 0회 · 학교 링크 ≤1 · `source-details` 0개 · 정보 시트가 출처·데이터 갱신·정차창을 갖는다 · 콘솔 오류 0
  *
  * 사용: node scripts/t24_smoke.mjs [--base=/sunmoon-shuttle/] [--now=<ISO8601>]
@@ -537,12 +539,24 @@ const FIXED_PROBE = `
   const toast = document.querySelector('[data-testid="toast"]');
   const toastAction = toast === null ? null : toast.querySelector('[data-testid="toast-action"]');
   const chipBox = document.querySelector('.shuttle-chips');
+  // T38 §16-2 — 선택한 방향이 0편일 때의 얇은 1줄 + 전환 수단(다른 방향 보기).
+  const emptyLine = document.querySelector('[data-testid="timetable-filter-empty"]');
+  const switchNode = document.querySelector('[data-testid="timetable-filter-switch"]');
+  const switchRect = rectOf(switchNode);
   return {
     fixedRect: rectOf(fixed),
     fixedRowCount: fixed === null ? 0 : [...fixed.children].length,
     /** T37 §15-1 — 고정 영역(3줄) 텍스트에 '전체' 가 남아 있으면 위반이다(칩 영역 실측). */
     fixedText: fixed === null ? '' : (fixed.innerText || '').replace(/\\s+/g, ' ').trim(),
     chipRowText: chipBox === null ? '' : (chipBox.innerText || '').replace(/\\s+/g, ' ').trim(),
+    /** T38 §16-2 — 눌린 칩 수는 **항상 정확히 1**이어야 한다(해제 상태 없음). */
+    chipPressedCount: chips.filter((chip) => chip.getAttribute('aria-pressed') === 'true').length,
+    chipPressedDirection: chips.filter((chip) => chip.getAttribute('aria-pressed') === 'true').map((chip) => chip.dataset.direction ?? '').join(',') || null,
+    emptyLineText: emptyLine === null ? null : (emptyLine.textContent || '').trim(),
+    emptyLineCount: document.querySelectorAll('[data-testid="timetable-filter-empty"]').length,
+    switchLabel: switchNode === null ? null : (switchNode.textContent || '').trim(),
+    switchCount: document.querySelectorAll('[data-testid="timetable-filter-switch"]').length,
+    switchRect: switchNode === null ? null : switchRect,
     todayLabel: document.querySelector('[data-testid="today-dot"]') === null ? null : document.querySelector('[data-testid="today-dot"]').getAttribute('aria-label'),
     dayRowRect: rectOf(document.querySelector('[data-testid="day-row"]')),
     filterRowRect: rectOf(document.querySelector('[data-testid="filter-row"]')),
@@ -582,21 +596,23 @@ const FIXED_PROBE = `
 `;
 
 /**
- * T37 §15-1 — 방향 필터를 **전체**로 되돌린다: `전체` 칩이 없으므로 **눌린 칩을 다시 눌러 해제**한다.
- * (해제 규칙이 곧 "전체"다 — 아무것도 선택되지 않은 상태.)
+ * T38 §16-2 — **기본 방향(`터미널 도착` = out)으로 되돌린다.**
+ * 방향은 택1이라 "해제"가 없다: 예전 `clearFilter`(눌린 칩을 다시 눌러 해제)는 §16-2 에서 성립하지 않는다.
+ * 기본 칩을 누르는 것이 곧 초기 상태(선택 1개 · 목록 = 그 방향 편수)다.
  */
-async function clearFilter() {
-  const cleared = await evaluate(`
-    const pressed = document.querySelector('[data-testid="direction-chip"][aria-pressed="true"]');
-    if (pressed === null) return false;
-    pressed.click();
+async function resetDirection() {
+  const pressed = await evaluate(`
+    const chip = document.querySelector('[data-testid="direction-chip"][data-direction="out"]');
+    if (chip === null) return false;
+    if (chip.getAttribute('aria-pressed') === 'true') return true;
+    chip.click();
     return true;
   `);
-  if (cleared === true) await delay(220);
-  return cleared === true;
+  if (pressed === true) await delay(220);
+  return pressed === true;
 }
 
-/** 방향 칩 클릭(T29 §11-1) — 실제 사용자 클릭 경로. */
+/** 방향 칩 클릭(T29 §11-1 · T38 §16-2) — 실제 사용자 클릭 경로. 해제는 없다(눌린 값이 그대로 선택). */
 async function clickChip(direction) {
   const clicked = await evaluate(`
     const chip = document.querySelector('[data-testid="direction-chip"][data-direction="${direction}"]');
@@ -606,6 +622,19 @@ async function clickChip(direction) {
   `);
   if (clicked !== true) return false;
   await delay(220);
+  return true;
+}
+
+/** 전환 수단(`<다른 방향> 편 보기`) 클릭 — 0편 1줄 옆의 유일한 방향 변경 경로(§16-2). */
+async function clickSwitch() {
+  const clicked = await evaluate(`
+    const node = document.querySelector('[data-testid="timetable-filter-switch"]');
+    if (node === null) return false;
+    node.click();
+    return true;
+  `);
+  if (clicked !== true) return false;
+  await delay(250);
   return true;
 }
 
@@ -1020,8 +1049,29 @@ async function main() {
 
     /* ── T29 상단 고정 필터(3줄) + "오늘 아님" 안내 (docs/07 §11 · AC-U11) ────────── */
     const rawData = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
-    // 기준 상태로 맞춘다: 오늘(화요일) · 필터 `전체` · 스크롤 맨 위.
-    await clearFilter();
+    const weekdayCounts = expectedDirectionCountsOf(rawData, 'weekday', weekdayCodeOf('2026-10-06'));
+    /* AC-U16-1(기본값) — 저장값을 지우고 새로 열어 **아무것도 누르지 않은 상태**를 실측한다(§16-2: 기본 = `터미널 도착`). */
+    await evaluate(`try { window.localStorage.removeItem('sunmoon-shuttle:ui-prefs:v1'); } catch (error) { /* 저장소 차단 */ } return true;`);
+    await cdp.send('Page.reload', { ignoreCache: false });
+    await waitReady();
+    await waitSplashGone();
+    await delay(150);
+    const defaultProbe = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U16-1 기본값 = `터미널 도착`(out) 칩 1개가 눌린 상태 · 목록은 그 방향 편수만(발행물 대조)',
+      defaultProbe.chips.length === 2 &&
+        defaultProbe.chipPressedCount === 1 &&
+        defaultProbe.chipPressedDirection === 'out' &&
+        defaultProbe.directions.in === 0 &&
+        defaultProbe.directions.all === weekdayCounts.out,
+      JSON.stringify({
+        pressed: defaultProbe.chips.map((chip) => ({ direction: chip.direction, pressed: chip.pressed })),
+        rows: defaultProbe.directions,
+        data: weekdayCounts,
+      }),
+    );
+    // 기준 상태로 맞춘다: 오늘(화요일) · **기본 방향(터미널 도착)** · 스크롤 맨 위.
+    await resetDirection();
     await showDayTab('weekday');
     await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
     await delay(250);
@@ -1066,16 +1116,18 @@ async function main() {
     const chipShot = await capture('T29-2-상단필터-편수.png');
     info(`AC-U11-1/2 스크린샷: ${fixedShot.slice(ROOT.length)} · ${chipShot.slice(ROOT.length)}`);
 
-    /* AC-U11-2 — 칩 **2개**(§15-1) · `전체` 문자열 0건 · 규격(알약 34px · 터치 44px) · 편수 · 선택 상태 대비 */
+    /* AC-U11-2 / AC-U16-1 — 칩 **2개**(§16-2) · `전체` 문자열 0건 · **항상 정확히 1개 선택** · 규격(알약 34px · 터치 44px) */
     const chipLabels = chipProbe.chips.map((chip) => chip.label);
     check(
-      'AC-U11-2 칩은 2개(`학교 도착`·`터미널 도착`)이고 `전체` 문자열 0건(칩 영역·고정 영역 실측)',
+      'AC-U11-2/AC-U16-1 칩은 2개(`학교 도착`·`터미널 도착`)이고 `전체` 문자열 0건 · **정확히 1개가 눌려 있다**',
       chipProbe.chips.length === 2 &&
         chipLabels.join('|') === '학교 도착|터미널 도착' &&
         chipProbe.chips.every((chip) => chip.direction !== 'all') &&
+        chipProbe.chipPressedCount === 1 &&
+        chipProbe.chipPressedDirection === 'out' &&
         !chipProbe.chipRowText.includes('전체') &&
         !chipProbe.fixedText.includes('전체'),
-      JSON.stringify({ chips: chipProbe.chips.map((chip) => ({ direction: chip.direction, label: chip.label, text: chip.text, pressed: chip.pressed })), chipRow: chipProbe.chipRowText, fixed: chipProbe.fixedText }),
+      JSON.stringify({ chips: chipProbe.chips.map((chip) => ({ direction: chip.direction, label: chip.label, text: chip.text, pressed: chip.pressed })), pressed: { count: chipProbe.chipPressedCount, direction: chipProbe.chipPressedDirection }, chipRow: chipProbe.chipRowText, fixed: chipProbe.fixedText }),
     );
     check(
       'AC-U11-2 칩 알약 34px · **터치 44px**(알약 밖 투명 여백) · 가로 ≥48px · 편수 숫자 표기 · 간격 8px',
@@ -1091,7 +1143,7 @@ async function main() {
         chipProbe.chipsStyle.gap === '8px',
       JSON.stringify({ chips: chipProbe.chips.map((chip) => ({ pill: chip.rect.height, hit: chip.hitHeight, w: chip.rect.width, count: chip.countText })), style: chipProbe.chipsStyle }),
     );
-    // 선택 상태 대비는 **눌린 칩**으로 잰다 — 기본 상태는 선택 0개(곧 전체)다(§15-1).
+    // 선택 상태 대비는 **눌린 칩**으로 잰다 — §16-2 는 항상 1개가 눌려 있고, 나머지가 대조군이다.
     await clickChip('in');
     const pressedChips = await evaluate(FIXED_PROBE);
     const selectedChip = pressedChips.chips.find((chip) => chip.pressed === 'true') ?? null;
@@ -1100,6 +1152,7 @@ async function main() {
       'AC-U11-2 선택 상태가 배경 톤 + 굵기이고 대비 ≥4.5:1(실측)',
       selectedChip !== null &&
         idleChip !== null &&
+        pressedChips.chipPressedCount === 1 &&
         selectedChip.background !== idleChip.background &&
         Number(selectedChip.weight) >= 700 &&
         selectedChip.contrast !== null &&
@@ -1107,55 +1160,78 @@ async function main() {
       JSON.stringify({
         selected: { text: selectedChip?.text, background: selectedChip?.background, weight: selectedChip?.weight, contrast: selectedChip?.contrast },
         idle: { background: idleChip?.background, weight: idleChip?.weight, contrast: idleChip?.contrast, fontSize: idleChip?.fontSize },
+        pressed: pressedChips.chipPressedCount,
       }),
     );
 
-    /* AC-U11-3 — 편수 대조(발행물 독립 계산) + 토글 동작 + 토·일 */
-    const weekdayCounts = expectedDirectionCountsOf(rawData, 'weekday', weekdayCodeOf('2026-10-06'));
-    // 토글 2회(선택 → **다시 눌러 해제**) 후 원래 편수로 복귀하는지 수치로 본다(AC-U15-1).
-    const toggledOff = await clearFilter();
+    /* AC-U11-3 / AC-U16-1 / AC-U16-3 — 편수 대조(발행물 독립 계산) + 택1(해제 불가) + 섞임 0건 + 토·일 */
+    // 기본 방향(`터미널 도착`)으로 되돌려 기준 상태를 만든다 — §16-2 는 "해제"가 아니라 **기본 칩을 누르는 것**이다.
+    const resetOk = await resetDirection();
     const baseProbe = await evaluate(FIXED_PROBE);
     check(
-      'AC-U11-3 `학교 도착`·`터미널 도착` 칩 편수가 발행물 대조와 일치(수치) · 합 = 전체',
+      'AC-U11-3/AC-U16-3 `학교 도착`·`터미널 도착` 칩 편수가 발행물 대조와 일치(수치) · 합 = 전체',
       baseProbe.chips[0].count === weekdayCounts.in &&
         baseProbe.chips[1].count === weekdayCounts.out &&
         baseProbe.chips[0].count + baseProbe.chips[1].count === weekdayCounts.all,
-      JSON.stringify({ chips: { school: baseProbe.chips[0].count, terminal: baseProbe.chips[1].count }, data: { school: weekdayCounts.in, terminal: weekdayCounts.out } }),
+      JSON.stringify({ chips: { school: baseProbe.chips[0].count, terminal: baseProbe.chips[1].count }, data: { school: weekdayCounts.in, terminal: weekdayCounts.out, all: weekdayCounts.all } }),
     );
     check(
-      'AC-U15-1 기본 상태 = 칩 선택 0개 + 목록 = 전체 편수 · **토글 2회 후 원래 편수 복귀**(수치)',
-      toggledOff === true &&
-        baseProbe.chips.every((chip) => chip.pressed === 'false') &&
-        baseProbe.directions.all === weekdayCounts.all &&
+      'AC-U16-1/AC-U16-2 기준 상태 = `터미널 도착` 1개 선택 · 목록 = 그 방향 편수(전체 115 → 터미널 91) · 섞임 0건',
+      resetOk === true &&
+        baseProbe.chipPressedCount === 1 &&
+        baseProbe.chipPressedDirection === 'out' &&
+        baseProbe.directions.in === 0 &&
+        baseProbe.directions.all === weekdayCounts.out &&
         baseProbe.directions.all > 0,
-      JSON.stringify({ toggleOff: toggledOff, pressed: baseProbe.chips.map((chip) => chip.pressed), rows: baseProbe.directions.all, data: weekdayCounts.all }),
+      JSON.stringify({ reset: resetOk, pressed: baseProbe.chips.map((chip) => chip.pressed), rows: baseProbe.directions, data: { out: weekdayCounts.out, all: weekdayCounts.all } }),
+    );
+    // AC-U16-1 — **해제 시도**: 이미 눌린 칩을 다시 눌러도 선택 1개가 유지된다(§16-2 "선택 해제 불가").
+    await clickChip('out');
+    const reclickProbe = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U16-1 눌린 칩을 다시 눌러도(해제 시도) 선택 1개가 유지되고 목록 편수도 그대로다',
+      reclickProbe.chipPressedCount === 1 &&
+        reclickProbe.chipPressedDirection === 'out' &&
+        reclickProbe.directions.in === 0 &&
+        reclickProbe.directions.all === weekdayCounts.out,
+      JSON.stringify({ pressed: { count: reclickProbe.chipPressedCount, direction: reclickProbe.chipPressedDirection }, rows: reclickProbe.directions }),
     );
     await clickChip('in');
     const schoolProbe = await evaluate(FIXED_PROBE);
     check(
-      'AC-U11-3 `학교 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수)',
-      schoolProbe.directions.all === weekdayCounts.in && schoolProbe.directions.out === 0 && schoolProbe.chips[0].pressed === 'true',
-      JSON.stringify({ rows: schoolProbe.directions, chip: schoolProbe.chips[0].count }),
+      'AC-U11-3/AC-U16-2 `학교 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수 · 섞임 0건)',
+      schoolProbe.directions.all === weekdayCounts.in &&
+        schoolProbe.directions.out === 0 &&
+        schoolProbe.chipPressedCount === 1 &&
+        schoolProbe.chips[0].pressed === 'true' &&
+        schoolProbe.chipPressedDirection === 'in',
+      JSON.stringify({ rows: schoolProbe.directions, chip: schoolProbe.chips[0].count, pressed: schoolProbe.chipPressedDirection }),
     );
     await clickChip('out');
     const terminalProbe = await evaluate(FIXED_PROBE);
     check(
-      'AC-U11-3 `터미널 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수)',
-      terminalProbe.directions.all === weekdayCounts.out && terminalProbe.directions.in === 0 && terminalProbe.chips[1].pressed === 'true',
-      JSON.stringify({ rows: terminalProbe.directions, chip: terminalProbe.chips[1].count }),
+      'AC-U11-3/AC-U16-2 `터미널 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수 · 섞임 0건)',
+      terminalProbe.directions.all === weekdayCounts.out &&
+        terminalProbe.directions.in === 0 &&
+        terminalProbe.chipPressedCount === 1 &&
+        terminalProbe.chips[1].pressed === 'true' &&
+        terminalProbe.chipPressedDirection === 'out',
+      JSON.stringify({ rows: terminalProbe.directions, chip: terminalProbe.chips[1].count, pressed: terminalProbe.chipPressedDirection }),
     );
-    // §11-1 상태 저장 — 다시 열어도 요일·필터 선택이 유지된다
+    // §11-1 상태 저장 — 다시 열어도 요일·방향 선택이 유지된다
     await cdp.send('Page.reload', { ignoreCache: false });
     await waitReady();
     await waitSplashGone();
     await delay(150);
     const restored = await evaluate(FIXED_PROBE);
     check(
-      'AC-U11-1(저장) 재실행(새로 열기)에도 요일·필터 선택이 유지된다',
-      restored.chips[1].pressed === 'true' && String(restored.storedPrefs ?? '').includes('"direction":"out"'),
-      JSON.stringify({ pressed: restored.chips.map((chip) => chip.pressed), stored: restored.storedPrefs, tab: restored.selectedTab }),
+      'AC-U11-1(저장)/AC-U16-1 재실행(새로 열기)에도 요일·방향 선택이 유지된다',
+      restored.chips[1].pressed === 'true' &&
+        restored.chipPressedCount === 1 &&
+        String(restored.storedPrefs ?? '').includes('"direction":"out"'),
+      JSON.stringify({ pressed: restored.chips.map((chip) => chip.pressed), pressedCount: restored.chipPressedCount, stored: restored.storedPrefs, tab: restored.selectedTab }),
     );
-    await clearFilter();
+    await resetDirection();
     await delay(150);
     for (const [day, isoDate] of [['saturday', '2026-10-10'], ['sunday', '2026-10-11']]) {
       await showDayTab(day);
@@ -1163,8 +1239,11 @@ async function main() {
       const weekend = await evaluate(FIXED_PROBE);
       const expectedWeekend = expectedDirectionCountsOf(rawData, day, weekdayCodeOf(isoDate));
       check(
-        `AC-U11-3 ${day} 탭에서도 칩 편수 = 목록 편수 = 발행물 대조(수치)`,
-        weekend.directions.all === expectedWeekend.all &&
+        `AC-U11-3/AC-U16-3 ${day} 탭에서도 칩 편수 = 목록 편수 = 발행물 대조(수치 · 섞임 0건)`,
+        weekend.chipPressedCount === 1 &&
+          weekend.chipPressedDirection === 'out' &&
+          weekend.directions.all === expectedWeekend.out &&
+          weekend.directions.in === 0 &&
           weekend.chips[0].count === expectedWeekend.in &&
           weekend.chips[1].count === expectedWeekend.out &&
           weekend.chips[0].count + weekend.chips[1].count === expectedWeekend.all,
@@ -1174,42 +1253,48 @@ async function main() {
     await showDayTab('weekday');
     await delay(200);
 
-    /* AC-U15-6 — 필터 결과가 0편이면 목록 대신 **얇은 1줄** · 필터를 자동 해제하지 않는다(§15-1) */
+    /* AC-U16-3 — 선택한 방향이 0편이면 **얇은 1줄 + 전환 수단 1개**(자동 전환 금지 · §16-2) */
     await showDayTab('saturday');
     await delay(200);
     await clickChip('in'); // 토요일 `학교 도착` = 0편(발행물 대조: in 0 / out 12)
-    const emptyFilter = await evaluate(`
-      const chip = document.querySelector('[data-testid="direction-chip"][data-direction="in"]');
-      const line = document.querySelector('[data-testid="timetable-filter-empty"]');
-      return {
-        pressed: chip === null ? null : chip.getAttribute('aria-pressed'),
-        chipCount: chip === null ? null : Number(chip.dataset.count),
-        line: line === null ? null : (line.textContent || '').trim(),
-        lineCount: document.querySelectorAll('[data-testid="timetable-filter-empty"]').length,
-        listPresent: document.querySelector('[data-testid="timetable-list"]') !== null,
-        rows: document.querySelectorAll('[data-testid="timetable-row"]').length,
-        dayText: document.querySelector('[data-testid="timetable-section"]') !== null,
-      };
-    `);
+    const emptyFilter = await evaluate(FIXED_PROBE);
     check(
-      'AC-U15-6 필터 0편 → 목록 대신 얇은 1줄(`선택한 방향의 편이 없습니다`) · 필터 자동 해제 0(칩 눌림 유지)',
-      emptyFilter.pressed === 'true' &&
-        emptyFilter.chipCount === 0 &&
-        emptyFilter.line === '선택한 방향의 편이 없습니다' &&
-        emptyFilter.lineCount === 1 &&
-        emptyFilter.listPresent === false &&
-        emptyFilter.rows === 0 &&
-        emptyFilter.dayText === true,
-      JSON.stringify(emptyFilter),
+      'AC-U16-3 0편 → 목록 대신 얇은 1줄(`선택한 방향의 편이 없습니다`) + 전환 수단 1개(`터미널 도착 편 보기`) · 자동 전환 0',
+      emptyFilter.emptyLineText === '선택한 방향의 편이 없습니다' &&
+        emptyFilter.emptyLineCount === 1 &&
+        emptyFilter.chips[0].count === 0 &&
+        emptyFilter.chipPressedCount === 1 &&
+        emptyFilter.chipPressedDirection === 'in' && // ← 자동 전환 금지: 방향은 그대로 `학교 도착`
+        emptyFilter.switchCount === 1 &&
+        emptyFilter.switchLabel === '터미널 도착 편 보기' &&
+        emptyFilter.switchRect !== null &&
+        emptyFilter.switchRect.height >= 48 &&
+        (await evaluate(`return document.querySelector('[data-testid="timetable-list"]') === null;`)) === true &&
+        emptyFilter.directions.all === 0,
+      JSON.stringify({ line: emptyFilter.emptyLineText, lineCount: emptyFilter.emptyLineCount, switch: { count: emptyFilter.switchCount, label: emptyFilter.switchLabel, rect: emptyFilter.switchRect }, pressed: emptyFilter.chipPressedDirection, rows: emptyFilter.directions }),
     );
-    const emptyShot = await capture('T37-3-필터0편-얇은1줄.png');
-    await clearFilter();
+    const emptyShot = await capture('T38-1-0편-얇은1줄-전환수단.png');
+    // 전환 수단을 누르면 그 방향으로 바뀐다(사용자 동작 — 자동이 아니다).
+    const switched = await clickSwitch();
+    const afterSwitch = await evaluate(FIXED_PROBE);
+    check(
+      'AC-U16-3 전환 수단을 누르면 다른 방향으로 전환된다(목록 = 그 방향 편수 · 칩 선택도 이동)',
+      switched === true &&
+        afterSwitch.chipPressedCount === 1 &&
+        afterSwitch.chipPressedDirection === 'out' &&
+        afterSwitch.directions.all > 0 &&
+        afterSwitch.directions.in === 0 &&
+        afterSwitch.switchCount === 0,
+      JSON.stringify({ switched, pressed: afterSwitch.chipPressedDirection, rows: afterSwitch.directions, switchCount: afterSwitch.switchCount }),
+    );
+    const switchShot = await capture('T38-2-전환후-터미널도착.png');
+    await resetDirection();
     await delay(150);
-    info(`AC-U15-6 스크린샷(필터 0편): ${emptyShot.slice(ROOT.length)}`);
+    info(`AC-U16-3 스크린샷(0편·전환 후): ${emptyShot.slice(ROOT.length)} · ${switchShot.slice(ROOT.length)}`);
 
-    /* AC-U11-4 — 고정 영역 높이가 오프셋에 반영(요일·필터 변경 후에도 가려짐 0) */
+    /* AC-U11-4 — 고정 영역 높이가 오프셋에 반영(요일·방향 변경 후에도 가려짐 0) */
     await clickChip('in');
-    await clearFilter();
+    await resetDirection();
     await delay(150);
     await clickMove('move-now');
     await delay(700);
@@ -1324,7 +1409,7 @@ async function main() {
      * 편수 대조 수치(115/24/91)는 AC-U11-3 이 그대로 보고, 여기서는 **표기·규격·치수**를 실측한다.
      */
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
-    await clearFilter();
+    await resetDirection();
     await showDayTab('weekday');
     await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
     await delay(250);
@@ -1465,7 +1550,7 @@ async function main() {
         afterStyle.chips.every((chip) => Math.abs(chip.rect.height - 34) <= 1 && Math.abs(chip.hitHeight - 44) <= 1 && chip.rect.width >= 48),
       JSON.stringify({ tabs: afterStyle.tabs.map((tab) => ({ h: tab.rect.height, w: tab.rect.width })), chips: afterStyle.chips.map((chip) => ({ pill: chip.rect.height, hit: chip.hitHeight, w: chip.rect.width })) }),
     );
-    await clearFilter();
+    await resetDirection();
     await delay(150);
 
     /* 360×800 — 좁은 화면에서도 같은 3줄 규격(좌우 10px·등폭·탭 40px·칩 알약 34px) */

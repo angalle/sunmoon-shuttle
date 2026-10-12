@@ -245,8 +245,9 @@ function offOn(row, weekdayCode) {
   return dayScope !== null && dayScope.length > 0 && !dayScope.includes(weekdayCode);
 }
 
-/** 발행물에서 계산한 기대 편수(안내 시각이 있는 회차만 — 앱의 행 수와 같은 필터). */
-function expectedTripTotal(raw, dayType, weekdayCode) {
+/** 발행물에서 계산한 기대 편수(안내 시각이 있는 회차만 — 앱의 행 수와 같은 필터).
+ *  T38 §16-2 — 화면은 **선택한 방향의 편만** 그린다(기본 `out` = `depCampus` 가 있는 편 · 터미널/역 도착). */
+function expectedTripTotal(raw, dayType, weekdayCode, direction = 'out') {
   let total = 0;
   for (const route of raw.routes) {
     const table = route.byDay?.[dayType];
@@ -254,14 +255,19 @@ function expectedTripTotal(raw, dayType, weekdayCode) {
     for (const row of table.trips) {
       if (!hasDepartureTime(row)) continue;
       if (offOn(row, weekdayCode)) continue;
+      // 앱과 같은 방향 규칙(`depCampus` 유무) — `all` 이면 방향을 가리지 않는다.
+      if (direction !== 'all' && ((row['depCampus'] ?? null) !== null) !== (direction === 'out')) continue;
       total += 1;
     }
   }
   return total;
 }
 
-/** 발행물에서 `금(X)` 로 구조화된 (노선명 · 출발시각 · 순번) — 사라짐 대조용. */
-function fridayExcludedRefs(raw) {
+/**
+ * 발행물에서 `금(X)` 로 구조화된 (노선명 · 출발시각 · 순번) — 사라짐 대조용.
+ * T38 §16-2 — 화면은 **선택한 방향의 편만** 그리므로 방향까지 맞춰 센다(기본 `out` · `all` 이면 두 방향 다).
+ */
+function fridayExcludedRefs(raw, direction = 'out') {
   const out = [];
   for (const route of raw.routes) {
     const table = route.byDay?.weekday;
@@ -269,10 +275,24 @@ function fridayExcludedRefs(raw) {
     for (const row of table.trips) {
       if (!hasDepartureTime(row)) continue;
       if (!offOn(row, 'fri')) continue;
+      if (direction !== 'all' && ((row['depCampus'] ?? null) !== null) !== (direction === 'out')) continue;
       out.push({ route: route.name, time: row['depCampus'] ?? row['depStation'] ?? row['depTerminal'], seq: row['seq'] });
     }
   }
   return out;
+}
+
+/** 방향 칩 클릭(T38 §16-2 — 택1 · 해제 없음) — 눌린 방향이 그대로 선택이 된다(실제 사용자 경로). */
+async function clickDirection(direction) {
+  const clicked = await evaluate(`
+    const chip = document.querySelector('[data-testid="direction-chip"][data-direction="${direction}"]');
+    if (chip === null) return false;
+    chip.click();
+    return true;
+  `);
+  if (clicked !== true) return false;
+  await delay(220);
+  return true;
 }
 
 const CASE = [
@@ -334,7 +354,10 @@ async function main() {
   if (!existsSync(DATA_FILE)) throw new Error('data/timetable.json 이 없습니다.');
 
   const raw = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
-  const excludedOnFriday = fridayExcludedRefs(raw);
+  // T38 §16-2 — 화면은 **선택한 방향의 편만** 그린다(기본 `터미널 도착` = `out`).
+  // 그래서 금요일 미운행 편수도 **그 방향**으로 세야 화면 행 수와 맞는다(두 방향을 섞어 세면 어긋난다).
+  const excludedOnFriday = fridayExcludedRefs(raw, 'out');
+  const excludedOnFridayAll = fridayExcludedRefs(raw, 'all');
 
   mkdirSync(join(DIST, 'data'), { recursive: true });
   copyFileSync(DATA_FILE, join(DIST, 'data', 'timetable.json'));
@@ -429,38 +452,90 @@ async function main() {
       );
     }
 
-    /* ── ①② 금요일 vs 월요일 — 사라짐과 사유 토큰 ───────────────────────────── */
+    /* ── ①② 금요일 vs 월요일 — 사라짐과 사유 토큰 ─────────────────────────────
+     * T38 §16-2 — 화면은 **선택한 방향의 편만** 그린다(섞임 0). 그래서 사유 토큰·미운행 대조도 **방향별로 따로**
+     * 연다: 기본(`터미널 도착`) 캡처는 위 루프에서 이미 얻었고, 여기서 `학교 도착` 으로 한 번 더 열어
+     * 나머지 절반(역/터미널 출발 편)의 토큰까지 본다 — **검사를 약화하지 않고 방향만 맞춘다**.
+     * 캡처 후에는 기본 방향(`out`)으로 **되돌린다**(§11-1 저장값이 다음 캡처에 새지 않게). */
     const friday = states.get(CASE[0].label);
     const monday = states.get(CASE[1].label);
+    const captureInDirection = async (now, shot) => {
+      await open(urlFor(now));
+      await clickDirection('in');
+      if (shot !== undefined) await captureViewport(shot); // `학교 도착` 목록 컷(섞임 0 대비용)
+      const state = await evaluate(READ);
+      await clickDirection('out'); // 되돌리기 — 저장된 방향이 기본(`터미널 도착`)으로 남는다
+      return state;
+    };
+    const mondayIn = await captureInDirection(CASE[1].now, 'T38-4-학교도착-목록.png');
+    await captureViewport('T38-3-기본-터미널도착-목록.png'); // 월요일 · 기본 방향(`터미널 도착`) 목록
+    const fridayIn = await captureInDirection(CASE[0].now);
     const fridayKeys = new Set((friday?.rows ?? []).map((row) => `${row.route}|${row.time}`));
     const mondayKeys = new Set((monday?.rows ?? []).map((row) => `${row.route}|${row.time}`));
+    const fridayKeysIn = new Set(fridayIn.rows.map((row) => `${row.route}|${row.time}`));
+    const mondayKeysIn = new Set(mondayIn.rows.map((row) => `${row.route}|${row.time}`));
+
+    /* §16-2 — 두 방향 캡처가 **각각 한 방향만** 담는지(섞임 0건) — 행의 방향 라벨(`학교에서 출발`/`학교로 도착`)로 센다. */
+    const mixOf = (state) => ({
+      out: (state?.rows ?? []).filter((row) => String(row.detail).includes('학교에서 출발')).length,
+      in: (state?.rows ?? []).filter((row) => String(row.detail).includes('학교로 도착')).length,
+      total: state?.rowCount ?? 0,
+    });
+    const mixes = { mondayOut: mixOf(monday), mondayIn: mixOf(mondayIn), fridayOut: mixOf(friday), fridayIn: mixOf(fridayIn) };
+    check(
+      '② §16-2 방향 택1 — 네 캡처(월·금 × 터미널/학교 도착) 모두 **한 방향만** 담는다(섞임 0건)',
+      Object.values(mixes).every(
+        (mix) => mix.total > 0 && ((mix.out === mix.total && mix.in === 0) || (mix.in === mix.total && mix.out === 0)),
+      ) &&
+        mixes.mondayOut.out === mixes.mondayOut.total &&
+        mixes.mondayIn.in === mixes.mondayIn.total,
+      JSON.stringify(mixes),
+    );
 
     check(
       '① 금요일 행 수가 월요일보다 정확히 "금요일 미운행 편수"만큼 적다',
       (monday?.rowCount ?? 0) - (friday?.rowCount ?? 0) === excludedOnFriday.length && excludedOnFriday.length > 0,
-      `월=${String(monday?.rowCount)} 금=${String(friday?.rowCount)} 차이=${String((monday?.rowCount ?? 0) - (friday?.rowCount ?? 0))} · 발행물 금요일 미운행 편수=${String(excludedOnFriday.length)}`,
+      `월=${String(monday?.rowCount)} 금=${String(friday?.rowCount)} 차이=${String((monday?.rowCount ?? 0) - (friday?.rowCount ?? 0))} · 발행물 금요일 미운행 편수(터미널 도착 방향)=${String(excludedOnFriday.length)} · 두 방향 합=${String(excludedOnFridayAll.length)}(화면은 한 방향만 그린다 — §16-2)`,
     );
     check(
       '① 금요일 목록은 월요일 목록의 부분집합이다(다른 편이 새로 생기지 않는다)',
-      [...fridayKeys].every((key) => mondayKeys.has(key)),
-      `금 전용=${JSON.stringify([...fridayKeys].filter((key) => !mondayKeys.has(key)))}`,
+      [...fridayKeys].every((key) => mondayKeys.has(key)) && [...fridayKeysIn].every((key) => mondayKeysIn.has(key)),
+      `금 전용=${JSON.stringify([...fridayKeys].filter((key) => !mondayKeys.has(key)))} · 금(학교 도착) 전용=${JSON.stringify([...fridayKeysIn].filter((key) => !mondayKeysIn.has(key)))}`,
     );
-    const asanSeq2 = excludedOnFriday.find((ref) => ref.route === '아산(KTX)역' && ref.time === '08:35');
-    check('① 발행물 대조 대상(아산(KTX)역 08:35 · 금(X))이 존재한다', asanSeq2 !== undefined, JSON.stringify(excludedOnFriday.slice(0, 3)));
+    const outRef = excludedOnFriday.find((ref) => ref.route === '아산(KTX)역' && ref.time === '10:20');
+    const inRef = excludedOnFridayAll.find((ref) => ref.route === '아산(KTX)역' && ref.time === '08:35');
     check(
-      '① 금요일: 그 편(아산(KTX)역 08:35)이 목록에 없다 — 행 대조',
-      fridayKeys.has('아산(KTX)역|08:35') === false,
-      `금요일 아산(KTX)역 편=${JSON.stringify((friday?.rows ?? []).filter((row) => row.route === '아산(KTX)역').map((row) => row.time))}`,
+      '① 발행물 대조 대상이 있다 — 터미널 도착 10:20 · 학교 도착 08:35(둘 다 금(X))',
+      outRef !== undefined && inRef !== undefined,
+      JSON.stringify({ outRef, inRef }),
     );
     check(
-      '② 월요일: 같은 편이 목록에 있고 `금 휴` 짧은 토큰으로 사유가 표시된다(§9-3)',
-      mondayKeys.has('아산(KTX)역|08:35') &&
-        (monday?.rows ?? []).some((row) => row.time === '08:35' && row.route === '아산(KTX)역' && row.tokens.includes('금 휴')),
-      JSON.stringify((monday?.rows ?? []).filter((row) => row.tokens.length > 0).slice(0, 4)),
+      '① 금요일: 그 편들이 목록에 없다 — **방향별** 행 대조(터미널 도착 10:20 · 학교 도착 08:35)',
+      outRef !== undefined &&
+        inRef !== undefined &&
+        fridayKeys.has(`${outRef.route}|${outRef.time}`) === false &&
+        fridayKeysIn.has(`${inRef.route}|${inRef.time}`) === false,
+      `금(터미널) 아산(KTX)역=${JSON.stringify((friday?.rows ?? []).filter((row) => row.route === '아산(KTX)역').map((row) => row.time))} · 금(학교) 아산(KTX)역=${JSON.stringify(fridayIn.rows.filter((row) => row.route === '아산(KTX)역').map((row) => row.time))}`,
     );
-    const scopeTokens = (monday?.rows ?? []).flatMap((row) => row.tokens).filter((token) => /만 운행|대 운행|요일 운행 없음|~/.test(token));
     check(
-      '② 월요일: 요일 범위·대수도 짧은 토큰으로 표시된다(`월·화` · `2대` · 범위는 `월~목`)',
+      '② 월요일: 같은 편이 **방향별로** 목록에 있고 `금 휴` 짧은 토큰으로 사유가 표시된다(§9-3)',
+      outRef !== undefined &&
+        inRef !== undefined &&
+        mondayKeys.has(`${outRef.route}|${outRef.time}`) &&
+        (monday?.rows ?? []).some((row) => row.time === outRef.time && row.route === outRef.route && row.tokens.includes('금 휴')) &&
+        mondayKeysIn.has(`${inRef.route}|${inRef.time}`) &&
+        mondayIn.rows.some((row) => row.time === inRef.time && row.route === inRef.route && row.tokens.includes('금 휴')),
+      JSON.stringify({
+        terminal: (monday?.rows ?? []).filter((row) => row.tokens.length > 0).slice(0, 2),
+        school: mondayIn.rows.filter((row) => row.tokens.length > 0).slice(0, 2),
+      }),
+    );
+    const mondayAllRows = [...(monday?.rows ?? []), ...mondayIn.rows];
+    const scopeTokens = mondayAllRows
+      .flatMap((row) => row.tokens)
+      .filter((token) => /만 운행|대 운행|요일 운행 없음|~/.test(token));
+    check(
+      '② 월요일(두 방향 캡처 합): 요일 범위·대수도 짧은 토큰으로 표시된다(`월·화` · `2대` · 범위는 `월~목`)',
       scopeTokens.every((token) => token.length <= 8) &&
         scopeTokens.some((token) => token.includes('2대')) &&
         scopeTokens.some((token) => token.includes('월')),
@@ -468,10 +543,14 @@ async function main() {
     );
     check(
       '② 긴 사유 문구는 화면에 없다(`…요일 운행 없음`·`…만 운행`·`…대 운행` 토큰 0건)',
-      (monday?.rows ?? []).every((row) => row.tokens.every((token) => !/요일 운행 없음|만 운행|대 운행/.test(token))),
-      JSON.stringify((monday?.rows ?? []).flatMap((row) => row.tokens).slice(0, 6)),
+      mondayAllRows.every((row) => row.tokens.every((token) => !/요일 운행 없음|만 운행|대 운행/.test(token))),
+      JSON.stringify(mondayAllRows.flatMap((row) => row.tokens).slice(0, 6)),
     );
-    check('③ 소요시간 문구가 실제로 화면에 보인다(약 N분 소요)', (monday?.rows ?? []).some((row) => /약 \d+분 소요/.test(String(row.detail))), JSON.stringify((monday?.rows ?? []).slice(0, 3).map((row) => row.detail)));
+    check(
+      '③ 소요시간 문구가 실제로 화면에 보인다(약 N분 소요)',
+      mondayAllRows.some((row) => /약 \d+분 소요/.test(String(row.detail))),
+      JSON.stringify(mondayAllRows.slice(0, 3).map((row) => row.detail)),
+    );
     check(
       '④ 내부 플래그(needsReview·unknownNote)는 화면 텍스트에 0회',
       friday?.internalFlagMentions === 0 && monday?.internalFlagMentions === 0,

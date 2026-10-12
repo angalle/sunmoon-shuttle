@@ -379,14 +379,21 @@ async function main() {
   const asanSaturday = rowsOf('asan-ktx', 'saturday');
   /**
    * 발행물에서 계산한 **그 요일 기대 행 수** — 출발 시각이 있는 회차만(앱의 행 수와 같은 필터).
-   * T27 §9-1 로 본문이 `그 요일 전체 회차`가 됐으므로 행 수가 곧 그 요일 판정 편수다.
+   * T38 §16-2 — 화면은 **선택한 방향의 편만** 그린다(기본 `터미널 도착` = `out` · `depCampus` 가 있는 편).
    */
   const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
-  const expectedRowsOf = (dayType) =>
+  const expectedRowsOf = (dayType, direction = 'out') =>
     data.routes.reduce((sum, route) => {
       const table = route.byDay?.[dayType];
       if (table === null || table === undefined) return sum;
-      return sum + table.trips.filter((row) => hasDepartureTime(row)).length;
+      return (
+        sum +
+        table.trips.filter(
+          (row) =>
+            hasDepartureTime(row) &&
+            (direction === 'all' || ((row['depCampus'] ?? null) !== null) === (direction === 'out')),
+        ).length
+      );
     }, 0);
   const manifest = JSON.parse(readFileSync(MANIFEST_FILE, 'utf8'));
 

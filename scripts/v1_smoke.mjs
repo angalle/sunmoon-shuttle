@@ -314,8 +314,12 @@ const weekdayCodeOf = (isoDate) => {
   return WEEKDAY_CODES[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
 };
 
-/** 발행물에서 계산한 **그 요일 기대 행 수**(출발 시각이 있고 그 요일에 운행하는 편만 — 앱과 같은 필터). */
-function expectedRowsOf(raw, dayType, weekdayCode) {
+/**
+ * 발행물에서 계산한 **그 요일 기대 행 수**(출발 시각이 있고 그 요일에 운행하는 편만 — 앱과 같은 필터).
+ * T38 §16-2 — 화면은 **선택한 방향의 편만** 그린다. 기본 방향은 `터미널 도착`(`out` = `depCampus` 가 있는 편)이다.
+ * 그래서 `direction`(기본 `out` = 앱 기본값)으로 방향까지 맞춰 센다.
+ */
+function expectedRowsOf(raw, dayType, weekdayCode, direction = 'out') {
   const hasDeparture = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
   const offOn = (row) => {
     const service = row['service'];
@@ -325,11 +329,14 @@ function expectedRowsOf(raw, dayType, weekdayCode) {
     const dayScope = service['dayScope'] ?? null;
     return dayScope !== null && dayScope.length > 0 && !dayScope.includes(weekdayCode);
   };
+  // 앱과 같은 규칙: `depCampus` 가 있으면 터미널(역)로 가는 편(`out`), 없으면 학교로 오는 편(`in`).
+  // `all` 은 방향을 가리지 않는다(칩 편수 합 = 전체 대조용).
+  const matchesDirection = (row) => direction === 'all' || ((row['depCampus'] ?? null) !== null) === (direction === 'out');
   return raw.routes.reduce((sum, route) => {
     if (route.status === 'suspended') return sum;
     const table = route.byDay?.[dayType];
     if (table === null || table === undefined) return sum;
-    return sum + table.trips.filter((row) => hasDeparture(row) && !offOn(row)).length;
+    return sum + table.trips.filter((row) => hasDeparture(row) && !offOn(row) && matchesDirection(row)).length;
   }, 0);
 }
 
@@ -402,30 +409,38 @@ async function main() {
     const s1 = await evaluate(READ);
     check('① 상단 바: 오늘 날짜·현재 시각(KST, `·` 구분)', String(s1.clockText).includes('10월 6일 (화) · 08:00'), `clock=${String(s1.clockText)} datetime=${String(s1.clockDatetime)}`);
     check('① 오늘 안내줄 없음(안내문 없는 평일)', s1.notice === null, JSON.stringify(s1.notice));
-    // T37 §15-1 — 칩은 `학교 도착`·`터미널 도착` **2개**이고, 아무것도 선택하지 않은 상태가 곧 전체다.
+    // T38 §16-2 — 칩은 `학교 도착`·`터미널 도착` **2개**이고, **항상 정확히 1개가 선택**되어 있다(해제 불가).
+    //   기본값은 `터미널 도착`(out) — 목록은 그 방향 편만 담긴다(전체 115 → 91).
+    const s1Pressed = s1.chips.filter((chip) => chip.pressed === 'true');
     check(
-      '① 방향 필터 칩 2개(`학교 도착`·`터미널 도착`) · 기본 선택 0개 = 전체 표시',
+      '① 방향 칩 2개(`학교 도착`·`터미널 도착`) · **기본 `터미널 도착` 1개 선택**(§16-2) · `전체` 문자열 0건',
       s1.chips.length === 2 &&
         s1.chips.map((chip) => chip.direction).join('|') === 'in|out' &&
-        s1.chips.every((chip) => chip.pressed === 'false') &&
+        s1Pressed.length === 1 &&
+        s1Pressed[0].direction === 'out' &&
         s1.chips.every((chip) => !String(chip.text).includes('전체')),
       JSON.stringify(s1.chips),
     );
     check(
-      '① 본문 = 그 요일 전체 회차 시간표(행 수 = 발행물 판정 편수)',
-      s1.listDay === 'weekday' && s1.listRows === s1Expected && s1.listRows > 0,
-      `day=${String(s1.listDay)} 화면=${String(s1.listRows)}행 · 발행물=${String(s1Expected)}편`,
+      '① 본문 = **선택한 방향(터미널 도착)** 편 시간표(행 수 = 발행물 판정 편수 · 두 방향 섞임 0건)',
+      s1.listDay === 'weekday' &&
+        s1.listRows === s1Expected &&
+        s1.listRows > 0 &&
+        [...new Set(s1.directions)].join('|') === 'out',
+      `day=${String(s1.listDay)} 화면=${String(s1.listRows)}행 · 발행물(out)=${String(s1Expected)}편 방향=${JSON.stringify([...new Set(s1.directions)])}`,
     );
+    const s1All = expectedRowsOf(raw, 'weekday', weekdayCodeOf('2026-10-06'), 'all');
     const s1ChipCounts = s1.chips.map((chip) => Number(String(chip.text).match(/(\d+)$/)?.[1] ?? '-1'));
     const s1RowIn = s1.directions.filter((direction) => direction === 'in').length;
     const s1RowOut = s1.directions.filter((direction) => direction === 'out').length;
     check(
       '① 방향 칩 편수가 화면 행·발행물과 일치(학교 도착 N · 터미널 도착 N — 접미사 없음) · 합 = 전체',
       s1.chips.map((chip) => String(chip.text).replace(/ \d+$/, '')).join('|') === '학교 도착|터미널 도착' &&
-        s1ChipCounts[0] === s1RowIn &&
         s1ChipCounts[1] === s1RowOut &&
-        s1ChipCounts[0] + s1ChipCounts[1] === s1Expected,
-      JSON.stringify({ chips: s1.chips.map((chip) => chip.text), rows: { in: s1RowIn, out: s1RowOut }, data: s1Expected }),
+        s1ChipCounts[0] === s1All - s1RowOut &&
+        s1ChipCounts[0] + s1ChipCounts[1] === s1All &&
+        s1RowIn === 0,
+      JSON.stringify({ chips: s1.chips.map((chip) => chip.text), rows: { in: s1RowIn, out: s1RowOut }, data: { all: s1All, out: s1Expected } }),
     );
     check('① 다음 출발 행이 정확히 하나 강조된다(§9-3)', s1.nextCount === 1, `count=${String(s1.nextCount)} next=${String(s1.nextTime)}`);
     check('① 강조 행 = 08:00 이후 첫 편(08:05)', s1.nextTime === '08:05', String(s1.nextTime));
@@ -483,11 +498,19 @@ async function main() {
     check('④ 방향 칩 편수 표기(학교 도착 N)', /^학교 도착 \d+$/.test(s1InExpected.trim()), s1InExpected);
     const s1In = await clickChip('in');
     check('④ 방향 칩(학교 도착) 즉시 반영', s1In.ok, s1In.detail);
-    const s1Back = await clearFilter();
+    // T38 §16-2 — **해제가 없다**: 눌린 칩을 다시 눌러도 그 방향이 유지되고 목록 편수도 그대로다(자동 전환 0).
+    const s1Back = await clickChip('in');
     check(
-      '④ 칩을 **다시 눌러 해제**하면 전체 회차로 복귀한다(토글 — T37 §15-1)',
-      s1Back.ok === true && s1Back.chips.every((chip) => chip.pressed === 'false') && s1Back.listRows === s1Expected,
-      `pressed=${JSON.stringify(s1Back.chips.map((chip) => chip.pressed))} rows=${String(s1Back.listRows)} 기대=${String(s1Expected)}`,
+      '④ 눌린 칩을 다시 눌러도(해제 시도) 선택 1개(`학교 도착`)가 유지된다 — §16-2 해제 불가',
+      s1Back.ok === true && s1Back.chips.filter((chip) => chip.pressed === 'true').length === 1,
+      `pressed=${JSON.stringify(s1Back.chips.map((chip) => chip.pressed))} rows=${String(s1Back.listRows)}`,
+    );
+    // 기준 상태(기본 방향 `터미널 도착`)로 되돌린다 — 뒤 시나리오가 이 상태를 전제로 한다.
+    const s1Reset = await resetDirection();
+    check(
+      '④ 기본 방향(`터미널 도착`) 복귀 — 목록 = 발행물 터미널 방향 편수',
+      s1Reset.ok === true && s1Reset.listRows === s1Expected,
+      `pressed=${JSON.stringify(s1Reset.chips.map((chip) => chip.pressed))} rows=${String(s1Reset.listRows)} 기대=${String(s1Expected)}`,
     );
 
     // ── 시나리오 ②: 개천절 대체휴일 10:00 (2026-10-05 월 · 일요일 시간표) ────────
@@ -698,23 +721,24 @@ function ascending(times) {
  * 칩 상태(pressed)와 **시간표 목록의 방향**을 함께 실측한다.
  */
 /**
- * T37 §15-1 — `전체` 칩이 없어졌으므로 **눌린 칩을 다시 눌러** 해제한다(= 전체 표시로 복귀).
- * 해제 후에는 선택이 0개이고 목록이 전체 회차로 돌아와야 한다.
+ * T38 §16-2 — **기본 방향(`터미널 도착` = out)으로 되돌린다.**
+ * 방향은 택1이라 "해제"가 없다: 예전 `clearFilter`(눌린 칩을 다시 눌러 해제)는 §16-2 에서 성립하지 않는다.
+ * 기본 칩을 누른 뒤 **정확히 1개가 눌려 있고 그 방향이 `out`** 인지 실측한다.
  */
-async function clearFilter() {
-  const cleared = await evaluate(`
-    const pressed = document.querySelector('[data-testid="direction-chip"][aria-pressed="true"]');
-    if (pressed === null) return false;
-    pressed.click();
+async function resetDirection() {
+  await evaluate(`
+    const chip = document.querySelector('[data-testid="direction-chip"][data-direction="out"]');
+    if (chip !== null && chip.getAttribute('aria-pressed') !== 'true') chip.click();
     return true;
   `);
-  if (cleared !== true) return { ok: false, detail: '눌린 칩 없음(해제할 필터가 없다)' };
   await delay(200);
   const state = await evaluate(READ);
+  const pressed = state.chips.filter((chip) => chip.pressed === 'true');
+  const pressedOut = pressed.length === 1 && pressed[0].direction === 'out';
   return {
     ...state,
-    ok: state.chips.every((chip) => chip.pressed === 'false') && state.listRows > 0,
-    detail: `pressed=${JSON.stringify(state.chips.map((chip) => chip.pressed))} 시간표=${String(state.listRows)}행`,
+    ok: pressedOut && state.listRows > 0,
+    detail: `pressed=${JSON.stringify(state.chips.map((chip) => chip.pressed))} 방향=${pressed.map((chip) => chip.direction).join(',') || '없음'} 시간표=${String(state.listRows)}행`,
   };
 }
 

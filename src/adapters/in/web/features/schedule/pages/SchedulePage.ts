@@ -10,10 +10,10 @@
  *   상단 고정 영역(§11-1 · T29) — 3줄, 스크롤해도 고정 (§15-3 T37: 앱바 52 · 요일 40 · 칩 알약 34px · 좌우 10px)
  *     ① 현재 날짜·시각(분 단위 갱신) + ⓘ(정보 시트) + 새로고침
  *     ② 요일 전환 3개(평일/토요일/일요일)
- *     ③ 방향 필터 **2개**(학교 도착/터미널 도착) + 칩마다 편수 — 다시 누르면 해제(§15-1 · `전체` 칩 없음)
+ *     ③ 방향 택1 세그먼트 **2개**(학교 도착/터미널 도착) + 칩마다 편수 — **항상 1개 선택**(§16-2 · 해제 불가 `전체` 없음)
  *   ── 본문(#shuttle-main, 스크롤 영역) ──────────────────────────────────────
  *     ① 상단 바 아래 **최소 1줄**(예외): 오늘 운행 없음(+다음 운행) · 대체 시간표 · 방학 · 오늘 종료
- *     ② **시간표 목록 하나**(그 요일 전체 회차): 지난 편 dim · 다음 출발 행 살짝 강조(좌측 라인+배경 톤)
+ *     ② **시간표 목록 하나**(선택한 방향의 회차 · §16-2): 지난 편 dim · 다음 출발 행 살짝 강조(좌측 라인+배경 톤)
  *        · 요일 조건은 **짧은 토큰 1개 이하**(`금 휴`)
  *   ── 정보 시트(ⓘ, 기본 숨김) ──────────────────────────────────────────────
  *     출처(학교 링크 1개) · `데이터 갱신` · 요금/지연 안내 · 정차창 · 방학 링크 · 비공식 고지 ·
@@ -48,6 +48,7 @@ import { DAY_TYPES, type DayType } from '../../../../../../domain/entities/DayTy
 import { dayTypeFromDate } from '../../../../../../domain/rules/dayType';
 import { formatIsoDate, kstDayFromInstant } from '../../../../../../domain/rules/kst';
 import {
+  DEFAULT_DIRECTION_SELECTION,
   dayNoticeLine,
   dayTabs,
   dayTabsWithoutModel,
@@ -59,7 +60,7 @@ import {
   timetableView,
   upcomingChanges,
   vacationNotice,
-  type DirectionFilter,
+  type DirectionSelection,
   type TimetableView,
   type VacationView,
 } from '../store/selectors';
@@ -149,12 +150,12 @@ export interface SchedulePageOptions {
   /** 상단 바 새로고침(수동 갱신) — 재로딩은 app/mount.ts 가 소유한다. */
   readonly onRefresh: () => void;
   /**
-   * 저장된 방향 필터(§11-1 상태 저장) — 없으면 `전체`.
+   * 저장된 방향 선택(§11-1 상태 저장 · §16-2) — 없으면 **기본 `터미널 도착`**(`DEFAULT_DIRECTION_SELECTION`).
    * 저장소 읽기/쓰기는 조립 지점(app/mount.ts)이 맡고 페이지는 값만 받는다.
    */
-  readonly initialDirection?: DirectionFilter | undefined;
-  /** 요일·방향 필터 선택을 저장한다(§11-1 재실행 시 유지). `date` = 저장 시점 KST 날짜 키(요일 선택은 그날 한정). */
-  readonly onViewPrefs?: ((prefs: { readonly dayType: DayType; readonly direction: DirectionFilter; readonly date: string }) => void) | undefined;
+  readonly initialDirection?: DirectionSelection | undefined;
+  /** 요일·방향 선택을 저장한다(§11-1 재실행 시 유지). `date` = 저장 시점 KST 날짜 키(요일 선택은 그날 한정). */
+  readonly onViewPrefs?: ((prefs: { readonly dayType: DayType; readonly direction: DirectionSelection; readonly date: string }) => void) | undefined;
   /** 스플래시·스크롤 시간 계측용 **단조 시각**(기본 `performance.now`) — 테스트 주입용. */
   readonly monotonicNow?: () => number;
   /** `prefers-reduced-motion: reduce` 판정 주입(기본: matchMedia). */
@@ -573,15 +574,26 @@ export function createSchedulePage(
   let lastStructureKey = '';
   let latestState: ScheduleState | null = null;
   /**
-   * 방향 필터(페이지 지역 상태 — 스킬 §5). 저장된 값이 있으면 그 값으로 시작한다(§11-1 재실행 시 유지).
+   * 방향 선택(페이지 지역 상태 — 스킬 §5 · §16-2). **항상 1개**이고 `전체` 상태가 없다.
+   * 저장된 값이 있으면 그 값으로 시작하고, 없으면 기본 `터미널 도착`(`DEFAULT_DIRECTION_SELECTION`).
    */
-  let fullFilter: DirectionFilter = options.initialDirection ?? 'all';
+  let direction: DirectionSelection = options.initialDirection ?? DEFAULT_DIRECTION_SELECTION;
 
-  /** 요일·방향 필터 선택 저장(§11-1) — 저장소 IO 는 조립 지점(app/mount.ts)이 갖고 여기서는 알리기만 한다.
+  /** 요일·방향 선택 저장(§11-1) — 저장소 IO 는 조립 지점(app/mount.ts)이 갖고 여기서는 알리기만 한다.
    *  저장 시점의 날짜 키를 함께 넘긴다 — 요일 선택은 그날 안에서만 되살아난다(다른 날 화면에서 따라오지 않게). */
-  const persistViewPrefs = (dayType: DayType, direction: DirectionFilter): void => {
-    options.onViewPrefs?.({ dayType, direction, date: dayKey(store.getState().nowMs) });
+  const persistViewPrefs = (dayType: DayType, next: DirectionSelection): void => {
+    options.onViewPrefs?.({ dayType, direction: next, date: dayKey(store.getState().nowMs) });
   };
+
+  /**
+   * T38 §16-2 — 방향 선택(택1). **해제가 없다**: 눌린 방향이 곧 선택이고, 같은 칩을 다시 눌러도 선택이 유지된다.
+   * 저장하고(§11-1) 필터·목록을 다시 그린다 — 0편이면 목록 자리에 얇은 1줄 + 전환 수단(자동 전환 없음)이 나온다.
+   */
+  function selectDirection(next: DirectionSelection): void {
+    direction = next;
+    persistViewPrefs(store.getState().dayType, next);
+    if (latestState !== null) renderFilter(renderRows(latestState));
+  }
 
   /**
    * 재렌더로 포커스를 잃지 않게 한다 — 방향 칩은 키보드 사용자의 현재 위치다.
@@ -620,39 +632,42 @@ export function createSchedulePage(
     refreshSpinner.hidden = !busy;
   };
 
-  /** ③ 시간표 목록 하나 — 로딩 중에는 스켈레톤 카드 3장(빈 화면 금지). */
+  /** ③ 시간표 목록 하나 — **선택한 방향의 회차**만 그린다(§16-2 · 두 방향이 섞이지 않는다). 로딩 중에는 스켈레톤 카드 3장(빈 화면 금지). */
   const renderRows = (state: ScheduleState): TimetableView | null => {
     if (state.model === null) {
       replaceChildren(listHost, state.status === 'loading' ? [skeletonCards({ count: 3 })] : []);
       return null;
     }
-    const view = timetableView(state, fullFilter);
-    replaceChildren(listHost, [dailyTimetable({ view, headingId: LIST_HEADING_ID })]);
+    const view = timetableView(state, direction);
+    replaceChildren(listHost, [
+      dailyTimetable({
+        view,
+        headingId: LIST_HEADING_ID,
+        // §16-2 — 0편일 때 나오는 전환 수단(`<다른 방향> 편 보기`)의 동작. 자동 전환은 없다.
+        onSwitchDirection: (next) => {
+          selectDirection(next);
+        },
+      }),
+    ]);
     return view;
   };
 
   /**
-   * ② 방향 필터 칩 — **항상** 그린다(§11-1: 0건이면 흐리게 + `0편` — 빈 결과를 숨기지 않는다).
+   * ② 방향 택1 세그먼트(§16-2) — **항상 정확히 1개가 선택**되어 있다(해제 불가 · `전체` 없음).
    * 회차가 아직 없을 때(model null)도 자리는 지킨다 → 로딩 중에도 상단 3줄 구조가 흔들리지 않는다.
    */
   const renderFilter = (view: TimetableView | null): void => {
     replaceChildren(filterHost, [
       directionFilter({
-        value: fullFilter,
+        value: direction,
         counts: view?.counts ?? { all: 0, out: 0, in: 0 },
-        onSelect: (value: DirectionFilter) => {
-          // §15-1(T37) — 칩은 **토글**이다: 같은 칩을 다시 누르면 해제되어 전체(`all`)로 복귀한다.
-          fullFilter = fullFilter === value ? 'all' : value;
-          // 필터도 저장한다(§11-1 — 재실행 시 유지). 요일은 지금 선택된 값을 그대로 함께 쓴다.
-          persistViewPrefs(store.getState().dayType, fullFilter);
-          if (latestState !== null) {
-            renderFilter(renderRows(latestState));
-            return;
-          }
+        onSelect: (value: DirectionSelection) => {
+          // §16-2(T38) — 택1이다: 눌린 방향이 그대로 선택이 된다(같은 칩을 다시 눌러도 유지 — 해제 없음).
+          selectDirection(value);
         },
       }),
     ]);
-    restoreFocus(`chip:${fullFilter}`);
+    restoreFocus(`chip:${direction}`);
   };
 
   /** ① 상단 바 아래 최소 1줄(운행 없음 · 대체 · 방학 · 오늘 종료) — 동시에 1줄(§9-4). */
@@ -716,7 +731,7 @@ export function createSchedulePage(
         tabIdPrefix: TAB_ID_PREFIX,
         onSelect: (dayType) => {
           // 요일 선택을 저장한 뒤 전환한다(§11-1 재실행 시 유지).
-          persistViewPrefs(dayType, fullFilter);
+          persistViewPrefs(dayType, direction);
           store.selectDay(dayType);
         },
       }),

@@ -45,8 +45,8 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
   const cache = options.cache === undefined ? new IndexedDbTimetableCache() : options.cache;
   const load = options.load ?? (() => loadTimetableModel({ cache, nowMs }));
 
-  // 화면 설정 저장(§11-1) — 저장된 요일·방향 필터를 재실행 후에도 유지한다.
-  // 우선순위: URL(`?day=`) > 저장값 > 기본(오늘 요일 · `전체`). URL 은 스모크/공유 링크의 **명시 지정**이라 가장 세다.
+  // 화면 설정 저장(§11-1 · §16-2) — 저장된 요일·방향 선택을 재실행 후에도 유지한다.
+  // 우선순위: URL(`?day=`) > 저장값 > 기본(오늘 요일 · 기본 방향 `터미널 도착`). URL 은 스모크/공유 링크의 **명시 지정**이라 가장 세다.
   // 저장된 **요일**은 그날(KST) 안에서만 유효하다 — 다른 날짜로 열면(자정을 넘겼거나 `?now=` 로 다른 날을 보면)
   // 지난 선택을 따라가지 않고 오늘 요일로 시작한다(잘못된 요일 시간표 방지).
   const prefsStorage = safeLocalStorage();

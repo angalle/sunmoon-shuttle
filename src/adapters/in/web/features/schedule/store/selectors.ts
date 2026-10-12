@@ -512,13 +512,48 @@ const BOARD_TOP_COUNT = 3;
 
 /**
  * 방향 필터 값 — `all` 전체 · `out` 학교에서 출발(역/터미널 도착) · `in` 학교로 도착.
- * 표시 순서는 `전체 · 학교 도착 · 터미널 도착`(docs/07 §11-1)이지만, 여기서는 **값의 정본 목록**만 둔다
- * (저장된 값 검증(`api/uiPrefsApi`)도 이 목록을 쓴다).
+ *
+ * ⚠️ T38 §16-2 — **화면의 방향 선택은 항상 1개**다(`전체` 상태 없음). 이 `all` 값은 **선택자 내부 계산용**으로만
+ * 남긴다(예: `moveNowHint` 가 \"필터와 무관한\" 판정을 할 때). 화면이 쓰는 값은 `DirectionSelection` 이다.
+ * 저장된 값 검증(`api/uiPrefsApi`)도 이제 `DIRECTION_SELECTIONS` 만 받는다.
  */
 export const DIRECTION_FILTERS = ['all', 'out', 'in'] as const;
 export type DirectionFilter = (typeof DIRECTION_FILTERS)[number];
 /** `out` = 학교 → 역/터미널, `in` = 역/터미널 → 학교 */
 export type DepartureDirection = 'out' | 'in';
+
+/**
+ * T38 §16-2 — **택1 방향 세그먼트의 값**: `out`(`터미널 도착`) · `in`(`학교 도착`). **`전체` 없음.**
+ * 화면(페이지·저장소·칩)은 이 두 값 중 하나만 안다 — 선택 해제 상태가 존재하지 않는다.
+ */
+export const DIRECTION_SELECTIONS = ['out', 'in'] as const;
+export type DirectionSelection = (typeof DIRECTION_SELECTIONS)[number];
+
+/**
+ * 기본 선택(§16-2) — **`터미널 도착`**(하교 방향 · 평일 91편). 다른 기본을 원하면 **이 한 줄만** 바꾼다.
+ * (문서: \"사용자가 다른 기본을 원하면 한 줄 변경으로 교체한다\".)
+ */
+export const DEFAULT_DIRECTION_SELECTION: DirectionSelection = 'out';
+
+/**
+ * 방향 선택 라벨(§16-2) — 칩(분자)과 \"다른 방향 보기\" 전환 수단이 **같은 문구**를 쓰게 한 곳에서 만든다.
+ * `in` = 학교로 도착하는 편 · `out` = 역/터미널로 도착하는 편(행에 붙는 `학교에서 출발` 과는 다른 문맥).
+ */
+export function directionSelectionLabel(value: DirectionSelection): string {
+  return value === 'in' ? UI_TEXT.filterDirectionSchool : UI_TEXT.filterDirectionTerminal;
+}
+
+/** 선택한 방향의 편이 0편일 때의 **전환 수단**(§16-2) — 자동 전환이 아니라 사용자가 누르는 짧은 버튼 1개. */
+export interface DirectionSwitchView {
+  readonly direction: DirectionSelection;
+  /** 화면에 그대로 쓰는 버튼 이름 (예: `학교 도착 편 보기`) */
+  readonly label: string;
+}
+
+/** 전환 수단 문구 — `<방향 라벨> 편 보기`(§16-2 예시 그대로). */
+function directionSwitchView(next: DirectionSelection): DirectionSwitchView {
+  return { direction: next, label: `${directionSelectionLabel(next)} ${UI_TEXT.timetableEmptyFilterSwitchSuffix}` };
+}
 
 /** 노선 통합 출발 1편 — 값은 도메인 `nextDepartures` 반환이 정본이다(화면 계산 금지). */
 export interface DepartureEventView {
@@ -1161,6 +1196,16 @@ export interface TimetableView {
   readonly isToday: boolean;
   readonly total: number;
   readonly counts: Readonly<Record<DirectionFilter, number>>;
+  /**
+   * T38 §16-2 — **선택한 방향**(택1). 화면은 항상 이 값 하나로 목록을 그린다(`전체` 없음).
+   * 페이지가 넘긴 `filter` 가 `all` 이면 `'all'` 이 그대로 온다(선택자 내부 계산 경로 — 화면은 쓰지 않는다).
+   */
+  readonly direction: DirectionFilter;
+  /**
+   * 선택한 방향의 편이 **0편인데 그 요일에는 편이 있을 때**의 전환 수단(§16-2) — 다른 방향으로 가는 짧은 버튼 1개.
+   * 그 밖(편이 있거나 그날 자체가 0편)에는 null. **자동 전환은 없다** — 사용자가 누를 때만 바뀐다.
+   */
+  readonly emptySwitch: DirectionSwitchView | null;
   readonly rows: readonly TimetableRowView[];
   /** 강조(다음 출발) 행 key — 없으면 null */
   readonly nextKey: string | null;
@@ -1201,13 +1246,23 @@ export function timetableView(state: ScheduleState, filter: DirectionFilter = 'a
     if (isNext) nextKey = trip.key;
     return { ...trip, token: shortTripToken(trip.badges), isNext };
   });
+  // T38 §16-2 — 선택한 방향이 0편(그 요일에는 편이 있다)이면 다른 방향으로 가는 **전환 수단 1개**를 준다.
+  // 자동 전환은 하지 않는다 — 목록이 빈 이유를 1줄로 알리고, 바꾸는 것은 사용자가 누를 때뿐이다.
+  // 운행 없는 날(noService)은 방향 때문이 아니라 **그날 편이 없는 것**이라 전환 수단을 만들지 않는다.
+  const total = noService ? 0 : full.total;
+  const emptySwitch: DirectionSwitchView | null =
+    filter !== 'all' && rows.length === 0 && total > 0
+      ? directionSwitchView(filter === 'in' ? 'out' : 'in')
+      : null;
   return {
     dayType: full.dayType,
     dayLabel: full.dayLabel,
     referenceDate: noService ? formatIsoDate(today) : full.referenceDate,
     isToday,
-    total: noService ? 0 : full.total,
+    total,
     counts: noService ? { all: 0, out: 0, in: 0 } : full.counts,
+    direction: filter,
+    emptySwitch,
     rows,
     nextKey,
   };

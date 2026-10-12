@@ -965,13 +965,22 @@ body {
   font-weight: var(--font-weight-normal);
 }
 
-/* T37 §15-1 — 목록이 빈 경우의 **얇은 1줄**(방향 필터로 0편이거나 그 요일 표가 비었을 때).
+/* T37 §15-1 — 목록이 빈 경우의 **얇은 1줄**(방향 선택으로 0편이거나 그 요일 표가 비었을 때).
  * 카드·배너로 만들지 않는다(§9-4 와 같은 톤) — 값·상태를 한 줄로 알린다. */
 .shuttle-timetable__empty {
   margin: 0;
   padding: var(--row-pad-y) 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-row-meta);
+}
+
+/* T38 §16-2 — 그 1줄 + **전환 수단**(`<다른 방향> 편 보기`) 한 덩어리.
+ * 얇게 유지한다: 1줄 아래 짧은 버튼 하나를 왼쪽 정렬로 두고, 버튼 높이는 터치 최소(48px)를 그대로 쓴다. */
+.shuttle-timetable__empty-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
 }
 
 /*
