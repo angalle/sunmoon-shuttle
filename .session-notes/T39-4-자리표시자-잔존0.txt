@@ -1,0 +1,30 @@
+== T39 AC-U16-4c: dist/sw.js 자리표시자·수동 상수 잔존 검사 ==
+--- dist/sw.js 의 SW_VERSION 줄 ---
+22:const SW_VERSION = '20261012-110529-056-03a10a5';
+--- dist/sw.js 자리표시자(__SW_VERSION__) 개수 (0 이어야 함) ---
+0
+--- dist 전체에서 손으로 쓴 옛 상수(2026-10-05.1 / 2026-10-09.1) 개수 (0 이어야 함) ---
+0
+--- dist/sw.js 캐시 키 3줄(자동 주입 값이 실제로 쓰이는지) ---
+23:const CACHE_PREFIX = 'sunmoon-shuttle';
+24:const SHELL_CACHE = `${CACHE_PREFIX}-shell-${SW_VERSION}`;
+25:const DATA_CACHE = `${CACHE_PREFIX}-data-${SW_VERSION}`;
+
+== 구조 자기검사(프론트 스킬 §9 — 이 태스크는 컴포넌트 변경 0, 회귀 확인용) ==
+--- ① shared → features 참조 (0 이어야 함) ---
+grep -rn "features/" src/adapters/in/web/shared/ → 0건
+--- ② atoms 안 store/api 참조 — 주석 제외 실제 import (0 이어야 함) ---
+스킬 §9 원문 grep(주석 포함) → 2건 (아래 원문: 전부 "store·api 를 모른다" 설명 주석)
+src/adapters/in/web/shared/ui/atoms/Spinner.ts:6: * 도메인 지식·store·api 를 모른다(스킬 §2·§3).
+src/adapters/in/web/shared/ui/atoms/Badge.ts:3: * 단일 책임 시각 요소 — props 로만 제어하고 도메인 상태·store·api 를 모른다(스킬 §2·§3).
+실제 import 참조(주석 제외) → 0건
+--- ③ 하드코딩 색상(tokens.css 제외) — 이 태스크 변경 파일 0줄 확인 ---
+(위가 비어 있으면 이 태스크는 src/ 를 한 줄도 바꾸지 않았다)
+
+== 변경 파일 목록(스테이징 전 working tree 기준) ==
+ M docs/07-mobile-ux.md
+ M public/sw.js
+ M scripts/serve-demo.sh
+ M tests/web/serviceWorker.test.ts
+ M vite.config.ts
+?? scripts/t39_sw_cache_swap.mjs

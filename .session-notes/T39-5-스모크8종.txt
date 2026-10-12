@@ -1,0 +1,42 @@
+== T39 회귀: 스모크 8종 (AC-U16-5) — 2026-10-12 11:08:09 ==
+t24        exit=0  35s
+               PASS  회귀: 콘솔 오류 0
+               PASS  회귀: 셸이 비어 있지 않다(화면 요소 200개 초과) — elements=773
+             T27·T28·T29·T30 SMOKE: PASS
+a11y       exit=0  6s
+               PASS  방침 페이지 → 앱 복귀 렌더
+               PASS  콘솔 오류 0
+             A11Y SMOKE: PASS
+v1         exit=0  7s
+               PASS  ⑨ 학교 도메인(lily.sunmoon.ac.kr) 요청 0건 — 앱은 학교 사이트를 읽지 않는다 — school=[]
+               PASS  ⑧ 콘솔 오류 0
+             V1 SMOKE: PASS
+render     exit=0  3s
+               PASS  오류 상태에서도 빈 화면 아님 — app=true
+               PASS  콘솔 오류 0(정상 경로)
+             RENDER SMOKE: PASS
+v2         exit=0  4s
+               PASS  ⑥ 학교 도메인 요청 0건 — []
+               PASS  ⑥ 콘솔 오류 0
+             V2 SMOKE: PASS
+t22        exit=0  6s
+               PASS  ⑦ 학교 도메인 요청 0건(앱은 수집된 JSON 만 읽는다) — []
+               PASS  ⑦ 콘솔 오류 0
+             T22 SMOKE: PASS
+offline    exit=0  4s
+               INFO  log: Failed to load resource: net::ERR_FAILED (http://127.0.0.1:54783/sunmoon-shuttle/data/timetable.json)
+               INFO  log: Failed to load resource: net::ERR_FAILED (http://127.0.0.1:54783/sunmoon-shuttle/data/timetable.json)
+             OFFLINE SMOKE: PASS
+ios_pwa    exit=0  4s
+               PASS  [C.standalone-rows] 전체화면에서도 시간표 렌더(행 수 = 계약 JSON) — day=sunday rows=16 json=16
+               PASS  [C.standalone-no-hint] 이미 설치(standalone) 상태면 설치 안내 문구 0건 — hint=null 금지어=[]
+             IOS PWA SMOKE: PASS
+
+== 나머지 계약 ==
+npm run test / build / lint:boundary 는 별도 증거 파일 참조(T39-1·T39-4)
+
+== T39 자체 스모크(SW 교체 실측) ==
+t39_swap   exit=0  5s
+               PASS  AC-U16-4b(정리): 최종 캐시 키에 옛 버전 0개 · 새 버전만 남음 — ["sunmoon-shuttle-data-20261012-110529-056-03a10a5","sunmoon-shuttle-shell-20261012-110529-056-03a10a5"]
+               PASS  앱 콘솔 오류 0(교체 과정 포함)
+             T39 SW CACHE SWAP: PASS

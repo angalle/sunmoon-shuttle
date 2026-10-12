@@ -1,0 +1,123 @@
+
+검사 결과:
+  PASS  AC-U1 스플래시가 진입 시 표시된다 — "선문대 셔틀시간표 불러오는 중"
+  PASS  AC-U1 스플래시 내용 — 로고(src) + 앱 이름 + 진행 표시 + `시간표 불러오는 중` — {"logo":"./icons/icon-192.png","spinner":true,"text":"선문대 셔틀시간표 불러오는 중"}
+  PASS  AC-U1 접근성 — role="status" + aria-live="polite" — role=status live=polite
+  PASS  AC-U1 스플래시가 화면을 덮는다(전체화면 진입 경험) — covers=true
+  PASS  AC-U1 본문 전환(시간표 렌더)
+  PASS  AC-U1 표시 시간 실측 400ms ≤ t ≤ 2.5s (하한: 깜빡임 방지) — t=425ms (shownAt=15 hiddenAt=440 reason=data)
+  PASS  AC-U1 스플래시 노드가 사라진다(전환 완료) — present=false
+  PASS  AC-U1 본문 전환 스크린샷 + 시간표 행 렌더 — rows=91
+  PASS  AC-U9-1 상단 바에 현재 날짜·시각이 `10월 6일 (화) · 08:00` 형식으로 있다 — {"clock":{"text":"10월 6일 (화) · 08:00","datetime":"2026-10-05T23:00:00.000Z","fontSize":"15px","weight":"700"},"expected":"10월 6일 (화) · 08:00"}
+  PASS  AC-U9-1 시각이 분 단위로 갱신된다(+1분 실측) — got=10월 6일 (화) · 08:01 expected=10월 6일 (화) · 08:01
+  PASS  AC-U9-1 진입 시 "다음 출발" 행이 정확히 하나 있고(가장 가까운 남은 편) 그 행이 화면에 보인다 — {"nextTime":"08:05","nextTop":147,"nextBottom":203,"appbarBottom":60,"innerHeight":844}
+  PASS  AC-U9-1/9-4 자동 스크롤 계측값 + `scroll-margin-top` 적용(상단 바 높이) — {"scroll":{"autoScrolls":2,"skipped":0,"buttonScrolls":0,"lastTargetKey":"asan-ktx:1","lastOffset":112,"lastAutoAt":648.6999998092651,"lastUserScrollAt":null},"scrollMarginTop":135,"nextKey":"asan-ktx:1"}
+  PASS  AC-U9-3 강조는 좌측 라인 + 배경 톤만 — 테두리 0 · 배지 0 · 강조 행 토큰 0 — {"next":{"color":"rgb(15, 23, 32)","background":"rgb(238, 244, 251)","boxShadow":"rgb(11, 84, 151) 3px 0px 0px 0px inset","borderTop":"0px","borderLeft":"0px","borderRight":"0px"},"normal":{"color":"rgb(95, 113, 131)","background":"rgba(0, 0, 0, 0)","boxShadow":"none","borderTop":"0px","borderLeft":"0px","borderRight":"0px"},"badges":0,"tokens":0}
+  PASS  AC-U9-3 지나간 행은 dim(계산색 실측) — 지난 편 수 > 0 — {"pastCount":2,"pastColor":"rgb(90, 107, 124)","normalColor":"rgb(95, 113, 131)"}
+  PASS  AC-U9-3 조건 토큰은 행당 1개 이하 · 짧다(긴 사유 문구 금지 — 8자 이하 실측) — {"tokenRows":45,"maxPerRow":1,"maxLength":3,"longest":"금 휴"}
+  INFO  AC-U9-1 스크린샷(다음 출발 강조): .session-notes/T27-3-다음출발-자동스크롤.png
+  PASS  AC-U9-2 본문 텍스트에 제거 대상 문구 0건(소개문구·데이터 갱신·출처·요금·변동·원본) — [{"phrase":"지금 탈 수 있는 셔틀버스를 바로 보여줍니다","count":0},{"phrase":"Shows the shuttle","count":0},{"phrase":"데이터 갱신","count":0},{"phrase":"출처","count":0},{"phrase":"요금","count":0},{"phrase":"다가오는 운행 변동","count":0},{"phrase":"정차 시간 안내","count":0},{"phrase":"원본","count":0}]
+  PASS  AC-U9-2 히어로 카드·바로가기·앱 탭·원본표 노드 0개 — []
+  PASS  요일 전환 컨트롤 유지 — role=tablist · 3개(평일/토/일) · roving tabindex · 화면은 하나(숨은 패널 0) — {"role":"tablist","labels":["평일","토요일","일요일"],"selected":["true","false","false"],"tabIndexes":["0","-1","-1"],"hiddenPanels":0}
+  PASS  AC-U9-4 사용자가 스크롤한 뒤 3초 안에는 자동 스크롤하지 않는다(스킵 실측) — {"before":{"scrollTop":400,"auto":2},"during":{"auto":2,"skipped":2}}
+  PASS  AC-U9-4 3초가 지나면 다시 다음 출발로 맞춘다(재스크롤 허용) — {"during":{"auto":2,"skipped":2},"after":{"auto":3,"scrollTop":112}}
+  PASS  AC-U9-4 자동 스크롤이 가려지지 않는다(다음 출발 행 y ≥ 상단 바 하단) — {"nextTop":147,"appbarBottom":60}
+  PASS  AC-U10-3 두 버튼이 우하단 **세로 스택**으로 있다(아이콘 + `aria-label` — 화면 문구 없음) — {"labels":["현재 시간으로","맨 위로"],"position":"absolute","zIndex":30,"now":{"top":724,"bottom":772,"left":326,"right":374,"width":48,"height":48},"top":{"top":780,"bottom":828,"left":326,"right":374,"width":48,"height":48}}
+  PASS  AC-U10-3 두 버튼 터치 타깃 ≥48×48 (실측) — {"now":{"top":724,"bottom":772,"left":326,"right":374,"width":48,"height":48},"top":{"top":780,"bottom":828,"left":326,"right":374,"width":48,"height":48}}
+  PASS  AC-U10-3 두 버튼이 키보드 포커스를 받는다(focus() → activeElement 실측) — [true,true]
+  PASS  AC-U10-3 safe-area bottom(34px) + 16px 만큼 띄운다(하단 여백 실측) — {"gapBottom":50,"gapRight":16,"innerHeight":844}
+  PASS  AC-U10-3 맨 아래까지 스크롤해도 마지막 행이 버튼 스택과 겹치지 않는다(겹침 0 실측) — {"lastBottom":708,"stackTop":724,"scrollTop":4535}
+  INFO  AC-U10-3 스크린샷(우하단 이동 버튼): .session-notes/T28-1-이동버튼-본문-390x844.png
+  PASS  AC-U10-2 `맨 위로` 클릭 → scrollTop = 0 (수치) — {"before":{"scrollTop":4535},"after":{"scrollTop":0,"buttons":1}}
+  INFO  AC-U10-2 스크린샷(맨 위로 클릭 후): .session-notes/T28-3-맨위로-클릭후.png
+  PASS  AC-U10-1 `현재 시간으로` 클릭 → 다음 출발 행이 상단 바 아래로 이동(전/후 scrollTop + 행 y좌표) — {"before":{"scrollTop":0,"nextTop":259,"appbarBottom":60},"after":{"scrollTop":112,"nextTop":147,"appbarBottom":60,"innerHeight":844}}
+  INFO  AC-U10-1 스크린샷(현재 시간으로 클릭 후): .session-notes/T28-2-현재시간으로-클릭후.png
+  PASS  AC-U10-1 사용자 스크롤로 억제된 상태(3초 이내)에서도 `현재 시간으로`는 동작한다(억제 해제 실측) — {"before":{"scrollTop":0,"buttonScrolls":2,"skipped":2},"after":{"scrollTop":112,"buttonScrolls":3,"userScrollAt":8795.599999904633}}
+  PASS  AC-U10-4 폰트 실측 — 행 시각 15px · 행 보조 13px · 조건 토큰 11px · 상단 바 15px — {"clock":15,"rowTime":15,"rowMeta":13,"token":11}
+  PASS  AC-U10-4 화면 텍스트 중 11px 미만 0건(하한 실측) · 행 높이 ≥48px(불변) — {"minText":{"size":11,"text":"24","label":"span.shuttle-chip__count"},"rowHeight":56}
+  PASS  AC-U16-1 기본값 = `터미널 도착`(out) 칩 1개가 눌린 상태 · 목록은 그 방향 편수만(발행물 대조) — {"pressed":[{"direction":"in","pressed":"false"},{"direction":"out","pressed":"true"}],"rows":{"all":91,"in":0,"out":91},"data":{"all":115,"in":24,"out":91}}
+  PASS  AC-U11-1 상단 고정 영역이 3줄(날짜·시각 / 요일 3 / 방향 필터 3)이다 — {"rows":3,"appbar":{"top":8,"bottom":60,"left":10,"right":380,"width":370,"height":52},"day":{"top":63,"bottom":103,"left":10,"right":380,"width":370,"height":40},"filter":{"top":106,"bottom":140,"left":10,"right":380,"width":370,"height":34},"fixedHeight":135}
+  PASS  AC-U11-1 스크롤 전/후 고정 영역 좌표가 같다(실측 수치) — {"before":{"top":8,"bottom":143,"left":10,"right":380,"width":370,"height":135},"after":{"top":8,"bottom":143,"left":10,"right":380,"width":370,"height":135},"scrollTop":4535}
+  PASS  AC-U11-1 요일·필터 줄은 스크롤 영역 **밖**(고정 영역 하단 ≤ 스크롤 영역 상단) — {"fixedBottom":143,"scrollerTop":147}
+  INFO  AC-U11-1/2 스크린샷: .session-notes/T29-1-상단고정-스크롤끝.png · .session-notes/T29-2-상단필터-편수.png
+  PASS  AC-U11-2/AC-U16-1 칩은 2개(`학교 도착`·`터미널 도착`)이고 `전체` 문자열 0건 · **정확히 1개가 눌려 있다** — {"chips":[{"direction":"in","label":"학교 도착","text":"학교 도착 24","pressed":"false"},{"direction":"out","label":"터미널 도착","text":"터미널 도착 91","pressed":"true"}],"pressed":{"count":1,"direction":"out"},"chipRow":"학교 도착 24 터미널 도착 91","fixed":"선문대 셔틀버스 시간표 10월 6일 (화) · 08:00 ⓘ 새로고침 평일 토요일 일요일 학교 도착 24 터미널 도착 91"}
+  PASS  AC-U11-2 칩 알약 34px · **터치 44px**(알약 밖 투명 여백) · 가로 ≥48px · 편수 숫자 표기 · 간격 8px — {"chips":[{"pill":34,"hit":44,"w":92,"count":"24"},{"pill":34,"hit":44,"w":103,"count":"91"}],"style":{"flexWrap":"nowrap","overflowX":"visible","gap":"8px"}}
+  PASS  AC-U11-2 선택 상태가 배경 톤 + 굵기이고 대비 ≥4.5:1(실측) — {"selected":{"text":"학교 도착 24","background":"rgb(11, 84, 151)","weight":"700","contrast":7.69},"idle":{"background":"rgb(255, 255, 255)","weight":"400","contrast":18.05,"fontSize":13},"pressed":1}
+  PASS  AC-U11-3/AC-U16-3 `학교 도착`·`터미널 도착` 칩 편수가 발행물 대조와 일치(수치) · 합 = 전체 — {"chips":{"school":24,"terminal":91},"data":{"school":24,"terminal":91,"all":115}}
+  PASS  AC-U16-1/AC-U16-2 기준 상태 = `터미널 도착` 1개 선택 · 목록 = 그 방향 편수(전체 115 → 터미널 91) · 섞임 0건 — {"reset":true,"pressed":["false","true"],"rows":{"all":91,"in":0,"out":91},"data":{"out":91,"all":115}}
+  PASS  AC-U16-1 눌린 칩을 다시 눌러도(해제 시도) 선택 1개가 유지되고 목록 편수도 그대로다 — {"pressed":{"count":1,"direction":"out"},"rows":{"all":91,"in":0,"out":91}}
+  PASS  AC-U11-3/AC-U16-2 `학교 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수 · 섞임 0건) — {"rows":{"all":24,"in":24,"out":0},"chip":24,"pressed":"in"}
+  PASS  AC-U11-3/AC-U16-2 `터미널 도착` 칩 → 목록이 그 방향만(행 수 = 칩 편수 · 섞임 0건) — {"rows":{"all":91,"in":0,"out":91},"chip":91,"pressed":"out"}
+  PASS  AC-U11-1(저장)/AC-U16-1 재실행(새로 열기)에도 요일·방향 선택이 유지된다 — {"pressed":["false","true"],"pressedCount":1,"stored":"{\"dayType\":\"weekday\",\"direction\":\"out\",\"date\":\"2026-10-06\"}","tab":"shuttle-day-tab-weekday"}
+  PASS  AC-U11-3/AC-U16-3 saturday 탭에서도 칩 편수 = 목록 편수 = 발행물 대조(수치 · 섞임 0건) — {"chips":[0,12],"data":{"all":12,"in":0,"out":12},"rows":{"all":12,"in":0,"out":12},"tab":"shuttle-day-tab-saturday"}
+  PASS  AC-U11-3/AC-U16-3 sunday 탭에서도 칩 편수 = 목록 편수 = 발행물 대조(수치 · 섞임 0건) — {"chips":[0,16],"data":{"all":16,"in":0,"out":16},"rows":{"all":16,"in":0,"out":16},"tab":"shuttle-day-tab-sunday"}
+  PASS  AC-U16-3 0편 → 목록 대신 얇은 1줄(`선택한 방향의 편이 없습니다`) + 전환 수단 1개(`터미널 도착 편 보기`) · 자동 전환 0 — {"line":"선택한 방향의 편이 없습니다","lineCount":1,"switch":{"count":1,"label":"터미널 도착 편 보기","rect":{"top":183,"bottom":231,"left":10,"right":166,"width":156,"height":48}},"pressed":"in","rows":{"all":0,"in":0,"out":0}}
+  PASS  AC-U16-3 전환 수단을 누르면 다른 방향으로 전환된다(목록 = 그 방향 편수 · 칩 선택도 이동) — {"switched":true,"pressed":"out","rows":{"all":12,"in":0,"out":12},"switchCount":0}
+  INFO  AC-U16-3 스크린샷(0편·전환 후): .session-notes/T38-1-0편-얇은1줄-전환수단.png · .session-notes/T38-2-전환후-터미널도착.png
+  PASS  AC-U11-4 요일·필터를 바꾼 뒤에도 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0, 수치) — {"nextTop":143,"nextTime":"08:05","fixedBottom":143,"scrollMarginTop":135,"fixedHeight":135,"scrollTop":116}
+  PASS  AC-U15-2 오늘이 아닌 요일에서 `현재 시간으로` → 토스트 `오늘로 이동합니다`(role=status·aria-live=polite·**액션 버튼 없음**) — {"toast":{"text":"오늘로 이동합니다","role":"status","live":"polite","rect":{"top":670,"bottom":708,"left":16,"right":374,"width":358,"height":38},"actionLabel":null,"actionRect":null},"before":{"tab":"shuttle-day-tab-saturday","scrollTop":0}}
+  PASS  AC-U15-2 안내와 함께 **오늘 요일 버킷 전환 + 현재 시각 기준 다음 출발 행으로 스크롤**(수치) — {"before":{"tab":"shuttle-day-tab-saturday","scrollTop":0},"after":{"tab":"shuttle-day-tab-weekday","scrollTop":116,"nextTime":"08:05","nextTop":143,"fixedBottom":143}}
+  PASS  AC-U15-2 안내가 이동 버튼 스택과 겹치지 않는다(겹침 0 실측) — {"toast":{"top":670,"bottom":708,"left":16,"right":374,"width":358,"height":38},"stack":{"top":724,"bottom":828,"left":326,"right":374,"width":48,"height":104},"innerHeight":844}
+  PASS  AC-U15-2 안내는 1.2~2.0초 안에 스스로 사라진다(실측) — 소멸 t=1625ms (계약 1500ms)
+  INFO  AC-U15-2 스크린샷(이동 안내): .session-notes/T37-1-오늘로이동합니다-토스트.png
+  PASS  AC-U15-2(보조) 오늘 & 남은 편이 있으면 안내 없이 다음 출발 행으로 스크롤 — {"toast":null,"scrollTop":112,"nextTop":147}
+  PASS  AC-U15-3 막차 이후 → `오늘 남은 편이 없습니다 · 다음 운행: …` 1줄(액션 없음 · 이동 없음) — {"toast":"오늘 남은 편이 없습니다 · 다음 운행: 10월 7일 (수) 07:30","tab":"shuttle-day-tab-weekday","scrollTop":0}
+  INFO  AC-U15-3 스크린샷(막차 이후 1줄): .session-notes/T37-2-막차이후-1줄안내.png
+  PASS  AC-U12-1 요일 탭 화면 텍스트에 `노선`·`개`·`(`·`)`·`오늘` 0건(실측) · 라벨 = 평일/토요일/일요일 — {"texts":["평일","토요일","일요일"],"labels":["평일","토요일","일요일"]}
+  PASS  AC-U12-1 오늘 표시는 점 요소 1개(첫 탭 · aria-label="오늘" · 화면 텍스트 아님) · 탭 3개 등폭(차이 ≤1px) · 높이 40px — {"dots":1,"widths":[123,123,123],"heights":[40,40,40],"dot":{"top":80,"bottom":84,"left":83,"right":87,"width":4,"height":4}}
+  PASS  AC-U12-1 선택 상태 = 배경 톤 + 굵기 600 + 하단 2px 라인(대비 ≥4.5:1 실측) — {"selected":{"bg":"rgb(238, 244, 251)","weight":"600","line":"2px rgb(11, 84, 151)","contrast":6.95,"fontSize":13},"idle":{"bg":"rgba(0, 0, 0, 0)","weight":"400","contrast":16.96,"fontSize":13}}
+  PASS  AC-U12-2 칩 화면 텍스트가 `학교 도착 24`·`터미널 도착 91` 형식(`편`·`개`·괄호 0건 · `전체` 0건) — {"texts":["학교 도착 24","터미널 도착 91"],"data":{"all":115,"in":24,"out":91}}
+  PASS  AC-U12-2 편수 11px < 라벨 13px(실측) · 알약 34px · **터치 44px** · 간격 8px · 줄바꿈 없음 — {"label":13,"count":11,"chips":[{"pill":34,"hit":44,"w":92,"n":"24"},{"pill":34,"hit":44,"w":103,"n":"91"}],"gap":"8px"}
+  PASS  AC-U15-4 3줄 좌우 여백이 모두 10px(실측) · 고정 영역 총 높이 128~136px — {"left":[10,10,10],"right":[380,380,380],"fixedHeight":135,"appbar":{"top":8,"bottom":60,"left":10,"right":380,"width":370,"height":52},"day":{"top":63,"bottom":103,"left":10,"right":380,"width":370,"height":40},"filter":{"top":106,"bottom":140,"left":10,"right":380,"width":370,"height":34}}
+  PASS  AC-U12-3 세로 중앙 정렬(탭 라벨 중심 = 탭 중심) · 요일 줄은 **컨트롤 1개**(트랙 폭 = 고정 영역 폭) — {"aligns":["center","center","center"],"track":{"top":63,"bottom":103,"left":10,"right":380,"width":370,"height":40},"fixed":{"top":8,"bottom":143,"left":10,"right":380,"width":370,"height":135}}
+  PASS  AC-U12-1(선택) 토요일 선택 → 선택 이동(굵기 600) · 오늘 점은 오늘(평일) 탭에 그대로 1개 — {"dots":1,"tabs":[{"text":"평일","sel":"false","weight":"400","dots":1},{"text":"토요일","sel":"true","weight":"600","dots":0},{"text":"일요일","sel":"false","weight":"400","dots":0}]}
+  PASS  AC-U12-4 요일·필터 변경 후 `현재 시간으로` → 다음 출발 행 y ≥ 고정 영역 하단(가려짐 0, 수치) — {"nextTop":147,"nextTime":"08:15","fixedBottom":143,"scrollMarginTop":135,"fixedHeight":135}
+  PASS  AC-U12-4/AC-U15-4 터치 타깃 — 탭 40px · 칩 알약 34px/터치 44px · 가로 ≥48px — {"tabs":[{"h":40,"w":123},{"h":40,"w":123},{"h":40,"w":123}],"chips":[{"pill":34,"hit":44,"w":93},{"pill":34,"hit":44,"w":102}]}
+  PASS  AC-U15-4 360×800 에서도 3줄 좌우 10px · 탭 등폭(≤1px) · 탭 40px · 칩 알약 34px(터치 44px) — {"left":[10,10,10],"tabWidths":[113,113,113],"tabHeights":[40,40,40],"chipPills":[34,34],"chipHits":[44,44]}
+  PASS  AC-U15-4 앱바 52px · 요일 줄 40px · 고정 영역 128~136px(실측 수치) — {"appbar":52,"dayRow":40,"filterRow":34,"fixedHeight":135}
+  PASS  AC-U15-4 칩 알약 34px(터치 44px) · 행 높이 56px(터치 최소 48px 이상) — {"chips":[{"pill":34,"hit":44},{"pill":34,"hit":44}],"rowHeight":56}
+  INFO  AC-U12 스크린샷: .session-notes/T30-1-상단3줄-390x844.png · .session-notes/T30-2-토요일선택-390x844.png · .session-notes/T30-3-학교도착-필터.png · .session-notes/T30-4-상단3줄-360x800.png
+  PASS  AC-U3 390×844(iPhone) 가로 스크롤 0(문서·본문 스크롤포트 둘 다) — scrollWidth=390 clientWidth=390 list=370/370
+  PASS  AC-U3 360×800(Android) 가로 스크롤 0(문서·본문 스크롤포트 둘 다) — scrollWidth=360 clientWidth=360 list=340/340
+  INFO  AC-U3 스크린샷: .session-notes/T27-4-본문-390x844.png · .session-notes/T27-4-본문-360x800.png
+  PASS  AC-U4 노치·홈인디케이터(47/34px)만큼 셸이 여백을 확보한다(상단 바·본문이 잘리지 않음) — {"appPaddingTop":47,"appPaddingBottom":34,"appbarTop":47,"appbarHeight":52,"scrollBottom":810,"innerHeight":844}
+  INFO  AC-U4 safe-area: CDP inset 주입 미지원(토큰 주입으로 실측)
+  PASS  AC-U5 스플래시 2.5s 상한 실측(초과 시 스켈레톤으로 진행) — t=2517ms 예약=2499.9000000953674ms reason=timeout
+  PASS  AC-U5 캐시 없는 첫 실행에서 스켈레톤 카드 3장(빈 화면·텍스트만 아님) — {"present":true,"cards":3,"bars":9,"role":"status","rows":0,"splash":false}
+  PASS  AC-U5 지연 해제 후 본문 렌더(스켈레톤→본문)
+  INFO  AC-U5 스켈레톤 스크린샷: .session-notes/T27-6-스켈레톤.png
+  PASS  AC-U6 prefers-reduced-motion: reduce 에서 전환 애니메이션 0(계산값) — {"reduced":true,"panelAnimation":"0s","splashTransition":"0s","spinnerAnimation":"none"}
+  INFO  AC-U6 대조군(일반 모드): panel animation=0.18s · splash transition=0.2s → reduce: panel=0s · splash=0s
+  PASS  AC-U6 reduced-motion 에서도 스플래시 하한(400ms)은 지킨다(즉시 페이드아웃) — t=415ms
+  PASS  AC-U10-1(보조) reduced-motion 에서 `현재 시간으로`는 즉시 이동(60ms 값 = 600ms 값) — 60ms=112 600ms=112
+  PASS  회귀: 화면 `원본` 0회 · 학교 링크 ≤1 · 원본표 0개 (T14 계약 유지) — {"innerTextSource":0,"domSource":0,"schoolLinks":1,"sourceDetails":0,"elements":773,"sheetHidden":true}
+  PASS  정보 시트(ⓘ)는 기본 숨김이다 — {"innerTextSource":0,"domSource":0,"schoolLinks":1,"sourceDetails":0,"elements":773,"sheetHidden":true}
+  PASS  정보 시트(ⓘ): 출처·데이터 갱신·요금/정차창이 본문이 아니라 시트 안에 있다(§9-5) — {"open":true,"sourceLine":true,"refreshLine":true,"stopWindow":true,"noticePanel":true,"bodyText":false}
+  PASS  회귀: 콘솔 오류 0
+  PASS  회귀: 셸이 비어 있지 않다(화면 요소 200개 초과) — elements=773
+  INFO  스플래시 스크린샷: .session-notes/T27-1-스플래시.png · .session-notes/T27-5-safe-area-390x844.png · .session-notes/T27-2-본문-390x844.png
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-1-스플래시.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-2-본문-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-3-다음출발-자동스크롤.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T28-1-이동버튼-본문-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T28-3-맨위로-클릭후.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T28-2-현재시간으로-클릭후.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T29-1-상단고정-스크롤끝.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T29-2-상단필터-편수.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T38-1-0편-얇은1줄-전환수단.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T38-2-전환후-터미널도착.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T37-1-오늘로이동합니다-토스트.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T37-2-막차이후-1줄안내.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T30-1-상단3줄-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T30-2-토요일선택-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T30-3-학교도착-필터.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T30-4-상단3줄-360x800.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-4-본문-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-4-본문-360x800.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-5-safe-area-390x844.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-6-스켈레톤.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T27-7-reduced-motion-본문.png
+
+T27·T28·T29·T30 SMOKE: PASS

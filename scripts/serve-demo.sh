@@ -14,8 +14,9 @@
 #   ① (기본) `npm run build`   — tsc --noEmit + vite build → dist/
 #   ② `data/timetable.json` → `dist/data/timetable.json` 복사(멱등 · 매번 덮어씀)
 #   ③ `python3 -m http.server <port> --directory dist` 기동(백그라운드 · 로그는 .session-notes/demo-server.log)
-#   ④ 기동 직후 자체 점검: `/` 200 · `/data/timetable.json` 200 · `/sw.js` 의 SW_VERSION 최신 여부
-#      (dist/sw.js 와 public/sw.js 의 값이 다르면 FAIL — 낡은 산출물을 서빙하고 있다는 뜻)
+#   ④ 기동 직후 자체 점검: `/` 200 · `/data/timetable.json` 200 · `/sw.js` 버전 자동 주입 여부
+#      (public/sw.js 는 자리표시자, dist/sw.js 는 빌드가 주입한 실제 버전 — 서빙본이 dist 와 다르거나
+#       dist 에 자리표시자가 남아 있으면 FAIL. T39 §16-3 로 수동 범프가 사라져 비교 기준이 바뀌었다)
 #
 # 안전 규칙
 #   · 포트가 이미 점유돼 있으면 **기존 프로세스를 죽이지 않고** 안내만 하고 끝낸다(중복 리스너 방지).
@@ -160,14 +161,18 @@ if [ "$ready" -ne 1 ]; then
 fi
 port_pids | grep -qx "$pid" || say "   주의: pid $pid 가 $PORT 리스너 목록에 없습니다(다른 프로세스가 응답 중일 수 있음)."
 
-# ── ④ 자체 점검 (AC: / 200 · /data/timetable.json 200 · sw.js SW_VERSION 최신) ────
+# ── ④ 자체 점검 (AC: / 200 · /data/timetable.json 200 · sw.js 버전 자동 주입·서빙 일치) ────
+#    T39 §16-3 — SW_VERSION 은 빌드가 주입한다. 그래서 판정 기준은
+#    ① public/sw.js = 자리표시자(주입 지점이 살아 있다) ② dist/sw.js = 주입된 실제 값 ③ 서빙본 = dist.
 sw_version_of() { sed -n "s/^const SW_VERSION = '\([^']*\)';.*/\1/p" "$1" | head -1; }
+SW_PLACEHOLDER='__SW_VERSION__'
 
 code_index=$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/")
 code_data=$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/data/timetable.json")
 sw_public="$(sw_version_of "$ROOT/public/sw.js")"
 sw_dist="$(sw_version_of "$ROOT/dist/sw.js")"
 sw_served="$(curl -sS "http://127.0.0.1:$PORT/sw.js" | sed -n "s/^const SW_VERSION = '\([^']*\)';.*/\1/p" | head -1)"
+head_sha="$(git -C "$ROOT" rev-parse --short=7 HEAD 2>/dev/null || echo nogit)"
 hash_src="$(shasum -a 256 "$ROOT/data/timetable.json" | cut -d' ' -f1)"
 hash_dist="$(shasum -a 256 "$ROOT/dist/data/timetable.json" | cut -d' ' -f1)"
 
@@ -178,10 +183,19 @@ report() { # $1=항목 $2=실측 $3=기대 $4=판정대상(0=정상)
 }
 [ "$code_index" = "200" ] || fail=1; report "/ HTTP 코드" "$code_index" "200" "$([ "$code_index" = "200" ] && echo 0 || echo 1)"
 [ "$code_data" = "200" ]  || fail=1; report "/data/timetable.json HTTP 코드" "$code_data" "200" "$([ "$code_data" = "200" ] && echo 0 || echo 1)"
-sw_ok=1
-[ -n "$sw_public" ] && [ "$sw_public" = "$sw_dist" ] && [ "$sw_public" = "$sw_served" ] && sw_ok=0
-[ "$sw_ok" -eq 0 ] || fail=1
-report "/sw.js SW_VERSION" "$sw_served (public=$sw_public · dist=$sw_dist)" "public 과 동일" "$sw_ok"
+sw_injected=0
+[ -n "$sw_dist" ] && [ "$sw_dist" != "$SW_PLACEHOLDER" ] || sw_injected=1
+[ "$sw_injected" -eq 0 ] || fail=1
+report "dist/sw.js SW_VERSION(빌드가 자동 주입)" "$sw_dist" "자리표시자 아님(주입됨)" "$sw_injected"
+sw_served_ok=0
+[ -n "$sw_dist" ] && [ "$sw_dist" = "$sw_served" ] || sw_served_ok=1
+[ "$sw_served_ok" -eq 0 ] || fail=1
+report "/sw.js 서빙본(서버가 내려준 값)" "$sw_served" "dist 와 동일" "$sw_served_ok"
+sw_point_ok=0
+[ "$sw_public" = "$SW_PLACEHOLDER" ] || sw_point_ok=1
+[ "$sw_point_ok" -eq 0 ] || fail=1
+report "public/sw.js 주입 지점(자리표시자)" "$sw_public" "$SW_PLACEHOLDER" "$sw_point_ok"
+say "   INFO  dist 버전의 빌드 커밋=${sw_dist##*-} · 현재 HEAD=$head_sha (다르면 dist 는 옛 커밋 빌드 — 판정에는 쓰지 않음)"
 [ "$hash_src" = "$hash_dist" ] || fail=1
 report "동봉 데이터 sha256 원본=서빙본" "일치" "일치" "$([ "$hash_src" = "$hash_dist" ] && echo 0 || echo 1)"
 

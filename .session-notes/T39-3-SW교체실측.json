@@ -1,0 +1,24 @@
+{
+  "old_version": "2026-10-05.1",
+  "new_version": "20261012-110529-056-03a10a5",
+  "caches_before_deploy": [
+    "sunmoon-shuttle-data-2026-10-05.1",
+    "sunmoon-shuttle-shell-2026-10-05.1"
+  ],
+  "caches_after_deploy_load1": [
+    "sunmoon-shuttle-shell-20261012-110529-056-03a10a5"
+  ],
+  "caches_after_deploy_load2": [
+    "sunmoon-shuttle-data-20261012-110529-056-03a10a5",
+    "sunmoon-shuttle-shell-20261012-110529-056-03a10a5"
+  ],
+  "shell_marker": {
+    "before": "old",
+    "load1": "old",
+    "load2": "new"
+  },
+  "controller": {
+    "before": "http://127.0.0.1:54848/sw.js",
+    "load2": "http://127.0.0.1:54848/sw.js"
+  }
+}

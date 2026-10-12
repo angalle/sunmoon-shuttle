@@ -1,0 +1,7 @@
+npm run build  #1 : SW_VERSION = '20261012-110418-582-03a10a5'
+npm run build  #2 : SW_VERSION = '20261012-110418-952-03a10a5'
+vite build (고속 연속) #1 : SW_VERSION = '20261012-110419-094-03a10a5'
+vite build (고속 연속) #2 : SW_VERSION = '20261012-110419-234-03a10a5'
+vite build (고속 연속) #3 : SW_VERSION = '20261012-110419-372-03a10a5'
+
+placeholder 잔존(0 이어야 함): 0

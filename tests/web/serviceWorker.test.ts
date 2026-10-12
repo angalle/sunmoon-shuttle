@@ -3,7 +3,7 @@
  *
  * SW 는 브라우저에서만 돌아 실행 단위 테스트가 어렵다(그 부분은 `scripts/offline_smoke.mjs` 가 헤드리스로 실제 검증한다).
  * 여기서는 **정적으로 확인 가능한 계약**을 고정한다:
- *  ① 파일이 파싱되는 유효한 JS 이고 버전 상수를 갖는다(버전 무효화의 전제)
+ *  ① 파일이 파싱되는 유효한 JS 이고 **버전 자리표시자**를 갖는다(빌드가 실제 값으로 치환 — 버전 무효화의 전제)
  *  ② 미리 담는 셸 자산이 **실제로 존재**한다(없는 자산을 캐시하면 설치가 깨진다)
  *  ③ 앱 셸 SWR · data 캐시 우선 · activate 에서 이전 버전 캐시 삭제 · skipWaiting/claim
  *  ④ 교차 출처(학교 원본 서버)로 요청하지 않는다 — robots.txt `/Page` 차단 준수(자동 크롤 금지)
@@ -34,10 +34,22 @@ describe('public/sw.js — 정적 계약', () => {
     expect(() => new Function(SW_SOURCE)).not.toThrow();
   });
 
-  it('버전 상수(SW_VERSION)를 갖는다 — 배포 시 이 값을 올려 자산을 무효화한다', () => {
+  it('버전 상수는 **빌드가 치환하는 자리표시자**다 — 손으로 올리는 상수 금지(docs/07 §16-3)', () => {
     const version = /const SW_VERSION = '([^']+)'/.exec(SW_SOURCE)?.[1] ?? '';
+    expect(version).toBe('__SW_VERSION__');
+    // 치환 지점은 정확히 1개 — vite 플러그인이 이 계약을 강제한다(0개/2개면 빌드 실패)
+    expect(SW_SOURCE.split('__SW_VERSION__').length - 1).toBe(1);
+    // 주입 주체(빌드 설정)가 저장소에 있어야 한다 — 없으면 값이 영원히 자리표시자로 배포된다
+    expect(readFileSync(join(ROOT, 'vite.config.ts'), 'utf8')).toContain('__SW_VERSION__');
+  });
+
+  it('빌드 산출물(dist/sw.js)에는 실제 버전이 주입돼 있다(빌드 전이면 건너뛴다)', () => {
+    const distPath = join(ROOT, 'dist', 'sw.js');
+    if (!existsSync(distPath)) return;
+    const version = /const SW_VERSION = '([^']+)'/.exec(readFileSync(distPath, 'utf8'))?.[1] ?? '';
     expect(version).not.toBe('');
-    expect(version).toMatch(/^\d{4}-\d{2}-\d{2}(\.\d+)?$/);
+    expect(version).not.toBe('__SW_VERSION__');
+    expect(version).toMatch(/^\d{8}-\d{6}-\d{3}(-[0-9a-f]{7,40}|-nogit)$/);
   });
 
   it('앱 셸은 stale-while-revalidate, data/timetable.json 은 캐시 우선이다', () => {

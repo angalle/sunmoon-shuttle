@@ -6,7 +6,7 @@
  * 2. **data/timetable.json** = **캐시 우선** + 백그라운드 재검증(SWR). 캐시에 있으면 네트워크를 기다리지 않고 즉시 응답하고,
  *    성공한 응답으로 캐시를 갱신한다. `contentHash`/`fetchedAt` 비교와 24h 만료 판정은 **앱(IndexedDB) 계층**이 한다
  *    (`src/application/cache/timetableCachePolicy.ts`) — 여기서는 바이트만 보관한다.
- * 3. **버전 상수로 자산 무효화**: `SW_VERSION` 을 올리면 activate 에서 이전 버전 캐시를 전부 삭제한다.
+ * 3. **버전 상수로 자산 무효화**: `SW_VERSION`(빌드가 자동 주입)이 바뀌면 activate 에서 이전 버전 캐시를 전부 삭제한다.
  *    배포 직후 이전 버전이 계속 보이는 문제(Pages CDN 캐시 최대 10분)를 막기 위해 `skipWaiting`+`clients.claim` 을 쓴다.
  * 4. **오프라인에서 실패하지 않는다**: 네트워크가 죽어도 캐시를 유지하고 그대로 응답한다(실패해도 캐시 유지 — docs/01 §5).
  * 5. **하위 경로 배포**: 모든 경로는 `self.registration.scope` 기준 상대경로다(`vite.config.ts` 의 `base: './'`).
@@ -14,10 +14,12 @@
  * 6. **원본 학교 서버로 요청하지 않는다**(robots.txt `/Page` 차단 · 결정 D5/D7): 이 SW 는 **같은 출처의 앱 자산만** 다룬다.
  *    교차 출처 요청은 손대지 않는다(자동 크롤 금지).
  *
- * 배포 시 할 일: `SW_VERSION` 을 새 값으로 올린다(예: `2026-10-05.2`). 그 외에는 손댈 필요가 없다.
+ * 배포 시 할 일: **없다** — `SW_VERSION` 은 `vite.config.ts` 가 빌드 시 자동 주입한다(docs/07 §16-3).
+ *   아래 상수는 빌드가 치환하는 자리표시자다 — 사람이 손으로 고치면 빌드가 실패한다.
  */
 
-const SW_VERSION = '2026-10-09.1';
+/** 빌드 시 `vite.config.ts` 가 `YYYYMMDD-HHmmss-mmm-<git short SHA>` 로 치환한다(수동 범프 폐기 · docs/07 §16-3). */
+const SW_VERSION = '__SW_VERSION__';
 const CACHE_PREFIX = 'sunmoon-shuttle';
 const SHELL_CACHE = `${CACHE_PREFIX}-shell-${SW_VERSION}`;
 const DATA_CACHE = `${CACHE_PREFIX}-data-${SW_VERSION}`;

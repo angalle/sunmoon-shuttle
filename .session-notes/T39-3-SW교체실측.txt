@@ -1,0 +1,27 @@
+
+검사 결과:
+  INFO  옛 배포(시뮬레이션) SW_VERSION=2026-10-05.1 · 새 배포(dist 그대로) SW_VERSION=20261012-110529-056-03a10a5
+  PASS  옛 배포: 1차 로드 완료(앱 렌더)
+  PASS  옛 배포: SW 등록
+  PASS  옛 배포: SW 제어(claim) — 다음 로드부터 캐시가 응답
+  PASS  옛 배포: 2차 로드(SW 제어 하) 완료
+  INFO  배포 전 상태: {"shell":"old","cacheKeys":["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"],"controller":"http://127.0.0.1:54526/sw.js","swState":"activated","waiting":null,"bodyLen":3577}
+  PASS  배포 전: 옛 버전 캐시 키가 실제로 생겼다(교체 실측의 출발점) — ["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"]
+  INFO  ② 새 배포로 서빙 디렉터리 교체(URL·서버 그대로) — 새 배포 SW_VERSION=20261012-110529-056-03a10a5
+  PASS  배포 후 1차 로드 완료
+  INFO  배포 후 1차 로드: {"shell":"old","cacheKeys":["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"],"controller":"http://127.0.0.1:54526/sw.js","swState":"activated","waiting":null,"bodyLen":3577}
+  INFO  배포 후 1차 로드(캐시 교체 대기 후): {"shell":"old","cacheKeys":["sunmoon-shuttle-shell-20261012-110529-056-03a10a5"],"controller":"http://127.0.0.1:54526/sw.js","swState":"activated","waiting":null,"bodyLen":3557}
+  PASS  AC-U16-4b(캐시): 새 SW 활성 후 **옛 버전 캐시 키 삭제** — caches.keys() 에 옛 키 0개 — 배포 전=["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"] → 배포 후=["sunmoon-shuttle-shell-20261012-110529-056-03a10a5"]
+  PASS  배포 후 2차 로드 완료
+  INFO  배포 후 2차 로드: {"shell":"new","cacheKeys":["sunmoon-shuttle-data-20261012-110529-056-03a10a5","sunmoon-shuttle-shell-20261012-110529-056-03a10a5"],"controller":"http://127.0.0.1:54526/sw.js","swState":"activated","waiting":null,"bodyLen":3577}
+  PASS  AC-U16-4b(셸): **로드 2회 안에 새 셸**로 교체(marker=new) — 1차=old · 2차=new
+  PASS  AC-U16-4b(정리): 최종 캐시 키에 옛 버전 0개 · 새 버전만 남음 — ["sunmoon-shuttle-data-20261012-110529-056-03a10a5","sunmoon-shuttle-shell-20261012-110529-056-03a10a5"]
+  PASS  앱 콘솔 오류 0(교체 과정 포함)
+
+스크린샷:
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T39-2-SW교체전-옛셸.png
+  /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T39-3-SW교체후-새셸.png
+
+요약: {"old_version":"2026-10-05.1","new_version":"20261012-110529-056-03a10a5","caches_before_deploy":["sunmoon-shuttle-data-2026-10-05.1","sunmoon-shuttle-shell-2026-10-05.1"],"caches_after_deploy_load1":["sunmoon-shuttle-shell-20261012-110529-056-03a10a5"],"caches_after_deploy_load2":["sunmoon-shuttle-data-20261012-110529-056-03a10a5","sunmoon-shuttle-shell-20261012-110529-056-03a10a5"],"shell_marker":{"before":"old","load1":"old","load2":"new"},"controller":{"before":"http://127.0.0.1:54526/sw.js","load2":"http://127.0.0.1:54526/sw.js"}}
+
+T39 SW CACHE SWAP: PASS
