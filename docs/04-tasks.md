@@ -111,7 +111,7 @@
 | **T37 칩 정리 + 오늘로 이동 + 여백 축소** — `전체` 칩 제거(2개 토글)·`현재 시간으로` 즉시 이동(`오늘로 이동합니다` 1.5초)·고정 158→~132px·행 56px | `t_7cdc50f1` | frontendprojectcreator | **완료(done)** — 칩 2개·`전체` 0건·`오늘로 이동합니다` 1630ms·고정 158→135px·행 56px·611 tests |
 
 | **T38 방향 택1 세그먼트** — "전체" 상태 제거(항상 1개 선택·기본 터미널 도착), 목록 섞임 0건 | `t_bb2ad14a` | frontendprojectcreator | **완료(done)** — 기본 터미널 도착 1개 선택·`전체` 0건·섞임 0(91/0·24/0)·621 tests |
-| **T39 SW_VERSION 자동 주입** — 배포마다 캐시 자동 무효화(수동 범프 폐기) | `t_20a3e887` | frontendprojectcreator | **발행(todo·T38 부모 게이트)** — 계약 `docs/07 §16-3`, AC-U16-4 |
+| **T39 SW_VERSION 자동 주입** — 배포마다 캐시 자동 무효화(수동 범프 폐기) | `t_20a3e887` | frontendprojectcreator | **완료(done)** — 빌드 2회 버전 상이(자동 주입)·자리표시자 잔존 0·622 tests·offline PASS |
 | **T40 Android 자산 재동기화(2차)** — T37~T39 반영 + AAB 재빌드·에뮬 실측 | `t_0d861f53` | infraprojectcreator | **발행(todo·T39 부모 게이트)** — AC-U16-6 |
 
 ## 상태
