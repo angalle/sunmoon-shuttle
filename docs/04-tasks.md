@@ -112,7 +112,7 @@
 
 | **T38 방향 택1 세그먼트** — "전체" 상태 제거(항상 1개 선택·기본 터미널 도착), 목록 섞임 0건 | `t_bb2ad14a` | frontendprojectcreator | **완료(done)** — 기본 터미널 도착 1개 선택·`전체` 0건·섞임 0(91/0·24/0)·621 tests |
 | **T39 SW_VERSION 자동 주입** — 배포마다 캐시 자동 무효화(수동 범프 폐기) | `t_20a3e887` | frontendprojectcreator | **완료(done)** — 빌드 2회 버전 상이(자동 주입)·자리표시자 잔존 0·622 tests·offline PASS |
-| **T40 Android 자산 재동기화(2차)** — T37~T39 반영 + AAB 재빌드·에뮬 실측 | `t_0d861f53` | infraprojectcreator | **발행(todo·T39 부모 게이트)** — AC-U16-6 |
+| **T40 Android 자산 재동기화(2차)** — T37~T39 반영 + AAB 재빌드·에뮬 실측 | `t_0d861f53` | infraprojectcreator | **완료(done)** — 자산·AAB·APK 금지어 0건·SW_VERSION dist 일치·jarsigner verified·에뮬 전후 컷 |
 
 ## 상태
 - 현재: **T0~T11 완료 + T12(간편 UI) 발행** (2026-10-05) — P3 게이트 AC-1~AC-6·AC-8 통과·AC-7 조건부(iOS 실기기=사람 게이트). T12 는 사용자 지시(원본 미러링 탈피·실시간 바인딩)로 발행.
