@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>시안 C — Tinted Focus (선문대 셔틀)</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --brand:#00347F; --brand-mid:#2E5F9E; --tint:#EDF3FB; --track:#F1F4F9;
+    --bg:#F6F8FB; --surface:#FFFFFF; --line:#E8ECF2; --line-soft:#F0F3F7;
+    --text:#17202A; --muted:#5B6672; --dim:#7C8794;
+  }
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+  .phone{max-width:390px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden}
+  .fixed{flex:0 0 auto;padding:8px 10px 4px;background:var(--bg);z-index:2}
+  .appbar{display:flex;align-items:center;justify-content:space-between;height:46px}
+  .clock{display:flex;align-items:baseline;gap:7px;font-size:14px;color:var(--muted)}
+  .clock b{font-size:17px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .icon{width:44px;height:44px;border:0;background:transparent;color:var(--dim);font-size:17px;border-radius:999px}
+  .icon:hover{background:#E9EEF5}
+  /* 요일: 트랙 위 흰 알약 */
+  .daytabs{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--track);border-radius:12px;padding:3px;margin-top:4px}
+  .daytabs button{height:32px;border:0;background:transparent;border-radius:9px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer;position:relative}
+  .daytabs button[aria-selected="true"]{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 1px 2px rgba(15,23,32,.06)}
+  .today{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--brand-mid);margin-left:5px;vertical-align:2px}
+  /* 방향: 같은 트랙, 알약 폭은 내용에 맞춤 */
+  .chipTrack{display:inline-flex;gap:2px;background:var(--track);border-radius:999px;padding:3px;margin-top:8px}
+  .chip{height:28px;padding:0 12px;border:0;background:transparent;border-radius:999px;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:5px;position:relative}
+  .chip::after{content:"";position:absolute;inset:-8px -2px;border-radius:999px}
+  .chip span{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .chip[aria-pressed="true"]{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 1px 2px rgba(15,23,32,.07)}
+  .chip[aria-pressed="true"] span{color:var(--brand);opacity:.65}
+  .scroll{flex:1 1 auto;overflow-y:auto;padding:2px 10px 96px;scroll-behavior:smooth}
+  .group{margin-top:10px}
+  .route{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.03em;padding:0 4px 5px}
+  .route::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--brand-mid);opacity:.5}
+  .route small{margin-left:auto;font-weight:400;letter-spacing:0}
+  .rows{list-style:none;background:var(--surface);border-radius:14px;padding:2px 0;box-shadow:inset 0 0 0 1px var(--line)}
+  .row{display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 12px;border-radius:12px}
+  .row + .row{box-shadow:inset 0 1px 0 var(--line-soft)}
+  .t{width:52px;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .d{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .d b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .d small{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .row.is-now{background:var(--tint);box-shadow:inset 0 0 0 1px rgba(0,52,127,.10)}
+  .row.is-now + .row{box-shadow:none}
+  .row.is-now .t{color:var(--brand);font-weight:700}
+  .row.is-now::before{content:"";width:3px;height:24px;border-radius:3px;background:var(--brand);margin-left:-7px}
+  .next{height:20px;padding:0 8px;border-radius:999px;background:#fff;color:var(--brand);font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;box-shadow:inset 0 0 0 1px rgba(0,52,127,.18)}
+  .past{opacity:.5}
+  .fab{position:absolute;right:14px;bottom:18px;display:flex;flex-direction:column;gap:8px}
+  .fab button{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.96);box-shadow:0 1px 3px rgba(15,23,32,.10),inset 0 0 0 1px var(--line);color:var(--brand);font-size:16px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="fixed">
+    <div class="appbar">
+      <div class="clock">10월 12일 (일)<b>14:23</b></div>
+      <button class="icon" aria-label="이용 안내">ⓘ</button>
+    </div>
+    <div class="daytabs" role="tablist" aria-label="요일 선택">
+      <button role="tab" aria-selected="true">평일<span class="today" aria-label="오늘"></span></button>
+      <button role="tab" aria-selected="false">토요일</button>
+      <button role="tab" aria-selected="false">일요일</button>
+    </div>
+    <div class="chipTrack">
+      <button class="chip" aria-pressed="false" data-dir="in">학교 도착 <span>24</span></button>
+      <button class="chip" aria-pressed="true" data-dir="out">터미널 도착 <span>91</span></button>
+    </div>
+  </div>
+  <main class="scroll" id="list" aria-live="polite"></main>
+  <div class="fab">
+    <button title="현재 시간으로" aria-label="현재 시간으로">◷</button>
+    <button title="맨 위로" aria-label="맨 위로">↑</button>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  out: [
+    { route:'천안터미널', rows:[
+      {t:'07:30', meta:'08:10 도착 · 약 40분', past:true},
+      {t:'08:10', meta:'08:50 도착 · 약 40분', past:true},
+      {t:'12:15', meta:'12:55 도착 · 약 40분'},
+      {t:'16:00', meta:'16:40 도착 · 약 40분'},
+      {t:'18:00', meta:'18:40 도착 · 약 40분'},
+    ]},
+    { route:'천안역', rows:[
+      {t:'07:40', meta:'08:15 도착 · 약 35분', past:true},
+      {t:'12:00', meta:'12:30 도착 · 약 30분'},
+      {t:'16:00', meta:'16:30 도착 · 약 30분'},
+      {t:'18:10', meta:'18:40 도착 · 약 30분'},
+    ]},
+    { route:'아산(KTX)역', rows:[
+      {t:'08:05', meta:'08:40 도착 · 약 35분', now:true},
+      {t:'12:00', meta:'12:20 도착 · 약 20분'},
+      {t:'16:10', meta:'16:30 도착 · 약 20분'},
+      {t:'19:45', meta:'20:20 도착 · 약 35분'},
+    ]},
+    { route:'온양역/터미널', rows:[
+      {t:'17:30', meta:'18:25 도착 · 약 55분'},
+      {t:'18:30', meta:'19:25 도착 · 약 55분'},
+    ]},
+  ],
+  in: [
+    { route:'아산(KTX)역', rows:[
+      {t:'08:35', meta:'08:50 도착 · 약 15분'},
+      {t:'09:00', meta:'09:15 도착 · 약 15분'},
+      {t:'12:00', meta:'12:20 도착 · 약 20분'},
+      {t:'18:20', meta:'18:40 도착 · 약 20분'},
+    ]},
+    { route:'천안터미널', rows:[
+      {t:'08:15', meta:'08:55 도착 · 약 40분'},
+      {t:'08:25', meta:'09:05 도착 · 약 40분'},
+      {t:'17:30', meta:'18:25 도착 · 약 55분'},
+    ]},
+    { route:'천안역', rows:[
+      {t:'08:30', meta:'09:00 도착 · 약 30분'},
+      {t:'12:30', meta:'13:00 도착 · 약 30분'},
+    ]},
+  ],
+};
+function render(dir){
+  const host=document.getElementById('list');
+  host.innerHTML = DATA[dir].map(g=>`
+    <section class="group">
+      <h2 class="route">${g.route}<small>${g.rows.length}편</small></h2>
+      <ul class="rows">
+        ${g.rows.map(r=>`
+          <li class="row ${r.now?'is-now':''} ${r.past?'past':''}">
+            <span class="t">${r.t}</span>
+            <div class="d"><b>${g.route}</b><small>${r.meta}</small></div>
+            ${r.now?'<em class="next">다음</em>':''}
+          </li>`).join('')}
+      </ul>
+    </section>`).join('');
+  const now=host.querySelector('.is-now');
+  if(now) requestAnimationFrame(()=>now.scrollIntoView({block:'center'}));
+}
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed','false'));
+  c.setAttribute('aria-pressed','true'); render(c.dataset.dir);
+}));
+document.querySelectorAll('.daytabs button').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.daytabs button').forEach(x=>x.setAttribute('aria-selected','false'));
+  t.setAttribute('aria-selected','true');
+}));
+render('out');
+</script>
+</body>
+</html>

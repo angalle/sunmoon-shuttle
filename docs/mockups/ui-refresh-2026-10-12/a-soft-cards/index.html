@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>시안 A — Soft Cards (선문대 셔틀)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --brand:#00347F; --brand-soft:#E9EFF8; --brand-tint:#EDF3FB;
+    --bg:#F7F8FA; --surface:#FFFFFF; --line:#E7EAF0; --line-soft:#EFF2F6;
+    --text:#17202A; --muted:#5B6672; --dim:#77828F;
+    --r-group:14px; --r-pill:999px;
+  }
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  .phone{max-width:390px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden}
+  /* 고정 영역 */
+  .fixed{flex:0 0 auto;background:var(--bg);padding:8px 10px 2px;z-index:2}
+  .appbar{display:flex;align-items:center;justify-content:space-between;height:48px}
+  .clock{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .clock b{color:var(--brand);font-variant-numeric:tabular-nums;margin-left:6px}
+  .icon{width:44px;height:44px;border:0;background:transparent;color:var(--muted);font-size:17px;border-radius:var(--r-pill)}
+  .icon:hover{background:#EEF1F5}
+  .daytabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;height:40px;margin-top:3px}
+  .daytabs button{border:0;background:transparent;border-radius:10px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer;position:relative}
+  .daytabs button[aria-selected="true"]{background:var(--surface);color:var(--brand);font-weight:600;box-shadow:0 0 0 1px var(--line)}
+  .today{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--brand);margin-left:5px;vertical-align:2px}
+  .chips{display:flex;gap:8px;margin-top:6px;padding-bottom:2px}
+  .chip{
+    height:34px;padding:0 14px;border-radius:var(--r-pill);border:0;
+    background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);
+    font:inherit;font-size:13px;color:var(--muted);cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;position:relative;
+  }
+  .chip::after{content:"";position:absolute;inset:-5px 0;border-radius:var(--r-pill)} /* 터치 44px */
+  .chip span{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .chip[aria-pressed="true"]{background:var(--brand-soft);color:var(--brand);font-weight:600;box-shadow:none}
+  .chip[aria-pressed="true"] span{color:var(--brand);opacity:.75}
+  /* 목록 */
+  .scroll{flex:1 1 auto;overflow-y:auto;padding:6px 10px 96px;scroll-behavior:smooth}
+  .group{background:var(--surface);border-radius:var(--r-group);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:8px;overflow:hidden}
+  .route{display:flex;align-items:baseline;justify-content:space-between;padding:9px 12px 7px;font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.02em}
+  .route small{font-weight:400;color:var(--dim)}
+  .rows{list-style:none}
+  .row{display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 12px}
+  .row + .row{box-shadow:inset 0 1px 0 var(--line-soft)}
+  .t{width:52px;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .d{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .d b{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .d small{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .next{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:var(--r-pill);background:var(--brand);color:#fff;font-size:11px;font-weight:600}
+  .row.is-now{background:var(--brand-tint);position:relative}
+  .row.is-now::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand);border-radius:0 3px 3px 0}
+  .past{opacity:.45}
+  /* 플로팅 */
+  .fab{position:absolute;right:14px;bottom:18px;display:flex;flex-direction:column;gap:8px}
+  .fab button{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.94);box-shadow:0 1px 3px rgba(15,23,32,.12),inset 0 0 0 1px var(--line);color:var(--brand);font-size:16px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="fixed">
+    <div class="appbar">
+      <div class="clock">10월 12일 (일)<b>14:23</b></div>
+      <button class="icon" aria-label="이용 안내">ⓘ</button>
+    </div>
+    <div class="daytabs" role="tablist" aria-label="요일 선택">
+      <button role="tab" aria-selected="true">평일<span class="today" aria-label="오늘"></span></button>
+      <button role="tab" aria-selected="false">토요일</button>
+      <button role="tab" aria-selected="false">일요일</button>
+    </div>
+    <div class="chips">
+      <button class="chip" aria-pressed="false" data-dir="in">학교 도착 <span>24</span></button>
+      <button class="chip" aria-pressed="true" data-dir="out">터미널 도착 <span>91</span></button>
+    </div>
+  </div>
+
+  <main class="scroll" id="list" aria-live="polite"></main>
+
+  <div class="fab">
+    <button title="현재 시간으로" aria-label="현재 시간으로">◷</button>
+    <button title="맨 위로" aria-label="맨 위로">↑</button>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  out: [
+    { route:'천안터미널', rows:[
+      {t:'07:30', meta:'08:10 도착 · 약 40분', past:true},
+      {t:'08:10', meta:'08:50 도착 · 약 40분', past:true},
+      {t:'12:15', meta:'12:55 도착 · 약 40분'},
+      {t:'16:00', meta:'16:40 도착 · 약 40분'},
+      {t:'18:00', meta:'18:40 도착 · 약 40분'},
+      {t:'19:30', meta:'20:10 도착 · 약 40분'},
+    ]},
+    { route:'천안역', rows:[
+      {t:'07:40', meta:'08:15 도착 · 약 35분', past:true},
+      {t:'12:00', meta:'12:30 도착 · 약 30분'},
+      {t:'16:00', meta:'16:30 도착 · 약 30분'},
+      {t:'18:10', meta:'18:40 도착 · 약 30분'},
+    ]},
+    { route:'아산(KTX)역', rows:[
+      {t:'08:05', meta:'08:40 도착 · 약 35분', now:true},
+      {t:'12:00', meta:'12:20 도착 · 약 20분'},
+      {t:'16:10', meta:'16:30 도착 · 약 20분'},
+      {t:'19:45', meta:'20:20 도착 · 약 35분'},
+    ]},
+    { route:'온양역/터미널', rows:[
+      {t:'17:30', meta:'18:25 도착 · 약 55분'},
+      {t:'18:30', meta:'19:25 도착 · 약 55분'},
+    ]},
+  ],
+  in: [
+    { route:'아산(KTX)역', rows:[
+      {t:'08:35', meta:'08:50 도착 · 약 15분'},
+      {t:'09:00', meta:'09:15 도착 · 약 15분'},
+      {t:'12:00', meta:'12:20 도착 · 약 20분'},
+      {t:'18:20', meta:'18:40 도착 · 약 20분'},
+    ]},
+    { route:'천안터미널', rows:[
+      {t:'08:15', meta:'08:55 도착 · 약 40분'},
+      {t:'08:25', meta:'09:05 도착 · 약 40분'},
+      {t:'17:30', meta:'18:25 도착 · 약 55분'},
+    ]},
+    { route:'천안역', rows:[
+      {t:'08:30', meta:'09:00 도착 · 약 30분'},
+      {t:'12:30', meta:'13:00 도착 · 약 30분'},
+    ]},
+  ],
+};
+
+function render(dir){
+  const host = document.getElementById('list');
+  host.innerHTML = DATA[dir].map(g => `
+    <section class="group">
+      <h2 class="route">${g.route}<small>${g.rows.length}편</small></h2>
+      <ul class="rows">
+        ${g.rows.map(r => `
+          <li class="row ${r.now?'is-now':''} ${r.past?'past':''}">
+            <span class="t">${r.t}</span>
+            <div class="d"><b>${g.route}</b><small>${r.meta}</small></div>
+            ${r.now?'<em class="next">다음</em>':''}
+          </li>`).join('')}
+      </ul>
+    </section>`).join('');
+  const now = host.querySelector('.is-now');
+  if (now) requestAnimationFrame(() => now.scrollIntoView({block:'center'}));
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed','false'));
+    chip.setAttribute('aria-pressed','true');
+    render(chip.dataset.dir);
+  });
+});
+document.querySelectorAll('.daytabs button').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.daytabs button').forEach(t => t.setAttribute('aria-selected','false'));
+    tab.setAttribute('aria-selected','true');
+  });
+});
+render('out');
+</script>
+</body>
+</html>
