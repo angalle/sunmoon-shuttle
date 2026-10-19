@@ -1,13 +1,13 @@
 # T7·T11 감사 원출력 (a11y_smoke.mjs)
 
-- 일시: 2026-10-12T00:10:55.068Z
-- URL: http://127.0.0.1:51201/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
+- 일시: 2026-10-12T02:08:50.112Z
+- URL: http://127.0.0.1:54623/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
 - 뷰포트: 390×844 @2x (mobile, touch)
 - 스크린샷: .session-notes/T7-light.png · .session-notes/T7-dark.png · .session-notes/T7-focus-skip-link.png · .session-notes/T11-privacy.png
 
 ### ① 매니페스트 (Page.getAppManifest)
 
-- url: http://127.0.0.1:51201/sunmoon-shuttle/manifest.webmanifest
+- url: http://127.0.0.1:54623/sunmoon-shuttle/manifest.webmanifest
 - errors: []
 - name: 선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus
 - short_name: 셔틀버스 Shuttle
@@ -38,8 +38,8 @@
 | span.shuttle-tab__label | 일요일 | rgb(15, 23, 32) | rgb(246, 248, 251) | 13px | 16.96:1 | ≥4.5 |
 | span.shuttle-chip__label | 학교 도착 | rgb(95, 113, 131) | rgb(255, 255, 255) | 13px | 5.03:1 | ≥4.5 |
 | span.shuttle-chip__count | 0 | rgb(95, 113, 131) | rgb(255, 255, 255) | 11px | 5.03:1 | ≥4.5 |
-| span.shuttle-chip__label | 터미널 도착 | rgb(15, 23, 32) | rgb(255, 255, 255) | 13px | 18.05:1 | ≥4.5 |
-| span.shuttle-chip__count | 16 | rgb(90, 107, 124) | rgb(255, 255, 255) | 11px | 5.48:1 | ≥4.5 |
+| span.shuttle-chip__label | 터미널 도착 | rgb(255, 255, 255) | rgb(11, 84, 151) | 13px bold | 7.69:1 | ≥4.5 |
+| span.shuttle-chip__count | 16 | rgb(255, 255, 255) | rgb(11, 84, 151) | 11px bold | 7.69:1 | ≥4.5 |
 | p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일  | rgb(27, 58, 107) | rgb(231, 238, 251) | 14px | 9.67:1 | ≥4.5 |
 | span.shuttle-departure__time | 09:00 | rgb(90, 107, 124) | rgb(255, 255, 255) | 15px | 5.48:1 | ≥4.5 |
 | span.shuttle-departure__route | 아산(KTX)역 | rgb(90, 107, 124) | rgb(255, 255, 255) | 16px bold | 5.48:1 | ≥4.5 |
@@ -106,7 +106,7 @@
 | button.shuttle-tab | 토요일 | 123px | 40px | 48×40 |
 | button.shuttle-tab | 일요일 | 123px | 40px | 48×40 |
 | button.shuttle-chip.shuttle-chip--empty | 학교 도착 0 | 86px | 44px | 48×44 |
-| button.shuttle-chip | 터미널 도착 16 | 102px | 44px | 48×44 |
+| button.shuttle-chip | 터미널 도착 16 | 103px | 44px | 48×44 |
 | section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00아산(KTX)역학교에서 출발 · 09 | 370px | 1024px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
 | button.shuttle-button.shuttle-button--secondary | 닫기 | 62px | 48px | 48×48 |
@@ -145,7 +145,7 @@
 | span.shuttle-chip__label | 학교 도착 | 23,113 | 49×20 | 13 | 값·상태·라벨 |
 | span.shuttle-chip__count | 0 | 76,114 | 7×17 | 11 | 값·상태·라벨 |
 | span.shuttle-chip__label | 터미널 도착 | 117,113 | 60×20 | 13 | 값·상태·라벨 |
-| span.shuttle-chip__count | 16 | 180,114 | 12×17 | 11 | 값·상태·라벨 |
+| span.shuttle-chip__count | 16 | 180,114 | 13×17 | 11 | 값·상태·라벨 |
 | p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일 시간표로 운행 | 25,151 | 343×43 | 14 | §9-4 예외(상태 1줄) |
 | span.shuttle-departure__time | 09:00 | 22,54 | 56×20 | 15 | 값·상태·라벨 |
 | span.shuttle-departure__route | 아산(KTX)역 | 86,43 | 223×21 | 16 | 값·상태·라벨 |
@@ -210,8 +210,8 @@
 | span.shuttle-tab__label | 일요일 | rgb(238, 242, 246) | rgb(34, 42, 51) | 13px | 12.9:1 | ≥4.5 |
 | span.shuttle-chip__label | 학교 도착 | rgb(154, 166, 178) | rgb(27, 33, 41) | 13px | 6.54:1 | ≥4.5 |
 | span.shuttle-chip__count | 0 | rgb(154, 166, 178) | rgb(27, 33, 41) | 11px | 6.54:1 | ≥4.5 |
-| span.shuttle-chip__label | 터미널 도착 | rgb(238, 242, 246) | rgb(27, 33, 41) | 13px | 14.4:1 | ≥4.5 |
-| span.shuttle-chip__count | 16 | rgb(185, 195, 206) | rgb(27, 33, 41) | 11px | 9.07:1 | ≥4.5 |
+| span.shuttle-chip__label | 터미널 도착 | rgb(16, 22, 29) | rgb(124, 182, 240) | 13px bold | 8.49:1 | ≥4.5 |
+| span.shuttle-chip__count | 16 | rgb(16, 22, 29) | rgb(124, 182, 240) | 11px bold | 8.49:1 | ≥4.5 |
 | p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일  | rgb(189, 211, 245) | rgb(27, 39, 64) | 14px | 9.78:1 | ≥4.5 |
 | span.shuttle-departure__time | 09:00 | rgb(185, 195, 206) | rgb(18, 22, 27) | 15px | 10.17:1 | ≥4.5 |
 | span.shuttle-departure__route | 아산(KTX)역 | rgb(185, 195, 206) | rgb(18, 22, 27) | 16px bold | 10.17:1 | ≥4.5 |
@@ -278,7 +278,7 @@
 | button.shuttle-tab | 토요일 | 123px | 40px | 48×40 |
 | button.shuttle-tab | 일요일 | 123px | 40px | 48×40 |
 | button.shuttle-chip.shuttle-chip--empty | 학교 도착 0 | 86px | 44px | 48×44 |
-| button.shuttle-chip | 터미널 도착 16 | 102px | 44px | 48×44 |
+| button.shuttle-chip | 터미널 도착 16 | 103px | 44px | 48×44 |
 | section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00아산(KTX)역학교에서 출발 · 09 | 370px | 1024px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
 | button.shuttle-button.shuttle-button--secondary | 닫기 | 62px | 48px | 48×48 |
@@ -305,10 +305,10 @@
 
 
 ### ⑧ 개인정보처리방침(privacy.html · T11)
-- URL: http://127.0.0.1:51201/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
+- URL: http://127.0.0.1:54623/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
 - h1: 개인정보처리방침 · 필수 문구 누락: 0건
 - body bg=rgb(255, 255, 255) · color=rgb(15, 23, 32) · 가로 스크롤 없음(scrollWidth=390)
-- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:51201/sunmoon-shuttle/privacy.html"}
+- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:54623/sunmoon-shuttle/privacy.html"}
 - 스크린샷: /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T11-privacy.png
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
