@@ -5651,7 +5651,7 @@
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx",
     "sourceUpdatedAt": "2026-08-20",
-    "fetchedAt": "2026-11-08T17:11:43+09:00",
+    "fetchedAt": "2026-11-08T17:18:24+09:00",
     "contentHash": "sha256:7a088cd3e1c6724ec8019903adf661b5300d0aa93f202ea08437ca845c479bd8",
     "pages": [
       {
@@ -5736,8 +5736,8 @@
       "calls": 2,
       "truncated": 0,
       "promptTokens": 1450,
-      "completionTokens": 1074,
-      "totalTokens": 2524,
+      "completionTokens": 1098,
+      "totalTokens": 2548,
       "fallbackReason": null,
       "candidates": 25,
       "ruleEntries": 11,
@@ -5833,7 +5833,7 @@
           "error": null
         },
         "drift": {
-          "checked": false,
+          "checked": true,
           "blocked": false,
           "reasons": []
         }
