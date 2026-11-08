@@ -1,13 +1,13 @@
 # T7·T11 감사 원출력 (a11y_smoke.mjs)
 
-- 일시: 2026-11-08T09:41:59.534Z
-- URL: http://127.0.0.1:55431/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
+- 일시: 2026-11-08T13:25:48.843Z
+- URL: http://127.0.0.1:58670/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
 - 뷰포트: 390×844 @2x (mobile, touch)
 - 스크린샷: .session-notes/T7-light.png · .session-notes/T7-dark.png · .session-notes/T7-focus-skip-link.png · .session-notes/T11-privacy.png
 
 ### ① 매니페스트 (Page.getAppManifest)
 
-- url: http://127.0.0.1:55431/sunmoon-shuttle/manifest.webmanifest
+- url: http://127.0.0.1:58670/sunmoon-shuttle/manifest.webmanifest
 - errors: []
 - name: 선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus
 - short_name: 셔틀버스 Shuttle
@@ -25,7 +25,7 @@
 | ./icons/maskable-512.png | 512x512 | maskable | 200 | 512x512 | 4290B |
 
 
-### ③ light — 대비 실측(전체 61개 텍스트 노드)
+### ③ light — 대비 실측(전체 35개 텍스트 노드)
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
 |---|---|---|---|---|---|---|
@@ -35,66 +35,40 @@
 | span.shuttle-tab__label | 평일 | rgb(0, 104, 122) | rgb(227, 241, 243) | 13px | 5.56:1 | ≥4.5 |
 | span.shuttle-tab__label | 토요일 | rgb(91, 104, 112) | rgb(236, 241, 242) | 13px | 5.04:1 | ≥4.5 |
 | span.shuttle-tab__label | 일요일 | rgb(91, 104, 112) | rgb(236, 241, 242) | 13px | 5.04:1 | ≥4.5 |
-| span.shuttle-chip__label | 학교 도착 | rgb(93, 111, 120) | rgb(255, 255, 255) | 13px | 5.24:1 | ≥4.5 |
-| span.shuttle-chip__count | 0 | rgb(93, 111, 120) | rgb(236, 241, 242) | 11px bold | 4.6:1 | ≥4.5 |
-| span.shuttle-chip__label | 터미널 도착 | rgb(255, 255, 255) | rgb(0, 104, 122) | 13px bold | 6.44:1 | ≥4.5 |
-| span.shuttle-chip__count | 16 | rgb(255, 255, 255) | rgb(0, 104, 122) | 11px bold | 6.44:1 | ≥4.5 |
+| span.shuttle-chip__label | 아산(KTX)역 | rgb(255, 255, 255) | rgb(0, 104, 122) | 13px bold | 6.44:1 | ≥4.5 |
+| span.shuttle-chip__label | 천안역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 13px | 16.2:1 | ≥4.5 |
+| span.shuttle-chip__label | 천안터미널 | rgb(22, 34, 42) | rgb(255, 255, 255) | 13px | 16.2:1 | ≥4.5 |
+| span.shuttle-chip__label | 온양역/터미널 | rgb(93, 111, 120) | rgb(255, 255, 255) | 13px | 5.24:1 | ≥4.5 |
+| span.shuttle-chip__label | 아산(KTX)역 → 학교 | rgb(22, 34, 42) | rgb(255, 255, 255) | 13px | 16.2:1 | ≥4.5 |
+| span.shuttle-chip__count | 6 | rgb(91, 104, 112) | rgb(236, 241, 242) | 11px bold | 5.04:1 | ≥4.5 |
+| span.shuttle-chip__label | 학교 → 아산(KTX)역 | rgb(255, 255, 255) | rgb(0, 104, 122) | 13px bold | 6.44:1 | ≥4.5 |
+| span.shuttle-chip__count | 6 | rgb(255, 255, 255) | rgb(0, 104, 122) | 11px bold | 6.44:1 | ≥4.5 |
 | p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일  | rgb(27, 58, 107) | rgb(231, 238, 251) | 14px | 9.67:1 | ≥4.5 |
 | span.shuttle-departure__time | 09:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:20 도착 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 09:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 09:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__route | 09:20 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
 | span.shuttle-departure__time | 12:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:20 도착 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 12:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 12:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 16:00 | rgb(0, 104, 122) | rgb(230, 243, 244) | 15px bold | 5.67:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(22, 34, 42) | rgb(230, 243, 244) | 15px | 14.26:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 | rgb(91, 104, 112) | rgb(230, 243, 244) | 13px | 5.05:1 | ≥4.5 |
-| span.shuttle-departure__time | 16:00 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 16:10 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 18:00 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 18:10 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:40 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__route | 12:20 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__time | 16:10 | rgb(0, 104, 122) | rgb(230, 243, 244) | 15px bold | 5.67:1 | ≥4.5 |
+| span.shuttle-departure__route | 16:30 도착 | rgb(22, 34, 42) | rgb(230, 243, 244) | 15px | 14.26:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(91, 104, 112) | rgb(230, 243, 244) | 13px | 5.05:1 | ≥4.5 |
 | span.shuttle-departure__time | 18:20 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:40 도착 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 19:00 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 19:30 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__route | 18:40 도착 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
 | span.shuttle-departure__time | 19:10 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 19:30 도착 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
-| span.shuttle-departure__time | 19:30 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 20:00 도착 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__route | 19:30 도착 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
 | span.shuttle-departure__time | 20:00 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 20:20 도착 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
+| span.shuttle-departure__route | 20:20 도착 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px | 16.2:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
 | p.shuttle-splash__title | 선문대 셔틀 | rgb(22, 34, 42) | rgb(243, 246, 247) | 28px bold (큰글씨) | 14.92:1 | ≥3 |
 | p.shuttle-splash__message | 시간표 불러오는 중 | rgb(91, 104, 112) | rgb(243, 246, 247) | 14px | 5.28:1 | ≥4.5 |
 
 미달: 0건
 
 
-#### light — 터치 타깃 실측(16개)
+#### light — 터치 타깃 실측(21개)
 
 | 요소 | 문구 | 폭 | 높이 | 최소(문서) |
 |---|---|---|---|---|
@@ -103,21 +77,26 @@
 | button.shuttle-tab | 평일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 토요일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 일요일 | 119px | 40px | 48×40 |
-| button.shuttle-chip.shuttle-chip--empty | 학교 도착 0 | 94px | 44px | 48×44 |
-| button.shuttle-chip | 터미널 도착 16 | 108px | 44px | 48×44 |
-| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00아산(KTX)역학교에서 출발 · 09 | 358px | 1024px | 48×48 |
+| button.shuttle-chip | 아산(KTX)역 | 94px | 44px | 48×44 |
+| button.shuttle-chip | 천안역 | 56px | 44px | 48×44 |
+| button.shuttle-chip | 천안터미널 | 78px | 44px | 48×44 |
+| button.shuttle-chip.shuttle-chip--empty | 온양역/터미널 | 93px | 44px | 48×44 |
+| button.shuttle-chip | 아산(KTX)역 → 학교 6 | 157px | 44px | 48×44 |
+| button.shuttle-chip | 학교 → 아산(KTX)역 6 | 159px | 44px | 48×44 |
+| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:0009:20 도착학교 출발 · 약 20 | 358px | 464px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
 | button.shuttle-icon-button.shuttle-sheet__close |  | 48px | 48px | 48×48 |
 | summary | 정차 시간 안내 | 334px | 48px | 48×48 |
 | summary | 시내버스 참고 | 334px | 48px | 48×48 |
 | a | 학교 안내 페이지 열기 | 112px | 48px | 48×48 |
 | a | 개인정보처리방침 | 90px | 48px | 48×48 |
-| button.shuttle-chip | 터미널 도착 12 | 108px | 44px | 48×44 |
-| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표08:00아산(KTX)역학교에서 출발 · 08 | 358px | 800px | 48×48 |
+| button.shuttle-chip | 아산(KTX)역 → 학교 4 | 157px | 44px | 48×44 |
+| button.shuttle-chip | 학교 → 아산(KTX)역 4 | 159px | 44px | 48×44 |
+| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표08:0008:20 도착학교 출발 · 약 20 | 358px | 352px | 48×48 |
 
 규격 미달: 0건
 
-레이아웃: 요소 307개 · body bg=rgb(243, 246, 247) · body color=rgb(22, 34, 42) · scrollWidth=390 ≤ clientWidth=390
+레이아웃: 요소 254개 · body bg=rgb(243, 246, 247) · body color=rgb(22, 34, 42) · scrollWidth=390 ≤ clientWidth=390
 
 
 #### 키보드 포커스(실측)
@@ -128,7 +107,7 @@
 ### 설치 안내 삭제 + 본문 텍스트 노드 전수 목록(T31 · docs/07 §13)
 - 설치 안내 노드: false · 금지 문자열 실측(값·상태·라벨 구역): 0건
 - §9-4 예외 구역(상태 1줄): 합니다
-- 본문 텍스트 노드 59개 · 허용 구역 밖 0건
+- 본문 텍스트 노드 33개 · 허용 구역 밖 0건
 - 전수 목록(문자열·위치·크기): .session-notes/T31-본문텍스트노드.md
 
 | 요소 | 문자열 | 위치(x,y) | 크기(w×h) | 폰트(px) | 구분 |
@@ -139,62 +118,36 @@
 | span.shuttle-tab__label | 평일 | 60,77 | 23×20 | 13 | 값·상태·라벨 |
 | span.shuttle-tab__label | 토요일 | 178,77 | 34×20 | 13 | 값·상태·라벨 |
 | span.shuttle-tab__label | 일요일 | 297,77 | 34×20 | 13 | 값·상태·라벨 |
-| span.shuttle-chip__label | 학교 도착 | 29,123 | 48×20 | 13 | 값·상태·라벨 |
-| span.shuttle-chip__count | 0 | 81,124 | 20×18 | 11 | 값·상태·라벨 |
-| span.shuttle-chip__label | 터미널 도착 | 131,123 | 60×20 | 13 | 값·상태·라벨 |
-| span.shuttle-chip__count | 16 | 195,124 | 23×18 | 11 | 값·상태·라벨 |
-| p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일 시간표로 운행 | 31,167 | 331×43 | 14 | §9-4 예외(상태 1줄) |
-| span.shuttle-departure__time | 09:00 | 28,55 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 아산(KTX)역 | 92,44 | 80×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:20 도착 · 약 20분 소요 | 92,68 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 09:00 | 28,111 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안역 | 92,100 | 39×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:30 도착 | 92,124 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 09:00 | 28,167 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안터미널 | 92,156 | 65×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:30 도착 | 92,180 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 12:00 | 28,223 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 아산(KTX)역 | 92,212 | 80×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:20 도착 · 약 20분 소요 | 92,236 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 12:00 | 28,279 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안역 | 92,268 | 39×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:30 도착 | 92,292 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 12:00 | 28,335 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안터미널 | 92,324 | 65×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:30 도착 | 92,348 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 16:00 | 28,391 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안역 | 92,380 | 82×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 | 92,404 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 16:00 | 28,447 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안터미널 | 92,436 | 65×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 | 92,460 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 16:10 | 28,503 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 아산(KTX)역 | 92,492 | 81×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 · 약 20분 소요 | 92,516 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 18:00 | 28,559 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안터미널 | 92,548 | 65×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:30 도착 | 92,572 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 18:10 | 28,615 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안역 | 92,604 | 39×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:40 도착 | 92,628 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 18:20 | 28,671 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 아산(KTX)역 | 92,660 | 81×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:40 도착 · 약 20분 소요 | 92,684 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 19:00 | 28,727 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안역 | 92,716 | 39×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 19:30 도착 | 92,740 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 19:10 | 28,783 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 아산(KTX)역 | 92,772 | 81×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 19:30 도착 · 약 20분 소요 | 92,796 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 19:30 | 28,839 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 천안터미널 | 92,828 | 65×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 20:00 도착 | 92,852 | 270×17 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__time | 20:00 | 28,895 | 52×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__route | 아산(KTX)역 | 92,884 | 81×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__dir | 학교에서 출발 · 20:20 도착 · 약 20분 소요 | 92,908 | 270×17 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__label | 아산(KTX)역 | 29,123 | 72×20 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__label | 천안역 | 131,123 | 34×20 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__label | 천안터미널 | 195,123 | 56×20 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__label | 온양역/터미널 | 281,123 | 71×20 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__label | 아산(KTX)역 → 학교 | 29,165 | 111×20 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__count | 6 | 144,166 | 20×18 | 11 | 값·상태·라벨 |
+| span.shuttle-chip__label | 학교 → 아산(KTX)역 | 194,165 | 113×20 | 13 | 값·상태·라벨 |
+| span.shuttle-chip__count | 6 | 311,166 | 20×18 | 11 | 값·상태·라벨 |
+| p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일 시간표로 운행 | 31,209 | 331×43 | 14 | §9-4 예외(상태 1줄) |
+| span.shuttle-departure__time | 09:00 | 28,287 | 52×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__route | 09:20 도착 | 92,276 | 72×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | 92,300 | 270×17 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__time | 12:00 | 28,343 | 52×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__route | 12:20 도착 | 92,332 | 69×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | 92,356 | 270×17 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__time | 16:10 | 28,399 | 52×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__route | 16:30 도착 | 92,388 | 114×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | 92,412 | 270×17 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__time | 18:20 | 28,455 | 52×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__route | 18:40 도착 | 92,444 | 71×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | 92,468 | 270×17 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__time | 19:10 | 28,511 | 52×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__route | 19:30 도착 | 92,500 | 71×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | 92,524 | 270×17 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__time | 20:00 | 28,567 | 52×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__route | 20:20 도착 | 92,556 | 72×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | 92,580 | 270×17 | 13 | 값·상태·라벨 |
 
 
-### ④ dark — 대비 실측(전체 61개 텍스트 노드)
+### ④ dark — 대비 실측(전체 35개 텍스트 노드)
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
 |---|---|---|---|---|---|---|
@@ -204,66 +157,40 @@
 | span.shuttle-tab__label | 평일 | rgb(95, 195, 207) | rgb(23, 58, 64) | 13px | 5.94:1 | ≥4.5 |
 | span.shuttle-tab__label | 토요일 | rgb(185, 195, 206) | rgb(34, 42, 51) | 13px | 8.13:1 | ≥4.5 |
 | span.shuttle-tab__label | 일요일 | rgb(185, 195, 206) | rgb(34, 42, 51) | 13px | 8.13:1 | ≥4.5 |
-| span.shuttle-chip__label | 학교 도착 | rgb(154, 166, 178) | rgb(27, 33, 41) | 13px | 6.54:1 | ≥4.5 |
-| span.shuttle-chip__count | 0 | rgb(154, 166, 178) | rgb(34, 42, 51) | 11px bold | 5.85:1 | ≥4.5 |
-| span.shuttle-chip__label | 터미널 도착 | rgb(16, 22, 29) | rgb(95, 195, 207) | 13px bold | 8.83:1 | ≥4.5 |
-| span.shuttle-chip__count | 16 | rgb(16, 22, 29) | rgb(95, 195, 207) | 11px bold | 8.83:1 | ≥4.5 |
+| span.shuttle-chip__label | 아산(KTX)역 | rgb(16, 22, 29) | rgb(95, 195, 207) | 13px bold | 8.83:1 | ≥4.5 |
+| span.shuttle-chip__label | 천안역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 13px | 14.4:1 | ≥4.5 |
+| span.shuttle-chip__label | 천안터미널 | rgb(238, 242, 246) | rgb(27, 33, 41) | 13px | 14.4:1 | ≥4.5 |
+| span.shuttle-chip__label | 온양역/터미널 | rgb(154, 166, 178) | rgb(27, 33, 41) | 13px | 6.54:1 | ≥4.5 |
+| span.shuttle-chip__label | 아산(KTX)역 → 학교 | rgb(238, 242, 246) | rgb(27, 33, 41) | 13px | 14.4:1 | ≥4.5 |
+| span.shuttle-chip__count | 6 | rgb(185, 195, 206) | rgb(34, 42, 51) | 11px bold | 8.13:1 | ≥4.5 |
+| span.shuttle-chip__label | 학교 → 아산(KTX)역 | rgb(16, 22, 29) | rgb(95, 195, 207) | 13px bold | 8.83:1 | ≥4.5 |
+| span.shuttle-chip__count | 6 | rgb(16, 22, 29) | rgb(95, 195, 207) | 11px bold | 8.83:1 | ≥4.5 |
 | p.shuttle-strip__line | 일요일 시간표로 운행합니다 · 개천절대체휴일: 일요일  | rgb(189, 211, 245) | rgb(27, 39, 64) | 14px | 9.78:1 | ≥4.5 |
 | span.shuttle-departure__time | 09:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:20 도착 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 09:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 09:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 09:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__route | 09:20 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
 | span.shuttle-departure__time | 12:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:20 도착 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 12:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 12:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 12:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 16:00 | rgb(95, 195, 207) | rgb(29, 50, 54) | 15px bold | 6.53:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(238, 242, 246) | rgb(29, 50, 54) | 15px | 11.95:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 | rgb(185, 195, 206) | rgb(29, 50, 54) | 13px | 7.53:1 | ≥4.5 |
-| span.shuttle-departure__time | 16:00 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 16:10 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 16:30 도착 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 18:00 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 18:10 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:40 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__route | 12:20 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__time | 16:10 | rgb(95, 195, 207) | rgb(29, 50, 54) | 15px bold | 6.53:1 | ≥4.5 |
+| span.shuttle-departure__route | 16:30 도착 | rgb(238, 242, 246) | rgb(29, 50, 54) | 15px | 11.95:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(185, 195, 206) | rgb(29, 50, 54) | 13px | 7.53:1 | ≥4.5 |
 | span.shuttle-departure__time | 18:20 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 18:40 도착 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 19:00 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 19:30 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__route | 18:40 도착 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
 | span.shuttle-departure__time | 19:10 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 19:30 도착 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
-| span.shuttle-departure__time | 19:30 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 천안터미널 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 20:00 도착 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__route | 19:30 도착 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
 | span.shuttle-departure__time | 20:00 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__route | 아산(KTX)역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
-| span.shuttle-departure__dir | 학교에서 출발 · 20:20 도착 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
+| span.shuttle-departure__route | 20:20 도착 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px | 14.4:1 | ≥4.5 |
+| span.shuttle-departure__dir | 학교 출발 · 약 20분 소요 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
 | p.shuttle-splash__title | 선문대 셔틀 | rgb(238, 242, 246) | rgb(18, 22, 27) | 28px bold (큰글씨) | 16.14:1 | ≥3 |
 | p.shuttle-splash__message | 시간표 불러오는 중 | rgb(185, 195, 206) | rgb(18, 22, 27) | 14px | 10.17:1 | ≥4.5 |
 
 미달: 0건
 
 
-#### dark — 터치 타깃 실측(16개)
+#### dark — 터치 타깃 실측(21개)
 
 | 요소 | 문구 | 폭 | 높이 | 최소(문서) |
 |---|---|---|---|---|
@@ -272,21 +199,26 @@
 | button.shuttle-tab | 평일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 토요일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 일요일 | 119px | 40px | 48×40 |
-| button.shuttle-chip.shuttle-chip--empty | 학교 도착 0 | 94px | 44px | 48×44 |
-| button.shuttle-chip | 터미널 도착 16 | 108px | 44px | 48×44 |
-| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00아산(KTX)역학교에서 출발 · 09 | 358px | 1024px | 48×48 |
+| button.shuttle-chip | 아산(KTX)역 | 94px | 44px | 48×44 |
+| button.shuttle-chip | 천안역 | 56px | 44px | 48×44 |
+| button.shuttle-chip | 천안터미널 | 78px | 44px | 48×44 |
+| button.shuttle-chip.shuttle-chip--empty | 온양역/터미널 | 93px | 44px | 48×44 |
+| button.shuttle-chip | 아산(KTX)역 → 학교 6 | 157px | 44px | 48×44 |
+| button.shuttle-chip | 학교 → 아산(KTX)역 6 | 159px | 44px | 48×44 |
+| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:0009:20 도착학교 출발 · 약 20 | 358px | 464px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
 | button.shuttle-icon-button.shuttle-sheet__close |  | 48px | 48px | 48×48 |
 | summary | 정차 시간 안내 | 334px | 48px | 48×48 |
 | summary | 시내버스 참고 | 334px | 48px | 48×48 |
 | a | 학교 안내 페이지 열기 | 112px | 48px | 48×48 |
 | a | 개인정보처리방침 | 90px | 48px | 48×48 |
-| button.shuttle-chip | 터미널 도착 12 | 108px | 44px | 48×44 |
-| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표08:00아산(KTX)역학교에서 출발 · 08 | 358px | 800px | 48×48 |
+| button.shuttle-chip | 아산(KTX)역 → 학교 4 | 157px | 44px | 48×44 |
+| button.shuttle-chip | 학교 → 아산(KTX)역 4 | 159px | 44px | 48×44 |
+| section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표08:0008:20 도착학교 출발 · 약 20 | 358px | 352px | 48×48 |
 
 규격 미달: 0건
 
-레이아웃: 요소 307개 · body bg=rgb(18, 22, 27) · body color=rgb(238, 242, 246) · scrollWidth=390 ≤ clientWidth=390
+레이아웃: 요소 254개 · body bg=rgb(18, 22, 27) · body color=rgb(238, 242, 246) · scrollWidth=390 ≤ clientWidth=390
 
 
 #### 안전영역 토큰 주입 실측
@@ -300,10 +232,10 @@
 
 
 ### ⑧ 개인정보처리방침(privacy.html · T11)
-- URL: http://127.0.0.1:55431/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
+- URL: http://127.0.0.1:58670/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
 - h1: 개인정보처리방침 · 필수 문구 누락: 0건
 - body bg=rgb(243, 246, 247) · color=rgb(22, 34, 42) · 가로 스크롤 없음(scrollWidth=390)
-- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:55431/sunmoon-shuttle/privacy.html"}
+- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:58670/sunmoon-shuttle/privacy.html"}
 - 스크린샷: /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T11-privacy.png
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
