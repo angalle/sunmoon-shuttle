@@ -38,6 +38,7 @@ on:
 permissions:
   contents: write          # 커밋/브랜치 push
   pull-requests: write     # mode=pr
+  actions: write           # mode=commit 반영 후 deploy.yml 을 workflow_dispatch 로 시작(봇 push 는 on:push 를 안 깨움)
 
 concurrency:
   group: data-publish    # extract.yml 과 공유 — data/timetable.json 발행을 직렬화한다(T15)
@@ -110,6 +111,7 @@ jobs:
           fi
 
       - name: 반영 — main 커밋 (mode=commit)
+        id: publish
         if: steps.diff.outputs.changed == 'true' && inputs.mode == 'commit'
         env:
           REASON: ${{ inputs.reason }}
@@ -122,6 +124,19 @@ jobs:
           git commit -m "data: 스냅샷 반영 — ${SUMMARY} (${REASON})"
           git push
           echo "커밋·push 완료: ${SUMMARY}"
+
+      # 데이터 커밋 뒤 Pages 배포를 **직접** 시작한다.
+      # 이 워크플로가 GITHUB_TOKEN 으로 한 push 는 deploy.yml 의 `on: push` 를 깨우지 않는다(GitHub 의 재귀 방지 규칙).
+      # 그래서 배치가 발행해도 사이트는 다음 코드 push 전까지 옛 JSON 이었다(2026-11-08 실측).
+      # workflow_dispatch 는 GITHUB_TOKEN 으로도 시작할 수 있다 → 커밋이 실제로 나간 경우에만 deploy.yml 을 부른다.
+      - name: 배포 시작 — deploy.yml (데이터 커밋이 나간 경우만)
+        if: steps.publish.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run deploy.yml --repo "${GITHUB_REPOSITORY}" --ref main
+          echo "deploy.yml 시작 요청 완료 — Actions 탭에서 배포 결과를 확인한다." | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: 반영 — 검토용 PR (mode=pr)
         if: steps.diff.outputs.changed == 'true' && inputs.mode == 'pr'
