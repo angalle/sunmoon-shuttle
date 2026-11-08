@@ -19,12 +19,28 @@
 | A4 | iOS 배포 = **PWA 먼저**(App Store $99/yr 는 비용 발생 → 후순위) | 사용자 "비용 최소" 요구 | 사용자가 App Store 등록 승인 시 |
 | A5 | 앱은 **비공식**이며 원본 출처·업데이트 시각을 표시 | 저작권·신뢰 | 학교 공식 요청 시 |
 
-## 현재 상태 (2026-10-05)
-- **P3 게이트 판정 완료 (T10)** — AC-1~AC-6·AC-8 **통과**, AC-7 **조건부**(Android 에뮬레이터 실측 완료 / iOS 실기기 = 사람 게이트). 근거·원출력: `docs/03-verification.md §7`
-- **수용 기준 실측 요약**: 파서 골든 15 pass(스냅샷 11종 행수·시각 셀 100% 대조) · 결정성 5 pass(2회 해시 동일) · 다음 버스 경계 18케이스 pass · 자동 반영 무변경 0건(실 Actions 2회)/변경 1건(로컬 재현) · 수집 실패 폴백·오프라인 27항목 PASS(콘솔 오류 0) · iOS 정적 44/스모크 32/자체검증 13 pass · 네트워크 요청 8건 전부 동일출처(추적 0) · `npm run test` **171 passed**
-- **아직 배포되지 않았다** — 배포본은 T5 시점 빌드(오프라인·PWA 없음). `main` 이 origin 보다 **12커밋 앞**이며 push(=Pages 배포)는 사용자 승인 사안
-- **미비 1건 보완 중** — 개인정보처리방침·스토어 문구(T11)
-- 병행 프로젝트: `meteor-dodge`(출시 단계) 진행 중 — 워커 자원을 나눠 쓴다
+## 현재 상태 (2026-11-08)
+- **운영 중** — 웹 https://angalle.github.io/sunmoon-shuttle/ (GitHub Pages, `main` push 시 자동 배포)
+- **화면**: UI v3 — 선문대 로고 문양 색(딥 틸 `#00687A` · 크림슨 `#C81840` · 실버) · 흰 카드 시간표 · 상단 16px 여백 · 조건 배지는 노선명 옆 · 이용 안내 시트 v3 · 스플래시 최소 1.2초 · 새로고침 버튼 없음(진입·30분 이상 뒤 복귀 시 자동 재조회) — `docs/09 §2-2`
+- **데이터**: 사람이 저장한 원본(`data/raw/`) → `npm run extract`(규칙 정본 + DeepSeek 교차검증 + 드리프트 게이트) → `data/timetable.json`(schemaVersion 3)
+  - 셔틀 시간표 5노선 148편 + **학사일정 `academicEvents` 72건**(2026학년도 학사력 · 공휴일 19 · 시험 4 · 방학 시작 2 · 개강 2) — `docs/10`
+- **자동화**(`.github/workflows/extract.yml`)
+  - 매일 19:10 KST 에 깨어나 **개강일·방학 시작일 ±3일**에만 추출 실행(`schedule_gate.mjs`) · `data/raw/**` push 시 즉시 실행 · 수동 실행 가능
+  - 데이터 커밋 후 **Pages 배포를 직접 시작**(봇 push 는 `deploy.yml` 을 깨우지 않으므로)
+  - 실패하면 저장소 소유자에게 배정된 `batch-failure` 이슈 → **GitHub 알림 메일**(수동 실행 `alert_test=true` 로 점검)
+- **Android**(Capacitor): 화면은 앱 안 · **데이터는 Pages 에서**(실패 시 캐시 → 앱 안 사본) — `docs/07 §17`
+  - release AAB 가 **업로드 키로 서명**됨(키: `~/.android-keys/sunmoon-upload.jks` · 설정: `android/keystore.properties`, 둘 다 커밋 금지) — **Play Console 업로드는 아직**(`android/README.md` "Play 첫 업로드")
+- **검증**: `npm run test` **661 passed** · 스모크(offline · t24 · a11y · render) PASS · `npm run lint:boundary` PASS
+
+### 다음에 할 일
+| 항목 | 누가 | 근거 |
+|---|---|---|
+| Play Console 첫 업로드(내부 테스트) | 사람(계정) | `android/README.md` "Play 첫 업로드" |
+| T43 방학 기간 산정(`terms[vacation]`) · 시간표 갱신 지연 경고 | 개발 | `docs/10 §6-4·§6-7` |
+| T44 화면: 방학·시험 안내줄 · 공휴일 "운행 여부 확인 필요" | 개발 | `docs/10 §7` |
+| T45 회귀·증거 + Android 자산 재동기화 | 개발 | `docs/10 §9` |
+| 2027학년도 학사력 반입(2월 무렵) — 동계방학 끝·다음 전환 주간이 정해진다 | 사람 | `data/raw/calendar/README.md` |
+| iOS 실기기 확인 | 사람 | `scripts/qa/iOS-CHECKLIST.md` |
 
 ## 실행 3단계 (계획 확정 후)
 ```bash
