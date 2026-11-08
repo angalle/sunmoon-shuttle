@@ -171,6 +171,11 @@ export interface TripServiceStatus {
  * 그 날짜에 그 회차가 안내 대상인지 판정한다 — 판정 자체는 `tripStatus` 가 한다(단일 책임).
  * 이 함수는 ① 출발 시각 없는 회차 제외(`no-departure-time`) ② 사유 코드 → 옛 계약 이름 변환만 한다.
  * `context`(날짜 규칙·학기/방학)를 넘기면 `tripStatus` 가 우선순위 ①·③까지 반영한다.
+ *
+ * ⚠️ 출발 시각이 `null` 인 것은 **해석 실패가 아니라 원본 표기**(`Χ`·빈칸 = 해당 없음)다.
+ *    따라서 경고를 만들지 않는다(T2b — `docs/06 §3` `Χ`=해당 없음). 경고는 **값은 있는데
+ *    해석하지 못한** 경우에만 쓴다(`nextDeparture` 의 시각 형식 오류 경고).
+ *    사유는 `reason: 'no-departure-time'`(구조 값)로 남으므로 조용히 사라지지 않는다.
  */
 export function resolveTripService(
   trip: Trip,
@@ -183,7 +188,7 @@ export function resolveTripService(
       reason: 'no-departure-time',
       excludedWeekday: null,
       annotations: [],
-      warnings: [`출발 시각이 없는 회차입니다(순번 ${trip.seq}) — 안내 대상에서 제외`],
+      warnings: [],
     };
   }
 

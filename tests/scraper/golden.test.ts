@@ -370,3 +370,161 @@ describe('골든: 원본 스냅샷 → 표(행 수·셀 값·Χ→null·특이�
     );
   });
 });
+
+/* ─────────── T2b — "시각을 해석하지 못한 회차 5건" 의 정체(원본 `<td>` 고정) ───────────
+ *
+ * 앱 홈의 경고 문구(`시각을 해석하지 못한 회차 5건은 목록에서 빠져 있을 수 있습니다`)의
+ * 정체를 원본과 대조해 **5행으로 고정**한다. 실측 결론:
+ *
+ *  | 노선        | 요일 | 순번 | 출발 열(원본 `<td>`)              | 시각이 있는 셀(원본)     |
+ *  |-------------|------|------|-----------------------------------|--------------------------|
+ *  | 천안역      | 평일 | 5    | 아산캠퍼스 출발 `Χ` · 천안역 출발 `Χ` | 하이렉스파 건너편 `8:50` |
+ *  | 천안터미널  | 평일 | 9    | 아산캠퍼스(출발) `Χ` · 터미널 `Χ`      | 두정동 맥도날드 `08:55`  |
+ *  | 온양역/터미널 | 평일 | 1    | 아산캠퍼스(출발) `Χ`                 | 주은아파트 `8:00`        |
+ *  | 온양역/터미널 | 평일 | 2    | 아산캠퍼스(출발) `Χ`                 | 온양온천역 `8:45`        |
+ *  | 온양역/터미널 | 평일 | 3    | 아산캠퍼스(출발) `Χ`                 | 주은아파트 `8:40`        |
+ *
+ * 즉 **파서가 행을 버린 것이 아니다**(표 행 수는 수정 전/후 모두 33·38·7 — 아래 `rows`).
+ * 출발 열 원본 값이 `Χ`(해당 없음)이고 시각은 **중간 정류장 열**에 있다.
+ * → 화면 목록(캠퍼스 출발 / 역·터미널 출발 두 축)에서 빠지는 것이며, 이는 "해석 실패"가 아니다.
+ *   (경고 규칙은 `src/domain/rules/serviceDay.ts` — `Χ` 는 경고 없는 정상 skip. 전: 경고 5건 → 후: 0건.)
+ */
+
+interface DepartureGapCell {
+  readonly key: string;
+  readonly value: string | null;
+}
+
+interface DepartureGapCase {
+  readonly file: string;
+  /** 표 데이터 행 수 — 수정 전/후 동일해야 한다(행 누락 0) */
+  readonly rows: number;
+  /** 출발 열(들)이 모두 null 인 행을 찾을 키 — 노선마다 역/터미널 열 이름이 다르다 */
+  readonly departureKeys: readonly string[];
+  /** 출발 열이 Χ(null) 인 행 — 이 수가 화면 경고 5건의 정체다 */
+  readonly blockedRows: number;
+  /** 그 행들의 원본 셀 값(파서 결과 = 원본 셀 문자열) */
+  readonly gaps: readonly { readonly seq: number; readonly cells: readonly DepartureGapCell[] }[];
+}
+
+const DEPARTURE_GAP_CASES: readonly DepartureGapCase[] = [
+  {
+    file: '2026-2학기-cheonan-station-평일.html',
+    rows: 33,
+    departureKeys: ['depCampus', 'depStation'],
+    blockedRows: 1,
+    gaps: [
+      {
+        seq: 5,
+        cells: [
+          { key: 'depCampus', value: null },
+          { key: 'depStation', value: null },
+          { key: 'viaHairexpa', value: '08:50' },
+          { key: 'arrCampus', value: '09:05' },
+        ],
+      },
+    ],
+  },
+  {
+    file: '2026-2학기-cheonan-terminal-평일.html',
+    rows: 38,
+    departureKeys: ['depCampus', 'depTerminal'],
+    blockedRows: 1,
+    gaps: [
+      {
+        seq: 9,
+        cells: [
+          { key: 'depCampus', value: null },
+          { key: 'depTerminal', value: null },
+          { key: 'viaDujeong', value: '08:55' },
+          { key: 'arrCampus', value: '09:10' },
+        ],
+      },
+    ],
+  },
+  {
+    file: '2026-2학기-onyang-평일.html',
+    rows: 7,
+    departureKeys: ['depCampus'],
+    blockedRows: 3,
+    gaps: [
+      {
+        seq: 1,
+        cells: [
+          { key: 'depCampus', value: null },
+          { key: 'viaJueun', value: '08:00' },
+          { key: 'viaOnyangStation', value: '08:10' },
+          { key: 'arrCampus', value: '08:40' },
+        ],
+      },
+      {
+        seq: 2,
+        cells: [
+          { key: 'depCampus', value: null },
+          { key: 'viaJueun', value: null },
+          { key: 'viaOnyangStation', value: '08:45' },
+          { key: 'arrCampus', value: '09:15' },
+        ],
+      },
+      {
+        seq: 3,
+        cells: [
+          { key: 'depCampus', value: null },
+          { key: 'viaJueun', value: '08:40' },
+          { key: 'viaOnyangStation', value: '08:50' },
+          { key: 'arrCampus', value: '09:20' },
+        ],
+      },
+    ],
+  },
+];
+
+describe('T2b — 출발 열이 Χ 인 회차 5건의 원본 셀(행 누락 0)', () => {
+  it.each(DEPARTURE_GAP_CASES.map((c) => [c.file, c] as const))('%s', (_fileName, golden) => {
+    const snapshot = load(golden.file);
+
+    // ① 행 수는 원본과 같다(파서가 버린 행이 없다 = 누락 0)
+    expect(snapshot.trips).toHaveLength(golden.rows);
+
+    // ② 출발 열이 모두 null 인 행 = 화면 경고 5건의 정체
+    const blocked = snapshot.trips.filter((trip) =>
+      golden.departureKeys.every((key) => (trip[key] ?? null) === null),
+    );
+    expect(blocked.map((trip) => trip['seq'])).toHaveLength(golden.blockedRows);
+
+    // ③ 그 행의 셀 값(원본 문자열) 고정 — 시각은 중간 정류장 열에 있다
+    for (const gap of golden.gaps) {
+      const row = snapshot.trips.find((trip) => trip['seq'] === gap.seq);
+      expect(row, `${golden.file} 순번 ${gap.seq}`).toBeDefined();
+      for (const cell of gap.cells) {
+        expect(row?.[cell.key], `${golden.file} 순번 ${gap.seq} 열 ${cell.key}`).toBe(cell.value);
+      }
+    }
+  });
+
+  it('합계: 3개 파일의 출발 열 Χ 행 = 5행(1+1+3) — 그중 5행 모두 중간 열에 시각이 있다', () => {
+    let blockedTotal = 0;
+    let withMidTimeTotal = 0;
+    for (const golden of DEPARTURE_GAP_CASES) {
+      const snapshot = load(golden.file);
+      const blocked = snapshot.trips.filter((trip) =>
+        golden.departureKeys.every((key) => (trip[key] ?? null) === null),
+      );
+      blockedTotal += blocked.length;
+      for (const trip of blocked) {
+        const hasMidTime = Object.entries(trip).some(
+          ([key, value]) =>
+            !golden.departureKeys.includes(key) &&
+            key !== 'seq' &&
+            key !== 'note' &&
+            typeof value === 'string' &&
+            /^\d{1,2}:\d{2}$/.test(value),
+        );
+        if (hasMidTime) withMidTimeTotal += 1;
+      }
+    }
+    expect(blockedTotal).toBe(5);
+    expect(withMidTimeTotal).toBe(5);
+  });
+});
+

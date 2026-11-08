@@ -107,14 +107,44 @@ describe('rules/nextDeparture — 경계 12종 (수용 기준 AC-3)', () => {
     expect(annotated?.annotations).toEqual(['월~화 2대 운행']);
   });
 
-  it('⑨ Χ(null) 회차는 어디에도 나오지 않는다', () => {
+  it('⑨ Χ(null) 회차는 어디에도 나오지 않는다 — 경고 없이 정상 skip(T2b)', () => {
     const result = run('2026-10-19T00:00:00+09:00', ROUTE, 6);
     const list = departureList(result);
     expect(list.some((d) => d.seq === 5)).toBe(false);
     expect(list.map((d) => d.departure)).toEqual(['08:05', '08:35', '09:00', '11:00', '20:45', '21:15']);
     if (result.status === 'unknown-route' || result.status === 'empty-schedule') return;
-    expect(result.warnings.some((w) => w.includes('출발 시각이 없는 회차'))).toBe(true);
+    // 출발 열이 Χ = 원본의 "해당 없음" 표기다 → 해석 실패가 아니므로 경고를 만들지 않는다(T2b ⓑ).
+    // (경고는 값은 있는데 형식을 못 읽은 경우에만 — 아래 ⑨b)
+    expect(result.warnings.some((w) => w.includes('출발 시각이 없는 회차'))).toBe(false);
     expect(result.warnings.some((w) => w.includes('중간노선 전용'))).toBe(true); // 미등록 표기는 경고로
+  });
+
+  it('⑨b 출발 시각이 **값은 있는데** 형식이 깨진 회차는 경고로 남는다(T2b — 경고 조건)', () => {
+    const broken = {
+      ...FIXTURE_SCHEDULE,
+      routes: FIXTURE_SCHEDULE.routes.map((route) =>
+        route.id !== ROUTE
+          ? route
+          : {
+              ...route,
+              byDay: {
+                ...route.byDay,
+                weekday: [
+                  ...route.byDay.weekday,
+                  { seq: 99, depCampus: '8시5분', depStation: null, arrCampus: '09:00', note: null },
+                ],
+              },
+            },
+      ),
+    };
+    const result = nextDepartures({
+      schedule: broken,
+      routeId: ROUTE,
+      clock: clockAt('2026-10-19T00:00:00+09:00'),
+      count: 6,
+    });
+    if (result.status === 'unknown-route' || result.status === 'empty-schedule') throw new Error('빈 스케줄');
+    expect(result.warnings.some((w) => w.includes('출발 시각 형식을 해석하지 못했습니다'))).toBe(true);
   });
 
   it('⑩ 요일별 표가 다를 때: 토요일에는 토요일 표를 쓴다', () => {

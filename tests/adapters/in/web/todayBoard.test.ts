@@ -43,14 +43,17 @@ function state(now: string, overrides: Partial<ScheduleState> = {}): ScheduleSta
 const departuresOf = (events: readonly DepartureEventView[]): string[] => events.map((event) => event.departure);
 
 /**
- * T14 — 회차 하나의 출발 시각이 **비어 있는** 모델(도메인 경고 `출발 시각이 없는 회차입니다(순번 N)` 유발).
- * 실제 데이터(`data/timetable.json`)에도 같은 경고가 5건 있다 → 홈 안내 1줄 조건을 픽스처로 재현한다.
+ * T14 — 회차 하나의 출발 시각 **형식이 깨진** 모델(도메인 경고 `출발 시각 형식을 해석하지 못했습니다` 유발).
+ *
+ * T2b(2026-11-08): 출발 값이 **비어 있는**(`Χ`/null) 회차는 이제 경고가 아니라 정상 skip 이다
+ * (원본의 `Χ` = 해당 없음 — `docs/06 §3`). 따라서 "회차가 목록에서 빠질 수 있다"는 홈 1줄은
+ * **값은 있는데 형식을 못 읽은** 경우로 재현한다.
  */
 const brokenRaw = structuredClone(BOARD_RAW) as {
   routes: { id: string; byDay: Record<string, { trips: unknown[] } | null> }[];
 };
 const asanRoute = brokenRaw.routes.find((route) => route.id === 'r-asan');
-asanRoute?.byDay['weekday']?.trips.push({ seq: 99, depCampus: null, depStation: null, arrCampus: null, note: null });
+asanRoute?.byDay['weekday']?.trips.push({ seq: 99, depCampus: '8시5분', depStation: null, arrCampus: null, note: null });
 const brokenModel = parseTimetable(brokenRaw);
 
 describe('상태줄 — 오늘 날짜·현재 시각(KST)', () => {
