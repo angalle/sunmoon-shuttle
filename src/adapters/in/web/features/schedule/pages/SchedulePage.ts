@@ -192,18 +192,7 @@ export function createSchedulePage(
     },
   });
   infoNode.classList.add('shuttle-appbar__info');
-  const refreshSpinner = spinner({ size: 'sm' });
-  const refreshNode = button({
-    label: UI_TEXT.refreshLabel,
-    variant: 'secondary',
-    testid: 'app-refresh',
-    busy: false,
-    leading: refreshSpinner,
-    onClick: () => {
-      options.onRefresh();
-    },
-  });
-  refreshNode.classList.add('shuttle-appbar__refresh');
+  // 새로고침 버튼은 두지 않는다(2026-11-08 사용자 결정) — 데이터는 진입·복귀 때 자동으로 다시 읽고(SWR), 오프라인이면 캐시를 쓴다.
 
   /** ② 스플래시 — 진입 시 표시, 데이터가 준비되면 페이드아웃(최소 1.2s · 최대 2.5s). */
   const splashNode = splashScreen();
@@ -231,7 +220,7 @@ export function createSchedulePage(
       // 앱 이름·로고는 화면에 내보내지 않는다(§9-2 — 스플래시가 이미 보여줬다). 낭독기용 제목만 남긴다.
       el('h1', { class: 'shuttle-sr-only', text: UI_TEXT.appTitle }),
       clockNode,
-      el('div', { class: 'shuttle-appbar__actions' }, [infoNode, refreshNode]),
+      el('div', { class: 'shuttle-appbar__actions' }, [infoNode]),
     ]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'day-row' } }, [tabsHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'filter-row' } }, [filterHost]),
@@ -634,14 +623,10 @@ export function createSchedulePage(
     }
   };
 
-  /** 상단 바 — 현재 날짜·시각(KST, 분 단위) + 새로고침 진행 표시. 60초 틱마다 갱신된다. */
+  /** 상단 바 — 현재 날짜·시각(KST, 분 단위). 60초 틱마다 갱신된다. */
   const renderAppbar = (state: ScheduleState): void => {
     clockNode.setAttribute('datetime', new Date(state.nowMs).toISOString());
     clockNode.textContent = formatKstHeaderClock(state.nowMs);
-    const busy = state.status === 'loading';
-    refreshNode.setAttribute('aria-busy', busy ? 'true' : 'false');
-    refreshNode.setAttribute('aria-label', busy ? UI_TEXT.refreshBusyLabel : UI_TEXT.refreshLabel);
-    refreshSpinner.hidden = !busy;
   };
 
   /** ③ 시간표 목록 하나 — **선택한 방향의 회차**만 그린다(§16-2 · 두 방향이 섞이지 않는다). 로딩 중에는 스켈레톤 카드 3장(빈 화면 금지). */

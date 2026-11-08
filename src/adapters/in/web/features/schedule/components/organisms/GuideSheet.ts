@@ -11,8 +11,8 @@
  *   (방학 배너가 링크를 그리면 여기 `vacation` 은 null 로 온다 — T14 계약 유지).
  * - 열림/닫힘·포커스는 페이지가 관리한다(여기는 표현 + 닫기 콜백만).
  */
-import { el } from '../../../../shared/lib/dom';
-import { button } from '../../../../shared/ui/atoms/Button';
+import { el, svgIcon } from '../../../../shared/lib/dom';
+import { iconButton } from '../../../../shared/ui/atoms/IconButton';
 import type { BusRef } from '../../types/contract';
 import type {
   FreshnessView,
@@ -72,12 +72,8 @@ export function guideSheet(props: GuideSheetProps): HTMLElement {
       el('div', { class: 'shuttle-sheet__panel' }, [
         el('div', { class: 'shuttle-sheet__head' }, [
           el('h2', { class: 'shuttle-card__title', attrs: { id: props.headingId }, text: UI_TEXT.guideTitle }),
-          button({
-            label: UI_TEXT.guideClose,
-            variant: 'secondary',
-            testid: 'guide-close',
-            onClick: props.onClose,
-          }),
+          // 닫기 = X 아이콘 버튼(2026-11-08 사용자 결정). 화면 문구 대신 aria-label `닫기` 가 이름이다.
+          closeButton(props.onClose),
         ]),
         noticePanel({
           groups: props.groups,
@@ -125,4 +121,16 @@ export function guideSheet(props: GuideSheetProps): HTMLElement {
       ]),
     ],
   );
+}
+
+/** 시트 닫기 — X 아이콘(장식) + `aria-label="닫기"`. */
+function closeButton(onClose: () => void): HTMLButtonElement {
+  const node = iconButton({
+    label: UI_TEXT.guideClose,
+    icon: svgIcon([{ kind: 'path', d: 'M6 6l12 12M18 6L6 18' }], { size: '20' }),
+    testid: 'guide-close',
+    onClick: onClose,
+  });
+  node.classList.add('shuttle-sheet__close');
+  return node;
 }

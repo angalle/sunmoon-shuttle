@@ -1356,16 +1356,17 @@ body {
   font-size: var(--font-size-md);
 }
 
-/* 닫기 — 상자 대신 틸 톤 알약(앱바 버튼과 같은 언어) */
-.shuttle-sheet .shuttle-sheet__head .shuttle-button {
-  min-width: var(--touch-target-min);
-  padding: 0 var(--space-4);
+/* 닫기 — X 아이콘 버튼(48px 터치 · 그림자·테두리 없음 · 호버만 옅은 면) */
+.shuttle-sheet .shuttle-sheet__close {
+  margin-right: calc(-1 * var(--space-2));
   border-color: transparent;
-  border-radius: var(--radius-pill);
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text);
+}
+
+.shuttle-sheet .shuttle-sheet__close:hover {
   background: var(--color-accent-soft);
-  color: var(--color-accent);
-  font-size: var(--font-size-row-meta);
-  font-weight: 600;
 }
 
 .shuttle-sheet .shuttle-card {
