@@ -1,13 +1,13 @@
 # T7·T11 감사 원출력 (a11y_smoke.mjs)
 
-- 일시: 2026-11-08T08:51:42.947Z
-- URL: http://127.0.0.1:49409/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
+- 일시: 2026-11-08T08:55:46.134Z
+- URL: http://127.0.0.1:49887/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
 - 뷰포트: 390×844 @2x (mobile, touch)
 - 스크린샷: .session-notes/T7-light.png · .session-notes/T7-dark.png · .session-notes/T7-focus-skip-link.png · .session-notes/T11-privacy.png
 
 ### ① 매니페스트 (Page.getAppManifest)
 
-- url: http://127.0.0.1:49409/sunmoon-shuttle/manifest.webmanifest
+- url: http://127.0.0.1:49887/sunmoon-shuttle/manifest.webmanifest
 - errors: []
 - name: 선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus
 - short_name: 셔틀버스 Shuttle
@@ -25,14 +25,13 @@
 | ./icons/maskable-512.png | 512x512 | maskable | 200 | 512x512 | 4290B |
 
 
-### ③ light — 대비 실측(전체 62개 텍스트 노드)
+### ③ light — 대비 실측(전체 61개 텍스트 노드)
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
 |---|---|---|---|---|---|---|
 | a.shuttle-skip-link | 본문으로 건너뛰기 | rgb(255, 255, 255) | rgb(0, 104, 122) | 16px | 6.44:1 | ≥4.5 |
 | time.shuttle-appbar__clock | 10월 5일 (월) · 14:40 | rgb(22, 34, 42) | rgb(243, 246, 247) | 15px bold | 14.92:1 | ≥4.5 |
 | button.shuttle-button.shuttle-button--secondary.shuttle-appbar__info | ⓘ | rgb(0, 104, 122) | rgb(243, 246, 247) | 16px | 5.93:1 | ≥4.5 |
-| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__refresh | 새로고침 | rgb(0, 104, 122) | rgb(243, 246, 247) | 13px | 5.93:1 | ≥4.5 |
 | span.shuttle-tab__label | 평일 | rgb(0, 104, 122) | rgb(227, 241, 243) | 13px | 5.56:1 | ≥4.5 |
 | span.shuttle-tab__label | 토요일 | rgb(91, 104, 112) | rgb(236, 241, 242) | 13px | 5.04:1 | ≥4.5 |
 | span.shuttle-tab__label | 일요일 | rgb(91, 104, 112) | rgb(236, 241, 242) | 13px | 5.04:1 | ≥4.5 |
@@ -95,13 +94,12 @@
 미달: 0건
 
 
-#### light — 터치 타깃 실측(17개)
+#### light — 터치 타깃 실측(16개)
 
 | 요소 | 문구 | 폭 | 높이 | 최소(문서) |
 |---|---|---|---|---|
 | a.shuttle-skip-link | 본문으로 건너뛰기 | 139px | 48px | 48×48 |
 | button.shuttle-button.shuttle-button--secondary.shuttle-appbar__info | ⓘ | 48px | 48px | 48×48 |
-| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__refresh | 새로고침 | 71px | 48px | 48×48 |
 | button.shuttle-tab | 평일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 토요일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 일요일 | 119px | 40px | 48×40 |
@@ -109,7 +107,7 @@
 | button.shuttle-chip | 터미널 도착 16 | 108px | 44px | 48×44 |
 | section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00아산(KTX)역학교에서 출발 · 09 | 358px | 1024px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
-| button.shuttle-button.shuttle-button--secondary | 닫기 | 57px | 48px | 48×48 |
+| button.shuttle-icon-button.shuttle-sheet__close |  | 48px | 48px | 48×48 |
 | summary | 정차 시간 안내 | 334px | 48px | 48×48 |
 | summary | 시내버스 참고 | 334px | 48px | 48×48 |
 | a | 학교 안내 페이지 열기 | 112px | 48px | 48×48 |
@@ -130,15 +128,14 @@
 ### 설치 안내 삭제 + 본문 텍스트 노드 전수 목록(T31 · docs/07 §13)
 - 설치 안내 노드: false · 금지 문자열 실측(값·상태·라벨 구역): 0건
 - §9-4 예외 구역(상태 1줄): 합니다
-- 본문 텍스트 노드 60개 · 허용 구역 밖 0건
+- 본문 텍스트 노드 59개 · 허용 구역 밖 0건
 - 전수 목록(문자열·위치·크기): .session-notes/T31-본문텍스트노드.md
 
 | 요소 | 문자열 | 위치(x,y) | 크기(w×h) | 폰트(px) | 구분 |
 |---|---|---|---|---|---|
 | a.shuttle-skip-link | 본문으로 건너뛰기 | 12,12 | 139×48 | 16 | 값·상태·라벨 |
 | time.shuttle-appbar__clock | 10월 5일 (월) · 14:40 | 16,20 | 145×23 | 15 | 값·상태·라벨 |
-| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__info | ⓘ | 251,8 | 48×48 | 16 | 값·상태·라벨 |
-| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__refresh | 새로고침 | 303,8 | 71×48 | 13 | 값·상태·라벨 |
+| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__info | ⓘ | 326,8 | 48×48 | 16 | 값·상태·라벨 |
 | span.shuttle-tab__label | 평일 | 60,77 | 23×20 | 13 | 값·상태·라벨 |
 | span.shuttle-tab__label | 토요일 | 178,77 | 34×20 | 13 | 값·상태·라벨 |
 | span.shuttle-tab__label | 일요일 | 297,77 | 34×20 | 13 | 값·상태·라벨 |
@@ -197,14 +194,13 @@
 | span.shuttle-departure__dir | 학교에서 출발 · 20:20 도착 · 약 20분 소요 | 92,908 | 270×17 | 13 | 값·상태·라벨 |
 
 
-### ④ dark — 대비 실측(전체 62개 텍스트 노드)
+### ④ dark — 대비 실측(전체 61개 텍스트 노드)
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
 |---|---|---|---|---|---|---|
 | a.shuttle-skip-link | 본문으로 건너뛰기 | rgb(16, 22, 29) | rgb(95, 195, 207) | 16px | 8.83:1 | ≥4.5 |
 | time.shuttle-appbar__clock | 10월 5일 (월) · 14:40 | rgb(238, 242, 246) | rgb(18, 22, 27) | 15px bold | 16.14:1 | ≥4.5 |
 | button.shuttle-button.shuttle-button--secondary.shuttle-appbar__info | ⓘ | rgb(95, 195, 207) | rgb(18, 22, 27) | 16px | 8.82:1 | ≥4.5 |
-| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__refresh | 새로고침 | rgb(95, 195, 207) | rgb(18, 22, 27) | 13px | 8.82:1 | ≥4.5 |
 | span.shuttle-tab__label | 평일 | rgb(95, 195, 207) | rgb(23, 58, 64) | 13px | 5.94:1 | ≥4.5 |
 | span.shuttle-tab__label | 토요일 | rgb(185, 195, 206) | rgb(34, 42, 51) | 13px | 8.13:1 | ≥4.5 |
 | span.shuttle-tab__label | 일요일 | rgb(185, 195, 206) | rgb(34, 42, 51) | 13px | 8.13:1 | ≥4.5 |
@@ -267,13 +263,12 @@
 미달: 0건
 
 
-#### dark — 터치 타깃 실측(17개)
+#### dark — 터치 타깃 실측(16개)
 
 | 요소 | 문구 | 폭 | 높이 | 최소(문서) |
 |---|---|---|---|---|
 | a.shuttle-skip-link | 본문으로 건너뛰기 | 139px | 48px | 48×48 |
 | button.shuttle-button.shuttle-button--secondary.shuttle-appbar__info | ⓘ | 48px | 48px | 48×48 |
-| button.shuttle-button.shuttle-button--secondary.shuttle-appbar__refresh | 새로고침 | 71px | 48px | 48×48 |
 | button.shuttle-tab | 평일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 토요일 | 119px | 40px | 48×40 |
 | button.shuttle-tab | 일요일 | 119px | 40px | 48×40 |
@@ -281,7 +276,7 @@
 | button.shuttle-chip | 터미널 도착 16 | 108px | 44px | 48×44 |
 | section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00아산(KTX)역학교에서 출발 · 09 | 358px | 1024px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
-| button.shuttle-button.shuttle-button--secondary | 닫기 | 57px | 48px | 48×48 |
+| button.shuttle-icon-button.shuttle-sheet__close |  | 48px | 48px | 48×48 |
 | summary | 정차 시간 안내 | 334px | 48px | 48×48 |
 | summary | 시내버스 참고 | 334px | 48px | 48×48 |
 | a | 학교 안내 페이지 열기 | 112px | 48px | 48×48 |
@@ -305,10 +300,10 @@
 
 
 ### ⑧ 개인정보처리방침(privacy.html · T11)
-- URL: http://127.0.0.1:49409/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
+- URL: http://127.0.0.1:49887/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
 - h1: 개인정보처리방침 · 필수 문구 누락: 0건
 - body bg=rgb(243, 246, 247) · color=rgb(22, 34, 42) · 가로 스크롤 없음(scrollWidth=390)
-- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:49409/sunmoon-shuttle/privacy.html"}
+- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:49887/sunmoon-shuttle/privacy.html"}
 - 스크린샷: /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T11-privacy.png
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
