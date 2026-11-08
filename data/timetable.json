@@ -4611,11 +4611,1048 @@
     "team": "학생지원팀",
     "tel": "041-530-2152"
   },
+  "academicEvents": [
+    {
+      "label": "삼일절",
+      "kind": "holiday",
+      "start": "2026-03-01",
+      "end": null,
+      "weekdays": [
+        "일"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 1(일) 삼일절",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "삼일절 대체공휴일",
+      "kind": "holiday",
+      "start": "2026-03-02",
+      "end": null,
+      "weekdays": [
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 2(월) 삼일절 대체공휴일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "개강일, 학기개시일, 입학일",
+      "kind": "semester-start",
+      "start": "2026-03-03",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 3(화) 개강일, 학기개시일, 입학일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수강신청 최종정정, 복수․부전공, 조기졸업, 대체교과목 신청",
+      "kind": "ignored",
+      "start": "2026-03-03",
+      "end": "2026-03-09",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 3(화)~ 9(월) 수강신청 최종정정, 복수․부전공, 조기졸업, 대체교과목 신청",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수강과목 포기",
+      "kind": "ignored",
+      "start": "2026-03-23",
+      "end": "2026-03-25",
+      "weekdays": [
+        "월",
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 23(월)~25(수) 수강과목 포기",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수업일수 1/4(개강 후 19일째)",
+      "kind": "ignored",
+      "start": "2026-03-27",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 27(금) 수업일수 1/4(개강 후 19일째)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "학기개시 30일",
+      "kind": "ignored",
+      "start": "2026-04-01",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 1(수) 학기개시 30일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수업일수 1/3(개강 후 25일째)",
+      "kind": "ignored",
+      "start": "2026-04-06",
+      "end": null,
+      "weekdays": [
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 6(월) 수업일수 1/3(개강 후 25일째)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "참부모의 날(음3.1)",
+      "kind": "observance",
+      "start": "2026-04-17",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 17(금) 참부모의 날(음3.1)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "중간고사",
+      "kind": "exam",
+      "start": "2026-04-21",
+      "end": "2026-04-27",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 21(화)~27(월) 중간고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수업일수 1/2(개강 후 38일째)",
+      "kind": "ignored",
+      "start": "2026-04-23",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 23(목) 수업일수 1/2(개강 후 38일째)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "근로자의날",
+      "kind": "holiday",
+      "start": "2026-05-01",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 1(금) 근로자의날",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "학기개시 60일",
+      "kind": "ignored",
+      "start": "2026-05-01",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 1(금) 학기개시 60일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "어린이날",
+      "kind": "holiday",
+      "start": "2026-05-05",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 5(화) 어린이날",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "전공박람회",
+      "kind": "ignored",
+      "start": "2026-05-07",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 7(목) 전공박람회",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "선문대동제(축제)",
+      "kind": "ignored",
+      "start": "2026-05-13",
+      "end": "2026-05-14",
+      "weekdays": [
+        "수",
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 13(수)~14(목) 선문대동제(축제)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "부처님오신날",
+      "kind": "holiday",
+      "start": "2026-05-24",
+      "end": null,
+      "weekdays": [
+        "일"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 24(일) 부처님오신날",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "부처님오신날 대체공휴일",
+      "kind": "holiday",
+      "start": "2026-05-25",
+      "end": null,
+      "weekdays": [
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 25(월) 부처님오신날 대체공휴일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "학기개시 90일",
+      "kind": "ignored",
+      "start": "2026-05-31",
+      "end": null,
+      "weekdays": [
+        "일"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 31(일) 학기개시 90일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2026 지방선거",
+      "kind": "holiday",
+      "start": "2026-06-03",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 3(수) 2026 지방선거",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "현충일",
+      "kind": "holiday",
+      "start": "2026-06-06",
+      "end": null,
+      "weekdays": [
+        "토"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 6(토) 현충일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "기말고사",
+      "kind": "exam",
+      "start": "2026-06-09",
+      "end": "2026-06-15",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 9(화)~15(월) 기말고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "하계방학/계절학기 시작",
+      "kind": "vacation-start",
+      "start": "2026-06-16",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 16(화) 하계방학/계절학기 시작",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "성적공고/이의신청 및 정정",
+      "kind": "ignored",
+      "start": "2026-06-25",
+      "end": "2026-06-30",
+      "weekdays": [
+        "목",
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 25(목)~30(화) 성적공고/이의신청 및 정정",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2026-2 휴학신청(1차), 복학, 전과, 유급신청",
+      "kind": "ignored",
+      "start": "2026-07-13",
+      "end": "2026-07-15",
+      "weekdays": [
+        "월",
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 13(월)~15(수) 2026-2 휴학신청(1차), 복학, 전과, 유급신청",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2026-2학기 수강신청",
+      "kind": "ignored",
+      "start": "2026-08-06",
+      "end": "2026-08-10",
+      "weekdays": [
+        "목",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 6(목)~10(월) 2026-2학기 수강신청",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2025-후기 졸업일",
+      "kind": "ignored",
+      "start": "2026-08-13",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 13(목) 2025-후기 졸업일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "광복절",
+      "kind": "holiday",
+      "start": "2026-08-15",
+      "end": null,
+      "weekdays": [
+        "토"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 15(토) 광복절",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "광복절 대체공휴일",
+      "kind": "holiday",
+      "start": "2026-08-17",
+      "end": null,
+      "weekdays": [
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 17(월) 광복절 대체공휴일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2026-2 등록기간",
+      "kind": "ignored",
+      "start": "2026-08-24",
+      "end": "2026-08-28",
+      "weekdays": [
+        "월",
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 24(월)~28(금) 2026-2 등록기간",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2026-2 휴학신청(2차)",
+      "kind": "ignored",
+      "start": "2026-08-25",
+      "end": "2026-08-31",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 25(화)~31(월) 2026-2 휴학신청(2차)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "개강일, 학기개시일, 입학일",
+      "kind": "semester-start",
+      "start": "2026-09-01",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 1(화) 개강일, 학기개시일, 입학일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수강신청 최종정정, 복수․부전공, 조기졸업, 대체교과목 신청",
+      "kind": "ignored",
+      "start": "2026-09-01",
+      "end": "2026-09-07",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 1(화)~7(월) 수강신청 최종정정, 복수․부전공, 조기졸업, 대체교과목 신청",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "신입학 수시모집 원서접수",
+      "kind": "ignored",
+      "start": "2026-09-07",
+      "end": "2026-09-11",
+      "weekdays": [
+        "월",
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 7(월)~11(금) 신입학 수시모집 원서접수",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "추석 연휴",
+      "kind": "holiday",
+      "start": "2026-09-24",
+      "end": "2026-09-26",
+      "weekdays": [
+        "목",
+        "토"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 24(목)~26(토) 추석 연휴",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수강과목 포기",
+      "kind": "ignored",
+      "start": "2026-09-28",
+      "end": "2026-09-30",
+      "weekdays": [
+        "월",
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 28(월)~30(수) 수강과목 포기",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수업일수 1/4(개강 후 19일째)",
+      "kind": "ignored",
+      "start": "2026-09-29",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 29(화) 수업일수 1/4(개강 후 19일째)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "학기개시 30일",
+      "kind": "ignored",
+      "start": "2026-09-30",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 30(수) 학기개시 30일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "개천절",
+      "kind": "holiday",
+      "start": "2026-10-03",
+      "end": null,
+      "weekdays": [
+        "토"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 3(토) 개천절",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "개천절 대체공휴일",
+      "kind": "holiday",
+      "start": "2026-10-05",
+      "end": null,
+      "weekdays": [
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 5(월) 개천절 대체공휴일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수업일수 1/3(개강 후 25일째)",
+      "kind": "ignored",
+      "start": "2026-10-08",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 8(목) 수업일수 1/3(개강 후 25일째)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "한글날",
+      "kind": "holiday",
+      "start": "2026-10-09",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 9(금) 한글날",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "중간고사",
+      "kind": "exam",
+      "start": "2026-10-20",
+      "end": "2026-10-26",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 20(화)~26(월) 중간고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수시 실기고사",
+      "kind": "ignored",
+      "start": "2026-10-23",
+      "end": "2026-10-24",
+      "weekdays": [
+        "금",
+        "토"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 23(금)~24(토) 수시 실기고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "개교기념일",
+      "kind": "holiday",
+      "start": "2026-10-28",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 28(수) 개교기념일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수업일수 1/2(개강 후 38일째)",
+      "kind": "ignored",
+      "start": "2026-10-29",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 29(목) 수업일수 1/2(개강 후 38일째)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "학기개시 60일",
+      "kind": "ignored",
+      "start": "2026-10-30",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 30(금) 학기개시 60일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수시 면접고사",
+      "kind": "ignored",
+      "start": "2026-10-31",
+      "end": null,
+      "weekdays": [
+        "토"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 31(토) 수시 면접고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "참자녀의 날(음10.1)",
+      "kind": "observance",
+      "start": "2026-11-09",
+      "end": null,
+      "weekdays": [
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 9(월) 참자녀의 날(음10.1)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수시 합격자 발표",
+      "kind": "ignored",
+      "start": "2026-11-25",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 25(수) 수시 합격자 발표",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "학기개시 90일",
+      "kind": "ignored",
+      "start": "2026-11-29",
+      "end": null,
+      "weekdays": [
+        "일"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 29(일) 학기개시 90일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "기말고사",
+      "kind": "exam",
+      "start": "2026-12-08",
+      "end": "2026-12-14",
+      "weekdays": [
+        "화",
+        "월"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 8(화)~14(월) 기말고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "동계방학/계절학기 시작",
+      "kind": "vacation-start",
+      "start": "2026-12-15",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 15(화) 동계방학/계절학기 시작",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수시 최초합격자 문서등록",
+      "kind": "ignored",
+      "start": "2026-12-21",
+      "end": "2026-12-23",
+      "weekdays": [
+        "월",
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 21(월)~23(수) 수시 최초합격자 문서등록",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "성적공고/이의신청 및 정정",
+      "kind": "ignored",
+      "start": "2026-12-22",
+      "end": "2026-12-24",
+      "weekdays": [
+        "화",
+        "목"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 22(화)~24(목) 성적공고/이의신청 및 정정",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "성탄절",
+      "kind": "holiday",
+      "start": "2026-12-25",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 25(금) 성탄절",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "수시 미등록 충원 마감",
+      "kind": "ignored",
+      "start": "2026-12-30",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": true,
+      "sourceQuote": "◉ 30(수) 수시 미등록 충원 마감",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "신정",
+      "kind": "holiday",
+      "start": "2027-01-01",
+      "end": null,
+      "weekdays": [
+        "금"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 1(금) 신정",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "신입학 정시모집 원서접수",
+      "kind": "ignored",
+      "start": "2027-01-04",
+      "end": "2027-01-07",
+      "weekdays": [
+        "월",
+        "목"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 4(월)~7(목) 신입학 정시모집 원서접수",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2027-1 휴학신청(1차), 복학, 전과, 유급신청",
+      "kind": "ignored",
+      "start": "2027-01-25",
+      "end": "2027-01-27",
+      "weekdays": [
+        "월",
+        "수"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 25(월)~27(수) 2027-1 휴학신청(1차), 복학, 전과, 유급신청",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "정시 실기고사",
+      "kind": "ignored",
+      "start": "2027-01-28",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 28(목) 정시 실기고사",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "정시모집 합격자 발표",
+      "kind": "ignored",
+      "start": "2027-02-03",
+      "end": null,
+      "weekdays": [
+        "수"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 3(수) 정시모집 합격자 발표",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "설날 연휴",
+      "kind": "holiday",
+      "start": "2027-02-06",
+      "end": "2027-02-08",
+      "weekdays": [
+        "토",
+        "월"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 6(토)~8(월) 설날 연휴",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "설날 대체공휴일",
+      "kind": "holiday",
+      "start": "2027-02-09",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 9(화) 설날 대체공휴일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "신입학 본등록(등록금 납부)",
+      "kind": "ignored",
+      "start": "2027-02-10",
+      "end": "2027-02-12",
+      "weekdays": [
+        "수",
+        "금"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 10(수)~12(금) 신입학 본등록(등록금 납부)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2027-1학기 수강신청",
+      "kind": "ignored",
+      "start": "2027-02-11",
+      "end": "2027-02-15",
+      "weekdays": [
+        "목",
+        "월"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 11(목)~15(월) 2027-1학기 수강신청",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2026-전기 졸업일",
+      "kind": "ignored",
+      "start": "2027-02-18",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 18(목) 2026-전기 졸업일",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "정시 미등록 충원 마감",
+      "kind": "ignored",
+      "start": "2027-02-18",
+      "end": null,
+      "weekdays": [
+        "목"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 18(목) 정시 미등록 충원 마감",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "신입학 추가모집",
+      "kind": "ignored",
+      "start": "2027-02-19",
+      "end": "2027-02-26",
+      "weekdays": [
+        "금",
+        "금"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 19(금)~26(금) 신입학 추가모집",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2027-1 재학생 등록기간",
+      "kind": "ignored",
+      "start": "2027-02-22",
+      "end": "2027-02-26",
+      "weekdays": [
+        "월",
+        "금"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 22(월)~26(금) 2027-1 재학생 등록기간",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "2027-1 휴학신청(2차)",
+      "kind": "ignored",
+      "start": "2027-02-22",
+      "end": "2027-02-26",
+      "weekdays": [
+        "월",
+        "금"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 22(월)~26(금) 2027-1 휴학신청(2차)",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    },
+    {
+      "label": "신입생 오리엔테이션",
+      "kind": "ignored",
+      "start": "2027-02-23",
+      "end": null,
+      "weekdays": [
+        "화"
+      ],
+      "yearInferred": false,
+      "sourceQuote": "◉ 23(화) 신입생 오리엔테이션",
+      "sourcePage": "data/raw/calendar/2026학년도-학사력.txt",
+      "extractedBy": "rule",
+      "needsReview": false
+    }
+  ],
   "source": {
     "url": "https://lily.sunmoon.ac.kr/Page2/About/About08_04_01.aspx",
     "sourceUpdatedAt": "2026-08-20",
-    "fetchedAt": "2026-10-09T10:00:00+09:00",
-    "contentHash": "sha256:e0952e99ade9e3800e3b1a0c4ccb386596ee1b98b8990174e90e34caaf3b5729",
+    "fetchedAt": "2026-11-08T17:11:43+09:00",
+    "contentHash": "sha256:7a088cd3e1c6724ec8019903adf661b5300d0aa93f202ea08437ca845c479bd8",
     "pages": [
       {
         "routeId": "asan-ktx",
@@ -4699,15 +5736,15 @@
       "calls": 2,
       "truncated": 0,
       "promptTokens": 1450,
-      "completionTokens": 1113,
-      "totalTokens": 2563,
+      "completionTokens": 1074,
+      "totalTokens": 2524,
       "fallbackReason": null,
       "candidates": 25,
       "ruleEntries": 11,
-      "aiDrafts": 16,
+      "aiDrafts": 15,
       "aiAccepted": 0,
-      "aiDropped": 6,
-      "aiRepairs": 2,
+      "aiDropped": 5,
+      "aiRepairs": 0,
       "aiConflicts": 10,
       "needsReview": 1,
       "dedupedNotices": 1,
@@ -4756,8 +5793,45 @@
         "calls": 0,
         "totalTokens": 0,
         "agreedRows": 78,
+        "rawAgreedRows": 78,
         "disagreedRows": 70,
+        "rawDisagreedRows": 70,
+        "keyShiftRows": 70,
+        "nullMismatchRows": 0,
+        "contradictedRows": 0,
+        "rowSetMismatchRows": 0,
         "adoptedPages": [],
+        "drift": {
+          "checked": true,
+          "blocked": false,
+          "reasons": []
+        }
+      },
+      "calendar": {
+        "sources": [
+          "data/raw/calendar/2026학년도-학사력.txt"
+        ],
+        "events": 72,
+        "byKind": {
+          "holiday": 19,
+          "semester-start": 2,
+          "ignored": 43,
+          "observance": 2,
+          "exam": 4,
+          "vacation-start": 2
+        },
+        "ai": {
+          "status": "ok",
+          "provider": "api",
+          "model": "deepseek-v4-flash",
+          "promptTemplateSha256": "sha256:dc510095040438e4a82575169d0a49f42f0aa585181bd4d81ab5c1d8aed7cafd",
+          "calls": 1,
+          "agreed": 72,
+          "adopted": [],
+          "conflicts": [],
+          "missing": 0,
+          "error": null
+        },
         "drift": {
           "checked": false,
           "blocked": false,
