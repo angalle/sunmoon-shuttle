@@ -153,13 +153,14 @@ B안(데이터는 Pages 에서 · docs/07 §17)이 들어간 첫 버전을 한 �
 
 1. **업로드 키 만들기**(한 번만 · 비밀번호는 직접 정하고 비밀 관리 도구에 보관 — 잃어버리면 Play 지원팀 재설정 필요)
    ```bash
-   mkdir -p ../secure   # 저장소 밖(커밋 위험 0)
-   keytool -genkeypair -v -keystore ../secure/sunmoon-upload.jks -alias upload \
+   mkdir -p ~/.android-keys   # 저장소 밖 홈 폴더(커밋 위험 0)
+   keytool -genkeypair -v -keystore ~/.android-keys/sunmoon-upload.jks -alias upload \
      -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=sunmoon-shuttle, O=angalle, C=KR"
    ```
-   (`keytool` 이 비밀번호를 대화식으로 묻는다 — 명령줄 인자로 넘기지 않는다)
+   (`keytool` 이 비밀번호를 대화식으로 묻는다 — 명령줄 인자로 넘기지 않는다.
+    Claude Code 세션 안의 셸은 프로젝트 밖 쓰기가 막혀 있으니 **Mac 터미널 앱**에서 실행한다)
 2. **`android/keystore.properties` 만들기** — `cp android/keystore.properties.example android/keystore.properties` 후
-   `storePassword`·`keyPassword` 를 채운다(`storeFile` 기본값이 위 경로와 같다).
+   `storeFile` 을 키의 절대 경로(예: `/Users/<사용자>/.android-keys/sunmoon-upload.jks`)로 바꾸고 `storePassword`·`keyPassword` 를 채운다.
 3. **AAB 빌드·확인** — `bash android/build-release.sh` → `서명: 업로드 키 (CN=sunmoon-shuttle …)` 가 찍히는지 확인.
 4. **Play Console** → 앱 만들기(패키지 `com.angalle.sunmoonshuttle`) → **Play 앱 서명 사용** → 내부 테스트 트랙에
    `android/app/build/outputs/bundle/release/app-release.aab` 업로드. 스토어 문구·개인정보처리방침 URL 은 `docs/05-store-listing.md`.
