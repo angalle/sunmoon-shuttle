@@ -86,10 +86,15 @@ function published(): Record<string, unknown> {
   return JSON.parse(readFileSync('data/timetable.json', 'utf8')) as Record<string, unknown>;
 }
 
-/** `source` 를 뺀 규칙 정본 부분(발행본 비교용 — §8 필드 추가는 이 부분을 바꾸지 않는다) */
+/**
+ * `source` 를 뺀 규칙 정본 부분(발행본 비교용 — §8 필드 추가는 이 부분을 바꾸지 않는다).
+ * `academicEvents`(T42)도 뺀다: 발행본은 AI 분류 교차검증(채택·불일치 표시)을 거친 값이라 `--no-ai` 결과와
+ * 다를 수 있다. 학사일정은 `tests/extract/calendar.test.ts` 가 따로 검증한다.
+ */
 function ruleCore(body: Record<string, unknown>): Record<string, unknown> {
-  const { source, ...rest } = body;
+  const { source, academicEvents, ...rest } = body;
   void source;
+  void academicEvents;
   return rest;
 }
 

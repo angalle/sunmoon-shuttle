@@ -27,7 +27,11 @@ import { checkDrift, driftTableText, forceDrift, parseBaseline, DRIFT_TRIP_THRES
 import type { DriftReport } from './driftGate.js';
 import type { AiTableExtractor } from './aiTable.js';
 import type { AiStructurer, TermSource } from './types.js';
-import { buildEnrichedTimetable, withExtractionMeta } from './enrich.js';
+import { buildEnrichedTimetable, withAcademicEvents, withExtractionMeta } from './enrich.js';
+import { baselineAcademicEvents, calendarDriftReasons, countByKind, crossCheckCalendar, parseAcademicCalendar } from './calendar.js';
+import type { AcademicEvent } from './calendar.js';
+import { calendarPromptTemplateSha256, createDisabledCalendarClassifier } from './aiCalendar.js';
+import type { AiCalendarClassifier } from './aiCalendar.js';
 import { computeGapCoverage, countNeedsReview, hasFatal, validateEnriched } from './validate.js';
 import { ExtractError } from './types.js';
 import type {
@@ -40,6 +44,7 @@ import type {
   RuleStructures,
   SnapshotSource,
   ValidationIssue,
+  CalendarExtractMeta,
 } from './types.js';
 
 /** AI 보강 모드 — `--ai=<모드>` (기본 `api`). `off` 는 `--no-ai` 와 같다. */
@@ -76,6 +81,12 @@ export interface ExtractDeps {
   readonly createTableExtractor?:
     | ((options: { readonly model: string; readonly noAi: boolean; readonly provider: AiMode }) => AiTableExtractor)
     | undefined;
+  /**
+   * T42 학사일정 **AI 분류 교차검증기** 조립. 없으면 규칙 분류만 쓴다(학사력 단계 자체는 돈다).
+   */
+  readonly createCalendarClassifier?:
+    | ((options: { readonly model: string; readonly noAi: boolean; readonly provider: AiMode }) => AiCalendarClassifier)
+    | undefined;
 }
 
 export const DEFAULT_OUT = 'data/timetable.json';
@@ -83,6 +94,8 @@ export const DEFAULT_LOG = '.session-notes/T16-extract-run.json';
 export const DEFAULT_RAW_DIR = 'data/raw';
 /** 기간 수집용 스냅샷(노선 표가 아닌 페이지 — 예: 방학 시간표) 기본 위치 */
 export const DEFAULT_TERM_DIR = 'data/raw/terms';
+/** 학사력 텍스트 정본 폴더(docs/10 §4 · `scripts/calendar_hwp_to_txt.sh` 산출물 `*.txt`) */
+export const DEFAULT_CALENDAR_DIR = 'data/raw/calendar';
 /** T34: AI 표 초안 **내용 해시 캐시**(§6 — 내용이 같으면 호출 0회) */
 export const DEFAULT_AI_CACHE = '.session-notes/T34-ai-table-cache.json';
 /** T34: AI 표 **초안 산출물**(T35 교차검증 입력) */
@@ -566,6 +579,22 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     dedupedNotices: rules.dedupedNotices,
   };
   let enriched = buildEnrichedTimetable(publishBase, parts);
+
+  // ⑤-b 학사일정(docs/10 · T42) — 학사력 텍스트 → 규칙 파서(날짜·분류 정본) → AI 분류 교차검증 → academicEvents
+  //      형식 위반·요일 불일치는 **발행 중단**(조용한 손상 금지). AI 실패는 규칙 분류로 계속한다.
+  const calendar = await extractCalendar(args, deps);
+  if (calendar.fatal !== null) {
+    deps.error(`[extract] 학사력 파싱 실패 — **발행하지 않는다**: ${calendar.fatal}`);
+    writeLog(deps, args, buildRecord(args, files, candidates.length, merged, rules, aiResult, deps.nowMs() - started, [], [], [], true, {
+      candidatesRejected: rejected,
+      promptChars,
+      termPages: termFiles,
+      aiTable: aiTable.record,
+    }));
+    return 1;
+  }
+  enriched = withAcademicEvents(enriched, calendar.events);
+
   if (args.injectFabricated) {
     enriched = { ...enriched, dateRules: [...enriched.dateRules, fabricatedRule(sources)] };
     deps.log('[extract] ⚠️ --inject-fabricated: 원본에 없는 문장을 주입했다(검증 FAIL 이어야 정상)');
@@ -599,6 +628,10 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   }
   for (const signal of drift.signals) deps.log(`[extract]   ⚠️ ${signal.id}: ${signal.detail}`);
 
+  // ⑥-b' 학사일정 드리프트(docs/10 §8-5) — 직전 발행본보다 공휴일·방학 시작·개강·시험이 줄면 보류
+  const calendarDrift = checkCalendarDrift(args, deps, calendar.events);
+  for (const reason of calendarDrift.reasons) deps.log(`[extract]   ⚠️ calendar: ${reason}`);
+
   const record = buildRecord(args, files, candidates.length, merged, rules, aiResult, deps.nowMs() - started, fatalIssues, reviewReasons, issues, fatalIssues.length > 0, {
     candidatesRejected: rejected,
     needsReview,
@@ -613,6 +646,15 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
     for (const issue of fatalIssues) deps.error(`[extract]   ${issue.where}: ${issue.message}`);
     writeLog(deps, args, record);
     return 1;
+  }
+
+  if (calendarDrift.blocked) {
+    deps.error(
+      `[extract] 학사일정 드리프트 보류 — ${calendarDrift.reasons.join(' · ')}. **발행하지 않는다**. 학사력이 맞게 바뀐 것이면 --force-publish 로 발행한다(docs/10 §8)`,
+    );
+    writeLog(deps, args, { ...record, output: null });
+    if (!args.dryRun) return 1;
+    deps.log('[extract] --dry-run: 발행이 없으므로 종료코드는 0 이다(학사일정 보류 사실은 위 로그에 남겼다)');
   }
 
   // ⑥-c 드리프트 **보류** — 발행하지 않고 exit 1(워크플로 실패 = 알림). 원본·AI 초안·비교 표를 아티팩트로 남긴다.
@@ -666,6 +708,19 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
         reasons: drift.reasons,
       },
     },
+    ...(calendar.meta === null
+      ? {}
+      : {
+          calendar: {
+            ...calendar.meta,
+            drift: {
+              checked: calendarDrift.checked,
+              blocked: calendarDrift.blocked,
+              ...(calendarDrift.forced ? { forced: true as const } : {}),
+              reasons: calendarDrift.reasons,
+            },
+          },
+        }),
   };
   const final: EnrichedTimetable = withExtractionMeta(enriched, meta);
 
@@ -691,6 +746,142 @@ export async function runExtract(argv: readonly string[], deps: ExtractDeps): Pr
   }
   deps.log(`[extract] 발행: ${args.out} (${new TextEncoder().encode(serialized).length} bytes) · schemaVersion=3 · ${final.source.contentHash}`);
   return 0;
+}
+
+// ─────────────────────────── 학사일정(T42 · docs/10) ───────────────────────────
+
+interface CalendarStep {
+  readonly events: readonly AcademicEvent[];
+  readonly meta: Omit<CalendarExtractMeta, 'drift'> | null;
+  readonly fatal: string | null;
+}
+
+/** 학사력 텍스트 정본 목록 — `data/raw/calendar/*.txt`(폴더가 없으면 빈 목록 = 단계 건너뜀) */
+export function resolveCalendarFiles(deps: ExtractDeps): string[] {
+  try {
+    return deps
+      .listFiles(DEFAULT_CALENDAR_DIR)
+      .filter((file) => file.endsWith('.txt'))
+      .map((file) => `${DEFAULT_CALENDAR_DIR}/${file}`)
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+async function extractCalendar(args: ExtractArgs, deps: ExtractDeps): Promise<CalendarStep> {
+  const files = resolveCalendarFiles(deps);
+  if (files.length === 0) {
+    deps.log(`[extract] 학사력: ${DEFAULT_CALENDAR_DIR}/*.txt 없음 — 학사일정 단계 건너뜀(academicEvents 미발행)`);
+    return { events: [], meta: null, fatal: null };
+  }
+  const factory = deps.createCalendarClassifier;
+  const classifier: AiCalendarClassifier =
+    args.noAi || factory === undefined
+      ? createDisabledCalendarClassifier(args.model === '' ? DEFAULT_MODEL : args.model)
+      : factory({ model: args.model, noAi: args.noAi, provider: args.aiMode });
+
+  const all: AcademicEvent[] = [];
+  const adopted: { label: string; rule: string; ai: string }[] = [];
+  const conflicts: { label: string; rule: string; ai: string }[] = [];
+  const statuses: AiStatus[] = [];
+  let agreed = 0;
+  let missing = 0;
+  let calls = 0;
+  let provider: AiProvider = 'rule-only';
+  let lastError: string | null = null;
+
+  for (const file of files) {
+    let text: string;
+    try {
+      text = deps.readTextFile(file);
+    } catch (error) {
+      return { events: [], meta: null, fatal: `${file} 을 읽을 수 없다 — ${message(error)}` };
+    }
+    let parsed;
+    try {
+      parsed = parseAcademicCalendar(text, file);
+    } catch (error) {
+      return { events: [], meta: null, fatal: message(error) };
+    }
+    const result = await classifier.classify({ sourcePage: file, events: parsed.events });
+    statuses.push(result.status);
+    calls += result.calls;
+    if (result.status === 'ok') provider = result.provider;
+    if (result.error !== null) lastError = result.error;
+    const checked = crossCheckCalendar(parsed.events, result.kinds);
+    agreed += checked.agreed;
+    missing += checked.missing;
+    for (const entry of checked.adopted) adopted.push({ label: entry.label, rule: entry.rule, ai: entry.ai });
+    for (const entry of checked.conflicts) conflicts.push({ label: entry.label, rule: entry.rule, ai: entry.ai });
+    all.push(...checked.events);
+    deps.log(
+      `[extract] 학사력 ${file}: ${String(parsed.academicYear)}학년도 일정 ${String(parsed.events.length)}건 · AI ${result.status}` +
+        (result.status === 'ok'
+          ? ` (일치 ${String(checked.agreed)} · 채택 ${String(checked.adopted.length)} · 불일치 ${String(checked.conflicts.length)} · 누락 ${String(checked.missing)})`
+          : result.error === null
+            ? ''
+            : ` — 규칙 분류로 계속: ${result.error}`),
+    );
+    for (const entry of checked.adopted) deps.log(`[extract]   AI 채택(needsReview): "${entry.label}" ignored → ${entry.ai}`);
+    for (const entry of checked.conflicts) deps.log(`[extract]   ⚠️ 규칙·AI 불일치(규칙 유지): "${entry.label}" rule=${entry.rule} ai=${entry.ai}`);
+  }
+
+  // 같은 날짜·같은 일정명이 두 파일에 겹치면 하나만 남긴다 · 날짜순
+  const seen = new Set<string>();
+  const events = all
+    .filter((event) => {
+      const key = `${event.start}|${event.end ?? ''}|${event.label}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => (a.start === b.start ? 0 : a.start < b.start ? -1 : 1));
+
+  const status: AiStatus = statuses.every((value) => value === 'ok')
+    ? 'ok'
+    : statuses.includes('error')
+      ? 'error'
+      : (statuses.find((value) => value !== 'ok') ?? 'disabled');
+  return {
+    events,
+    fatal: null,
+    meta: {
+      sources: files,
+      events: events.length,
+      byKind: countByKind(events),
+      ai: {
+        status,
+        provider,
+        model: status === 'ok' ? classifier.model : null,
+        promptTemplateSha256: calendarPromptTemplateSha256(),
+        calls,
+        agreed,
+        adopted,
+        conflicts,
+        missing,
+        error: lastError,
+      },
+    },
+  };
+}
+
+function checkCalendarDrift(
+  args: ExtractArgs,
+  deps: ExtractDeps,
+  events: readonly AcademicEvent[],
+): { checked: boolean; blocked: boolean; forced: boolean; reasons: string[] } {
+  if (events.length === 0 || args.baselinePath === '') return { checked: false, blocked: false, forced: false, reasons: [] };
+  let baseline: { kind: string }[] | null = null;
+  try {
+    baseline = baselineAcademicEvents(JSON.parse(deps.readTextFile(args.baselinePath)) as unknown);
+  } catch {
+    baseline = null;
+  }
+  if (baseline === null) return { checked: false, blocked: false, forced: false, reasons: [] };
+  const reasons = calendarDriftReasons(baseline, events);
+  const blocked = reasons.length > 0 && !args.forcePublish;
+  return { checked: true, blocked, forced: reasons.length > 0 && args.forcePublish, reasons };
 }
 
 /** 기간 스냅샷 경로 — `--term-page` 우선, 없으면 `data/raw/terms/*.html`(없으면 빈 목록) */
@@ -1171,6 +1362,14 @@ function logSummary(
     `[extract] 드리프트(§7): checked=${String(aiExtract.drift.checked)} blocked=${String(aiExtract.drift.blocked)} forced=${String(aiExtract.drift.forced ?? false)} reasons=${String(aiExtract.drift.reasons.length)}`,
   );
   deps.log(`[extract] dateRules ${String(timetable.dateRules.length)}건 · terms ${String(timetable.terms.length)}건 · notices 중복 제거 ${String(timetable.source.extraction.dedupedNotices)}건`);
+  if (timetable.academicEvents !== undefined) {
+    const byKind = countByKind(timetable.academicEvents);
+    deps.log(
+      `[extract] academicEvents ${String(timetable.academicEvents.length)}건 — ${Object.entries(byKind)
+        .map(([kind, count]) => `${kind} ${String(count)}`)
+        .join(' · ')}`,
+    );
+  }
   deps.log(
     `[extract] 편별 조건 ${String(countTripConditions(timetable))}건(원문 note 구조화) · 기간 스냅샷 ${String(timetable.source.extraction.termSources.length)}개`,
   );

@@ -12,6 +12,7 @@
  *  - `contentHash` 는 v3 페이로드(v3 추가 필드 포함, `source` 제외)로 **재계산**한다
  */
 
+import type { AcademicEvent } from './calendar.js';
 import { createHash } from 'node:crypto';
 
 import type { CellValue, DayTable, DayType, Notice, RouteData, Timetable, TripRow } from '../scraper/types.js';
@@ -144,7 +145,17 @@ export function enrichedCanonicalPayload(payload: Omit<EnrichedTimetableBody, 's
     notices: payload.notices,
     busRefs: payload.busRefs,
     contacts: payload.contacts,
+    // 학사일정은 있을 때만 해시에 넣는다 — 학사력이 없는 실행의 해시는 예전과 같다
+    ...(payload.academicEvents === undefined ? {} : { academicEvents: payload.academicEvents }),
   });
+}
+
+/** 학사일정(docs/10 · T42)을 붙이고 `contentHash` 를 다시 계산한다. 빈 목록이면 필드를 붙이지 않는다. */
+export function withAcademicEvents(timetable: EnrichedTimetableBody, events: readonly AcademicEvent[]): EnrichedTimetableBody {
+  if (events.length === 0) return timetable;
+  const { source, ...body } = timetable;
+  const next = { ...body, academicEvents: clone(events) };
+  return { ...next, source: { ...source, contentHash: `sha256:${sha256Hex(enrichedCanonicalPayload(next))}` } };
 }
 
 export function sha256Hex(text: string): string {

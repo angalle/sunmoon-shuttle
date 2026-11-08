@@ -19,6 +19,7 @@
  * `extractedBy` 로 규칙/`ai` 출처를 구분한다.
  */
 
+import type { AcademicEvent } from './calendar.js';
 import type { DayType, Notice, RouteData, SemesterPeriod, Timetable, TripRow } from '../scraper/types.js';
 
 export type { DayType, Notice, RouteData, SemesterPeriod, Timetable };
@@ -476,6 +477,30 @@ export interface ExtractionMeta {
   readonly gaps: readonly GapCoverage[];
   /** §8 AI 표 추출 기록(T34) — AI 를 안 쓴 실행도 0 값으로 존재한다 */
   readonly aiExtract: AiExtractMeta;
+  /** 학사일정 추출 기록(docs/10 · T42) — 학사력 파일이 없으면 생략 */
+  readonly calendar?: CalendarExtractMeta;
+}
+
+/** 학사일정 추출 기록(docs/10 §6 · T42) */
+export interface CalendarExtractMeta {
+  readonly sources: readonly string[];
+  readonly events: number;
+  readonly byKind: Readonly<Record<string, number>>;
+  readonly ai: {
+    readonly status: AiStatus;
+    readonly provider: AiProvider;
+    readonly model: string | null;
+    readonly promptTemplateSha256: string;
+    readonly calls: number;
+    readonly agreed: number;
+    /** 규칙 `ignored` → AI 분류 채택(needsReview) */
+    readonly adopted: readonly { readonly label: string; readonly rule: string; readonly ai: string }[];
+    /** 규칙·AI 불일치(규칙 유지, needsReview) */
+    readonly conflicts: readonly { readonly label: string; readonly rule: string; readonly ai: string }[];
+    readonly missing: number;
+    readonly error: string | null;
+  };
+  readonly drift: { readonly checked: boolean; readonly blocked: boolean; readonly forced?: true; readonly reasons: readonly string[] };
 }
 
 /**
@@ -487,6 +512,8 @@ export interface EnrichedTimetableBody extends Omit<Timetable, 'schemaVersion' |
   readonly routes: readonly EnrichedRouteData[];
   readonly dateRules: readonly DateRule[];
   readonly terms: readonly Term[];
+  /** 학사일정(docs/10 · T42) — 학사력 파일이 있을 때만. 선택 필드라 schemaVersion 은 3 그대로(앱은 모르는 필드를 무시) */
+  readonly academicEvents?: readonly AcademicEvent[];
   readonly source: Timetable['source'];
 }
 
