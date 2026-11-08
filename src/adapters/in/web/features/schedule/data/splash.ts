@@ -3,7 +3,7 @@
  *
  * 계약(`docs/07-mobile-ux.md` §3):
  * - 진입 시 **항상** 표시하고, 데이터가 준비되면 사라진다.
- * - **최소 400ms**(깜빡임 방지) · **최대 2.5s**(초과 시 스켈레톤·캐시 폴백으로 진행 — 스플래시에 갇히지 않는다).
+ * - **최소 1200ms**(브랜드 화면을 잠깐 보여 준다 · 깜빡임 방지) · **최대 2.5s**(초과 시 스켈레톤·캐시 폴백으로 진행 — 스플래시에 갇히지 않는다).
  * - 전환은 200ms 페이드아웃, `prefers-reduced-motion: reduce` 면 즉시(0ms).
  *
  * 시간 계산(경과 → 언제 숨길지)을 여기서 순수하게 정하고, 타이머·DOM 은 페이지가 다룬다.
@@ -12,7 +12,8 @@
  */
 
 /** 최소 표시 시간(ms) — 깜빡임 방지 하한 */
-export const SPLASH_MIN_MS = 400;
+/** UI v3(2026-11-08 사용자: "너무 빨라 — 1초 정도는 보이게") 400 → 1200ms · 페이드 200ms 를 더하면 약 1.4초에 사라진다 */
+export const SPLASH_MIN_MS = 1200;
 /** 최대 표시 시간(ms) — 넘기면 스켈레톤/캐시 폴백으로 진행한다 */
 export const SPLASH_MAX_MS = 2500;
 /** 페이드아웃 시간(ms) */
@@ -25,14 +26,14 @@ export interface SplashDecision {
   /** 지금 숨길지 */
   readonly hide: boolean;
   readonly reason: SplashHideReason | null;
-  /** `hide` 가 true 일 때 숨기기까지 기다릴 시간(ms). 하한(400ms) 보정에 쓴다. */
+  /** `hide` 가 true 일 때 숨기기까지 기다릴 시간(ms). 하한(1200ms) 보정에 쓴다. */
   readonly delayMs: number;
 }
 
 export interface SplashInput {
   /** 스플래시를 띄운 뒤 흐른 시간(ms, 단조 시각 기준) */
   readonly elapsedMs: number;
-  /** 데이터가 준비됐는가(`status !== 'loading'`) — 준비되면 하한(400ms)까지만 기다린다 */
+  /** 데이터가 준비됐는가(`status !== 'loading'`) — 준비되면 하한(1200ms)까지만 기다린다 */
   readonly dataSettled: boolean;
 }
 

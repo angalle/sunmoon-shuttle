@@ -61,11 +61,11 @@ describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
   it('행 높이 56px(터치 최소 48px 이상) · 좌우 여백 10px · 셸 상·하단 여백 8px', () => {
     expect(lengthPx('row-height')).toBe(56);
     expect(lengthPx('row-height')).toBeGreaterThanOrEqual(48);
-    expect(lengthPx('shell-pad-x')).toBe(10);
+    expect(lengthPx('shell-pad-x')).toBe(16); // UI v3: 10 → 16(사용자 "답답")
     expect(lengthPx('shell-pad-y')).toBe(8);
   });
 
-  it('고정 영역 총 높이가 문서 값(128~136px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
+  it('고정 영역 총 높이가 문서 값(UI v3: 145~156px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
     // 앱바 48 + 아래 여백 4 + (줄 간격 3 × 2) + 요일 40 + 칩 34 + 고정 영역 아래 여백 2 + 경계 1
     const total =
       lengthPx('appbar-height') +
@@ -75,8 +75,8 @@ describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
       lengthPx('chip-height') +
       lengthPx('fixed-pad-bottom') +
       lengthPx('hairline');
-    expect(total).toBeGreaterThanOrEqual(128);
-    expect(total).toBeLessThanOrEqual(136);
+    expect(total).toBeGreaterThanOrEqual(145);
+    expect(total).toBeLessThanOrEqual(156);
   });
 
   it('편수 숫자(11px 캡션)가 라벨(13px)보다 작다(§12-3 유지) · 폰트는 15/13/11 그대로', () => {

@@ -23,7 +23,7 @@
  *     §15-2(T37) — 선택한 요일이 **오늘이 아니면 되묻지 않는다**: 오늘 버킷으로 옮기고 짧은 안내
  *     이동 안내 문구(`UI_TEXT.moveNowTodayNotice`)를 1.5초만 띄운다(액션 버튼 없음 · 예전 `오늘 보기` 확인형 제거).
  *   ── 스플래시 ────────────────────────────────────────────────────────────
- *     진입 시 항상 표시 → 데이터 준비 시 200ms 페이드아웃(최소 400ms / 최대 2.5s — `data/splash.ts`)
+ *     진입 시 항상 표시 → 데이터 준비 시 200ms 페이드아웃(최소 1.2s / 최대 2.5s — `data/splash.ts`)
  *
  * 자동 스크롤(§9-3 · §11-1)
  * - 진입·요일 전환·새로고침 후 **다음 출발 행**이 상단 고정 영역 바로 아래에 오도록 스크롤한다(즉시 이동).
@@ -205,7 +205,7 @@ export function createSchedulePage(
   });
   refreshNode.classList.add('shuttle-appbar__refresh');
 
-  /** ② 스플래시 — 진입 시 표시, 데이터가 준비되면 페이드아웃(최소 400ms · 최대 2.5s). */
+  /** ② 스플래시 — 진입 시 표시, 데이터가 준비되면 페이드아웃(최소 1.2s · 최대 2.5s). */
   const splashNode = splashScreen();
   const splashStartedAt = monotonicNow();
   const splashMetric: SplashMetric = { shownAt: splashStartedAt, hiddenAt: null, reason: null, maxDelayMs: null };
@@ -373,7 +373,19 @@ export function createSchedulePage(
    * → 스크롤포트 사각형으로 계산한다.
    */
   const offsetForRow = (row: HTMLElement, overlap: number): number =>
-    Math.max(0, Math.round(row.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - overlap));
+    Math.max(
+      0,
+      Math.round(row.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - overlap - landingGap()),
+    );
+
+  /**
+   * UI v3 — 착지 여백(px). 다음 출발 행이 고정 영역 바로 아래에 딱 붙으면 답답하고 카드 위 모서리가 사라진다
+   * → 토큰 `--scroll-landing-gap`(12px)만큼 위를 남긴다. 값은 CSS 토큰에서 읽는다(하드코딩 금지).
+   */
+  const landingGap = (): number => {
+    const value = parseFloat(getComputedStyle(appNode).getPropertyValue('--scroll-landing-gap'));
+    return Number.isFinite(value) ? value : 0;
+  };
 
   /**
    * 스크롤 오프셋에서 **빼야 하는 몫** = 고정 영역(3줄)이 스크롤 영역을 실제로 덮는 높이(px).
@@ -550,7 +562,7 @@ export function createSchedulePage(
     if (!splashHidden) hideSplash('timeout');
   }, splashMaxDelayMs);
 
-  /** 데이터 준비 시 하한(400ms)까지만 기다렸다 숨긴다. */
+  /** 데이터 준비 시 하한(1.2s)까지만 기다렸다 숨긴다. */
   const evaluateSplash = (state: ScheduleState): void => {
     if (splashHidden) return;
     const decision = decideSplash({

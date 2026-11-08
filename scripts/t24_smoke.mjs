@@ -29,12 +29,12 @@
  *  AC-U12 T30 탭·칩 UI 정리 — 텍스트 축소·배치 (§12 규격 → §15-3 수치로 개정)
  *         - AC-U12-1 요일 탭 라벨에 `노선`·`개`·괄호·`오늘` 0건 · 오늘은 **점 1개**(`aria-label="오늘"`) · 등폭 3분할(≤1px) · 40px
  *         - AC-U12-2 칩 화면 텍스트 `학교 도착 24` 형식(`편`·`개`·괄호 0건) · 편수 11px < 라벨 13px · 알약 34px
- *         - AC-U12-3 3줄 좌우 여백 10px · 세로 중앙 · 고정 영역 높이 128~136px · 390×844·360×800 동일 규격
+ *         - AC-U12-3 3줄 좌우 여백 16px · 세로 중앙 · 고정 영역 높이 145~156px · 390×844·360×800 동일 규격
  *         - AC-U12-4 규격 변경 후에도 가려짐 0(수치) · 터치 타깃 탭 40px(가로 ≥48px)·칩 **터치 44px**(알약 34px)
  *  AC-U15 T37 칩 정리 · "오늘로 이동" · 여백 축소 (§15)
  *         - AC-U15-2 오늘이 아닌 요일에서 `현재 시간으로` → 요일 전환 + 현재 시각 행 스크롤 · `오늘로 이동합니다`(1.2~2.0초 소멸) · `오늘 보기` 버튼 없음
  *         - AC-U15-3 오늘이고 남은 편이 없음(23:00) → `오늘 남은 편이 없습니다 · 다음 운행: …` 1줄 유지(액션 없음)
- *         - AC-U15-4 치수 실측: 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 10 · 행 56 · 고정 영역 128~136px · 터치 위반 0
+ *         - AC-U15-4 치수 실측: 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 16 · 행 56 · 고정 영역 145~156px · 터치 위반 0
  *  AC-U16 T38 **"전체" 개념 삭제** — 방향은 항상 1개 (§16-2)
  *         - AC-U16-1 칩 2개 · **항상 정확히 1개 선택**(해제 시도해도 1개 유지 · 기본 `터미널 도착`) · 재실행 유지
  *         - AC-U16-2 목록의 **모든 행이 같은 방향** — 행 방향 카운트 제출(섞임 0건)
@@ -753,8 +753,8 @@ async function main() {
     const metric = splashAfter.metric ?? {};
     const displayMs = typeof metric.hiddenAt === 'number' && typeof metric.shownAt === 'number' ? Math.round(metric.hiddenAt - metric.shownAt) : -1;
     check(
-      'AC-U1 표시 시간 실측 400ms ≤ t ≤ 2.5s (하한: 깜빡임 방지)',
-      displayMs >= 400 && displayMs <= 2500,
+      'AC-U1 표시 시간 실측 1.2s ≤ t ≤ 2.5s (하한: UI v3 최소 표시)',
+      displayMs >= 1200 && displayMs <= 2500,
       `t=${String(displayMs)}ms (shownAt=${String(Math.round(metric.shownAt ?? -1))} hiddenAt=${String(Math.round(metric.hiddenAt ?? -1))} reason=${String(metric.reason)})`,
     );
     check('AC-U1 스플래시 노드가 사라진다(전환 완료)', splashAfter.present === false, `present=${String(splashAfter.present)}`);
@@ -1478,16 +1478,16 @@ async function main() {
       }),
     );
 
-    /* AC-U15-4 — 3줄 공통 정렬(좌우 10px · 세로 중앙) + 고정 영역 총 높이(128~136px) */
+    /* AC-U15-4 — 3줄 공통 정렬(좌우 16px · 세로 중앙) + 고정 영역 총 높이(145~156px) */
     const rowLefts = [styled.appbarRect.left, styled.dayRowRect.left, styled.filterRowRect.left];
     const rowRights = [styled.appbarRect.right, styled.dayRowRect.right, styled.filterRowRect.right];
     check(
-      'AC-U15-4 3줄 좌우 여백이 모두 10px(실측) · 고정 영역 총 높이 128~136px',
-      rowLefts.every((left) => Math.abs(left - 10) <= 1) &&
+      'AC-U15-4 3줄 좌우 여백이 모두 10px(실측) · 고정 영역 총 높이 145~156px',
+      rowLefts.every((left) => Math.abs(left - 16) <= 1) &&
         Math.max(...rowRights) - Math.min(...rowRights) <= 1 &&
         styled.fixedHeight !== null &&
-        styled.fixedHeight >= 128 &&
-        styled.fixedHeight <= 136,
+        styled.fixedHeight >= 145 &&
+        styled.fixedHeight <= 156,
       JSON.stringify({ left: rowLefts, right: rowRights, fixedHeight: styled.fixedHeight, appbar: styled.appbarRect, day: styled.dayRowRect, filter: styled.filterRowRect }),
     );
     check(
@@ -1553,13 +1553,13 @@ async function main() {
     await resetDirection();
     await delay(150);
 
-    /* 360×800 — 좁은 화면에서도 같은 3줄 규격(좌우 10px·등폭·탭 40px·칩 알약 34px) */
+    /* 360×800 — 좁은 화면에서도 같은 3줄 규격(좌우 16px·등폭·탭 40px·칩 알약 34px) */
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 360, height: 800, deviceScaleFactor: 2, mobile: true });
     await delay(250);
     const narrow = await evaluate(FIXED_PROBE);
     check(
-      'AC-U15-4 360×800 에서도 3줄 좌우 10px · 탭 등폭(≤1px) · 탭 40px · 칩 알약 34px(터치 44px)',
-      [narrow.appbarRect.left, narrow.dayRowRect.left, narrow.filterRowRect.left].every((left) => Math.abs(left - 10) <= 1) &&
+      'AC-U15-4 360×800 에서도 3줄 좌우 16px · 탭 등폭(≤1px) · 탭 40px · 칩 알약 34px(터치 44px)',
+      [narrow.appbarRect.left, narrow.dayRowRect.left, narrow.filterRowRect.left].every((left) => Math.abs(left - 16) <= 1) &&
         Math.max(...narrow.tabs.map((tab) => tab.rect.width)) - Math.min(...narrow.tabs.map((tab) => tab.rect.width)) <= 1 &&
         narrow.tabs.every((tab) => Math.abs(tab.rect.height - 40) <= 1) &&
         narrow.chips.every((chip) => Math.abs(chip.rect.height - 34) <= 1 && Math.abs(chip.hitHeight - 44) <= 1),
@@ -1569,20 +1569,20 @@ async function main() {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     await delay(150);
 
-    /* ── AC-U15-4 — 치수 실측(T37 §15-3): 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 10 · 행 56 · 고정 128~136 ── */
+    /* ── AC-U15-4 — 치수 실측(T37 §15-3): 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 16 · 행 56 · 고정 145~156 ── */
     await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
     await delay(200);
     const dims = await evaluate(FIXED_PROBE);
     const rowDims = await evaluate(MOVE_PROBE);
     check(
-      'AC-U15-4 앱바 52px · 요일 줄 40px · 고정 영역 128~136px(실측 수치)',
+      'AC-U15-4 앱바 52px · 요일 줄 40px · 고정 영역 145~156px(실측 수치)',
       dims.appbarRect !== null &&
         Math.abs(dims.appbarRect.height - 52) <= 1 &&
         dims.dayRowRect !== null &&
         Math.abs(dims.dayRowRect.height - 40) <= 1 &&
         dims.fixedHeight !== null &&
-        dims.fixedHeight >= 128 &&
-        dims.fixedHeight <= 136,
+        dims.fixedHeight >= 145 &&
+        dims.fixedHeight <= 156,
       JSON.stringify({ appbar: dims.appbarRect?.height, dayRow: dims.dayRowRect?.height, filterRow: dims.filterRowRect?.height, fixedHeight: dims.fixedHeight }),
     );
     check(
@@ -1676,7 +1676,7 @@ async function main() {
     const capDelay = capMetric === null ? -1 : Number(capMetric.maxDelayMs ?? -1);
     check(
       'AC-U5 스플래시 2.5s 상한 실측(초과 시 스켈레톤으로 진행)',
-      capMetric !== null && capMetric.reason === 'timeout' && capDelay >= 0 && capDelay <= 2500 && capMs >= 400 && capMs <= 2700,
+      capMetric !== null && capMetric.reason === 'timeout' && capDelay >= 0 && capDelay <= 2500 && capMs >= 1200 && capMs <= 2700,
       `t=${String(capMs)}ms 예약=${String(capDelay)}ms reason=${String(capMetric?.reason)}`,
     );
     // 스플래시가 노드에서 사라진 뒤(페이드아웃 완료) 스켈레톤을 본다 — 데이터는 아직 4s 지연 중이다.
@@ -1755,8 +1755,8 @@ async function main() {
     );
     const reducedFadeMs = reducedMetric === null ? -1 : Math.round(reducedMetric.hiddenAt - reducedMetric.shownAt);
     check(
-      'AC-U6 reduced-motion 에서도 스플래시 하한(400ms)은 지킨다(즉시 페이드아웃)',
-      reducedFadeMs >= 400 && reducedFadeMs <= 2500,
+      'AC-U6 reduced-motion 에서도 스플래시 하한(1.2s)은 지킨다(즉시 페이드아웃)',
+      reducedFadeMs >= 1200 && reducedFadeMs <= 2500,
       `t=${String(reducedFadeMs)}ms`,
     );
     /* §10-1 — reduced-motion 에서는 **이동 버튼도 즉시**다(60ms 값 = 600ms 값 → 추가 애니메이션 0). */

@@ -6,7 +6,7 @@ import { el } from '../../../../shared/lib/dom';
 import type { BusRef } from '../../types/contract';
 import type { NoticeGroupsView, StopWindowLineView } from '../../store/selectors';
 import { UI_TEXT } from '../../types/texts';
-import { noticeList } from '../molecules/NoticeList';
+import { noticeList, stripListMarker } from '../molecules/NoticeList';
 
 export interface NoticePanelProps {
   readonly groups: NoticeGroupsView;
@@ -50,7 +50,7 @@ function stopWindowSection(lines: readonly StopWindowLineView[]): HTMLElement | 
     el(
       'ul',
       { class: 'shuttle-list', dataset: { testid: 'stop-window-list' } },
-      lines.map((line) => el('li', { text: line.text })),
+      lines.map((line) => el('li', { text: stripListMarker(line.text) })),
     ),
   ]);
 }

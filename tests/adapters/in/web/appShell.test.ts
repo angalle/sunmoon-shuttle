@@ -24,23 +24,23 @@ import {
   splashFadeMs,
 } from '../../../../src/adapters/in/web/features/schedule/data/splash';
 
-describe('스플래시 표시 시간 — 최소 400ms · 최대 2.5s', () => {
-  it('상수 계약(400 / 2500 / 200ms 페이드)', () => {
-    expect(SPLASH_MIN_MS).toBe(400);
+describe('스플래시 표시 시간 — 최소 1.2s · 최대 2.5s', () => {
+  it('상수 계약(1200 / 2500 / 200ms 페이드 — 약 1.4초에 사라짐)', () => {
+    expect(SPLASH_MIN_MS).toBe(1200);
     expect(SPLASH_MAX_MS).toBe(2500);
     expect(SPLASH_FADE_MS).toBe(200);
   });
 
-  it('데이터가 빨리 준비돼도 하한(400ms)까지 기다린다', () => {
+  it('데이터가 빨리 준비돼도 하한(1200ms)까지 기다린다', () => {
     expect(decideSplash({ elapsedMs: 100, dataSettled: true })).toEqual({
       hide: true,
       reason: 'data',
-      delayMs: 300,
+      delayMs: 1100,
     });
   });
 
   it('하한을 넘겼으면 즉시 숨긴다', () => {
-    expect(decideSplash({ elapsedMs: 400, dataSettled: true })).toEqual({
+    expect(decideSplash({ elapsedMs: 1200, dataSettled: true })).toEqual({
       hide: true,
       reason: 'data',
       delayMs: 0,
