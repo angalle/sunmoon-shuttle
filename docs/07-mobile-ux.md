@@ -382,3 +382,33 @@
 - **AC-U16-4** **`SW_VERSION` 자동 주입**: `dist/sw.js` 의 값이 **빌드마다 달라짐**(2회 연속 빌드 값 2개 제출) · 손으로 올린 상수 문자열이 남아 있지 않음
 - **AC-U16-5** 회귀: `test` 0 fail · 스모크 8종 PASS(T27~T37 검사 유지 — 편수 대조 수치 그대로) · `build`·`lint:boundary` PASS · 화면 `원본` 0건
 
+
+## 17. 개정 — Android 앱: 화면은 앱 안, 데이터는 GitHub Pages 에서 (2026-11-08, 사용자 결정 B)
+
+> 사용자: "안드로이드 앱은 어떻게 설계될거야? 깃허브 페이지 웹뷰로 보여줄거임?" → 선택지 A(Pages 웹뷰)·B·C(현행) 중 **B**.
+
+### 17-1. 문제 (현행 C)
+- Capacitor 가 `dist/` 를 APK 안에 넣고, 앱은 상대 경로 `./data/timetable.json` 을 읽는다 → **앱 안의 빌드 시점 사본**.
+- 그래서 시간표·학사일정이 Actions 로 매일 갱신돼도 **AAB 재빌드·스토어 업데이트 전까지 앱은 옛 데이터**였다.
+
+### 17-2. 설계 (B)
+| 항목 | 웹(Pages) | Android 앱 |
+|---|---|---|
+| 화면(번들) | Pages | **앱 안**(오프라인 즉시 표시 · 스토어 심사에 유리) |
+| 데이터 1순위 | `./data/timetable.json`(같은 출처) | **`https://angalle.github.io/sunmoon-shuttle/data/timetable.json`**(`REMOTE_TIMETABLE_URL`) |
+| 실패 시 | 마지막 캐시(IndexedDB) | 마지막 캐시 → **앱 안 사본**(`./data/timetable.json`) → 오류 배너 |
+| Service Worker | 사용 | **사용 안 함**(화면은 이미 앱 안) |
+| 갱신 시점 | 진입 · 화면 복귀(30분 이상 지났을 때) | 같음 |
+
+- 판별: Capacitor 가 주입하는 `window.Capacitor.isNativePlatform()`(런타임 의존성 추가 없음 — `app/platform.ts`).
+- Pages 는 `access-control-allow-origin: *` 로 응답한다(실측) → 앱 출처 `https://localhost` 에서 그대로 받는다.
+- 앱 안 사본으로 물러서면 "마지막으로 받은 데이터" 로 표시하고, 나이는 사본의 발행 시각(`fetchedAt`) 기준이다(24h 초과면 `cache-expired`).
+- 오프라인 안내에는 기술 오류(주소·예외 문구)를 쓰지 않는다 — 콘솔에만 남긴다.
+- **UI 를 바꾸면 여전히 AAB 재빌드가 필요하다.** 데이터(시간표·학사일정)만 재빌드 없이 최신이 된다.
+
+### 17-3. 실측 (에뮬레이터 API 35 · debug APK · WebView CDP)
+| 상황 | 데이터 요청 | 결과 |
+|---|---|---|
+| 온라인 · 첫 실행 | `angalle.github.io/.../timetable.json` 1건 | 16행 · 안내 없음 · SW 없음 |
+| 오프라인(비행기 모드) · 캐시 없음 | 원격 실패 → `https://localhost/data/timetable.json` | 16행 · "오프라인 — 마지막으로 받은 데이터" 안내 |
+| 온라인 복귀 | 원격 1건 | 16행 · 안내 없음 |

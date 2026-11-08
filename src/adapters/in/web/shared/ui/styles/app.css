@@ -1509,3 +1509,39 @@ body {
     transition: none;
   }
 }
+
+/* ───────────────────────── UI v3 — 안내 배너(오프라인·오류) ─────────────────────────
+ * 두꺼운 테두리 상자 대신 시간표 카드와 같은 둥근 면 + 왼쪽 색 띠. 글자는 13px, 제목만 15px.
+ */
+.shuttle-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-row);
+  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-border-strong);
+  font-size: var(--font-size-row-meta);
+  line-height: var(--line-height-base);
+}
+
+.shuttle-banner p {
+  margin: 0;
+}
+
+.shuttle-banner strong {
+  font-size: var(--font-size-row-time);
+}
+
+.shuttle-banner--warn {
+  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-warn-border);
+}
+
+.shuttle-banner--error {
+  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-danger-border);
+}
+
+.shuttle-banner--info {
+  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-info-border);
+}

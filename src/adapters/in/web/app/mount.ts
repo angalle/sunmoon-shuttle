@@ -14,7 +14,8 @@ import { formatIsoDate, kstDayFromInstant } from '../../../../domain/rules/kst';
 import type { Clock } from '../../../../ports/clock';
 import type { TimetableCachePort } from '../../../../ports/timetable_cache';
 import { IndexedDbTimetableCache } from '../../../out/storage/indexedDbTimetableCache';
-import { loadTimetableModel, type LoadedTimetable } from '../features/schedule/api/timetableApi';
+import { loadTimetableModel, REMOTE_TIMETABLE_URL, TIMETABLE_PATH, type LoadedTimetable } from '../features/schedule/api/timetableApi';
+import { isNativeApp } from './platform';
 import { createWebClock, readInitialSelection } from '../features/schedule/data/urlParams';
 import { readUiPrefs, writeUiPrefs, effectiveStoredDayType } from '../features/schedule/api/uiPrefsApi';
 import { createSchedulePage } from '../features/schedule/pages/SchedulePage';
@@ -24,6 +25,9 @@ import { registerServiceWorker } from './serviceWorker';
 
 /** 갱신 주기(ms) — 카드 지시: 60초 */
 export const REFRESH_INTERVAL_MS = 60_000;
+
+/** 화면 복귀 시 데이터를 다시 읽는 최소 간격(ms) — 30분 */
+export const RELOAD_ON_RESUME_MS = 30 * 60_000;
 
 export interface MountOptions {
   /** 테스트·스모크에서 데이터 로더를 바꿔 끼울 수 있게 한다(기본: 캐시 포함 로더) */
@@ -43,7 +47,16 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
   const initial = readInitialSelection(search);
   const nowMs = (): number => clock.now().getTime();
   const cache = options.cache === undefined ? new IndexedDbTimetableCache() : options.cache;
-  const load = options.load ?? (() => loadTimetableModel({ cache, nowMs }));
+  // Android 앱(B안 · docs/07 §17): 화면은 앱 안, **데이터는 Pages 에서** — 실패하면 캐시 → 앱 안 사본.
+  const native = isNativeApp();
+  const load =
+    options.load ??
+    (() =>
+      loadTimetableModel({
+        cache,
+        nowMs,
+        ...(native ? { path: REMOTE_TIMETABLE_URL, fallbackPath: TIMETABLE_PATH } : {}),
+      }));
 
   // 화면 설정 저장(§11-1 · §16-2) — 저장된 요일·방향 선택을 재실행 후에도 유지한다.
   // 우선순위: URL(`?day=`) > 저장값 > 기본(오늘 요일 · 기본 방향 `터미널 도착`). URL 은 스모크/공유 링크의 **명시 지정**이라 가장 세다.
@@ -65,7 +78,10 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
     nowMs: nowMs(),
   });
 
+  /** 마지막으로 데이터를 다시 읽기 시작한 시각(ms) — 화면 복귀 시 재조회 판단에 쓴다. */
+  let lastLoadAt = 0;
   const reload = (): void => {
+    lastLoadAt = Date.now();
     store.setLoading();
     void load()
       .then((loaded) => {
@@ -117,7 +133,12 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
 
   // 탭 복귀 시 즉시 재계산(백그라운드 타이머 지연 보정).
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') store.tick(nowMs());
+    if (document.visibilityState === 'visible') {
+      store.tick(nowMs());
+      // 새로고침 버튼이 없으므로(2026-11-08) 오래 백그라운드에 있다 돌아오면 데이터를 다시 읽는다.
+      // 앱(Capacitor)은 프로세스가 오래 살아 있어 이 경로가 사실상의 갱신 시점이다.
+      if (Date.now() - lastLoadAt >= RELOAD_ON_RESUME_MS) reload();
+    }
   });
   window.addEventListener('pagehide', () => {
     window.clearInterval(timer);
@@ -125,7 +146,8 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
   });
 
   // SW 등록 — 등록 경로는 여기 1곳뿐(T6 ④). 실패해도 앱은 계속 동작한다.
-  registerServiceWorker({ enabled: options.registerSw });
+  // Android 앱에서는 SW 를 쓰지 않는다 — 화면은 이미 앱 안에 있고 데이터는 원격·캐시 계층이 맡는다.
+  registerServiceWorker({ enabled: options.registerSw ?? (native ? false : undefined) });
 
   reload();
 }

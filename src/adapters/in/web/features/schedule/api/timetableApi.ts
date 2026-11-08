@@ -22,6 +22,15 @@ import type { TimetableModel } from '../types/model';
 export const TIMETABLE_PATH = './data/timetable.json';
 
 /**
+ * Android 앱(Capacitor)이 데이터를 받는 **원격 주소** — GitHub Pages 의 발행본(docs/07 §17, 2026-11-08 사용자 결정 B).
+ * 앱은 화면(웹 번들)을 APK 안에 갖고 있어 상대 경로(`TIMETABLE_PATH`)가 **앱 안의 빌드 시점 사본**을 가리킨다
+ * → 그대로 두면 시간표·학사일정이 재빌드 전까지 고정된다. 앱에서는 이 주소를 먼저 읽고,
+ *   실패하면 마지막 캐시 → 앱에 들어 있는 사본(`TIMETABLE_PATH`) 순으로 물러선다.
+ * Pages 는 `access-control-allow-origin: *` 로 응답한다(2026-11-08 실측) → 앱 출처(https://localhost)에서 그대로 받는다.
+ */
+export const REMOTE_TIMETABLE_URL = 'https://angalle.github.io/sunmoon-shuttle/data/timetable.json';
+
+/**
  * 앱이 **캐시에서 읽어도 되는** 계약 스키마 버전 목록.
  *
  * `data/timetable.json`(발행물)과 파서(`normalize.ts`)는 함께 배포되므로, 넣는 기준은
@@ -79,6 +88,11 @@ export interface LoadTimetableOptions {
   readonly cache?: TimetableCachePort | null | undefined;
   /** 저장·만료 판정에 쓸 시각(주입된 Clock). 기본은 시스템 시각. */
   readonly nowMs?: (() => number) | undefined;
+  /**
+   * 네트워크·캐시가 모두 없을 때 마지막으로 읽을 **번들 사본** 경로(Android 앱: `TIMETABLE_PATH`).
+   * 미지정이면 기존처럼 오류를 던진다(웹은 `path` 자체가 같은 출처라 물러설 곳이 없다).
+   */
+  readonly fallbackPath?: string | undefined;
 }
 
 /** 캐시 계층을 포함한 로딩(캐시 우선 보관 + 네트워크 실패 시 폴백). */
@@ -121,6 +135,24 @@ export async function loadTimetableModel(options: LoadTimetableOptions = {}): Pr
         cacheAgeMs: age.ageMs,
         networkError,
       };
+    }
+    // ④ 번들 사본(앱 안에 함께 들어간 빌드 시점 데이터) — 첫 실행이 오프라인이어도 화면이 뜬다.
+    //    "마지막으로 가진 데이터" 로 표시한다: 나이는 발행 시각(fetchedAt) 기준, 24h 넘으면 cache-expired.
+    if (options.fallbackPath !== undefined && options.fallbackPath !== path) {
+      try {
+        const bundled = parseTimetable(await fetchContractJson(fetchImpl, options.fallbackPath));
+        const publishedMs = Date.parse(bundled.source.fetchedAt);
+        const age = timetableCacheAge(Number.isFinite(publishedMs) ? publishedMs : readNowMs(), readNowMs());
+        return {
+          model: bundled,
+          source: age.expired ? 'cache-expired' : 'cache',
+          cachedAtMs: Number.isFinite(publishedMs) ? publishedMs : null,
+          cacheAgeMs: age.ageMs,
+          networkError,
+        };
+      } catch {
+        // 번들 사본도 없으면 원래 오류로 간다(아래).
+      }
     }
     if (error instanceof TimetableDataError) throw error;
     throw new TimetableDataError(path, networkError);

@@ -851,7 +851,7 @@ function renderOfflineNotice(state: ScheduleState): HTMLElement | null {
       el('p', {}, [el('strong', { text: UI_TEXT.offlineNoticeTitle })]),
       state.offlineReason === null
         ? null
-        : el('p', { text: `${UI_TEXT.offlineNoticeReasonPrefix}: ${state.offlineReason}` }),
+        : el('p', { text: UI_TEXT.offlineNoticeRetryHint }),
       el('p', { text: `${UI_TEXT.offlineNoticeAgePrefix}: ${age}` }),
       state.dataSource === 'cache-expired' ? el('p', { text: UI_TEXT.offlineNoticeStale }) : null,
     ],
