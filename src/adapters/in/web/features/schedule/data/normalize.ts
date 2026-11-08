@@ -82,10 +82,21 @@ export function parseTimetable(raw: unknown): TimetableModel {
     domainRoutes.push(parsed.domain);
   }
 
-  const notices = parseNotices(requireArray(root['notices'], '$.notices'));
+  // F2b(사용자 결정 2026-11-08) — **운행 중단 노선은 앱에서 완전히 사라진다.**
+  // 데이터(`data/timetable.json`)는 원본 보존을 위해 중단 노선과 그 원문 안내문을 그대로 담으므로,
+  // 화면으로 나가는 유일한 경계인 여기서 ① 중단 노선을 가리키는 안내문 줄 ② 그 노선의 출처 페이지 항목을 걷어낸다.
+  // 지우는 기준은 문자열 하드코딩이 아니라 데이터의 `status='suspended'`(노선 이름·중단 사유)다.
+  const suspendedMarkers = suspendedRouteMarkers(routeViews);
+  const suspendedIds = new Set(routeViews.filter((route) => route.status === 'suspended').map((route) => route.id));
+
+  const notices = dropSuspendedRouteNotices(parseNotices(requireArray(root['notices'], '$.notices')), suspendedMarkers);
   const busRefs = parseBusRefs(requireArray(root['busRefs'], '$.busRefs'));
   const contacts = parseContacts(root['contacts']);
-  const source = parseSource(requireRecord(root['source'], '$.source'));
+  const parsedSource = parseSource(requireRecord(root['source'], '$.source'));
+  const source: SourceView = {
+    ...parsedSource,
+    pages: parsedSource.pages.filter((page) => !suspendedIds.has(page.routeId)),
+  };
   // v2 — 없으면 빈 배열(v1 파일도 그대로 동작 = 무중단 하위호환).
   const dateRules = parseDateRules(root['dateRules']);
   const terms = parseTerms(root['terms']);
@@ -321,6 +332,34 @@ function parseNotices(raw: readonly unknown[]): readonly RawNotice[] {
     };
     return notice;
   });
+}
+
+/**
+ * F2b(사용자 결정 2026-11-08) — 운행 중단 노선을 가리키는 **문자열 표지**를 데이터에서 뽑는다.
+ * 하드코딩 대신 `status='suspended'` 노선의 `name`·`suspendedReason` 을 쓴다(원본 문구가 바뀌어도 따라간다).
+ */
+function suspendedRouteMarkers(routes: readonly RouteView[]): readonly string[] {
+  const markers: string[] = [];
+  for (const route of routes) {
+    if (route.status !== 'suspended') continue;
+    markers.push(route.name);
+    if (route.suspendedReason !== null) markers.push(route.suspendedReason);
+  }
+  return markers.filter((marker) => marker.trim() !== '');
+}
+
+/**
+ * 운행 중단 노선의 원문 안내문 줄을 걷어낸다(사용자 지시 `아예 제거`) — 다른 안내(운행 없는 날·대체
+ * 시간표·요금/승강장/안전·문의처)는 **그대로 통과**한다. 표지가 없으면 원본 그대로 돌려준다.
+ */
+function dropSuspendedRouteNotices(
+  notices: readonly RawNotice[],
+  markers: readonly string[],
+): readonly RawNotice[] {
+  if (markers.length === 0) return notices;
+  return notices.filter(
+    (notice) => !markers.some((marker) => notice.text.includes(marker) || notice.raw.includes(marker)),
+  );
 }
 
 function parseBusRefs(raw: readonly unknown[]): readonly BusRef[] {
