@@ -418,6 +418,60 @@ async function main() {
     check('탭 왕복 후에도 홈에 `원본` 0회(T14)', back.visibleSourceCount === 0, `원본=${String(back.visibleSourceCount)}`);
     const suspendedPath = await capture('T5-3-평일복귀.png');
 
+    // ── T5c: `ⓘ 이용 안내` 패널 — 운행 중단 노선(천안캠퍼스) 잔여 문구 0 · 기존 안내는 유지 ──
+    // 사용자 결정(F2b): 운행 중단 노선은 앱에서 **완전히 제거**. 데이터 계층은 원본을 보존하므로
+    // 화면(DOM·스크린리더 텍스트)에서 사라졌는지를 여기서 실제로 확인한다.
+    check('ⓘ 이용 안내 열기', await clickByTestId('app-info'));
+    const guide = await evaluate(`
+      const countOf = (text, needle) => text.split(needle).length - 1;
+      const sheet = document.querySelector('[data-testid="guide-sheet"]');
+      const panelText = sheet?.innerText ?? '';
+      const bodyText = document.body.innerText ?? '';
+      return {
+        open: sheet !== null && !sheet.hasAttribute('hidden'),
+        bodyCount: countOf(bodyText, '천안캠퍼스') + countOf(bodyText, '운행 중단'),
+        panelCount: countOf(panelText, '천안캠퍼스') + countOf(panelText, '운행 중단'),
+        panelLen: panelText.length,
+        hasFreshness: panelText.includes('데이터 갱신'),
+        hasUnofficial: panelText.includes('비공식'),
+        hasPrivacy: panelText.includes('개인정보처리방침'),
+        hasContacts: panelText.includes('041-530-2152') && panelText.includes('041-544-8710'),
+        hasNoService: panelText.includes('운행 없는 날 안내') && panelText.includes('운행 없음'),
+        hasAlternate: panelText.includes('대체 시간표 안내') && panelText.includes('일요일 시간표로 운행'),
+        hasTariff: panelText.includes('요금 결제'),
+        hasSafety: panelText.includes('지연될 수 있습니다') && panelText.includes('입석'),
+        hasStopArea: panelText.includes('승강장') && panelText.includes('시내버스 참고'),
+        noticeItems: document.querySelectorAll('[data-testid="notice-item"]').length,
+        sourcePages: document.querySelectorAll('[data-testid="source-line"]').length,
+      };
+    `);
+    check('ⓘ 시트가 열린다', guide.open === true, `open=${String(guide.open)} panelChars=${String(guide.panelLen)}`);
+    check('T5c 패널 안 `천안캠퍼스`·`운행 중단` 0건', guide.panelCount === 0, `count=${String(guide.panelCount)}`);
+    check('T5c 화면 전체(본문+패널) `천안캠퍼스`·`운행 중단` 0건', guide.bodyCount === 0, `count=${String(guide.bodyCount)}`);
+    // 스크린리더 텍스트(접근성 트리 이름·설명)까지 확인 — 눈에 안 보이는 라벨도 포함한다.
+    await cdp.send('Accessibility.enable');
+    const axTree = await cdp.send('Accessibility.getFullAXTree');
+    const axText = (axTree.nodes ?? [])
+      .map((node) => `${node.name?.value ?? ''} ${node.description?.value ?? ''}`)
+      .join(' ');
+    const axCount = axText.split('천안캠퍼스').length - 1 + (axText.split('운행 중단').length - 1);
+    check('T5c 스크린리더 텍스트(접근성 트리) `천안캠퍼스`·`운행 중단` 0건', axCount === 0, `count=${String(axCount)} nodes=${String((axTree.nodes ?? []).length)}`);
+    check('T5c 유지: 패널에 신선도 문구 `데이터 갱신`', guide.hasFreshness === true);
+    check('T5c 유지: 패널에 비공식 고지', guide.hasUnofficial === true);
+    check('T5c 유지: 개인정보처리방침·문의처 2건(학교·운수사)', guide.hasPrivacy === true && guide.hasContacts === true, `privacy=${String(guide.hasPrivacy)} contacts=${String(guide.hasContacts)}`);
+    check('T5c 유지: 운행 없는 날·대체 시간표 안내', guide.hasNoService === true && guide.hasAlternate === true, `noService=${String(guide.hasNoService)} alternate=${String(guide.hasAlternate)}`);
+    check('T5c 유지: 요금·안전 안내·승강장(시내버스 참고)', guide.hasTariff === true && guide.hasSafety === true && guide.hasStopArea === true, `tariff=${String(guide.hasTariff)} safety=${String(guide.hasSafety)} stopArea=${String(guide.hasStopArea)}`);
+    notes.push(`  INFO  패널 안내문 ${String(guide.noticeItems)}줄 · 출처 줄 ${String(guide.sourcePages)}개 · 패널 텍스트 ${String(guide.panelLen)}자`);
+
+    // 스크린샷 — 시트를 세로로 넓혀 전체 내용을 한 장에 담는다(이후 오프라인 단계가 페이지를 새로 열므로 영향 없음).
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 3200, deviceScaleFactor: 1, mobile: false });
+    await delay(250);
+    const sheetShotPath = await capture('T5c-정보패널.png');
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1600, deviceScaleFactor: 1, mobile: false });
+    await delay(150);
+    check('ⓘ 이용 안내 닫기', await clickByTestId('guide-close'));
+    check('T5c 콘솔 오류 0(ⓘ 열기·닫기 포함)', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
+
     // ── 데이터 로드 실패 시 오류 UI(조용한 실패 금지) — CDP 로 요청을 실제로 실패시켜 확인 ──
     // ⚠️ T6 이후: 캐시(SW·IndexedDB)가 채워져 있으면 실패해도 **마지막 정상 데이터**가 뜨는 게 정상 동작이다
     //    (그 검증은 scripts/offline_smoke.mjs 의 AC-5 단계가 한다). 여기서 확인하는 것은 "캐시가 전혀 없을 때"의
@@ -473,7 +527,7 @@ async function main() {
     console.log('\n검사 결과:');
     for (const line of notes) console.log(line);
     console.log('\n스크린샷:');
-    for (const path of [weekdayPath, saturdayPath, suspendedPath, freshPath]) console.log(`  ${path}`);
+    for (const path of [weekdayPath, saturdayPath, suspendedPath, freshPath, sheetShotPath]) console.log(`  ${path}`);
   } finally {
     try {
       if (cdp !== null) await cdp.send('Browser.close');
