@@ -654,6 +654,9 @@ export function createSchedulePage(
    * 회차가 아직 없을 때(model null)도 자리는 지킨다 → 로딩 중에도 상단 3줄 구조가 흔들리지 않는다.
    */
   const renderFilter = (view: TimetableView | null): void => {
+    // 칩에 포커스가 **있었을 때만** 되돌린다. 예전엔 무조건 선택 칩에 포커스를 줘서, 아무것도 누르지 않아도
+    // 진입·재렌더마다 포커스 링이 칩에 떴다(2026-11-08 Android 에뮬레이터에서 발견).
+    const chipHadFocus = filterHost.contains(document.activeElement);
     replaceChildren(filterHost, [
       directionFilter({
         value: direction,
@@ -664,7 +667,7 @@ export function createSchedulePage(
         },
       }),
     ]);
-    restoreFocus(`chip:${direction}`);
+    if (chipHadFocus) restoreFocus(`chip:${direction}`);
   };
 
   /** ① 상단 바 아래 최소 1줄(운행 없음 · 대체 · 방학 · 오늘 종료) — 동시에 1줄(§9-4). */

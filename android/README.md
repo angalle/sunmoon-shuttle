@@ -145,6 +145,26 @@ PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
   `android/keystore.properties` 에 `storeFile` · `storePassword` · `keyAlias` · `keyPassword` 4개 키를 넣는다.
   비밀번호는 비밀 관리 도구에서 주입하고 파일은 절대 커밋하지 않는다. Play 업로드 키는 Play Console 의
   App Signing 사용을 전제로 발급한다(별도 승인 사항).
+- `bash android/build-release.sh verify` 가 서명 주체를 함께 찍는다 — `⚠️ debug 키` 가 보이면 업로드하지 않는다.
+
+## Play 첫 업로드 (사람이 하는 단계 — 비밀번호·계정이 필요)
+
+B안(데이터는 Pages 에서 · docs/07 §17)이 들어간 첫 버전을 한 번 올리면, 그 뒤 시간표·학사일정은 재업로드 없이 최신이다.
+
+1. **업로드 키 만들기**(한 번만 · 비밀번호는 직접 정하고 비밀 관리 도구에 보관 — 잃어버리면 Play 지원팀 재설정 필요)
+   ```bash
+   mkdir -p ../secure   # 저장소 밖(커밋 위험 0)
+   keytool -genkeypair -v -keystore ../secure/sunmoon-upload.jks -alias upload \
+     -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=sunmoon-shuttle, O=angalle, C=KR"
+   ```
+   (`keytool` 이 비밀번호를 대화식으로 묻는다 — 명령줄 인자로 넘기지 않는다)
+2. **`android/keystore.properties` 만들기** — `cp android/keystore.properties.example android/keystore.properties` 후
+   `storePassword`·`keyPassword` 를 채운다(`storeFile` 기본값이 위 경로와 같다).
+3. **AAB 빌드·확인** — `bash android/build-release.sh` → `서명: 업로드 키 (CN=sunmoon-shuttle …)` 가 찍히는지 확인.
+4. **Play Console** → 앱 만들기(패키지 `com.angalle.sunmoonshuttle`) → **Play 앱 서명 사용** → 내부 테스트 트랙에
+   `android/app/build/outputs/bundle/release/app-release.aab` 업로드. 스토어 문구·개인정보처리방침 URL 은 `docs/05-store-listing.md`.
+5. 다음 업로드부터는 `android/app/build.gradle` 의 `versionCode` 를 **+1** 한 뒤 3~4 반복(재사용 금지).
+   지금 값은 `versionCode 1` / `versionName 0.1.0` — 아직 한 번도 올리지 않았으므로 첫 업로드는 그대로 쓴다.
 
 ## 안드로이드 뒤로가기 동작 (정의)
 

@@ -46,6 +46,12 @@ verify() {
                 echo "VERIFY FAILED"
                 rc=1
             fi
+            # 서명 주체 — debug 키면 Play 에 올릴 수 없다(업로드 키: android/README.md "Play 첫 업로드").
+            if keytool -printcert -jarfile "$f" 2>/dev/null | grep -q "CN=Android Debug"; then
+                echo "         ⚠️  서명: debug 키(CN=Android Debug) — Play 업로드 불가. android/keystore.properties 를 먼저 만든다"
+            else
+                echo "         서명: 업로드 키 ($(keytool -printcert -jarfile "$f" 2>/dev/null | grep -m1 -E 'Owner:|소유자:' | sed 's/^[^:]*: *//'))"
+            fi
         else
             printf 'MISSING  %s\n' "${f#"$ROOT"/}"
             rc=1
