@@ -43,7 +43,6 @@ import { el, replaceChildren } from '../../../shared/lib/dom';
 import { formatKstHeaderClock } from '../../../shared/lib/format';
 import { button } from '../../../shared/ui/atoms/Button';
 import { spinner } from '../../../shared/ui/atoms/Spinner';
-import { formatCacheAge } from '../../../../../../application/cache/timetableCachePolicy';
 import { DAY_TYPES, type DayType } from '../../../../../../domain/entities/DayType';
 import { dayTypeFromDate } from '../../../../../../domain/rules/dayType';
 import { formatIsoDate, kstDayFromInstant } from '../../../../../../domain/rules/kst';
@@ -722,6 +721,8 @@ export function createSchedulePage(
     dayPanel.setAttribute('aria-labelledby', dayTabId(TAB_ID_PREFIX, state.dayType));
 
     replaceChildren(bannerHost, [renderBanner(state, options)]);
+    // 데이터 출처는 화면 문구 대신 속성으로만 남긴다(진단·스모크용) — network | cache | cache-expired
+    appNode.dataset.dataSource = state.dataSource ?? 'network';
     renderNoticeLine(state);
     replaceChildren(tabsHost, [
       dayTabsMolecule({
@@ -830,36 +831,11 @@ function renderBanner(state: ScheduleState, options: SchedulePageOptions): HTMLE
       ],
     );
   }
-  return renderOfflineNotice(state);
+  // 캐시·앱 안 사본으로 그린 화면이어도 **안내 문구를 띄우지 않는다**(2026-11-08 사용자 결정).
+  // 데이터가 언제 것인지는 이용 안내 시트의 "최신 데이터" 줄이 보여 준다. 연결이 돌아오면 앱이 알아서 새로 받는다.
+  return null;
 }
 
-/**
- * 오프라인/캐시 폴백 안내(T6 · AC-5·AC-6) — 캐시로 그린 화면임을 숨기지 않는다.
- * `cache-expired`(캐시 나이 ≥ 24h)면 노후 경고를 한 줄 더 붙인다.
- */
-function renderOfflineNotice(state: ScheduleState): HTMLElement | null {
-  if (state.status !== 'ready' || state.dataSource === null || state.dataSource === 'network') return null;
-  const age =
-    state.cacheAgeMs === null
-      ? UI_TEXT.offlineNoticeAgeUnknown
-      : `${formatCacheAge(state.cacheAgeMs)}${state.dataSource === 'cache-expired' ? ' (24시간 초과)' : ''}`;
-  return el(
-    'div',
-    {
-      class: 'shuttle-banner shuttle-banner--warn',
-      attrs: { role: 'status' },
-      dataset: { testid: 'offline-notice', source: state.dataSource },
-    },
-    [
-      el('p', {}, [el('strong', { text: UI_TEXT.offlineNoticeTitle })]),
-      state.offlineReason === null
-        ? null
-        : el('p', { text: UI_TEXT.offlineNoticeRetryHint }),
-      el('p', { text: `${UI_TEXT.offlineNoticeAgePrefix}: ${age}` }),
-      state.dataSource === 'cache-expired' ? el('p', { text: UI_TEXT.offlineNoticeStale }) : null,
-    ],
-  );
-}
 
 /**
  * 오늘(KST) 날짜 키 — 자정을 넘으면 값이 바뀌므로 구조 재렌더를 유발한다.

@@ -122,3 +122,13 @@ describe('isNativeApp — Capacitor 브리지 전역으로 판별', () => {
     ).toBe(false);
   });
 });
+
+describe('최신을 못 받았을 때의 조용한 재시도 간격', async () => {
+  const { retryDelayMs, RETRY_AFTER_FALLBACK_MS, RETRY_MAX_MS } = await import('../../../../src/adapters/in/web/app/mount');
+  it('20s → 40s → 80s … 5분에서 멈춘다', () => {
+    expect(RETRY_AFTER_FALLBACK_MS).toBe(20_000);
+    expect([0, 1, 2, 3].map(retryDelayMs)).toEqual([20_000, 40_000, 80_000, 160_000]);
+    expect(retryDelayMs(4)).toBe(RETRY_MAX_MS);
+    expect(retryDelayMs(10)).toBe(RETRY_MAX_MS);
+  });
+});

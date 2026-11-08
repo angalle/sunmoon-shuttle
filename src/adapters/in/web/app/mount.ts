@@ -29,6 +29,16 @@ export const REFRESH_INTERVAL_MS = 60_000;
 /** 화면 복귀 시 데이터를 다시 읽는 최소 간격(ms) — 30분 */
 export const RELOAD_ON_RESUME_MS = 30 * 60_000;
 
+/** 최신 데이터를 못 받고 캐시·앱 안 사본으로 그렸을 때, 조용히 다시 시도하기까지(ms) — 첫 간격 */
+export const RETRY_AFTER_FALLBACK_MS = 20_000;
+/** 재시도 간격 상한(ms) — 20s → 40s → 80s → … → 5분 */
+export const RETRY_MAX_MS = 5 * 60_000;
+
+/** n번째(0부터) 재시도 간격 — 두 배씩 늘리고 상한에서 멈춘다. */
+export function retryDelayMs(attempt: number): number {
+  return Math.min(RETRY_MAX_MS, RETRY_AFTER_FALLBACK_MS * 2 ** Math.max(0, attempt));
+}
+
 export interface MountOptions {
   /** 테스트·스모크에서 데이터 로더를 바꿔 끼울 수 있게 한다(기본: 캐시 포함 로더) */
   readonly load?: (() => Promise<LoadedTimetable>) | undefined;
@@ -80,15 +90,36 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
 
   /** 마지막으로 데이터를 다시 읽기 시작한 시각(ms) — 화면 복귀 시 재조회 판단에 쓴다. */
   let lastLoadAt = 0;
+  let retryTimer: number | null = null;
+  /** 지금 화면이 최신이 아닌 데이터(캐시·앱 안 사본)인가 — 재연결·재시도 판단에 쓴다 */
+  let showingFallback = false;
+  /** 연속 재시도 횟수 — 최신을 받으면 0 으로 돌아간다 */
+  let retryAttempt = 0;
   const reload = (): void => {
     lastLoadAt = Date.now();
+    if (retryTimer !== null) {
+      window.clearTimeout(retryTimer);
+      retryTimer = null;
+    }
     store.setLoading();
     void load()
       .then((loaded) => {
         if (loaded.source === 'network') {
+          showingFallback = false;
+          retryAttempt = 0;
           store.setModel(loaded.model);
           return;
         }
+        // 최신을 못 받았다 → 마지막 데이터로 **조용히** 그리고(안내 문구 없음 · 2026-11-08 사용자 결정),
+        // 화면에 떠 있는 동안 간격을 늘려 가며 다시 시도한다(20s → 40s → … → 5분).
+        // 'online' 이벤트만 믿지 않는다 — Android 에뮬레이터 WebView 는 비행기 모드에서도 navigator.onLine=true 였다(실측).
+        showingFallback = true;
+        const delay = retryDelayMs(retryAttempt);
+        retryAttempt += 1;
+        retryTimer = window.setTimeout(() => {
+          retryTimer = null;
+          if (showingFallback && document.visibilityState !== 'hidden') reload();
+        }, delay);
         // 캐시 폴백 = 정상 동작(오프라인)이다. 콘솔 error 금지 → warn 으로 원인만 남긴다.
         console.warn('[schedule] 최신 데이터를 받지 못했습니다 — 마지막으로 받은 데이터로 표시합니다', loaded.networkError);
         store.setModel(loaded.model, {
@@ -137,8 +168,13 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
       store.tick(nowMs());
       // 새로고침 버튼이 없으므로(2026-11-08) 오래 백그라운드에 있다 돌아오면 데이터를 다시 읽는다.
       // 앱(Capacitor)은 프로세스가 오래 살아 있어 이 경로가 사실상의 갱신 시점이다.
-      if (Date.now() - lastLoadAt >= RELOAD_ON_RESUME_MS) reload();
+      // 최신이 아닌 데이터를 보고 있었거나(백그라운드에서 재시도가 멈춰 있었다) 오래 지났으면 다시 읽는다.
+      if (showingFallback || Date.now() - lastLoadAt >= RELOAD_ON_RESUME_MS) reload();
     }
+  });
+  // 인터넷이 다시 연결되면 바로 새로 받는다(새로고침 버튼 없음 · 오프라인 안내 없음).
+  window.addEventListener('online', () => {
+    if (showingFallback || Date.now() - lastLoadAt >= RELOAD_ON_RESUME_MS) reload();
   });
   window.addEventListener('pagehide', () => {
     window.clearInterval(timer);

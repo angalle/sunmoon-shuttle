@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>선택 UI 시안</title>
+<style>
+  /* 시안 전용 — 앱 v3 토큰 값을 그대로 옮겨 왔다(tokens.css) */
+  :root {
+    --bg: #f3f6f7; --surface: #fff; --surface-alt: #ecf1f2; --border: #e0e6e8; --border-soft: #ebf0f1;
+    --text: #16222a; --muted: #5b6870; --accent: #00687a; --accent-soft: #e3f1f3; --highlight: #e6f3f4;
+    --deep: #004b58; --red: #c81840; --shadow: 0 1px 2px rgba(20,32,56,.04), 0 4px 16px rgba(20,32,56,.05);
+    --font: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 48px; background: #dfe5e8; color: var(--text); font-family: var(--font); }
+  h1 { margin: 0 0 4px; font-size: 20px; }
+  .lead { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+  .option { width: 360px; max-width: 100%; }
+  .option h2 { margin: 0 0 4px; font-size: 16px; }
+  .option .why { margin: 0 0 10px; color: var(--muted); font-size: 13px; line-height: 1.5; min-height: 58px; }
+  .rec { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--red); color: #fff; font-size: 11px; vertical-align: 2px; }
+  .phone { position: relative; height: 700px; overflow: hidden; border-radius: 28px; background: var(--bg); box-shadow: 0 10px 30px rgba(0,0,0,.18); display: flex; flex-direction: column; }
+  .top { padding: 14px 16px 8px; background: var(--bg); border-bottom: 1px solid var(--border-soft); display: flex; flex-direction: column; gap: 8px; }
+  .clock { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; height: 36px; }
+  .clock .i { color: var(--accent); font-size: 18px; }
+  .seg { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; height: 40px; border-radius: 12px; background: var(--surface-alt); overflow: hidden; }
+  .seg button { border: 0; background: transparent; font: inherit; font-size: 13px; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
+  .seg.small { height: 32px; border-radius: 10px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .chip { flex: 0 0 auto; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font: inherit; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; white-space: nowrap; }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .scroll { flex: 1; overflow-y: auto; padding: 12px 16px 24px; }
+  .card { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .row { display: grid; grid-template-columns: 52px auto 1fr; column-gap: 12px; row-gap: 2px; align-items: center; padding: 8px 12px; min-height: 56px; position: relative; }
+  .row + .row::before { content: ''; position: absolute; top: 0; left: 76px; right: 0; height: 1px; background: var(--border-soft); }
+  .row .t { grid-row: 1 / span 2; font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .row .n { font-weight: 600; font-size: 15px; }
+  .row .d { grid-column: 2 / span 2; color: var(--muted); font-size: 13px; }
+  .row.next { background: var(--highlight); box-shadow: inset 3px 0 0 var(--deep); }
+  .row.next .t { color: var(--accent); }
+  .row.next .n::after { content: '다음'; margin-left: 8px; padding: 0 8px; border-radius: 999px; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; line-height: 1.7; }
+  .row.past { color: var(--muted); }
+  .row.past .t, .row.past .n { font-weight: 500; }
+  .empty { padding: 16px; color: var(--muted); font-size: 13px; }
+  /* B — 출발·도착 카드 */
+  .od { display: grid; grid-template-columns: 1fr 44px; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); }
+  .od .lines { display: flex; flex-direction: column; gap: 6px; }
+  .od .ln { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; }
+  .od .ln small { width: 28px; color: var(--muted); font-size: 11px; font-weight: 700; }
+  .od .ln button { border: 0; background: none; font: inherit; color: var(--accent); padding: 0; cursor: pointer; text-align: left; }
+  .od .ln button::after { content: ' ▾'; font-size: 11px; }
+  .swap { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent-soft); color: var(--accent); font-size: 20px; cursor: pointer; }
+  .sheet { position: absolute; inset: auto 0 0 0; background: var(--surface); border-radius: 20px 20px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.15); padding: 16px; transform: translateY(105%); transition: transform .18s ease-out; }
+  .sheet.open { transform: none; }
+  .sheet h3 { margin: 0 0 8px; font-size: 15px; }
+  .sheet button { display: block; width: 100%; padding: 14px 4px; border: 0; border-top: 1px solid var(--border-soft); background: none; font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
+  .sheet button[aria-pressed="true"] { color: var(--accent); font-weight: 700; }
+  /* C — 정류장 탭 */
+  .tabs { display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border-soft); margin: 0 -16px; padding: 0 16px; }
+  .tabs button { flex: 0 0 auto; height: 40px; border: 0; background: none; font: inherit; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { color: var(--accent); font-weight: 700; border-bottom-color: var(--accent); }
+  .bar { display: flex; gap: 8px; align-items: center; }
+  .bar .seg { flex: 1; }
+  .dirbtn { flex: 0 0 auto; height: 32px; padding: 0 12px; border-radius: 999px; border: 0; background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .notes { max-width: 1160px; margin: 28px auto 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .notes table { border-collapse: collapse; width: 100%; background: var(--surface); border-radius: 12px; overflow: hidden; }
+  .notes th, .notes td { padding: 8px 10px; border-bottom: 1px solid var(--border-soft); text-align: left; vertical-align: top; color: var(--text); }
+  .notes th { background: var(--surface-alt); font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>요일 · 정류장 · 방향 선택 시안</h1>
+<p class="lead">실제 발행 데이터(data/timetable.json)로 동작합니다. 직접 눌러 비교해 보세요. 시각은 평일 08:20 기준으로 고정했습니다.</p>
+
+<div class="grid">
+  <section class="option">
+    <h2>A. 칩 3줄 <span class="rec">추천</span></h2>
+    <p class="why">지금 화면 구조를 그대로 늘린 형태. 정류장이 4곳뿐이라 <b>한 번에 다 보이고 한 번 누르면 끝</b>. 방향 이름이 고른 정류장으로 바뀐다.</p>
+    <div class="phone" id="A"></div>
+  </section>
+  <section class="option">
+    <h2>B. 출발 → 도착 카드</h2>
+    <p class="why">교통 앱처럼 "어디서 → 어디로"를 한 장에. ⇅로 방향을 뒤집고, 정류장 이름을 누르면 아래 시트에서 고른다. <b>상단이 가장 얇다</b>.</p>
+    <div class="phone" id="B"></div>
+  </section>
+  <section class="option">
+    <h2>C. 정류장 탭</h2>
+    <p class="why">정류장을 맨 위 탭으로(주인공), 요일은 작은 세그먼트, 방향은 버튼 하나. <b>정류장이 늘어나도 옆으로 넘기면 된다</b>.</p>
+    <div class="phone" id="C"></div>
+  </section>
+</div>
+
+<div class="notes">
+  <table>
+    <tr><th></th><th>A. 칩 3줄</th><th>B. 출발 → 도착 카드</th><th>C. 정류장 탭</th></tr>
+    <tr><td>정류장 바꾸기</td><td>1번 누름</td><td>2번(이름 → 시트에서 선택)</td><td>1번 누름</td></tr>
+    <tr><td>방향 바꾸기</td><td>1번(세그먼트)</td><td>1번(⇅)</td><td>1번(버튼)</td></tr>
+    <tr><td>상단 높이(대략)</td><td>약 200px</td><td>약 170px</td><td>약 175px</td></tr>
+    <tr><td>정류장이 많아지면</td><td>칩 가로 스크롤</td><td>시트 목록이 길어질 뿐</td><td>탭 가로 스크롤</td></tr>
+    <tr><td>지금 화면과의 차이</td><td>가장 적음(줄 하나 추가)</td><td>가장 큼</td><td>중간</td></tr>
+  </table>
+  <p>공통: 고른 요일·정류장·방향은 다음에 열 때 그대로 기억합니다. "전체"를 고르면 지금처럼 모든 정류장이 섞여 시간순으로 나옵니다.</p>
+</div>
+
+<script>
+const NOW = 8 * 60 + 20; // 08:20
+const DAYS = [['weekday', '평일'], ['saturday', '토요일'], ['sunday', '일요일']];
+// 노선 → 정류장(허브)과 그 정류장 시각이 들어 있는 열
+const STOPS = [
+  { id: 'all', name: '전체' },
+  { id: 'cheonan-station', name: '천안역', key: 'depStation' },
+  { id: 'asan-ktx', name: '아산(KTX)역', key: 'depStation' },
+  { id: 'cheonan-terminal', name: '천안터미널', key: 'depTerminal' },
+  { id: 'onyang', name: '온양역·터미널', key: 'viaOnyangStation' },
+];
+const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t ?? ''); return m ? +m[1] * 60 + +m[2] : null; };
+let DATA = null;
+
+function trips(day, stopId, dir) {
+  const out = [];
+  for (const s of STOPS.slice(1)) {
+    if (stopId !== 'all' && stopId !== s.id) continue;
+    const route = DATA.routes.find((r) => r.id === s.id);
+    const list = route?.byDay?.[day]?.trips ?? [];
+    for (const t of list) {
+      if (dir === 'out' && toMin(t.depCampus) !== null) out.push({ time: t.depCampus, name: s.name, sub: `학교에서 출발${t[s.key] && toMin(t[s.key]) !== null ? ` · ${t[s.key]} 도착` : ''}` });
+      if (dir === 'in' && toMin(t[s.key]) !== null && toMin(t.depCampus) === null) out.push({ time: t[s.key], name: s.name, sub: `학교로${t.arrCampus ? ` · ${t.arrCampus} 도착` : ''}` });
+    }
+  }
+  out.sort((a, b) => toMin(a.time) - toMin(b.time));
+  let nextDone = false;
+  return out.map((r) => { const m = toMin(r.time); const past = m < NOW; const next = !past && !nextDone; if (next) nextDone = true; return { ...r, past, next }; });
+}
+
+function listHtml(rows) {
+  if (rows.length === 0) return '<div class="card"><div class="empty">이 조건의 편이 없습니다</div></div>';
+  return `<div class="card">${rows.map((r) => `<div class="row${r.past ? ' past' : ''}${r.next ? ' next' : ''}"><span class="t">${r.time}</span><span class="n">${r.name}</span><span></span><span class="d">${r.sub}</span></div>`).join('')}</div>`;
+}
+const segHtml = (items, cur, attr, cls = '') => `<div class="seg ${cls}">${items.map(([v, l]) => `<button data-${attr}="${v}" aria-pressed="${v === cur}">${l}</button>`).join('')}</div>`;
+const stopName = (id) => STOPS.find((s) => s.id === id)?.name ?? '';
+const dirLabels = (stopId) => { const n = stopId === 'all' ? '역·터미널' : stopName(stopId); return [['out', `학교 → ${n}`], ['in', `${n} → 학교`]]; };
+const clock = '<div class="clock"><span>11월 9일 (월) · 08:20</span><span class="i">ⓘ</span></div>';
+
+function scrollToNext(root) { const n = root.querySelector('.row.next'); const sc = root.querySelector('.scroll'); if (n && sc) sc.scrollTop = n.offsetTop - 12; }
+
+function renderA(state) {
+  const root = document.getElementById('A');
+  root.innerHTML = `<div class="top">${clock}${segHtml(DAYS, state.day, 'day')}
+    <div class="chips">${STOPS.map((s) => `<button class="chip" data-stop="${s.id}" aria-pressed="${s.id === state.stop}">${s.name}</button>`).join('')}</div>
+    ${segHtml(dirLabels(state.stop), state.dir, 'dir')}</div>
+    <div class="scroll">${listHtml(trips(state.day, state.stop, state.dir))}</div>`;
+  root.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; Object.assign(state, b.dataset.day ? { day: b.dataset.day } : b.dataset.stop ? { stop: b.dataset.stop } : b.dataset.dir ? { dir: b.dataset.dir } : {}); renderA(state); };
+  scrollToNext(root);
+}
+
+function renderB(state) {
+  const root = document.getElementById('B');
+  const s = state.stop === 'all' ? '역·터미널 전체' : stopName(state.stop);
+  const [from, to] = state.dir === 'out' ? ['선문대', s] : [s, '선문대'];
+  const fromBtn = state.dir === 'out' ? `<span>${from}</span>` : `<button data-pick="1">${from}</button>`;
+  const toBtn = state.dir === 'out' ? `<button data-pick="1">${to}</button>` : `<span>${to}</span>`;
+  root.innerHTML = `<div class="top">${clock}${segHtml(DAYS, state.day, 'day')}
+    <div class="od"><div class="lines"><div class="ln"><small>출발</small>${fromBtn}</div><div class="ln"><small>도착</small>${toBtn}</div></div><button class="swap" data-swap="1" aria-label="방향 바꾸기">⇅</button></div></div>
+    <div class="scroll">${listHtml(trips(state.day, state.stop, state.dir))}</div>
+    <div class="sheet${state.sheet ? ' open' : ''}"><h3>정류장 선택</h3>${STOPS.map((x) => `<button data-stop="${x.id}" aria-pressed="${x.id === state.stop}">${x.id === 'all' ? '역·터미널 전체' : x.name}</button>`).join('')}</div>`;
+  root.onclick = (e) => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.day) state.day = b.dataset.day;
+    else if (b.dataset.swap) state.dir = state.dir === 'out' ? 'in' : 'out';
+    else if (b.dataset.pick) state.sheet = true;
+    else if (b.dataset.stop) { state.stop = b.dataset.stop; state.sheet = false; }
+    renderB(state); };
+  if (!state.sheet) scrollToNext(root);
+}
+
+function renderC(state) {
+  const root = document.getElementById('C');
+  const n = state.stop === 'all' ? '역·터미널' : stopName(state.stop);
+  const dirText = state.dir === 'out' ? `학교 → ${n}` : `${n} → 학교`;
+  root.innerHTML = `<div class="top">${clock}
+    <div class="tabs">${STOPS.map((s) => `<button data-stop="${s.id}" aria-pressed="${s.id === state.stop}">${s.name}</button>`).join('')}</div>
+    <div class="bar">${segHtml(DAYS.map(([v, l]) => [v, l.replace('요일', '')]), state.day, 'day', 'small')}<button class="dirbtn" data-swap="1">${dirText} ⇅</button></div></div>
+    <div class="scroll">${listHtml(trips(state.day, state.stop, state.dir))}</div>`;
+  root.onclick = (e) => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.day) state.day = b.dataset.day; else if (b.dataset.stop) state.stop = b.dataset.stop; else if (b.dataset.swap) state.dir = state.dir === 'out' ? 'in' : 'out';
+    renderC(state); };
+  scrollToNext(root);
+}
+
+fetch('/data/timetable.json').then((r) => r.json()).then((d) => {
+  DATA = d;
+  renderA({ day: 'weekday', stop: 'cheonan-station', dir: 'in' });
+  renderB({ day: 'weekday', stop: 'cheonan-station', dir: 'in', sheet: false });
+  renderC({ day: 'weekday', stop: 'cheonan-station', dir: 'in' });
+}).catch((e) => { document.querySelector('.grid').textContent = '데이터를 읽지 못했습니다: ' + e; });
+</script>
+</body>
+</html>

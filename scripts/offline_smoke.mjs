@@ -284,6 +284,7 @@ const READ_STATE = `
     refreshLine: document.querySelector('[data-testid="data-refresh-line"]')?.textContent ?? null,
     selectedTab: selected?.id ?? null,
     offlineNotice: notice === null ? null : { source: notice.dataset.source ?? null, text: notice.textContent },
+    dataSource: document.querySelector('.shuttle-app')?.dataset.dataSource ?? null,
     errorBanner: document.querySelector('[data-testid="data-error"]') !== null,
     swController: navigator.serviceWorker.controller !== null,
     schoolLinks: document.querySelectorAll('a[href*="lily.sunmoon.ac.kr"]').length,
@@ -555,7 +556,8 @@ async function main() {
       fallback.listReady === true && fallback.departureRows >= 1 && fallback.errorBanner === false,
       `day=${String(fallback.tableDay)} rows=${String(fallback.departureRows)}`,
     );
-    check('수집 실패: 캐시 폴백 안내를 문구로 표시', fallback.offlineNotice !== null, JSON.stringify(fallback.offlineNotice));
+    // 2026-11-08 사용자 결정: 오프라인 안내 문구를 띄우지 않는다 — 마지막 데이터를 조용히 보여 주고 출처는 속성으로만 남긴다
+    check('수집 실패: 안내 문구 없이 마지막 데이터로 표시(data-source=cache)', fallback.offlineNotice === null && fallback.dataSource === 'cache', `notice=${JSON.stringify(fallback.offlineNotice)} source=${String(fallback.dataSource)}`);
     check('수집 실패: 오류 UI(F8)로 가지 않는다 — 데이터가 있으므로', fallback.errorBanner === false);
     check(
       '수집 실패: 앱이 낸 콘솔 오류 0 (AC-5)',
@@ -571,9 +573,9 @@ async function main() {
     info(`만료 경로 상태: ${JSON.stringify(expired)}`);
     check('만료 검증 조건: SW 미제어(앱 계층 만료 판정을 본다)', expired.swController === false, `controller=${String(expired.swController)}`);
     check(
-      '만료 캐시도 유지하고 "24시간 초과"를 알린다',
-      expired.offlineNotice?.source === 'cache-expired' && String(expired.offlineNotice?.text ?? '').includes('24시간'),
-      JSON.stringify(expired.offlineNotice),
+      '만료 캐시도 유지한다(안내 문구 없음 · data-source=cache-expired)',
+      expired.offlineNotice === null && expired.dataSource === 'cache-expired' && expired.departureRows >= 1,
+      `notice=${JSON.stringify(expired.offlineNotice)} source=${String(expired.dataSource)} rows=${String(expired.departureRows)}`,
     );
     await capture('T6-5-캐시만료.png');
     await cdp.send('Fetch.disable');
