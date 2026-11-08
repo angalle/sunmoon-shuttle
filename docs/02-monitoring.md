@@ -196,12 +196,12 @@ curl -sL https://angalle.github.io/sunmoon-shuttle/data/timetable.json | jq -r '
 - 폐기: `T15`(self-hosted runner 등록 + `extract.yml` self-hosted 실행) → **아카이브**. `.github/runner/**` 는 대안(로컬 Ollama) 문서로만 보존.
 - 대체: `T19`(AI 계층 `--ai=api` — `AI_BASE_URL`·`AI_MODEL`·`AI_API_KEY` env, 키 없음/401/타임아웃 시 **규칙 전용 자동 폴백**) · `T20`(`extract.yml` → `runs-on: ubuntu-latest` + `secrets.AI_API_KEY` + 변경 시에만 발행 + 아티팩트).
 - 유지: 앱은 여전히 **정적 JSON만 읽는다**(앱 변경 0) · 규칙 파서가 수치 기준선 · 원문 인용(`sourceQuote`) 필수 · 검증 실패 시 발행 중단(AC-5) · AI 항목은 `extractedBy: ai` 로 구분.
-- 비용: 호출은 하루 2회·회당 입력 수천 토큰 수준(날짜 관련 문장만 전송)이며 **토큰 상한·호출 수·잘림 여부를 산출물 `extraction` 메타에 기록**한다. 정확한 요금은 벤더 가격표에 따른다(총괄이 임의 수치를 확정하지 않는다).
+- 비용: 호출은 **학사일정 전환 주간(개강·방학 시작 ±3일)에만 하루 1회(저녁 19:10 KST)** + 원본 스냅샷 push 시 1회(2026-11-08 하루 2회 → 변경)·회당 입력 수천 토큰 수준(날짜 관련 문장만 전송)이며 **토큰 상한·호출 수·잘림 여부를 산출물 `extraction` 메타에 기록**한다. 정확한 요금은 벤더 가격표에 따른다(총괄이 임의 수치를 확정하지 않는다).
 - 시크릿: `AI_API_KEY` 는 **저장소 시크릿**으로 사용자가 설정한다(현재 미설정 — `gh secret list` 비어 있음). 미설정이어도 워크플로는 규칙 전용으로 계속 돈다.
 
 | 지표 | 임계값 | 알림·복구 |
 |---|---|---|
-| 배치 마지막 성공 시각 | 24h 초과 | 런 실패 확인 → `workflow_dispatch` 수동 재실행 |
+| 배치 마지막 성공 시각 | **전환 주간 중** 30h 초과(그 밖의 기간은 일부러 돌지 않는다 — `schedule_gate.mjs`) | 런 실패 확인 → `workflow_dispatch` 수동 재실행 |
 | **AI 폴백 발생**(`extraction.fallbackReason` 비어있지 않음) | 3회 연속 | `AI_API_KEY` 설정·벤더 상태 확인(발행은 계속되므로 앱 영향 없음) |
 | **AI 호출 수/잘림(truncated)** | 호출 0 또는 잘림 발생 | 프롬프트·입력 상한 점검 |
 | 발행 검증 불일치(`needsReview`>0 또는 exit≠0) | ≥1 | 발행 중단 확인(마지막 정상 JSON 유지) — 원문 대조 |

@@ -14,7 +14,7 @@
 //   node .github/scripts/batch_state.mjs check-staleness
 //   node .github/scripts/batch_state.mjs summarize --json=data/timetable.json
 //
-// 종료 코드: record-run 은 추출 실패 시 1, 그 외 0. check-staleness 는 24h 초과 시 0(경고만) —
+// 종료 코드: record-run 은 추출 실패 시 1, 그 외 0. check-staleness 는 30h 초과 시 0(경고만) —
 //   경고는 ::warning:: 어노테이션과 alerts.log 로만 남긴다(발행을 막지 않는다).
 
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -158,10 +158,11 @@ if (cmd === 'check-staleness') {
   }
   const hours = (Date.now() - Date.parse(prev.finishedAt)) / 3600000;
   const h = Math.round(hours * 10) / 10;
-  if (hours > 24) {
-    alert('stale-batch', `직전 배치 성공이 ${h}h 전(>24h) — 러너/스케줄 확인 필요`);
+  // 스케줄이 하루 1회(24h 간격)라 GitHub cron 지연만으로도 24h 를 넘는다 → 여유를 둔 30h 를 기준으로 한다.
+  if (hours > 30) {
+    alert('stale-batch', `직전 배치 성공이 ${h}h 전(>30h) — 러너/스케줄 확인 필요`);
   } else {
-    say(`check-staleness: 직전 성공 ${h}h 전 — 정상(≤24h)`);
+    say(`check-staleness: 직전 성공 ${h}h 전 — 정상(≤30h)`);
   }
   process.exit();
 }

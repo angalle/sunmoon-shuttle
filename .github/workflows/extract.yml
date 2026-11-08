@@ -14,7 +14,7 @@
 #
 # ── AI 키가 없어도 배치가 죽지 않는다 (FR-A6 · 부록 A-2) ────────────────────────
 # `AI_API_KEY` 미설정 · 401/403 · 타임아웃 · 5xx(재시도 1회) 면 추출기(tools/extract, T19)가 스스로
-# **규칙 전용으로 폴백**하고 exit 0 으로 정상 발행한다 → 키를 넣기 전에도 이 워크플로는 하루 2회 정상 동작한다.
+# **규칙 전용으로 폴백**하고 exit 0 으로 정상 발행한다 → 키를 넣기 전에도 이 워크플로는 정상 동작한다.
 # 다만 조용히 넘어가지 않는다: 런 요약(::warning::) · 실행 로그 · 아티팩트의 `extraction` 메타
 # (provider·model·calls·fallbackReason)에 남는다(docs/02 부록 A-2 의 "AI 폴백 3회 연속" 알림 기준).
 #
@@ -25,7 +25,7 @@
 # 커밋하고 `scrape.yml`(수동 전용)로 검증·반영한다.
 #
 # ── 역할 분리(중복 스케줄 0) ────────────────────────────────────────────────────
-#   extract.yml (이 파일) : 스케줄 하루 2회 + 수동 dispatch · 스냅샷 재파싱 + AI 보강 + 검증 + 발행
+#   extract.yml (이 파일) : 저녁 1회 깨어나 학사일정 전환 주간(개강·방학 시작 ±3일)에만 실행 + data/raw push + 수동 dispatch · 스냅샷 재파싱 + AI 보강 + 검증 + 발행
 #   scrape.yml            : **수동 전용**(workflow_dispatch 만) · 새 원본 스냅샷 반입·검증·반영
 #   deploy.yml            : main push → Pages 배포(테스트 실패 시 배포 잡 skipped)
 #                           + 이 파일·scrape.yml 이 데이터를 커밋하면 workflow_dispatch 로 직접 시작한다
@@ -43,9 +43,15 @@ name: extract
 
 on:
   schedule:
-    # KST 하루 2회 — GitHub cron 은 UTC 다. 05:10 KST = 20:10 UTC(전날) · 17:10 KST = 08:10 UTC. (T15 그대로 유지)
-    - cron: '10 20 * * *'
-    - cron: '10 8 * * *'
+    # 매일 저녁 19:10 KST(= 10:10 UTC)에 **깨어나기만** 한다. 실제 추출은 아래 `gate` 잡이 정한다:
+    # 학사일정의 개강일·방학 시작일 앞뒤 3일(총 7일)에만 돈다 — 학교가 시간표를 바꾸는 시기다.
+    # (2026-11-08 사용자 결정: 하루 2회 → "학사일정상 변동이 있을 때 일주일 정도만 하루 한 번, 저녁에")
+    - cron: '10 10 * * *'
+  # 사람이 새 원본 스냅샷·학사력을 커밋하면 **바로** 돈다(전환 주간이 아니어도). 봇 커밋은 data/timetable.json 만 건드리므로 재귀 없음.
+  push:
+    branches: [main]
+    paths:
+      - 'data/raw/**'
   workflow_dispatch:
     inputs:
       mode:
@@ -78,8 +84,32 @@ env:
   AI_MODEL: ${{ vars.AI_MODEL || 'deepseek-flash' }}
 
 jobs:
+  # 정기 실행(schedule)일 때만 학사일정으로 "오늘 돌릴지" 판정한다. 수동·push 실행은 항상 run=true.
+  gate:
+    name: "gate (학사일정 전환 주간인가)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: 체크아웃
+        if: github.event_name == 'schedule'
+        uses: actions/checkout@v7
+      - name: 판정
+        id: decide
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "schedule 이 아닌 실행(${{ github.event_name }}) — 게이트 없이 실행" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node .github/scripts/schedule_gate.mjs --json=data/timetable.json | tee -a "$GITHUB_STEP_SUMMARY"
+
   extract:
     name: "extract (스냅샷 → 규칙 → AI 보강 → 검증 → 발행)"
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # 상태 파일(실행 로그·알림·마지막 성공)은 러너 임시영역($RUNNER_TEMP/sunmoon-batch)에 만든다 —
@@ -218,7 +248,7 @@ jobs:
         id: publish
         if: steps.extract.outcome == 'success' && steps.diff.outputs.changed == 'true' && (inputs.mode || 'commit') == 'commit'
         env:
-          REASON: ${{ inputs.reason || '스케줄/수동 배치' }}
+          REASON: ${{ inputs.reason || (github.event_name == 'push' && '원본 스냅샷 반입' || '학사일정 전환 주간 정기 배치') }}
         run: |
           set -euo pipefail
           SUMMARY="$(node .github/scripts/summarize.mjs data/timetable.json)"
