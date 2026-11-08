@@ -353,8 +353,10 @@ async function main() {
    * T38 §16-2 — 화면은 **선택한 방향의 편만** 그린다: 기본 방향은 `터미널 도착`(`out` = `depCampus` 가 있는 편)이다.
    */
   const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
-  const expectedRowsOf = (dayType, direction = 'out') =>
+  // 시안 A(2026-11-08): 화면은 고른 정류장 하나의 편만 그린다 — 새로 연 화면의 기본 정류장 = 첫 노선(asan-ktx)
+  const expectedRowsOf = (dayType, direction = 'out', stopId = 'asan-ktx') =>
     raw.routes.reduce((sum, route) => {
+      if (stopId !== null && route.id !== stopId) return sum;
       const table = route.byDay?.[dayType];
       if (table === null || table === undefined) return sum;
       return (

@@ -54,6 +54,9 @@ import {
   freshnessView,
   moveNowHint,
   noticeGroups,
+  directionLabelFor,
+  resolveStopId,
+  stopOptions,
   stopWindowLines,
   todayBoardView,
   timetableView,
@@ -67,6 +70,7 @@ import type { ScheduleState, ScheduleStore } from '../store/scheduleStore';
 import { UI_TEXT, FALLBACK_SOURCE_URL } from '../types/texts';
 import { dayTabs as dayTabsMolecule, dayTabId } from '../components/molecules/DayTabs';
 import { directionFilter } from '../components/molecules/DirectionFilter';
+import { stopFilter } from '../components/molecules/StopFilter';
 import { skeletonCards } from '../components/molecules/SkeletonCards';
 import { toast } from '../components/molecules/Toast';
 import { dailyTimetable } from '../components/organisms/DailyTimetable';
@@ -153,8 +157,12 @@ export interface SchedulePageOptions {
    * 저장소 읽기/쓰기는 조립 지점(app/mount.ts)이 맡고 페이지는 값만 받는다.
    */
   readonly initialDirection?: DirectionSelection | undefined;
-  /** 요일·방향 선택을 저장한다(§11-1 재실행 시 유지). `date` = 저장 시점 KST 날짜 키(요일 선택은 그날 한정). */
-  readonly onViewPrefs?: ((prefs: { readonly dayType: DayType; readonly direction: DirectionSelection; readonly date: string }) => void) | undefined;
+  /** 저장된(또는 URL `?route=`) 정류장 — 선택지에 없으면 첫 정류장(시안 A · `전체` 없음) */
+  readonly initialStop?: string | undefined;
+  /** 요일·정류장·방향 선택을 저장한다(§11-1 재실행 시 유지). `date` = 저장 시점 KST 날짜 키(요일 선택은 그날 한정). */
+  readonly onViewPrefs?:
+    | ((prefs: { readonly dayType: DayType; readonly direction: DirectionSelection; readonly stop: string | null; readonly date: string }) => void)
+    | undefined;
   /** 스플래시·스크롤 시간 계측용 **단조 시각**(기본 `performance.now`) — 테스트 주입용. */
   readonly monotonicNow?: () => number;
   /** `prefers-reduced-motion: reduce` 판정 주입(기본: matchMedia). */
@@ -174,6 +182,7 @@ export function createSchedulePage(
   const noticeHost = host('notice-host');
   const tabsHost = host('tabs-host');
   const filterHost = host('filter-host');
+  const stopHost = host('stop-host');
   const listHost = host('list-host');
   const sheetHost = host('sheet-host');
   /** 하단 안내(토스트) 자리 — 이동 버튼 **위쪽**에 뜬다(§11-2). 여는 책임은 페이지, 배치는 CSS. */
@@ -222,6 +231,7 @@ export function createSchedulePage(
       el('div', { class: 'shuttle-appbar__actions' }, [infoNode]),
     ]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'day-row' } }, [tabsHost]),
+    el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'stop-row' } }, [stopHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'filter-row' } }, [filterHost]),
   ]);
 
@@ -578,11 +588,13 @@ export function createSchedulePage(
    * 저장된 값이 있으면 그 값으로 시작하고, 없으면 기본 `터미널 도착`(`DEFAULT_DIRECTION_SELECTION`).
    */
   let direction: DirectionSelection = options.initialDirection ?? DEFAULT_DIRECTION_SELECTION;
+  /** 정류장 선택(시안 A) — 항상 1개. 모델이 오면 선택지에 맞춰 확정한다(`resolveStopId`). */
+  let stopId: string | null = options.initialStop ?? null;
 
   /** 요일·방향 선택 저장(§11-1) — 저장소 IO 는 조립 지점(app/mount.ts)이 갖고 여기서는 알리기만 한다.
    *  저장 시점의 날짜 키를 함께 넘긴다 — 요일 선택은 그날 안에서만 되살아난다(다른 날 화면에서 따라오지 않게). */
   const persistViewPrefs = (dayType: DayType, next: DirectionSelection): void => {
-    options.onViewPrefs?.({ dayType, direction: next, date: dayKey(store.getState().nowMs) });
+    options.onViewPrefs?.({ dayType, direction: next, stop: stopId, date: dayKey(store.getState().nowMs) });
   };
 
   /**
@@ -593,6 +605,17 @@ export function createSchedulePage(
     direction = next;
     persistViewPrefs(store.getState().dayType, next);
     if (latestState !== null) renderFilter(renderRows(latestState));
+  }
+
+  /** 정류장 선택(시안 A) — 저장하고 칩·방향 라벨·목록을 다시 그린 뒤 다음 출발로 옮긴다. */
+  function selectStop(next: string): void {
+    stopId = next;
+    persistViewPrefs(store.getState().dayType, direction);
+    if (latestState === null) return;
+    const view = renderRows(latestState);
+    renderStops(latestState);
+    renderFilter(view);
+    scrollToNextDeparture(true);
   }
 
   /**
@@ -634,7 +657,8 @@ export function createSchedulePage(
       replaceChildren(listHost, state.status === 'loading' ? [skeletonCards({ count: 3 })] : []);
       return null;
     }
-    const view = timetableView(state, direction);
+    stopId = resolveStopId(stopOptions(state), stopId);
+    const view = timetableView(state, direction, stopId);
     replaceChildren(listHost, [
       dailyTimetable({
         view,
@@ -660,6 +684,10 @@ export function createSchedulePage(
       directionFilter({
         value: direction,
         counts: view?.counts ?? { all: 0, out: 0, in: 0 },
+        labels:
+          view?.stopName == null
+            ? undefined
+            : { in: directionLabelFor('in', view.stopName), out: directionLabelFor('out', view.stopName) },
         onSelect: (value: DirectionSelection) => {
           // §16-2(T38) — 택1이다: 눌린 방향이 그대로 선택이 된다(같은 칩을 다시 눌러도 유지 — 해제 없음).
           selectDirection(value);
@@ -667,6 +695,21 @@ export function createSchedulePage(
       }),
     ]);
     if (chipHadFocus) restoreFocus(`chip:${direction}`);
+  };
+
+  /** 정류장 칩 줄(시안 A) — 칩에 포커스가 있었을 때만 포커스를 되돌린다. */
+  const renderStops = (state: ScheduleState): void => {
+    const hadFocus = stopHost.contains(document.activeElement);
+    replaceChildren(stopHost, [
+      stopFilter({
+        options: stopOptions(state),
+        value: stopId,
+        onSelect: (next) => {
+          selectStop(next);
+        },
+      }),
+    ]);
+    if (hadFocus) root.querySelector<HTMLElement>(`[data-testid="stop-chip"][data-stop="${stopId ?? ''}"]`)?.focus();
   };
 
   /** ① 상단 바 아래 최소 1줄(운행 없음 · 대체 · 방학 · 오늘 종료) — 동시에 1줄(§9-4). */
@@ -709,7 +752,9 @@ export function createSchedulePage(
   /** 시각 의존 부분만 다시 그린다(60초 틱) — 스크롤은 건드리지 않는다(§9-3). */
   const renderLive = (state: ScheduleState): void => {
     renderAppbar(state);
-    renderFilter(renderRows(state));
+    const view = renderRows(state);
+    renderStops(state);
+    renderFilter(view);
     // 고정 영역(3줄)의 실제 높이를 CSS 토큰으로 내려 행의 `scroll-margin-top` 을 **동적**으로 맞춘다(§11-1).
     syncFixedHeightToken();
   };

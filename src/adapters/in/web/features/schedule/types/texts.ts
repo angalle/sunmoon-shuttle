@@ -101,6 +101,15 @@ export const UI_TEXT = {
    *  다른 문맥이라 상수를 따로 둔다(행은 "학교에서 출발"이 정확한 표현이다).
    */
   filterDirectionLegend: '방향 필터',
+  /** 정류장 선택(시안 A · 2026-11-08) */
+  stopFilterLegend: '정류장 선택',
+  /** 방향 라벨의 학교 쪽 이름 — `천안역 → 학교` */
+  stopCampusName: '학교',
+  /** 정류장을 고른 행의 제목·보조줄 */
+  rowArrivalSuffix: '도착',
+  rowDepartSuffix: '출발',
+  /** 고른 정류장이 그 요일에 운행하지 않을 때 */
+  timetableEmptyStopDaySuffix: '노선은 이 요일에 운행하지 않습니다',
   filterDirectionSchool: '학교 도착',
   filterDirectionTerminal: '터미널 도착',
   /* §15-2(T37): `현재 시간으로` 는 **묻지 않는다** — 오늘이 아니면 오늘 버킷으로 옮기고

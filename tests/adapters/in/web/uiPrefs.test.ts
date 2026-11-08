@@ -37,67 +37,68 @@ const throwingStorage: KeyValueStorage = {
 describe('writeUiPrefs → readUiPrefs 왕복', () => {
   it('요일·방향을 날짜와 함께 저장하고 그대로 읽는다', () => {
     const storage = fakeStorage();
-    writeUiPrefs(storage, { dayType: 'saturday', direction: 'in', date: '2026-10-06' });
+    writeUiPrefs(storage, { dayType: 'saturday', direction: 'in', stop: null, date: '2026-10-06' });
     expect(JSON.parse(storage.data[UI_PREFS_STORAGE_KEY] as string)).toEqual({
       dayType: 'saturday',
-      direction: 'in',
+      direction: 'in', stop: null,
       date: '2026-10-06',
     });
-    expect(readUiPrefs(storage)).toEqual({ dayType: 'saturday', direction: 'in', date: '2026-10-06' });
+    expect(readUiPrefs(storage)).toEqual({ dayType: 'saturday', direction: 'in', stop: null, date: '2026-10-06' });
   });
 
   it('두 번 저장하면 마지막 값이 남는다(한쪽만 바뀌어도 함께 갱신된다)', () => {
     const storage = fakeStorage();
-    writeUiPrefs(storage, { dayType: 'sunday', direction: 'in', date: '2026-10-11' });
-    writeUiPrefs(storage, { dayType: 'sunday', direction: 'out', date: '2026-10-11' });
-    expect(readUiPrefs(storage)).toEqual({ dayType: 'sunday', direction: 'out', date: '2026-10-11' });
+    writeUiPrefs(storage, { dayType: 'sunday', direction: 'in', stop: null, date: '2026-10-11' });
+    writeUiPrefs(storage, { dayType: 'sunday', direction: 'out', stop: null, date: '2026-10-11' });
+    expect(readUiPrefs(storage)).toEqual({ dayType: 'sunday', direction: 'out', stop: null, date: '2026-10-11' });
   });
 });
 
 describe('effectiveStoredDayType — 요일 선택은 그날(KST) 안에서만 유효하다', () => {
   it('저장한 날과 같은 날이면 요일 선택을 되살린다(§11-1 재실행 시 유지)', () => {
-    expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', date: '2026-10-06' }, '2026-10-06')).toBe('sunday');
+    expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', stop: null, date: '2026-10-06' }, '2026-10-06')).toBe('sunday');
   });
 
   it('날이 바뀌거나 다른 날짜 화면이면 되살리지 않는다(오늘 요일로 시작)', () => {
-    expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', date: '2026-10-06' }, '2026-10-10')).toBeNull();
+    expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', stop: null, date: '2026-10-06' }, '2026-10-10')).toBeNull();
   });
 
   it('날짜 정보가 없으면(옛 저장값·깨진 값) 되살리지 않는다', () => {
-    expect(effectiveStoredDayType({ dayType: 'saturday', direction: 'in', date: null }, '2026-10-10')).toBeNull();
+    expect(effectiveStoredDayType({ dayType: 'saturday', direction: 'in', stop: null, date: null }, '2026-10-10')).toBeNull();
   });
 
   it('저장된 요일이 없으면 null', () => {
-    expect(effectiveStoredDayType({ dayType: null, direction: 'out', date: '2026-10-10' }, '2026-10-10')).toBeNull();
+    expect(effectiveStoredDayType({ dayType: null, direction: 'out', stop: null, date: '2026-10-10' }, '2026-10-10')).toBeNull();
   });
 });
 
 describe('readUiPrefs — 이상한 값은 기본값(null)으로 떨어진다', () => {
   it('저장소가 없으면(프라이빗 모드) 기본값', () => {
-    expect(readUiPrefs(null)).toEqual({ dayType: null, direction: null, date: null });
+    expect(readUiPrefs(null)).toEqual({ dayType: null, direction: null, stop: null, date: null });
   });
 
   it('저장된 값이 없으면 기본값', () => {
-    expect(readUiPrefs(fakeStorage())).toEqual({ dayType: null, direction: null, date: null });
+    expect(readUiPrefs(fakeStorage())).toEqual({ dayType: null, direction: null, stop: null, date: null });
   });
 
   it('깨진 JSON 은 기본값(예외를 던지지 않는다)', () => {
     expect(readUiPrefs(fakeStorage({ [UI_PREFS_STORAGE_KEY]: '{not json' }))).toEqual({
       dayType: null,
       direction: null,
+      stop: null,
       date: null,
     });
   });
 
   it('모르는 요일·방향·날짜 값은 각각 무시한다(부분 복구)', () => {
-    const storage = fakeStorage({ [UI_PREFS_STORAGE_KEY]: JSON.stringify({ dayType: 'holiday', direction: 'in', date: '2026-10-06' }) });
-    expect(readUiPrefs(storage)).toEqual({ dayType: null, direction: 'in', date: '2026-10-06' });
+    const storage = fakeStorage({ [UI_PREFS_STORAGE_KEY]: JSON.stringify({ dayType: 'holiday', direction: 'in', stop: null, date: '2026-10-06' }) });
+    expect(readUiPrefs(storage)).toEqual({ dayType: null, direction: 'in', stop: null, date: '2026-10-06' });
 
     const storage2 = fakeStorage({ [UI_PREFS_STORAGE_KEY]: JSON.stringify({ dayType: 'sunday', direction: 'sideways', date: '2026-10-06' }) });
-    expect(readUiPrefs(storage2)).toEqual({ dayType: 'sunday', direction: null, date: '2026-10-06' });
+    expect(readUiPrefs(storage2)).toEqual({ dayType: 'sunday', direction: null, stop: null, date: '2026-10-06' });
 
     const storage3 = fakeStorage({
-      [UI_PREFS_STORAGE_KEY]: JSON.stringify({ dayType: 'sunday', direction: 'in', date: '10월 6일' }),
+      [UI_PREFS_STORAGE_KEY]: JSON.stringify({ dayType: 'sunday', direction: 'in', stop: null, date: '10월 6일' }),
     });
     expect(readUiPrefs(storage3).date).toBeNull();
   });
@@ -106,13 +107,14 @@ describe('readUiPrefs — 이상한 값은 기본값(null)으로 떨어진다', 
     const storage = fakeStorage({
       [UI_PREFS_STORAGE_KEY]: JSON.stringify({ dayType: 'sunday', direction: 'all', date: '2026-10-06' }),
     });
-    expect(readUiPrefs(storage)).toEqual({ dayType: 'sunday', direction: null, date: '2026-10-06' });
+    expect(readUiPrefs(storage)).toEqual({ dayType: 'sunday', direction: null, stop: null, date: '2026-10-06' });
   });
 
   it('JSON 이 객체가 아니면 기본값', () => {
     expect(readUiPrefs(fakeStorage({ [UI_PREFS_STORAGE_KEY]: '"sunday"' }))).toEqual({
       dayType: null,
       direction: null,
+      stop: null,
       date: null,
     });
   });
@@ -120,12 +122,12 @@ describe('readUiPrefs — 이상한 값은 기본값(null)으로 떨어진다', 
 
 describe('저장소가 막혀 있어도 앱 동작을 막지 않는다', () => {
   it('getItem/setItem 이 던져도 읽기는 기본값, 쓰기는 조용히 삼킨다', () => {
-    expect(readUiPrefs(throwingStorage)).toEqual({ dayType: null, direction: null, date: null });
+    expect(readUiPrefs(throwingStorage)).toEqual({ dayType: null, direction: null, stop: null, date: null });
     expect(() => {
-      writeUiPrefs(throwingStorage, { dayType: 'weekday', direction: 'out', date: '2026-10-06' });
+      writeUiPrefs(throwingStorage, { dayType: 'weekday', direction: 'out', stop: null, date: '2026-10-06' });
     }).not.toThrow();
     expect(() => {
-      writeUiPrefs(null, { dayType: 'weekday', direction: 'out', date: '2026-10-06' });
+      writeUiPrefs(null, { dayType: 'weekday', direction: 'out', stop: null, date: '2026-10-06' });
     }).not.toThrow();
   });
 });

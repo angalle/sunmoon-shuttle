@@ -23,6 +23,8 @@ export interface UiPrefs {
    * T38 §16-2 — **`all`(전체)은 더 이상 유효한 값이 아니다**: 옛 버전이 저장해 둔 `"all"` 은 무효로 보고 기본값을 쓴다.
    */
   readonly direction: DirectionSelection | null;
+  /** 저장된 정류장(노선 id · 시안 A) — 없으면 null(첫 정류장). 선택지에 없는 값은 페이지가 무시한다 */
+  readonly stop: string | null;
   /**
    * 저장 시점의 KST 날짜 키(`YYYY-MM-DD`).
    * 요일 선택은 **그날 안에서만** 유효하다 — 날이 바뀌면(또는 다른 날짜의 화면을 열면) 무시하고 오늘 요일로 시작한다.
@@ -30,7 +32,7 @@ export interface UiPrefs {
   readonly date: string | null;
 }
 
-const EMPTY: UiPrefs = { dayType: null, direction: null, date: null };
+const EMPTY: UiPrefs = { dayType: null, direction: null, stop: null, date: null };
 
 /** KST 날짜 키 형식 — 이 형식이 아니면 날짜 없음으로 본다(요일 선택은 그때 무효). */
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
@@ -64,6 +66,7 @@ export function readUiPrefs(storage: KeyValueStorage | null): UiPrefs {
   return {
     dayType: isDayType(record['dayType']) ? record['dayType'] : null,
     direction: isDirectionSelection(record['direction']) ? record['direction'] : null,
+    stop: typeof record['stop'] === 'string' && /^[a-z0-9-]{1,40}$/.test(record['stop']) ? record['stop'] : null,
     date: typeof record['date'] === 'string' && DATE_KEY.test(record['date']) ? record['date'] : null,
   };
 }
@@ -75,11 +78,11 @@ export function readUiPrefs(storage: KeyValueStorage | null): UiPrefs {
  */
 export function writeUiPrefs(
   storage: KeyValueStorage | null,
-  prefs: { readonly dayType: DayType; readonly direction: DirectionSelection; readonly date: string },
+  prefs: { readonly dayType: DayType; readonly direction: DirectionSelection; readonly stop?: string | null; readonly date: string },
 ): void {
   if (storage === null) return;
   try {
-    storage.setItem(UI_PREFS_STORAGE_KEY, JSON.stringify({ dayType: prefs.dayType, direction: prefs.direction, date: prefs.date }));
+    storage.setItem(UI_PREFS_STORAGE_KEY, JSON.stringify({ dayType: prefs.dayType, direction: prefs.direction, stop: prefs.stop ?? null, date: prefs.date }));
   } catch {
     /* 저장 불가 환경 — 이번 세션 값으로만 동작한다. */
   }

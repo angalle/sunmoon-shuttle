@@ -543,6 +543,48 @@ export function directionSelectionLabel(value: DirectionSelection): string {
   return value === 'in' ? UI_TEXT.filterDirectionSchool : UI_TEXT.filterDirectionTerminal;
 }
 
+/**
+ * 정류장을 고른 뒤의 방향 라벨(UI v3 · 2026-11-08 시안 A) — `천안역 → 학교` / `학교 → 천안역`.
+ * 정류장을 모르면(모델 전) 기존 라벨(`학교 도착`·`터미널 도착`)로 물러선다.
+ */
+export function directionLabelFor(value: DirectionSelection, stopName: string | null): string {
+  if (stopName === null) return directionSelectionLabel(value);
+  return value === 'in' ? `${stopName} → ${UI_TEXT.stopCampusName}` : `${UI_TEXT.stopCampusName} → ${stopName}`;
+}
+
+/** 정류장(노선의 역·터미널) 선택지 1개 — 칩 하나 */
+export interface StopOptionView {
+  /** 노선 id(데이터의 `routes[].id`) */
+  readonly id: string;
+  readonly name: string;
+  /** 선택한 요일에 실제로 운행하는 편수(두 방향 합) — 0 이면 칩을 흐리게 */
+  readonly count: number;
+}
+
+/**
+ * 정류장 선택지(시안 A · `전체` 없음 — 사용자 결정 2026-11-08). 운행 중단 노선과 **어느 요일에도 편이 없는 노선**은 뺀다.
+ * 순서는 데이터 순서(`routes[]`). 편수는 화면에 보이는 목록과 같은 판정(`timetableView`)으로 센다.
+ */
+export function stopOptions(state: ScheduleState): readonly StopOptionView[] {
+  const model = state.model;
+  if (model === null) return [];
+  const todays = timetableView(state, 'all').rows;
+  return model.routes
+    .filter((route) => route.status !== 'suspended')
+    .filter((route) => Object.values(route.byDay).some((table) => table !== null && table.rows.length > 0))
+    .map((route) => ({
+      id: route.id,
+      name: route.name,
+      count: todays.filter((row) => row.routeId === route.id).length,
+    }));
+}
+
+/** 저장값·URL 값이 지금 선택지에 있으면 그대로, 없으면 첫 정류장(선택지가 없으면 null). */
+export function resolveStopId(options: readonly StopOptionView[], wanted: string | null): string | null {
+  if (wanted !== null && options.some((option) => option.id === wanted)) return wanted;
+  return options[0]?.id ?? null;
+}
+
 /** 선택한 방향의 편이 0편일 때의 **전환 수단**(§16-2) — 자동 전환이 아니라 사용자가 누르는 짧은 버튼 1개. */
 export interface DirectionSwitchView {
   readonly direction: DirectionSelection;
@@ -551,8 +593,8 @@ export interface DirectionSwitchView {
 }
 
 /** 전환 수단 문구 — `<방향 라벨> 편 보기`(§16-2 예시 그대로). */
-function directionSwitchView(next: DirectionSelection): DirectionSwitchView {
-  return { direction: next, label: `${directionSelectionLabel(next)} ${UI_TEXT.timetableEmptyFilterSwitchSuffix}` };
+function directionSwitchView(next: DirectionSelection, stopName: string | null = null): DirectionSwitchView {
+  return { direction: next, label: `${directionLabelFor(next, stopName)} ${UI_TEXT.timetableEmptyFilterSwitchSuffix}` };
 }
 
 /** 노선 통합 출발 1편 — 값은 도메인 `nextDepartures` 반환이 정본이다(화면 계산 금지). */
@@ -1073,6 +1115,8 @@ export function fullDayView(
   state: ScheduleState,
   filter: DirectionFilter = 'all',
   options?: FullDayOptions,
+  /** 정류장(노선 id)으로 좁힌다 — null 이면 모든 노선(시안 A 이전 동작) */
+  routeFilter: string | null = null,
 ): FullDayView {
   const dayType = options?.dayType ?? state.dayType;
   const model = state.model;
@@ -1092,6 +1136,7 @@ export function fullDayView(
   for (const route of model.routes) {
     // 운행 중단 노선은 전체 목록에도 올리지 않는다(상태·사유는 이용 안내가 원문으로 보여준다).
     if (route.status === 'suspended') continue;
+    if (routeFilter !== null && route.id !== routeFilter) continue;
     const table = route.byDay[dayType];
     if (table === null) continue;
     const domainRoute = model.schedule.routes.find((candidate) => candidate.id === route.id);
@@ -1100,22 +1145,37 @@ export function fullDayView(
       if (departure === null) continue;
       if (!resolveTripService(trip, day).runs) continue;
       const row = rowBySeq(table, trip.seq);
-      const direction: DepartureDirection = cellText(row, ['depCampus']) === null ? 'in' : 'out';
-      const arrival =
-        direction === 'out' ? cellText(row, ['depStation', 'depTerminal']) : cellText(row, ['arrCampus']);
       const status = tripStatus(trip, day, { dateRules: model.dateRules, terms: model.terms });
-      all.push({
-        key: `${route.id}:${String(trip.seq)}`,
-        routeId: route.id,
-        routeName: route.name,
-        departure,
-        arrival,
-        direction,
-        directionLabel: direction === 'out' ? UI_TEXT.boardDirectionOut : UI_TEXT.boardDirectionIn,
-        durationNote: durationNoteFor(route, direction, row),
-        badges: uniqueNotes([...conditionBadges(trip, status, row)]),
-        isPast: isPastDeparture(departure, day, state.nowMs),
-      });
+      const badges = uniqueNotes([...conditionBadges(trip, status, row)]);
+      const campusDeparture = cellText(row, ['depCampus']);
+      const hubTime = cellText(row, ['depStation', 'depTerminal']);
+      const campusArrival = cellText(row, ['arrCampus']);
+      const push = (direction: DepartureDirection, dep: string, arrival: string | null, key: string): void => {
+        all.push({
+          key,
+          routeId: route.id,
+          routeName: route.name,
+          departure: dep,
+          arrival,
+          direction,
+          directionLabel: direction === 'out' ? UI_TEXT.boardDirectionOut : UI_TEXT.boardDirectionIn,
+          durationNote: durationNoteFor(route, direction, row),
+          badges,
+          isPast: isPastDeparture(dep, day, state.nowMs),
+        });
+      };
+      if (campusDeparture === null) {
+        // 역·터미널(또는 중간 정류장)에서 출발해 학교로 오는 편
+        push('in', departure, campusArrival, `${route.id}:${String(trip.seq)}`);
+        continue;
+      }
+      // 학교에서 출발하는 편. 표에 역·터미널 **출발** 시각과 학교 도착 시각이 함께 있으면 **왕복**이다
+      // (예: 아산캠퍼스 출발 9:30 → 천안아산역 출발 9:50 → 아산캠퍼스 도착 10:05).
+      // 2026-11-08 이전에는 학교 출발 쪽만 셌다 → `역 → 학교` 편이 크게 빠졌다(평일 아산KTX 9편 표시, 실제 42편).
+      push('out', departure, hubTime, `${route.id}:${String(trip.seq)}`);
+      if (hubTime !== null && campusArrival !== null) {
+        push('in', hubTime, campusArrival, `${route.id}:${String(trip.seq)}:return`);
+      }
     }
   }
   all.sort(compareFullTrips);
@@ -1209,6 +1269,10 @@ export interface TimetableView {
   readonly rows: readonly TimetableRowView[];
   /** 강조(다음 출발) 행 key — 없으면 null */
   readonly nextKey: string | null;
+  /** 고른 정류장 이름(시안 A) — null 이면 정류장으로 좁히지 않은 목록 */
+  readonly stopName: string | null;
+  /** 오늘이 운행 없는 날(공휴일 등)이라 비었는가 — 빈 목록 문구를 고르는 데 쓴다 */
+  readonly noService: boolean;
 }
 
 /**
@@ -1220,7 +1284,7 @@ export interface TimetableView {
  *  - **운행 없는 날**(공휴일 등)에는 시간표 행을 그리지 않는다 — 상단 바 아래 1줄이 "다음 운행"을 안내한다.
  *  - **대체 시간표 날**에는 **적용 시간표**(예: 일요일)를 그린다(캘린더 요일 표가 아니다).
  */
-export function timetableView(state: ScheduleState, filter: DirectionFilter = 'all'): TimetableView {
+export function timetableView(state: ScheduleState, filter: DirectionFilter = 'all', stopId: string | null = null): TimetableView {
   const now = new Date(state.nowMs);
   const today = kstDayFromInstant(now);
   const todayDayType = dayTypeFromDate(now);
@@ -1236,7 +1300,9 @@ export function timetableView(state: ScheduleState, filter: DirectionFilter = 'a
     state,
     filter,
     selectedIsToday ? { dayType: effectiveDayType, referenceDay: today } : undefined,
+    stopId,
   );
+  const stopName = stopId === null ? null : (model?.routes.find((route) => route.id === stopId)?.name ?? null);
   const isToday = selectedIsToday && !noService;
   const trips = noService ? [] : full.trips;
 
@@ -1252,7 +1318,7 @@ export function timetableView(state: ScheduleState, filter: DirectionFilter = 'a
   const total = noService ? 0 : full.total;
   const emptySwitch: DirectionSwitchView | null =
     filter !== 'all' && rows.length === 0 && total > 0
-      ? directionSwitchView(filter === 'in' ? 'out' : 'in')
+      ? directionSwitchView(filter === 'in' ? 'out' : 'in', stopName)
       : null;
   return {
     dayType: full.dayType,
@@ -1265,6 +1331,8 @@ export function timetableView(state: ScheduleState, filter: DirectionFilter = 'a
     emptySwitch,
     rows,
     nextKey,
+    stopName,
+    noService,
   };
 }
 

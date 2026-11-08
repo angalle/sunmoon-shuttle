@@ -248,8 +248,10 @@ async function main() {
   // T38 §16-2: 화면은 **선택한 방향의 편만** 그린다(기본 `터미널 도착` = `out` · `depCampus` 가 있는 편) → 방향까지 맞춰 센다.
   const raw = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
   const hasDepartureTime = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
-  const expectedRowsOf = (dayType, direction = 'out') =>
+  // 시안 A(2026-11-08): 화면은 고른 정류장 하나의 편만 그린다 — 새로 연 화면의 기본 정류장 = 첫 노선(asan-ktx)
+  const expectedRowsOf = (dayType, direction = 'out', stopId = 'asan-ktx') =>
     raw.routes.reduce((sum, route) => {
+      if (stopId !== null && route.id !== stopId) return sum;
       const table = route.byDay?.[dayType];
       if (table === null || table === undefined) return sum;
       return (
@@ -360,7 +362,7 @@ async function main() {
     // T27: 히어로 카드 대신 **시간표 섹션 하나**가 본문이다(대체휴일 → 일요일 시간표 적용).
     check('T27 본문 = 시간표 섹션 하나(적용 시간표 일요일)', initial.listReady === true && initial.listDay === 'sunday', `day=${String(initial.listDay)}`);
     check('T27 다음 출발 행이 정확히 하나 강조된다', initial.nextCount === 1, `count=${String(initial.nextCount)}`);
-    check('T27 강조 행 시각이 노선 통합 도메인 계산값(가장 가까운 남은 편)', initial.nextTime === '16:00', `next=${String(initial.nextTime)}`);
+    check('T27 강조 행 시각이 고른 정류장(아산(KTX)역)의 가장 가까운 남은 편', initial.nextTime === '16:10', `next=${String(initial.nextTime)}`);
     // T37 §15-1 — 방향 칩은 2개(`학교 도착`·`터미널 도착`)이고 `전체` 칩은 없다.
     check('V1 방향 필터 칩 2개(T37 §15-1)', initial.chips === 2, `chips=${String(initial.chips)}`);
     check('V1 오늘 남은 출발 목록', initial.listRows > 0, `list rows=${String(initial.listRows)}`);
@@ -414,7 +416,7 @@ async function main() {
       };
     `);
     check('탭 왕복 후 평일로 복귀', back.selected === 'shuttle-day-tab-weekday', `selected=${String(back.selected)}`);
-    check('탭 왕복 후에도 다음 출발 강조 시각 유지', back.nextTime === '16:00', `next=${String(back.nextTime)}`);
+    check('탭 왕복 후에도 다음 출발 강조 시각 유지', back.nextTime === '16:10', `next=${String(back.nextTime)}`);
     check('탭 왕복 후에도 홈에 `원본` 0회(T14)', back.visibleSourceCount === 0, `원본=${String(back.visibleSourceCount)}`);
     const suspendedPath = await capture('T5-3-평일복귀.png');
 

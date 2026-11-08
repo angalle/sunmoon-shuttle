@@ -39,6 +39,8 @@ export interface DirectionFilterProps {
   readonly counts: Readonly<Record<DirectionFilter, number>>;
   /** 칩 클릭 — 눌린 방향을 그대로 알린다(택1 유지 판단은 페이지가 한다) */
   readonly onSelect: (value: DirectionSelection) => void;
+  /** 정류장을 고른 뒤의 라벨(`천안역 → 학교`) — 없으면 기존 라벨 */
+  readonly labels?: Readonly<Record<DirectionSelection, string>> | undefined;
 }
 
 /** 화면 표시 순서 — `학교 도착` → `터미널 도착`(§15-1 · T29 §11-1 의 순서에서 `전체` 만 빠졌다). */
@@ -78,7 +80,7 @@ export function directionFilter(props: DirectionFilterProps): HTMLElement {
           },
         },
         [
-          el('span', { class: 'shuttle-chip__label', text: directionSelectionLabel(value) }),
+          el('span', { class: 'shuttle-chip__label', text: props.labels?.[value] ?? directionSelectionLabel(value) }),
           // 라벨과 편수 사이에 **실제 공백 문자**를 둔다(낭독기·텍스트 대조가 `학교 도착 24` 로 읽도록).
           ' ',
           el('span', { class: 'shuttle-chip__count', text: countText(count) }),

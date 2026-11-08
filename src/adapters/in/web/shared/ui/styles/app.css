@@ -1545,3 +1545,20 @@ body {
 .shuttle-banner--info {
   box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-info-border);
 }
+
+/* ───────────────────────── 시안 A — 정류장 칩 줄 (2026-11-08) ─────────────────────────
+ * 칩이 화면보다 넓으면 **이 줄 안에서만** 가로로 넘긴다(페이지 가로 스크롤 0). 줄은 셸 여백까지 넓혀
+ * 칩이 화면 끝까지 흘러가 보이게 하고, 칩의 터치 확장(위아래 5px)이 잘리지 않게 위아래 여백을 준다.
+ */
+.shuttle-chips--scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  margin: calc(-1 * var(--chip-touch-overflow)) calc(-1 * max(var(--shell-pad-x), var(--safe-area-left)));
+  padding: var(--chip-touch-overflow) max(var(--shell-pad-x), var(--safe-area-left));
+  scroll-padding-inline: max(var(--shell-pad-x), var(--safe-area-left));
+}
+
+.shuttle-chips--scroll::-webkit-scrollbar {
+  display: none;
+}

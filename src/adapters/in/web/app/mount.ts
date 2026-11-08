@@ -144,6 +144,8 @@ export function mountScheduleApp(root: HTMLElement, options: MountOptions = {}):
     onRefresh: reload,
     // §11-1 상태 저장 — 페이지가 고른 요일·방향 필터를 그대로 저장한다(실패는 삼킨다).
     initialDirection: storedPrefs.direction ?? undefined,
+    // 정류장: URL(`?route=`) > 저장값 > 첫 정류장(페이지가 선택지에 맞춰 확정한다)
+    initialStop: initial.routeId ?? storedPrefs.stop ?? undefined,
     onViewPrefs: (prefs) => {
       writeUiPrefs(prefsStorage, prefs);
     },

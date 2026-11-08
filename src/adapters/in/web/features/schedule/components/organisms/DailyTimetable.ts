@@ -50,7 +50,7 @@ export function dailyTimetable(props: DailyTimetableProps): HTMLElement {
               attrs: { 'aria-label': `${view.dayLabel} ${UI_TEXT.timetableTitle}` },
               dataset: { testid: 'timetable-list' },
             },
-            view.rows.map((row) => timetableRow(row)),
+            view.rows.map((row) => timetableRow(row, view.stopName)),
           ),
     ],
   );
@@ -64,10 +64,16 @@ export function dailyTimetable(props: DailyTimetableProps): HTMLElement {
  */
 function timetableEmpty(view: TimetableView, props: DailyTimetableProps): HTMLElement {
   const filtered = view.total > 0;
+  // 고른 정류장이 이 요일에 아예 다니지 않으면(예: 온양 노선 주말) 그 이유를 말한다 — 공휴일(운행 없는 날)은 상단 1줄이 맡는다.
+  const stopIdle = !filtered && !view.noService && view.stopName !== null;
   const line = el('p', {
     class: 'shuttle-timetable__empty',
-    dataset: { testid: filtered ? 'timetable-filter-empty' : 'timetable-empty', reason: filtered ? 'filter' : 'day' },
-    text: filtered ? UI_TEXT.timetableEmptyFilter : UI_TEXT.timetableEmptyDay,
+    dataset: { testid: filtered ? 'timetable-filter-empty' : 'timetable-empty', reason: filtered ? 'filter' : stopIdle ? 'stop-day' : 'day' },
+    text: filtered
+      ? UI_TEXT.timetableEmptyFilter
+      : stopIdle
+        ? `${view.stopName ?? ''} ${UI_TEXT.timetableEmptyStopDaySuffix}`
+        : UI_TEXT.timetableEmptyDay,
   });
   if (!filtered || view.emptySwitch === null) return line;
   const switchView = view.emptySwitch;
@@ -86,15 +92,21 @@ function timetableEmpty(view: TimetableView, props: DailyTimetableProps): HTMLEl
 }
 
 /** 행 하나 — 지난 편 dim · 다음 출발 강조 · 조건 토큰 ≤1. */
-function timetableRow(row: TimetableRowView): HTMLElement {
+function timetableRow(row: TimetableRowView, stopName: string | null): HTMLElement {
   const classes = ['shuttle-departure'];
   if (row.isPast) classes.push('shuttle-departure--past');
   if (row.isNext) classes.push('shuttle-departure--next');
   // 강조 행은 라인+배경만 쓴다(§9-3) — 요일 조건 토큰도 붙이지 않는다.
   else if (row.token !== null) classes.push('shuttle-departure--limited');
 
-  const detail = [row.directionLabel];
-  if (row.arrival !== null) detail.push(`${row.arrival} ${UI_TEXT.boardArrivalSuffix}`);
+  // 정류장을 골랐으면(시안 A) 행마다 같은 정류장 이름을 반복하지 않는다 — 제목 = **도착 시각**, 보조줄 = 어디서 출발 · 소요.
+  // 정류장을 고르지 않은 목록(옛 동작)은 그대로: 제목 = 노선명, 보조줄 = 방향 · 도착 · 소요.
+  const stopMode = stopName !== null;
+  const title = stopMode && row.arrival !== null ? `${row.arrival} ${UI_TEXT.rowArrivalSuffix}` : row.routeName;
+  const detail = stopMode
+    ? [`${row.direction === 'out' ? UI_TEXT.stopCampusName : row.routeName} ${UI_TEXT.rowDepartSuffix}`]
+    : [row.directionLabel];
+  if (!stopMode && row.arrival !== null) detail.push(`${row.arrival} ${UI_TEXT.boardArrivalSuffix}`);
   if (row.durationNote !== null) detail.push(row.durationNote);
 
   return el(
@@ -114,7 +126,7 @@ function timetableRow(row: TimetableRowView): HTMLElement {
     [
       el('span', { class: 'shuttle-departure__time', text: row.departure }),
       el('span', { class: 'shuttle-departure__body' }, [
-        el('span', { class: 'shuttle-departure__route', text: row.routeName }),
+        el('span', { class: 'shuttle-departure__route', text: title }),
         el('span', { class: 'shuttle-departure__dir', text: detail.join(' · ') }),
       ]),
       el('span', { class: 'shuttle-departure__marks' }, [
