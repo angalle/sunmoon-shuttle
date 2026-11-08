@@ -108,6 +108,18 @@ const result = nextDepartures({
 - 시각은 호스트 TZ 와 무관하게 **KST(+09:00) 고정**으로 계산한다(`src/domain/rules/kst.ts`).
 - 경계 케이스 12종(자정·요일 전환·운행 없는 날·`금(X)`·`Χ`·빈 스케줄 …)은 `tests/domain/nextDeparture.test.ts`.
 
+## 원본 스냅샷 반입 (사람이 저장)
+원본 사이트는 `robots.txt` 가 `Disallow: /Page` 라 **자동 수집하지 않는다**. 사람이 브라우저로 저장해 커밋한다.
+
+| 폴더 | 내용 | 절차 |
+|---|---|---|
+| `data/raw/*.html` | 셔틀 시간표(노선 × 요일) | 기존 방식 — 파일명 `<학기>-<노선>-<요일>.html` |
+| `data/raw/terms/*.html` | 방학 시간표 페이지 | 기존 방식 |
+| `data/raw/calendar/<N>학년도-학사력.{hwp,txt}` | **학사력(1년치 학사일정)** — 학년도마다 1회 | [`data/raw/calendar/README.md`](data/raw/calendar/README.md) (`docs/10` · T41) — hwp 내려받기 → `scripts/calendar_hwp_to_txt.sh` |
+
+- **발행은 `npm run extract`**(규칙 + AI 교차검증 + 드리프트 게이트 → schemaVersion 3)로 한다.
+- ⚠️ `npm run scrape -- --local …` 는 **옛 v1 계약으로 `data/timetable.json` 을 덮어쓴다**(`dateRules`·`terms` 가 사라진다). 조사용으로 돌릴 때는 반드시 `--out <임시경로>` 를 붙인다. (2026-11-08 실제로 작업 사본이 v1 으로 덮여 T41 에서 HEAD 로 복원했다.)
+
 ## 문서
 | 파일 | 내용 |
 |---|---|
@@ -116,4 +128,6 @@ const result = nextDepartures({
 | `docs/02-monitoring.md` | 지표·임계값·알림 경로·장애 시나리오별 복구(runbook)·로그 보존 |
 | `docs/03-verification.md` | AC ↔ 테스트 매핑·실행 명령·증거 형식·미달 처리 |
 | `docs/04-tasks.md` | 보드 slug·태스크 10건·의존관계·가정·**결정 대기 목록** |
+| `docs/09-ui-refresh.md` | 시간표 UI 리프레시(로고 문양 색 v3 적용) |
+| `docs/10-academic-calendar.md` | **학사일정 연동 계획**(공휴일·방학·시험 기간 · T41~T45) |
 | `docs/05-store-listing.md` | **스토어 등록 문구**(한/영·길이 제한 실측)·카테고리·콘텐츠 등급 근거·Data safety 초안·**개인정보처리방침 URL**·비공식 고지 |
