@@ -13,11 +13,11 @@
   color-scheme: light dark;
 
   /* 표면·글자·강조·테두리 (tokens.css 라이트 값과 동일 — T13 밝은 톤) */
-  --color-bg: #ffffff;
-  --color-text: #0f1720;
-  --color-text-muted: #5a6b7c;
-  --color-accent: #0b5497;
-  --color-border: #e8edf3;
+  --color-bg: #f3f6f7;
+  --color-text: #16222a;
+  --color-text-muted: #5b6870;
+  --color-accent: #00687a;
+  --color-border: #e0e6e8;
 
   /* 간격 */
   --space-1: 0.25rem;
@@ -41,7 +41,7 @@
   /* 접근성 최소선 */
   --touch-target-min: 48px;
   --focus-ring-width: 3px;
-  --focus-ring-color: #0b5497;
+  --focus-ring-color: #00687a;
 
   --bp-md: 48rem;
 }
@@ -51,9 +51,9 @@
     --color-bg: #12161b;
     --color-text: #eef2f6;
     --color-text-muted: #b9c3ce;
-    --color-accent: #7cb6f0;
+    --color-accent: #5fc3cf;
     --color-border: #3b4552;
-    --focus-ring-color: #7cb6f0;
+    --focus-ring-color: #5fc3cf;
   }
 }
 

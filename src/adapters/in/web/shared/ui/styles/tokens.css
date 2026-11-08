@@ -11,34 +11,47 @@
    * 페이지 배경을 회색(#f4f6f9)에서 **흰색**으로 올리고, 표면 구분은 얇은 테두리와
    * 보조 표면(#f6f8fb)만으로 한다(그림자 최소화). 실측 대비는 tokens 테스트·a11y 스모크가 낸다.
    */
-  --color-bg: #ffffff;
+  /*
+   * UI 리프레시(2026-11-08) — **선문대 로고 문양 색** + "떠 있는 카드".
+   * 로고(50th_logo_2.png) 픽셀 실측: 딥 틸 #006878(문양 주색) · 크림슨 #C81840(문양 포인트) · 실버 #A0A8B0(워드마크).
+   * 배경은 실버 기운의 아주 옅은 회청색, 시간표는 흰 카드 위에 올려 경계를 만든다.
+   * 강조는 틸 1색, 크림슨은 `다음` 라벨·오늘 점처럼 아주 작은 곳에만 쓴다(튀지 않게).
+   */
+  --color-bg: #f3f6f7;
   --color-surface: #ffffff;
-  --color-surface-alt: #f6f8fb;
-  --color-border: #e8edf3;
-  /* 강한 테두리 = 배지·버튼의 경계(정보를 담는 선) → 표면 대비 ≥ 3:1 (T13 실측 #7b8794 = 3.66:1) */
+  --color-surface-alt: #ecf1f2;
+  --color-border: #e0e6e8;
+  /* 카드 안 행 사이 인셋 구분선(장식선 — 대비 기준 제외) */
+  --color-border-soft: #ebf0f1;
+  /* 강한 테두리 = 배지·버튼의 경계(정보를 담는 선) → 표면 대비 ≥ 3:1 */
   --color-border-strong: #7b8794;
 
-  /* 글자 (대비 실측치는 tests/web/a11y_tokens.test.ts · .session-notes/T13-증거.md 참조) */
-  --color-text: #0f1720;          /* on surface 18.05:1 */
-  --color-text-muted: #5a6b7c;    /* on surface  5.48:1 / on surface-alt 5.16:1 */
-  --color-text-subtle: #5a6b7c;   /* on surface-alt 5.16:1 */
-  /* T27 §9-3 — 요일 조건이 걸린 편(한 단계 더 흐림). 표면 5.03:1 / 보조표면 4.73:1 / 강조배경 위는 쓰지 않는다 */
-  --color-text-dim: #5f7183;
-  /* T27 §9-3 — 다음 출발 행의 배경 톤 한 단계(본문 글자 대비 16.3:1 · 보조글자 4.95:1) */
-  --color-highlight: #eef4fb;
+  /* 글자 (대비 실측치는 tests/web/a11y_tokens.test.ts 참조) */
+  --color-text: #16222a;
+  --color-text-muted: #5b6870;
+  --color-text-subtle: #5b6870;
+  /* 요일 조건이 걸린 편(한 단계 더 흐림) */
+  --color-text-dim: #5d6f78;
+  /* 다음 출발 행의 배경 톤(로고 틸 아주 옅게) */
+  --color-highlight: #e6f3f4;
 
-  /*
-   * T28 §10-1 — 우하단 이동 버튼의 **반투명** 표면(뒤의 본문이 비친다) + 얇은 테두리.
-   * 반투명이라 `backgroundOf`(불투명 배경을 만날 때까지 상위로 올라간다) 기준으로도
-   * 본문 대비(≥4.5:1)는 셸 배경에서 계산된다 — a11y 스모크가 실측한다.
-   */
-  --color-floating-bg: rgba(255, 255, 255, 0.92);
-  --color-floating-border: #7b8794;
+  /* 우하단 이동 버튼·토스트 표면 — 그림자로 띄우고 테두리는 거의 보이지 않게 */
+  --color-floating-bg: rgba(255, 255, 255, 0.96);
+  --color-floating-border: #e0e6e8;
 
-  /* 강조·링크 */
-  --color-accent: #0b5497;        /* on surface 7.69:1 (T13 재실측) */
-  --color-accent-hover: #083d6f;
-  --color-on-accent: #ffffff;     /* on accent 7.69:1 */
+  /* 강조·링크 — 로고 문양의 딥 틸 */
+  --color-accent: #00687a;        /* on surface 6.4:1 */
+  --color-accent-hover: #00525f;
+  --color-on-accent: #ffffff;
+  /* 선택 칩·호버의 은은한 면 */
+  --color-accent-soft: #e3f1f3;
+  /* 로고 틸의 더 깊은 톤 — 다음 행 좌측 바 */
+  --color-brand-deep: #004b58;
+  /* 로고 문양의 크림슨 — `다음` 라벨·오늘 점에만(on-brand-red 글자 대비 5.7:1) */
+  --color-brand-red: #c81840;
+  --color-on-brand-red: #ffffff;
+  /* 선택된(채워진) 칩 안 편수 배지의 면 */
+  --color-on-accent-soft: rgba(255, 255, 255, 0.22);
 
   /* 상태 (색만으로 전달 금지 — 항상 문구·기호를 함께 둔다) */
   --color-ok-bg: #e3f3e8;
@@ -67,7 +80,14 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+  --radius-row: 14px; /* 시간표 카드 */
+  --radius-pill: 999px; /* 칩·작은 배지 */
   --shadow-1: 0 1px 2px rgba(16, 24, 32, 0.04);
+  /* 카드: 아주 옅은 2겹 그림자로만 띄운다 · 플로팅 버튼 */
+  --shadow-card: 0 1px 2px rgba(20, 32, 56, 0.04), 0 4px 16px rgba(20, 32, 56, 0.05);
+  --shadow-float: 0 4px 16px rgba(20, 32, 56, 0.14);
+  /* 시간표 행의 시각 열 폭(행 정렬 기준) */
+  --time-col: 3.25rem;
 
   /*
    * 앱 셸·모바일 감각 (T24 · docs/07-mobile-ux.md §5)
@@ -182,7 +202,7 @@
   /* 접근성 최소선 */
   --touch-target-min: 48px;
   --focus-ring-width: 3px;
-  --focus-ring-color: #0b5497;
+  --focus-ring-color: #00687a;
 
   /*
    * 안전영역(전체화면 PWA) — index.html 의 `viewport-fit=cover` 와 함께 쓴다(T7).
@@ -208,20 +228,26 @@
     --color-surface-alt: #222a33;
     --color-border: #3b4552;
     --color-border-strong: #6b7784;
+    --color-border-soft: #2a323d;
 
     --color-text: #eef2f6;        /* on surface 13.6:1 */
     --color-text-muted: #b9c3ce;  /* on surface 8.5:1 */
     --color-text-subtle: #aab5c0;
     /* T27 — 라이트와 같은 이름을 정의한다: dim 글자 7.33:1(배경)/6.54:1(표면) · 강조 배경(7.28:1 on 보조글자) */
     --color-text-dim: #9aa6b2;
-    --color-highlight: #263241;
+    --color-highlight: #1d3236;
     /* T28 §10-1 — 다크에서도 같은 이름을 정의한다(반투명 표면 + 얇은 테두리) */
     --color-floating-bg: rgba(27, 33, 41, 0.92);
-    --color-floating-border: #6b7784;
+    --color-floating-border: #3b4552;
 
-    --color-accent: #7cb6f0;      /* on surface 7.6:1 */
-    --color-accent-hover: #a3cbf6;
+    --color-accent: #5fc3cf;      /* 로고 틸(다크용 밝은 톤) */
+    --color-accent-hover: #8ad5de;
     --color-on-accent: #10161d;   /* on accent 8.9:1 */
+    --color-accent-soft: #173a40;
+    --color-brand-deep: #5fc3cf;
+    --color-brand-red: #f27a90;
+    --color-on-brand-red: #10161d;
+    --color-on-accent-soft: rgba(16, 22, 29, 0.18);
 
     --color-ok-bg: #16301f;
     --color-ok-text: #b7e3c3;
@@ -236,8 +262,10 @@
     --color-info-text: #bdd3f5;
     --color-info-border: #5b7fb6;
 
-    --focus-ring-color: #7cb6f0;
+    --focus-ring-color: #5fc3cf;
     --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.5);
 
     /* 스켈레톤 다크 값(T24) — 라이트와 같은 이름을 반드시 정의한다(tests/web/a11y_tokens.test.ts) */
     --color-skeleton: #232c36;

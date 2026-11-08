@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="선문대 셔틀버스">
   <!-- 자체 제작(scripts/generate_icons.mjs 와 같은 기하) — 색은 tokens.css 의 --color-accent/--color-on-accent 값 -->
-  <rect width="512" height="512" rx="112" fill="#0b5497"/>
+  <rect width="512" height="512" rx="112" fill="#00687a"/>
   <g transform="translate(66.5 66.5) scale(379)">
     <rect x="0.14" y="0.275" width="0.72" height="0.45" rx="0.10" fill="#ffffff"/>
-    <rect x="0.20" y="0.323" width="0.60" height="0.144" rx="0.035" fill="#0b5497"/>
+    <rect x="0.20" y="0.323" width="0.60" height="0.144" rx="0.035" fill="#00687a"/>
     <rect x="0.3953" y="0.323" width="0.014" height="0.144" rx="0.007" fill="#ffffff"/>
     <rect x="0.5907" y="0.323" width="0.014" height="0.144" rx="0.007" fill="#ffffff"/>
-    <circle cx="0.31" cy="0.64" r="0.06" fill="#0b5497"/>
-    <circle cx="0.69" cy="0.64" r="0.06" fill="#0b5497"/>
+    <circle cx="0.31" cy="0.64" r="0.06" fill="#00687a"/>
+    <circle cx="0.69" cy="0.64" r="0.06" fill="#00687a"/>
     <rect x="0.21" y="0.807" width="0.26" height="0.056" rx="0.028" fill="#ffffff"/>
     <rect x="0.53" y="0.807" width="0.26" height="0.056" rx="0.028" fill="#ffffff"/>
   </g>

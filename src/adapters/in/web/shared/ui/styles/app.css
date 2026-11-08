@@ -99,6 +99,9 @@ body {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  /* 첫 카드가 고정 영역에 붙지 않게 + 카드 그림자가 잘리지 않게 */
+  padding-top: var(--space-3);
+  scrollbar-width: thin;
 }
 
 /* 화면(탭 패널) 1개 — `[hidden]` 이면 UA 규칙보다 클래스가 세므로 명시적으로 끈다 */
@@ -162,13 +165,33 @@ body {
   margin-left: auto;
 }
 
-.shuttle-appbar__info,
-.shuttle-appbar__refresh {
+.shuttle-appbar .shuttle-appbar__info,
+.shuttle-appbar .shuttle-appbar__refresh {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  font-size: var(--font-size-sm);
+  /* 상자 테두리 대신 조용한 알약 — 터치 높이(48px)는 .shuttle-button 이 그대로 지킨다 */
+  min-width: var(--touch-target-min);
+  padding: 0 var(--space-3);
+  border-color: transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-accent);
+  font-size: var(--font-size-row-meta);
+  font-weight: 600;
+  transition: background var(--duration-fast) ease-out;
+}
+
+.shuttle-appbar .shuttle-appbar__info {
+  padding: 0;
+  font-size: var(--font-size-md);
+}
+
+.shuttle-appbar .shuttle-appbar__info:hover,
+.shuttle-appbar .shuttle-appbar__refresh:hover {
+  background: var(--color-accent-soft);
 }
 
 /* ─────────────── 상단 바 아래 최소 1줄 (안내 · 오류 · 오프라인) ─────────────── */
@@ -214,7 +237,7 @@ body {
   gap: var(--fixed-row-gap);
   /* 고정 영역 아래 경계 — 본문과 시각적으로 나눈다(얇은 1px) + §15-3 로 아래 여백을 2px 로 줄였다 */
   padding-bottom: var(--fixed-pad-bottom);
-  border-bottom: var(--hairline) solid var(--color-border);
+  border-bottom: var(--hairline) solid var(--color-border-soft);
   background: var(--color-bg);
 }
 
@@ -466,8 +489,16 @@ body {
   cursor: pointer;
 }
 
+.shuttle-tab {
+  color: var(--color-text-muted);
+  transition:
+    background var(--duration-fast) ease-out,
+    color var(--duration-fast) ease-out;
+}
+
+/* 선택 = 틸 톤 면 + 틸 글자 + 굵기 600 + 하단 2px 틸 라인 (색만으로 전달하지 않는다) */
 .shuttle-tab[aria-selected='true'] {
-  background: var(--color-highlight);
+  background: var(--color-accent-soft);
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
   /* §12-2 — 선택 상태의 굵기 600(700 아님) */
@@ -486,7 +517,7 @@ body {
   width: var(--today-dot-size);
   height: var(--today-dot-size);
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--color-brand-red);
 }
 
 /* ───────────────────────── 분자 ───────────────────────── */
@@ -497,7 +528,7 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   height: var(--day-tab-height);
   background: var(--color-surface-alt);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -896,12 +927,16 @@ body {
    */
   height: var(--chip-height);
   min-height: var(--chip-height);
-  padding: 0 var(--space-3);
-  border: var(--hairline) solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  font-weight: 500;
+  transition:
+    background var(--duration-fast) ease-out,
+    border-color var(--duration-fast) ease-out;
   /* 라벨 13px(보조 크기 — §10-2 토큰) · 편수는 11px 캡션 토큰(§12-3) */
   font-size: var(--font-size-row-meta);
   white-space: nowrap;
@@ -928,12 +963,29 @@ body {
   color: var(--color-text-dim);
 }
 
+.shuttle-chip:not([aria-pressed='true']):hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-soft);
+}
+
+/* 편수 = 작은 알약 배지(라벨과 분리되어 숫자가 한눈에 들어온다) */
 .shuttle-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(var(--space-4) + var(--space-1));
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
   color: var(--color-text-muted);
   font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
 }
 
 .shuttle-chip[aria-pressed='true'] .shuttle-chip__count {
+  background: var(--color-on-accent-soft);
   color: var(--color-on-accent);
 }
 
@@ -981,6 +1033,19 @@ body {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--radius-row);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+/* 빈 목록의 전환 버튼 — 상자 대신 틸 톤 알약 */
+.shuttle-timetable__empty-block .shuttle-button {
+  border-color: transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: var(--font-size-row-meta);
 }
 
 /*
@@ -993,28 +1058,47 @@ body {
   font-size: var(--font-size-sm);
 }
 
+/* 시간표 = 흰 카드 하나(배경 위에 떠 있다). 행은 상자 없이 인셋 구분선으로만 나눈다 */
 .shuttle-departures {
   display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
+  overflow: hidden;
+  border-radius: var(--radius-row);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .shuttle-departure {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
+  position: relative;
+  display: grid;
+  /* 시각 열 고정 폭 → 모든 행의 노선명이 같은 세로선에 맞는다 */
+  grid-template-columns: var(--time-col) minmax(0, 1fr) auto;
+  column-gap: var(--space-3);
+  align-items: center;
   padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border);
 }
 
-.shuttle-departure:last-child {
-  border-bottom: 0;
+/* 인셋 구분선 — 노선명 시작점부터 오른쪽 끝까지(시각 열은 비워 둔다) */
+.shuttle-departure + .shuttle-departure::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(var(--row-pad-x) + var(--time-col) + var(--space-3));
+  right: 0;
+  height: var(--hairline);
+  background: var(--color-border-soft);
+}
+
+.shuttle-departure--next::before,
+.shuttle-departure--next + .shuttle-departure::before {
+  display: none;
 }
 
 .shuttle-departure__time {
-  min-width: 3.5rem;
+  min-width: 0;
+  letter-spacing: -0.01em;
   /* T28 §10-2 — 행 시각(주 정보) 20 → 15px. 시각 열 정렬(min-width)과 행 높이(48px)는 그대로 둔다. */
   font-size: var(--font-size-row-time);
   font-weight: var(--font-weight-bold);
@@ -1026,11 +1110,17 @@ body {
 .shuttle-departure__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
+  min-width: 0;
 }
 
+/* 노선명은 시각과 같은 15px · 600 — 시각(700)이 주, 노선이 그다음 */
 .shuttle-departure__route {
-  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-row-time);
+  font-weight: 600;
   line-height: var(--row-line-height);
 }
 
@@ -1051,7 +1141,7 @@ body {
   display: inline-flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin-left: auto;
+  justify-content: flex-end;
 }
 
 /* ───────────────────────── T27 — 본문 = 시간표 하나 (docs/07 §9-1 · §9-3) ─────────────────────────
@@ -1085,8 +1175,9 @@ body {
   color: var(--color-text-muted);
 }
 
-.shuttle-departure--past .shuttle-departure__time {
-  font-weight: var(--font-weight-normal);
+.shuttle-departure--past .shuttle-departure__time,
+.shuttle-departure--past .shuttle-departure__route {
+  font-weight: 500;
 }
 
 /* 요일 조건이 걸린 편 — 한 단계 더 흐리게(+ 짧은 토큰 1개) */
@@ -1097,15 +1188,32 @@ body {
 /* 다음 출발 행 — **좌측 3px 액센트 라인 + 배경 톤 한 단계**만(테두리 박스·배지·문구 금지, §9-3) */
 .shuttle-departure--next {
   background: var(--color-highlight);
-  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-accent);
+  box-shadow: inset var(--highlight-accent-width) 0 0 0 var(--color-brand-deep);
 }
 
 .shuttle-departure--next .shuttle-departure__time {
   color: var(--color-accent);
 }
 
+/* `다음` 라벨 — 화면에만 보이고 낭독기에는 숨긴다(낭독기는 행 안의 '다음 출발' 문구를 읽는다) */
+.shuttle-departure--next .shuttle-departure__route::after {
+  content: '다음';
+  content: '다음' / '';
+  flex: 0 0 auto;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-red);
+  color: var(--color-on-brand-red);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.7;
+}
+
 .shuttle-departure__token {
-  margin-left: auto;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
+  line-height: 1.7;
   color: var(--color-text-dim);
   /* T28 §10-2 — 조건 토큰·캡션 12 → 11px (**하한** — 더 줄이지 않는다) */
   font-size: var(--font-size-caption);
@@ -1139,14 +1247,16 @@ body {
   border: var(--hairline) solid var(--color-floating-border);
   border-radius: 50%;
   background: var(--color-floating-bg);
-  color: var(--color-text);
+  box-shadow: var(--shadow-float);
+  color: var(--color-accent);
   font: inherit;
   font-size: var(--font-size-md);
   cursor: pointer;
+  transition: background var(--duration-fast) ease-out;
 }
 
 .shuttle-icon-button:hover {
-  background: var(--color-surface-alt);
+  background: var(--color-accent-soft);
 }
 
 .shuttle-icon-button:active {
@@ -1169,7 +1279,8 @@ body {
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border: var(--hairline) solid var(--color-floating-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-float);
   /* 반투명 배경(뒤 본문이 비친다) — 대비는 셸 배경 기준으로 계산된다(토큰 주석 참조) */
   background: var(--color-floating-bg);
   color: var(--color-text);
