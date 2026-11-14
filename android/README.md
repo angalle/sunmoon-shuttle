@@ -124,7 +124,7 @@ PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
 | `webContentsDebuggingEnabled` | 미설정 | Capacitor 기본값(디버그 true / 릴리스 false). 릴리스에서 원격 디버깅이 열리지 않게 그대로 둔다 |
 | `compileSdk`/`targetSdk` | 36 | `platforms;android-36` 설치돼 있음. Play 신규·업데이트 요건. 되돌리기: `variables.gradle` 두 줄을 35 로 |
 | `minSdk` | 23 | Capacitor 7 기본. WebView 가 Play 로 자동 갱신되어 낮게 잡아도 최신 엔진 |
-| version | `versionCode 1` / `versionName 0.1.0` | `versionCode` 는 **업로드마다 +1**(재사용 금지). `android/app/build.gradle` 에서 사람이 명시적으로 올린다 |
+| version | `versionCode 1` / `versionName 1.0.0` | `versionCode` 는 **업로드마다 +1**(재사용 금지). `android/app/build.gradle` 에서 사람이 명시적으로 올린다 |
 
 ## JDK 17 제약 (이 맥에 JDK 21 이 없다)
 
@@ -165,7 +165,7 @@ B안(데이터는 Pages 에서 · docs/07 §17)이 들어간 첫 버전을 한 �
 4. **Play Console** → 앱 만들기(패키지 `com.angalle.sunmoonshuttle`) → **Play 앱 서명 사용** → 내부 테스트 트랙에
    `android/app/build/outputs/bundle/release/app-release.aab` 업로드. 스토어 문구·개인정보처리방침 URL 은 `docs/05-store-listing.md`.
 5. 다음 업로드부터는 `android/app/build.gradle` 의 `versionCode` 를 **+1** 한 뒤 3~4 반복(재사용 금지).
-   지금 값은 `versionCode 1` / `versionName 0.1.0` — 아직 한 번도 올리지 않았으므로 첫 업로드는 그대로 쓴다.
+   지금 값은 `versionCode 1` / `versionName 1.0.0`(v1.0.0 · 2026-11-14) — 아직 한 번도 올리지 않았으므로 첫 업로드는 그대로 쓴다.
 
 ## 안드로이드 뒤로가기 동작 (정의)
 
