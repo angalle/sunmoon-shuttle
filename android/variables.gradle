@@ -1,7 +1,8 @@
 // Android 빌드 변수 (소유: InfraProjectCreator · T8 안드로이드 패키징)
 //
-// minSdkVersion 23 : Capacitor 7 기본값. Android 6.0+ — WebView 가 Play 스토어로 자동 갱신되므로
-//                    낮게 잡아도 최신 엔진을 받는다. 실기기 하한을 넓히려고 이 값은 건드리지 않는다.
+// minSdkVersion 24 : Android 7.0+. Capacitor 7 기본(23)에서 올렸다(2026-11-14) — Play Console 의
+//                    "Play 자동 보호"(앱 무결성)가 최소 SDK 24 를 요구한다(첫 업로드에서 실측).
+//                    WebView 는 Play 로 자동 갱신되므로 최신 엔진을 받는다.
 // compileSdkVersion 36 / targetSdkVersion 36 :
 //   - 설치된 SDK platform 은 `platforms;android-36`(실측: sdkmanager --list_installed) — 툴체인에 이미 있다.
 //   - targetSdk 36(Android 16)은 Play 의 신규 앱·업데이트 요구 수준이다. compileSdk 를 같이 올려야
@@ -13,7 +14,7 @@
 //   - 되돌리기: 두 줄을 35 로 되돌리고 `npm run cap:sync` → 재빌드(약 1분). 스토어 업로드 요건이
 //     36 이므로 되돌리면 Play 업로드가 거부될 수 있다.
 ext {
-    minSdkVersion = 23
+    minSdkVersion = 24
     compileSdkVersion = 36
     targetSdkVersion = 36
     androidxActivityVersion = '1.9.2'

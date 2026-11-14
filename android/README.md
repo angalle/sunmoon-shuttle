@@ -123,7 +123,7 @@ PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
 | `backgroundColor` | 전역 `#ffffff` / `android` `#ffffff00` | **T25 갱신**. 전역값 = 첫 페인트 전 WebView 배경 = `manifest.background_color`(라이트 `#ffffff`). `android.backgroundColor` 는 **투명**(`#RRGGBBAA` = `#ffffff00`)이라 WebView 가 불투명 흰 판을 깔지 않고 그 아래 **실행 테마의 스플래시(흰 배경 + 96dp 로고)** 가 보인다 — 실측: 네이티브 스플래시가 덮는 구간 385ms → 457ms. 되돌리기: `#ffffff` 로 바꾸고 `cap sync` + 재빌드. 한계: 웹 페이지가 자기 `body` 배경(`--color-bg`)을 칠하는 순간부터는 창 배경이 가려진다(§T25 소견) |
 | `webContentsDebuggingEnabled` | 미설정 | Capacitor 기본값(디버그 true / 릴리스 false). 릴리스에서 원격 디버깅이 열리지 않게 그대로 둔다 |
 | `compileSdk`/`targetSdk` | 36 | `platforms;android-36` 설치돼 있음. Play 신규·업데이트 요건. 되돌리기: `variables.gradle` 두 줄을 35 로 |
-| `minSdk` | 23 | Capacitor 7 기본. WebView 가 Play 로 자동 갱신되어 낮게 잡아도 최신 엔진 |
+| `minSdk` | 24 | Android 7.0+. Play 자동 보호(앱 무결성)의 최소 요구 — Capacitor 기본 23 에서 올림. WebView 는 Play 로 자동 갱신 |
 | version | `versionCode 1` / `versionName 1.0.0` | `versionCode` 는 **업로드마다 +1**(재사용 금지). `android/app/build.gradle` 에서 사람이 명시적으로 올린다 |
 
 ## JDK 17 제약 (이 맥에 JDK 21 이 없다)
