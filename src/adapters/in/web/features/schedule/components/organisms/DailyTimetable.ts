@@ -104,7 +104,7 @@ function timetableRow(row: TimetableRowView, stopName: string | null): HTMLEleme
   const stopMode = stopName !== null;
   const title = stopMode && row.arrival !== null ? `${row.arrival} ${UI_TEXT.rowArrivalSuffix}` : row.routeName;
   const detail = stopMode
-    ? [`${row.direction === 'out' ? UI_TEXT.stopCampusName : row.routeName} ${UI_TEXT.rowDepartSuffix}`]
+    ? [`${row.direction === 'out' ? UI_TEXT.stopCampusName : (row.originLabel ?? row.routeName)} ${UI_TEXT.rowDepartSuffix}`]
     : [row.directionLabel];
   if (!stopMode && row.arrival !== null) detail.push(`${row.arrival} ${UI_TEXT.boardArrivalSuffix}`);
   if (row.durationNote !== null) detail.push(row.durationNote);

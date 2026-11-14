@@ -655,7 +655,12 @@ const DEFAULT_STOP = 'cheonan-terminal';
 // 시안 A(2026-11-08): 화면은 **고른 정류장 하나**의 편만 보인다. 이 스모크는 `?route=cheonan-terminal` 로 고정한다
 // (08:00 기준 지난 편 07:30 이 있고 목록이 길어 스크롤·dim 계약을 실제로 볼 수 있다)
 function expectedDirectionCountsOf(raw, dayType, weekdayCode, stopId = DEFAULT_STOP) {
-  const hasDeparture = (row) => (row['depCampus'] ?? row['depStation'] ?? row['depTerminal'] ?? null) !== null;
+  // 2026-11-08: 중간 정류장에만 시각이 있는 편(T2b)도 학교행으로 센다 — 학교 출발 열이 아닌 곳에 시각이 하나라도 있으면 출발이 있다
+  const TIME = /^\d{1,2}:\d{2}$/;
+  const hasDeparture = (row) =>
+    (row['depCampus'] ?? null) !== null ||
+    Object.entries(row).some(([key, value]) => !['seq', 'depCampus', 'arrCampus', 'note'].includes(key) && typeof value === 'string' && TIME.test(value.trim()));
+  const hubTime = (row) => [row['depStation'], row['depTerminal'], row['viaOnyangStation']].find((value) => typeof value === 'string' && TIME.test(value.trim())) ?? null;
   const offOn = (row) => {
     const service = row['service'];
     if (service === null || service === undefined) return false;
@@ -680,7 +685,7 @@ function expectedDirectionCountsOf(raw, dayType, weekdayCode, stopId = DEFAULT_S
       counts.all += 1;
       counts.out += 1;
       // 왕복 편(학교 출발 + 역·터미널 출발 + 학교 도착)은 돌아오는 편이 학교행으로 한 번 더 잡힌다(2026-11-08)
-      if ((row['depStation'] ?? row['depTerminal'] ?? null) !== null && (row['arrCampus'] ?? null) !== null) {
+      if (hubTime(row) !== null && (row['arrCampus'] ?? null) !== null) {
         counts.all += 1;
         counts.in += 1;
       }

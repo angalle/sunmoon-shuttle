@@ -1086,6 +1086,11 @@ export interface FullTripView {
   readonly badges: readonly string[];
   /** 기준일의 현재 시각보다 이른 출발인가(지난 편) */
   readonly isPast: boolean;
+  /**
+   * 실제 출발 정류장이 노선의 역·터미널이 아닐 때의 표기(예: `하이렉스파 건너편`, `주은아파트 버스정류장 08:00`).
+   * 원문 머리글·셀 값 그대로 — 역·터미널(또는 학교)에서 출발하면 null.
+   */
+  readonly originLabel: string | null;
 }
 
 export interface FullDayView {
@@ -1141,16 +1146,27 @@ export function fullDayView(
     if (table === null) continue;
     const domainRoute = model.schedule.routes.find((candidate) => candidate.id === route.id);
     for (const trip of domainRoute?.byDay[dayType] ?? []) {
-      const departure = tripDepartureTime(trip);
-      if (departure === null) continue;
-      if (!resolveTripService(trip, day).runs) continue;
-      const row = rowBySeq(table, trip.seq);
       const status = tripStatus(trip, day, { dateRules: model.dateRules, terms: model.terms });
+      const service = resolveTripService(trip, day);
+      // 학교·역 시각이 없는 편(중간 정류장 출발)은 도메인 판정이 `no-departure-time` 으로 건너뛴다 —
+      // 그런 편은 같은 날짜 규칙 판정(`tripStatus` — 요일 제외·운행 없는 날)으로만 운행 여부를 본다.
+      const runs = service.reason === 'no-departure-time' ? status.runs : service.runs;
+      if (!runs) continue;
+      const row = rowBySeq(table, trip.seq);
+      const domainDeparture = tripDepartureTime(trip);
+      if (row === null && domainDeparture === null) continue;
       const badges = uniqueNotes([...conditionBadges(trip, status, row)]);
-      const campusDeparture = cellText(row, ['depCampus']);
-      const hubTime = cellText(row, ['depStation', 'depTerminal']);
+      const campusDeparture = row === null ? trip.depCampus : timeCell(row, 'depCampus');
+      const hub = row === null ? null : hubStopOf(table, row);
+      const hubTime = hub?.time ?? (row === null ? trip.depStation : null);
       const campusArrival = cellText(row, ['arrCampus']);
-      const push = (direction: DepartureDirection, dep: string, arrival: string | null, key: string): void => {
+      const push = (
+        direction: DepartureDirection,
+        dep: string,
+        arrival: string | null,
+        key: string,
+        originLabel: string | null = null,
+      ): void => {
         all.push({
           key,
           routeId: route.id,
@@ -1162,17 +1178,28 @@ export function fullDayView(
           durationNote: durationNoteFor(route, direction, row),
           badges,
           isPast: isPastDeparture(dep, day, state.nowMs),
+          originLabel,
         });
       };
       if (campusDeparture === null) {
-        // 역·터미널(또는 중간 정류장)에서 출발해 학교로 오는 편
-        push('in', departure, campusArrival, `${route.id}:${String(trip.seq)}`);
+        // 학교로 오는 편. 출발 시각 = 역·터미널 시각, 없으면 **처음 시각이 적힌 중간 정류장**(2026-11-08 확장 —
+        // 예: 천안역 노선 `하이렉스파 건너편 8:50`, 온양 노선 `주은아파트 버스정류장 8:00`). 예전엔 이런 편이 목록에서 빠졌다.
+        const first = row === null ? null : firstTimedStopOf(table, row);
+        const origin = hub ?? first;
+        if (origin === null) {
+          if (domainDeparture === null) continue;
+          push('in', domainDeparture, campusArrival, `${route.id}:${String(trip.seq)}`);
+          continue;
+        }
+        const originLabel =
+          hub === null ? origin.label : first !== null && first.key !== hub.key ? `${first.label} ${first.time}` : null;
+        push('in', origin.time, campusArrival, `${route.id}:${String(trip.seq)}`, originLabel);
         continue;
       }
       // 학교에서 출발하는 편. 표에 역·터미널 **출발** 시각과 학교 도착 시각이 함께 있으면 **왕복**이다
       // (예: 아산캠퍼스 출발 9:30 → 천안아산역 출발 9:50 → 아산캠퍼스 도착 10:05).
       // 2026-11-08 이전에는 학교 출발 쪽만 셌다 → `역 → 학교` 편이 크게 빠졌다(평일 아산KTX 9편 표시, 실제 42편).
-      push('out', departure, hubTime, `${route.id}:${String(trip.seq)}`);
+      push('out', campusDeparture, hubTime, `${route.id}:${String(trip.seq)}`);
       if (hubTime !== null && campusArrival !== null) {
         push('in', hubTime, campusArrival, `${route.id}:${String(trip.seq)}:return`);
       }
@@ -1206,6 +1233,50 @@ function referenceDay(state: ScheduleState, dayType: DayType): KstDay {
     if (dayTypeFromWeekday(day.weekday) === dayType) return day;
   }
   return today;
+}
+
+/**
+ * 노선의 **역·터미널 열** — 학교행 출발 시각·학교발 도착 시각이 적힌 곳.
+ * 아산(KTX)역·천안역 = `depStation`, 천안터미널 = `depTerminal`, 온양 노선 = `viaOnyangStation`(온양온천역).
+ */
+const HUB_KEYS: readonly string[] = ['depStation', 'depTerminal', 'viaOnyangStation'];
+/** 정류장이 아닌 열(순번·학교·특이사항) — 중간 정류장 시각을 찾을 때 건너뛴다 */
+const NON_STOP_KEYS: ReadonlySet<string> = new Set(['seq', 'depCampus', 'arrCampus', 'note']);
+
+interface TimedStop {
+  readonly key: string;
+  /** 원문 머리글(예: `하이렉스파 건너편`) */
+  readonly label: string;
+  /** `HH:MM`(두 자리) */
+  readonly time: string;
+}
+
+/** 셀 값이 시각이면 `HH:MM` 으로(아니면 null — `5분~10분 소요예상`·`경유`·`Χ` 는 시각이 아니다). */
+function timeCell(row: TripRow, key: string): string | null {
+  const text = cellText(row, [key]);
+  const parsed = text === null ? null : parseHhMm(text);
+  if (parsed === null) return null;
+  return `${String(parsed.hour).padStart(2, '0')}:${String(parsed.minute).padStart(2, '0')}`;
+}
+
+function hubStopOf(table: DayTableView, row: TripRow): TimedStop | null {
+  for (const key of HUB_KEYS) {
+    const index = table.keys.indexOf(key);
+    if (index < 0) continue;
+    const time = timeCell(row, key);
+    if (time !== null) return { key, label: table.columns[index] ?? key, time };
+  }
+  return null;
+}
+
+/** 표 열 순서대로 처음 시각이 적힌 정류장(학교 출발 열 제외) — 중간 정류장 출발 편의 실제 출발지 */
+function firstTimedStopOf(table: DayTableView, row: TripRow): TimedStop | null {
+  for (const [index, key] of table.keys.entries()) {
+    if (NON_STOP_KEYS.has(key)) continue;
+    const time = timeCell(row, key);
+    if (time !== null) return { key, label: table.columns[index] ?? key, time };
+  }
+  return null;
 }
 
 /** 그 요일 표에서 순번으로 회차 행을 찾는다(없으면 null — 추측하지 않는다). */

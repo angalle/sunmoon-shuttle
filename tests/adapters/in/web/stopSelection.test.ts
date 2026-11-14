@@ -129,3 +129,34 @@ describe('왕복 편 — 학교 출발 편의 역·터미널 출발 시각은 �
     expect(sunday.rows.length).toBeGreaterThan(0);
   });
 });
+
+describe('중간 정류장 출발 편 — 학교·역 시각 없이 중간 정류장에만 시각이 있는 편(T2b 5건)', () => {
+  /** 2026-11-16(월) 06:00 — 모든 편 운행 */
+  const monday = state({ nowMs: Date.parse('2026-11-16T06:00:00+09:00') });
+  const find = (stopId: string, departure: string) =>
+    timetableView(monday, 'in', stopId).rows.find((row) => row.departure === departure);
+
+  it('천안역 노선 하이렉스파 건너편 08:50 · 천안터미널 노선 두정동 맥도날드 08:55', () => {
+    expect(find('cheonan-station', '08:50')).toMatchObject({ originLabel: '하이렉스파 건너편', arrival: '09:05' });
+    expect(find('cheonan-terminal', '08:55')).toMatchObject({ originLabel: '두정동 맥도날드', arrival: '09:10' });
+  });
+
+  it('온양 노선 아침 3편 — 출발 시각은 온양온천역, 더 앞 정류장(주은아파트)에서 출발하면 그 시각을 함께 적는다', () => {
+    expect(find('onyang', '08:10')).toMatchObject({ originLabel: '주은아파트 버스정류장 08:00', arrival: '08:40' });
+    expect(find('onyang', '08:45')).toMatchObject({ originLabel: null, arrival: '09:15' });
+    expect(find('onyang', '08:50')).toMatchObject({ originLabel: '주은아파트 버스정류장 08:40', arrival: '09:20' });
+  });
+
+  it('요일 제외는 그대로 지킨다 — 금요일에는 `금(X)` 편(온양 08:45)이 빠진다', () => {
+    const friday = state({ nowMs: Date.parse('2026-11-20T06:00:00+09:00') });
+    const rows = timetableView(friday, 'in', 'onyang').rows;
+    expect(rows.some((row) => row.departure === '08:45')).toBe(false);
+  });
+
+  it('온양 노선 왕복 편도 돌아오는 편(온양온천역 → 학교)이 잡힌다', () => {
+    const inbound = timetableView(monday, 'in', 'onyang').rows;
+    const outbound = timetableView(monday, 'out', 'onyang').rows;
+    expect(outbound.length).toBeGreaterThan(0);
+    expect(inbound.length).toBe(3 + outbound.length);
+  });
+});
