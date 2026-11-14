@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { UI_TEXT } from '../../src/adapters/in/web/features/schedule/types/texts';
-import { decodePng, isGlyphPixel, pixelAt } from './png';
+import { decodePng, pixelAt } from './png';
 import { readTokensFromDisk } from './tokens';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -96,47 +96,47 @@ describe('아이콘 — 실존·치수·품질', () => {
     }
   });
 
-  it('아이콘 그리기가 좌우 대칭이다(픽셀 미러 최대 채널차 ≤ 2)', () => {
+  /** 차체·사이드미러 흰색(#ffffff) — 장면의 다른 색(달·길 #dfe7ea/#c9d1d6)과 섞이지 않는 문턱 */
+  const isBusWhite = (pixel: readonly number[]): boolean =>
+    (pixel[0] ?? 0) >= 250 && (pixel[1] ?? 0) >= 250 && (pixel[2] ?? 0) >= 250 && (pixel[3] ?? 0) >= 250;
+  /** 핵심 그림(셔틀 흰색 · 초승달·별 #dfe7ea) — 길(#c9d1d6)·하늘·언덕은 제외 */
+  const isKeyPixel = (pixel: readonly number[]): boolean =>
+    (pixel[0] ?? 0) >= 218 && (pixel[1] ?? 0) >= 218 && (pixel[2] ?? 0) >= 218 && (pixel[3] ?? 0) >= 200;
+
+  it('셔틀(흰 차체)이 가운데에 좌우 대칭으로 그려져 있다(행마다 좌우 흰 픽셀 수 차 ≤ 1)', () => {
     for (const icon of manifest.icons) {
       const image = decodePng(readFileSync(join(PUBLIC_DIR, icon.src.replace(/^\.\//, ''))));
+      const half = Math.floor(image.width / 2);
+      let total = 0;
       let worst = 0;
-      let worstAt = '';
       for (let y = 0; y < image.height; y += 1) {
-        for (let x = 0; x < Math.floor(image.width / 2); x += 1) {
-          const a = pixelAt(image, x, y);
-          const b = pixelAt(image, image.width - 1 - x, y);
-          const diff = Math.max(
-            Math.abs((a[0] ?? 0) - (b[0] ?? 0)),
-            Math.abs((a[1] ?? 0) - (b[1] ?? 0)),
-            Math.abs((a[2] ?? 0) - (b[2] ?? 0)),
-            Math.abs((a[3] ?? 0) - (b[3] ?? 0)),
-          );
-          if (diff > worst) {
-            worst = diff;
-            worstAt = `(${String(x)},${String(y)})`;
-          }
+        let left = 0;
+        let right = 0;
+        for (let x = 0; x < half; x += 1) {
+          if (isBusWhite(pixelAt(image, x, y))) left += 1;
+          if (isBusWhite(pixelAt(image, image.width - 1 - x, y))) right += 1;
         }
+        total += left + right;
+        worst = Math.max(worst, Math.abs(left - right));
       }
-      expect(worst, `${icon.src} 좌우 비대칭 worst=${String(worst)} at ${worstAt}`).toBeLessThanOrEqual(2);
+      expect(total, `${icon.src} 흰 차체가 없다`).toBeGreaterThan(image.width);
+      expect(worst, `${icon.src} 셔틀 좌우 비대칭 ${String(worst)}px`).toBeLessThanOrEqual(1);
     }
   });
 
-  it('maskable 아이콘의 글리프가 안전영역(중심 40% 반경) 안에 있다', () => {
+  it('maskable 아이콘의 핵심 그림(셔틀·달·별)이 안전영역(중심 40% 반경) 안에 있다', () => {
     for (const icon of manifest.icons.filter((entry) => entry.purpose === 'maskable')) {
       const image = decodePng(readFileSync(join(PUBLIC_DIR, icon.src.replace(/^\.\//, ''))));
       const safeRadius = image.width * 0.4;
       let maxRadius = 0;
       for (let y = 0; y < image.height; y += 1) {
         for (let x = 0; x < image.width; x += 1) {
-          if (!isGlyphPixel(pixelAt(image, x, y))) continue;
-          maxRadius = Math.max(
-            maxRadius,
-            Math.hypot(x - image.width / 2, y - image.height / 2),
-          );
+          if (!isKeyPixel(pixelAt(image, x, y))) continue;
+          maxRadius = Math.max(maxRadius, Math.hypot(x + 0.5 - image.width / 2, y + 0.5 - image.height / 2));
         }
       }
       console.log(
-        `  [safe-zone] ${icon.src} 글리프 최대반경 ${maxRadius.toFixed(1)}px / 안전반경 ${safeRadius.toFixed(1)}px`,
+        `  [safe-zone] ${icon.src} 핵심 그림 최대반경 ${maxRadius.toFixed(1)}px / 안전반경 ${safeRadius.toFixed(1)}px`,
       );
       expect(maxRadius, `${icon.src} 안전영역 초과`).toBeLessThanOrEqual(safeRadius);
     }

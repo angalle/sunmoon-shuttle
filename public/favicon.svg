@@ -1,14 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="선문대 셔틀버스">
-  <!-- 자체 제작(scripts/generate_icons.mjs 와 같은 기하) — 색은 tokens.css 의 --color-accent/--color-on-accent 값 -->
-  <rect width="512" height="512" rx="112" fill="#00687a"/>
-  <g transform="translate(66.5 66.5) scale(379)">
-    <rect x="0.14" y="0.275" width="0.72" height="0.45" rx="0.10" fill="#ffffff"/>
-    <rect x="0.20" y="0.323" width="0.60" height="0.144" rx="0.035" fill="#00687a"/>
-    <rect x="0.3953" y="0.323" width="0.014" height="0.144" rx="0.007" fill="#ffffff"/>
-    <rect x="0.5907" y="0.323" width="0.014" height="0.144" rx="0.007" fill="#ffffff"/>
-    <circle cx="0.31" cy="0.64" r="0.06" fill="#00687a"/>
-    <circle cx="0.69" cy="0.64" r="0.06" fill="#00687a"/>
-    <rect x="0.21" y="0.807" width="0.26" height="0.056" rx="0.028" fill="#ffffff"/>
-    <rect x="0.53" y="0.807" width="0.26" height="0.056" rx="0.028" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="선문대 셔틀버스">
+  <!-- 자체 제작 — scripts/generate_icons.mjs sceneShapes() 와 같은 기하(새벽 길 위로 오는 셔틀). 색은 tokens.css 값 -->
+  <defs><clipPath id="tile"><rect width="100" height="100" rx="22"/></clipPath></defs>
+  <g clip-path="url(#tile)">
+    <rect width="100" height="100" fill="#00687a"/>
+    <circle cx="78" cy="16" r="1.6" fill="#dfe7ea"/>
+    <circle cx="87" cy="25" r="1.2" fill="#dfe7ea"/>
+    <circle cx="25" cy="22" r="11" fill="#dfe7ea"/>
+    <circle cx="31" cy="18" r="9" fill="#00687a"/>
+    <circle cx="50" cy="40" r="14" fill="#c81840"/>
+    <path d="M0 44 Q25 37 50 42 T100 40 V100 H0 Z" fill="#004b58"/>
+    <path d="M14 100 L47.5 42 L52.5 42 L86 100 Z" fill="#c9d1d6"/>
+    <rect x="34" y="89" width="9" height="9" rx="2.5" fill="#001f24"/>
+    <rect x="57" y="89" width="9" height="9" rx="2.5" fill="#001f24"/>
+    <rect x="25.5" y="60" width="5" height="10" rx="2.5" fill="#ffffff"/>
+    <rect x="69.5" y="60" width="5" height="10" rx="2.5" fill="#ffffff"/>
+    <rect x="30" y="52" width="40" height="40" rx="9" fill="#ffffff"/>
+    <rect x="35.5" y="56" width="29" height="5" rx="2.5" fill="#c81840"/>
+    <rect x="34" y="64" width="32" height="14" rx="3.5" fill="#004b58"/>
+    <circle cx="37.5" cy="85" r="3" fill="#00687a"/>
+    <circle cx="62.5" cy="85" r="3" fill="#00687a"/>
+    <rect x="44" y="83.8" width="12" height="2.6" rx="1.3" fill="#c9d1d6"/>
   </g>
 </svg>

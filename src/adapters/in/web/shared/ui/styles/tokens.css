@@ -50,6 +50,10 @@
   /* 로고 문양의 크림슨 — `다음` 라벨·오늘 점에만(on-brand-red 글자 대비 5.7:1) */
   --color-brand-red: #c81840;
   --color-on-brand-red: #ffffff;
+  /* 앱 아이콘 전용(scripts/generate_icons.mjs · 화면에서는 쓰지 않는다) — 달·별 / 길·범퍼 / 바퀴 */
+  --color-icon-moon: #dfe7ea;
+  --color-icon-road: #c9d1d6;
+  --color-icon-tire: #001f24;
   /* 선택된(채워진) 칩 안 편수 배지의 면 */
   --color-on-accent-soft: rgba(255, 255, 255, 0.22);
 
@@ -255,6 +259,10 @@
     --color-brand-deep: #5fc3cf;
     --color-brand-red: #f27a90;
     --color-on-brand-red: #10161d;
+    /* 앱 아이콘 전용 — 아이콘은 테마와 무관해 라이트와 같은 값 */
+    --color-icon-moon: #dfe7ea;
+    --color-icon-road: #c9d1d6;
+    --color-icon-tire: #001f24;
     --color-on-accent-soft: rgba(16, 22, 29, 0.18);
 
     --color-ok-bg: #16301f;

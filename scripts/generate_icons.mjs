@@ -79,40 +79,87 @@ export function sdRoundRect(px, py, cx, cy, hw, hh, r) {
   return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
 }
 
-/** 버스 글리프 — 단위공간(0..1) 안의 도형 목록. 뒤에 있는 도형이 위에 그려진다. */
-export function busGlyph() {
-  const c = 0.5;
-  // 창문 띠: 3칸이 **정확히 같은 폭**이 되도록 구분선 위치를 계산한다(좌우 대칭).
-  const stripHalf = 0.3;
-  const dividerWidth = 0.028;
-  const windowWidth = (stripHalf * 2 - 2 * dividerWidth) / 3;
-  const divider1 = c - stripHalf + windowWidth + dividerWidth / 2;
-  const divider2 = c + stripHalf - windowWidth - dividerWidth / 2;
+/**
+ * 아이콘 장면 "새벽 길 위로 오는 셔틀"(2026-11-14 사용자 결정 H3) — 단위공간(0..1) 도형 목록.
+ * 뒤에 있는 도형이 위에 그려진다. 하늘·언덕·길은 캔버스 밖으로도 이어지므로(전면 장면)
+ * 글리프를 축소해도(maskable·적응형) 빈 테두리가 생기지 않는다.
+ *
+ *   하늘(accent) · 초승달과 별(icon-moon) · 해(brand-red) · 언덕(brand-deep) · 길(icon-road)
+ *   · 정면 셔틀(on-accent 차체 · brand-red 행선판 · brand-deep 앞유리 · accent 전조등 · icon-tire 바퀴)
+ */
+export function sceneShapes() {
+  // 길: 지평선(0.42)의 좁은 끝에서 아래로 벌어진다 — 아래 끝은 캔버스 밖(1.6)까지 같은 기울기로 연장
+  const slope = (0.475 - 0.14) / (0.42 - 1);
+  const roadLeftAt = (y) => 0.475 + slope * (y - 0.42);
   return [
-    // 차체(측면 실루엣)
-    { kind: 'rr', cx: c, cy: c, hw: 0.36, hh: 0.225, r: 0.10, tone: 'fg' },
-    // 창문 띠(차체 상단) — 하나의 띠를 칠한 뒤 흰 구분선으로 3칸으로 나눈다
-    { kind: 'rr', cx: c, cy: c - 0.105, hw: stripHalf, hh: 0.072, r: 0.035, tone: 'bg' },
-    { kind: 'rr', cx: divider1, cy: c - 0.105, hw: dividerWidth / 2, hh: 0.072, r: 0.007, tone: 'fg' },
-    { kind: 'rr', cx: divider2, cy: c - 0.105, hw: dividerWidth / 2, hh: 0.072, r: 0.007, tone: 'fg' },
-    // 바퀴 2개 — 차체 안쪽의 음각(차체 밖으로 나가지 않아 잘림·융합이 없다)
-    { kind: 'circle', cx: c - 0.19, cy: c + 0.14, r: 0.06, tone: 'bg' },
-    { kind: 'circle', cx: c + 0.19, cy: c + 0.14, r: 0.06, tone: 'bg' },
+    { kind: 'circle', cx: 0.78, cy: 0.16, r: 0.016, tone: 'moon' },
+    { kind: 'circle', cx: 0.87, cy: 0.25, r: 0.012, tone: 'moon' },
+    { kind: 'circle', cx: 0.25, cy: 0.22, r: 0.11, tone: 'moon' },
+    { kind: 'circle', cx: 0.31, cy: 0.18, r: 0.09, tone: 'sky' }, // 초승달로 깎기
+    { kind: 'circle', cx: 0.5, cy: 0.4, r: 0.14, tone: 'sun' },
+    { kind: 'hill', tone: 'ground' },
+    {
+      kind: 'poly',
+      points: [
+        [roadLeftAt(1.6), 1.6],
+        [0.475, 0.42],
+        [0.525, 0.42],
+        [1 - roadLeftAt(1.6), 1.6],
+      ],
+      tone: 'road',
+    },
+    // 정면 셔틀 — 좌우 대칭(중심 0.5)
+    { kind: 'rr', cx: 0.385, cy: 0.935, hw: 0.045, hh: 0.045, r: 0.025, tone: 'tire' },
+    { kind: 'rr', cx: 0.615, cy: 0.935, hw: 0.045, hh: 0.045, r: 0.025, tone: 'tire' },
+    { kind: 'rr', cx: 0.28, cy: 0.65, hw: 0.025, hh: 0.05, r: 0.025, tone: 'bus' }, // 사이드미러
+    { kind: 'rr', cx: 0.72, cy: 0.65, hw: 0.025, hh: 0.05, r: 0.025, tone: 'bus' },
+    { kind: 'rr', cx: 0.5, cy: 0.72, hw: 0.2, hh: 0.2, r: 0.09, tone: 'bus' }, // 차체
+    { kind: 'rr', cx: 0.5, cy: 0.585, hw: 0.145, hh: 0.025, r: 0.025, tone: 'sun' }, // 행선판
+    { kind: 'rr', cx: 0.5, cy: 0.71, hw: 0.16, hh: 0.07, r: 0.035, tone: 'ground' }, // 앞유리
+    { kind: 'circle', cx: 0.375, cy: 0.85, r: 0.03, tone: 'sky' }, // 전조등
+    { kind: 'circle', cx: 0.625, cy: 0.85, r: 0.03, tone: 'sky' },
+    { kind: 'rr', cx: 0.5, cy: 0.851, hw: 0.06, hh: 0.013, r: 0.013, tone: 'road' }, // 범퍼
   ];
 }
 
-/** 노면 표시 — 글리프 아래 **길이가 같은** 점선 2개(차량이 도로 위에 있음을 나타낸다). */
-export function roadGlyph() {
-  const c = 0.5;
-  return [
-    { kind: 'rr', cx: c - 0.16, cy: c + 0.335, hw: 0.13, hh: 0.028, r: 0.028, tone: 'fg' },
-    { kind: 'rr', cx: c + 0.16, cy: c + 0.335, hw: 0.13, hh: 0.028, r: 0.028, tone: 'fg' },
-  ];
+/** 언덕 능선 — SVG `M0 44 Q25 37 50 42 T100 40` 과 같은 두 2차 베지어(x 에 대해 선형 매개변수). */
+export function hillY(x) {
+  if (x < 0.5) {
+    const t = Math.min(Math.max(x / 0.5, 0), 1);
+    return (1 - t) ** 2 * 0.44 + 2 * (1 - t) * t * 0.37 + t ** 2 * 0.42;
+  }
+  const t = Math.min(Math.max((x - 0.5) / 0.5, 0), 1);
+  return (1 - t) ** 2 * 0.42 + 2 * (1 - t) * t * 0.47 + t ** 2 * 0.4;
+}
+
+function inPolygon(points, x, y) {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i, i += 1) {
+    const [xi, yi] = points[i];
+    const [xj, yj] = points[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
 }
 
 export function inShape(shape, x, y) {
   if (shape.kind === 'rr') return sdRoundRect(x, y, shape.cx, shape.cy, shape.hw, shape.hh, shape.r) <= 0;
+  if (shape.kind === 'hill') return y >= hillY(x);
+  if (shape.kind === 'poly') return inPolygon(shape.points, x, y);
   return Math.hypot(x - shape.cx, y - shape.cy) <= shape.r;
+}
+
+/** 장면 톤 → 토큰(색의 단일출처는 tokens.css). */
+export function scenePalette() {
+  return {
+    sky: parseHex(readToken('color-accent')),
+    bus: parseHex(readToken('color-on-accent')),
+    ground: parseHex(readToken('color-brand-deep')),
+    sun: parseHex(readToken('color-brand-red')),
+    moon: parseHex(readToken('color-icon-moon')),
+    road: parseHex(readToken('color-icon-road')),
+    tire: parseHex(readToken('color-icon-tire')),
+  };
 }
 
 // ───────────────────────── 래스터라이저 ─────────────────────────
@@ -121,12 +168,12 @@ export const SS = 4; // 축당 슈퍼샘플 수 → 16 샘플/픽셀
 
 /**
  * 아이콘 한 장을 RGBA 버퍼로 그린다.
- * - `full` = true  → 캔버스 전체를 배경색으로 채운다(maskable · apple-touch: 전면 배경)
- * - `full` = false → 모서리가 둥근 사각형 배경, 바깥은 투명
- * - `glyphScale`   → 글리프를 캔버스 중앙에 이 비율로 축소(안전영역 확보)
+ * - `full` = true  → 캔버스 전체에 장면(maskable · apple-touch · 적응형 전경)
+ * - `full` = false → 모서리가 둥근 사각형(또는 원) 안에만 장면, 바깥은 투명
+ * - `glyphScale`   → 장면을 캔버스 중앙 기준으로 이 비율로 축소(안전영역 확보 · 바깥은 장면이 이어진다)
  */
-export function renderIcon(size, { full, glyphScale, radiusRatio, bg, fg }) {
-  const glyph = [...busGlyph(), ...roadGlyph()];
+export function renderIcon(size, { full, glyphScale, radiusRatio, palette = scenePalette() }) {
+  const shapes = sceneShapes();
   const out = Buffer.alloc(size * size * 4);
 
   for (let py = 0; py < size; py += 1) {
@@ -139,21 +186,13 @@ export function renderIcon(size, { full, glyphScale, radiusRatio, bg, fg }) {
         for (let sx = 0; sx < SS; sx += 1) {
           const u = (px + (sx + 0.5) / SS) / size;
           const v = (py + (sy + 0.5) / SS) / size;
-
-          // 배경 (0..1 전체 공간)
-          const bgInside = full
-            ? true
-            : sdRoundRect(u, v, 0.5, 0.5, 0.5, 0.5, radiusRatio) <= 0;
-          if (!bgInside) continue; // 투명
-
-          // 글리프 공간으로 좌표 변환
+          const inside = full ? true : sdRoundRect(u, v, 0.5, 0.5, 0.5, 0.5, radiusRatio) <= 0;
+          if (!inside) continue; // 투명
           const gx = (u - 0.5) / glyphScale + 0.5;
           const gy = (v - 0.5) / glyphScale + 0.5;
-          let color = bg;
-          if (gx >= 0 && gx <= 1 && gy >= 0 && gy <= 1) {
-            for (const shape of glyph) {
-              if (inShape(shape, gx, gy)) color = shape.tone === 'fg' ? fg : bg;
-            }
+          let color = palette.sky;
+          for (const shape of shapes) {
+            if (inShape(shape, gx, gy)) color = palette[shape.tone];
           }
           rSum += color[0];
           gSum += color[1];
@@ -235,29 +274,34 @@ function writeIcon(file, size, rgba) {
 
 // ───────────────────────── 아이콘 세트 ─────────────────────────
 
+/** 변형별 그리기 설정 — 안드로이드 생성기도 이 값을 그대로 쓴다(같은 소스). */
+export const ICON_ANY = { full: false, glyphScale: 1, radiusRatio: 0.22 };
+/** maskable: 핵심(셔틀·해·달·별)이 중심 40% 반경 안전원 안에 들도록 축소 — 달 끝 ≈ 0.485 × 0.78 = 0.378 */
+export const ICON_MASKABLE = { full: true, glyphScale: 0.78, radiusRatio: 0 };
+/** iOS 는 자체 둥근 마스크를 씌운다 — 모서리는 하늘·언덕이라 잘려도 무방 */
+export const ICON_APPLE = { full: true, glyphScale: 1, radiusRatio: 0 };
+
 function main() {
-  const bg = parseHex(readToken('color-accent'));
-  const fg = parseHex(readToken('color-on-accent'));
-  console.log(`아이콘 생성 (색 단일출처: tokens.css) — accent=${readToken('color-accent')} onAccent=${readToken('color-on-accent')}`);
+  console.log('아이콘 생성 (장면: 새벽 길 위로 오는 셔틀 · 색 단일출처: tokens.css)');
   mkdirSync(OUT_DIR, { recursive: true });
 
   const written = [];
   const variants = [
-    { name: 'icon-192.png', size: 192, full: false, glyphScale: 0.74, radiusRatio: 0.22 },
-    { name: 'icon-512.png', size: 512, full: false, glyphScale: 0.74, radiusRatio: 0.22 },
-    { name: 'maskable-192.png', size: 192, full: true, glyphScale: 0.66, radiusRatio: 0 },
-    { name: 'maskable-512.png', size: 512, full: true, glyphScale: 0.66, radiusRatio: 0 },
-    { name: 'apple-touch-icon-180.png', size: 180, full: true, glyphScale: 0.68, radiusRatio: 0 },
-    { name: 'favicon-32.png', size: 32, full: false, glyphScale: 0.78, radiusRatio: 0.22 },
+    { name: 'icon-192.png', size: 192, ...ICON_ANY },
+    { name: 'icon-512.png', size: 512, ...ICON_ANY },
+    { name: 'maskable-192.png', size: 192, ...ICON_MASKABLE },
+    { name: 'maskable-512.png', size: 512, ...ICON_MASKABLE },
+    { name: 'apple-touch-icon-180.png', size: 180, ...ICON_APPLE },
+    { name: 'favicon-32.png', size: 32, ...ICON_ANY },
   ];
   for (const variant of variants) {
-    const rgba = renderIcon(variant.size, { ...variant, bg, fg });
+    const rgba = renderIcon(variant.size, variant);
     written.push(writeIcon(join(OUT_DIR, variant.name), variant.size, rgba));
   }
 
   // apple-touch-icon 을 웹 루트에도 둔다(iOS 는 /apple-touch-icon.png 를 관례적으로 요청한다).
   const appleRoot = join(PUBLIC_DIR, 'apple-touch-icon.png');
-  const appleRgba = renderIcon(180, { full: true, glyphScale: 0.68, radiusRatio: 0, bg, fg });
+  const appleRgba = renderIcon(180, ICON_APPLE);
   written.push(writeIcon(appleRoot, 180, appleRgba));
 
   const total = written.reduce((sum, item) => sum + item.bytes, 0);

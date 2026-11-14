@@ -35,9 +35,7 @@ import {
   ROOT,
   TOKENS,
   SS,
-  busGlyph,
-  roadGlyph,
-  inShape,
+  ICON_ANY,
   encodePng,
   parseHex,
   readToken,
@@ -68,57 +66,6 @@ function readDarkToken(name) {
     throw new Error(`tokens.css 다크 블록에서 --${name} 을 찾지 못했습니다.`);
   }
   return match[1];
-}
-
-// ───────────────────────── 래스터라이저 (글리프 단독 · 원형 타일) ─────────────────────────
-
-/**
- * 캔버스 한 장을 RGBA 로 그린다.
- * - `background` : 캔버스 전체 배경 `[r,g,b,a]` — `a=0` 이면 투명(샘플을 건너뛴다 → 색 번짐 없음).
- * - `toneColors` : 도형 `tone`('fg'|'bg') → `[r,g,b]`. `busGlyph()` 의 'bg' 는 "차체를 파내는" 색이라
- *                  적응형 아이콘에서는 배경 레이어 색과 같게 칠한다(투명 배경 위에 얹으면 같은 그림).
- * - 좌표 규칙은 `generate_icons.mjs` 의 `renderIcon` 과 동일(단위공간 0..1 · 픽셀당 SS×SS 슈퍼샘플링).
- */
-function raster(size, { background, glyphScale, toneColors }) {
-  const glyph = [...busGlyph(), ...roadGlyph()];
-  const out = Buffer.alloc(size * size * 4);
-  for (let py = 0; py < size; py += 1) {
-    for (let px = 0; px < size; px += 1) {
-      let rSum = 0;
-      let gSum = 0;
-      let bSum = 0;
-      let aSum = 0;
-      for (let sy = 0; sy < SS; sy += 1) {
-        for (let sx = 0; sx < SS; sx += 1) {
-          const u = (px + (sx + 0.5) / SS) / size;
-          const v = (py + (sy + 0.5) / SS) / size;
-          const gx = (u - 0.5) / glyphScale + 0.5;
-          const gy = (v - 0.5) / glyphScale + 0.5;
-          let color = null;
-          if (gx >= 0 && gx <= 1 && gy >= 0 && gy <= 1) {
-            for (const shape of glyph) {
-              if (inShape(shape, gx, gy)) color = toneColors[shape.tone];
-            }
-          }
-          if (color === null) {
-            if (background[3] === 0) continue; // 투명 — 샘플을 더하지 않는다(프리멀티플라이 평균)
-            color = background;
-          }
-          rSum += color[0];
-          gSum += color[1];
-          bSum += color[2];
-          aSum += 255;
-        }
-      }
-      const n = SS * SS;
-      const offset = (py * size + px) * 4;
-      out[offset] = Math.round(rSum / n);
-      out[offset + 1] = Math.round(gSum / n);
-      out[offset + 2] = Math.round(bSum / n);
-      out[offset + 3] = Math.round(aSum / n);
-    }
-  }
-  return out;
 }
 
 // ───────────────────────── 파일 쓰기 (치수·해시 자기검증) ─────────────────────────
@@ -181,7 +128,7 @@ function main() {
 
   // ── 0) 같은 소스 증명: 웹 아이콘을 이 프리미티브로 다시 그려 바이트 동일 확인 ──────────
   const webIcon = readFileSync(join(ROOT, 'public/icons/icon-192.png'));
-  const regen = encodePng(192, renderIcon(192, { full: false, glyphScale: 0.74, radiusRatio: 0.22, bg: accent, fg: onAccent }));
+  const regen = encodePng(192, renderIcon(192, ICON_ANY));
   if (!regen.equals(webIcon)) {
     throw new Error(
       'public/icons/icon-192.png 과 생성기 출력이 다릅니다 — 아이콘과 안드로이드 로고가 같은 소스가 아닙니다. ' +
@@ -248,22 +195,22 @@ function main() {
   ];
   const LAUNCHER_DP = 48;
   const ADAPTIVE_LAYER_DP = 108;
-  const ADAPTIVE_SAFE_DP = 68; // 108dp 레이어 안에서 글리프를 담는 상자(≤66dp 안전원 안에 들어가도록)
+  const ADAPTIVE_SAFE_DP = 64; // 108dp 레이어 안에서 글리프를 담는 상자(≤66dp 안전원 안에 들어가도록)
 
   for (const { name, scale } of densities) {
     const label = `${name}(x${scale})`;
-    // 레거시 런처 아이콘 — 웹 icon-192.png 와 **같은 조리법**(둥근 사각 타일 + 흰 버스)
+    // 레거시 런처 아이콘 — 웹 icon-192.png 와 **같은 조리법**(새벽 길 위로 오는 셔틀 장면)
     writePng(
       join(RES, `mipmap-${name}/ic_launcher.png`),
       Math.round(LAUNCHER_DP * scale),
-      renderIcon(Math.round(LAUNCHER_DP * scale), { full: false, glyphScale: 0.74, radiusRatio: 0.22, bg: accent, fg: onAccent }),
+      renderIcon(Math.round(LAUNCHER_DP * scale), ICON_ANY),
       `${label} 레거시 런처`,
     );
     // 원형 런처 아이콘 — 같은 그림, 마스크 모양만 원(radiusRatio 0.5 = 반지름)
     writePng(
       join(RES, `mipmap-${name}/ic_launcher_round.png`),
       Math.round(LAUNCHER_DP * scale),
-      renderIcon(Math.round(LAUNCHER_DP * scale), { full: false, glyphScale: 0.74, radiusRatio: 0.5, bg: accent, fg: onAccent }),
+      renderIcon(Math.round(LAUNCHER_DP * scale), { ...ICON_ANY, radiusRatio: 0.5 }),
       `${label} 원형 런처`,
     );
     // 적응형 전경 — 투명 배경 + 글리프만. 배경 레이어(@color/ic_launcher_background)와 겹쳐 같은 그림이 된다.
@@ -271,11 +218,8 @@ function main() {
     writePng(
       join(RES, `mipmap-${name}/ic_launcher_foreground.png`),
       fgPx,
-      raster(fgPx, {
-        background: [0, 0, 0, 0],
-        glyphScale: ADAPTIVE_SAFE_DP / ADAPTIVE_LAYER_DP,
-        toneColors: { fg: onAccent, bg: accent },
-      }),
+      // 장면은 전면(하늘·언덕·길이 레이어 끝까지) — 핵심이 안전원(66dp) 안에 들도록 축소
+      renderIcon(fgPx, { full: true, glyphScale: ADAPTIVE_SAFE_DP / ADAPTIVE_LAYER_DP, radiusRatio: 0 }),
       `${label} 적응형 전경(${ADAPTIVE_LAYER_DP}dp·안전 ${ADAPTIVE_SAFE_DP}dp)`,
     );
     // 스플래시 로고 — 웹 스플래시가 쓰는 그림과 같은 조리법(96dp)
@@ -283,7 +227,7 @@ function main() {
     writePng(
       join(RES, `drawable-${name}/splash_logo.png`),
       logoPx,
-      renderIcon(logoPx, { full: false, glyphScale: 0.74, radiusRatio: 0.22, bg: accent, fg: onAccent }),
+      renderIcon(logoPx, ICON_ANY),
       `${label} 스플래시 로고 ${logoDp}dp`,
     );
   }

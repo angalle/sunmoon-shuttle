@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 생성물: scripts/generate_android_res.mjs (T25) — 색은 tokens.css 의 color-accent 토큰 -->
 <resources>
-    <color name="ic_launcher_background">#0B5497</color>
+    <color name="ic_launcher_background">#00687A</color>
 </resources>
