@@ -1696,3 +1696,43 @@ body {
   font-weight: 500;
 }
 
+
+/* ── 2026-11-08 표 가운데 정렬 · 가운데 열 쌓기 · 상단 안내 자리 ── */
+.shuttle-dirhead__place {
+  justify-self: center;
+  text-align: center;
+}
+
+.shuttle-departure--table .shuttle-departure__cell {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.shuttle-departure--table .shuttle-departure__origin {
+  flex-basis: auto;
+}
+
+.shuttle-departure--table .shuttle-departure__mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-row-meta);
+  white-space: nowrap;
+}
+
+.shuttle-departure--table .shuttle-departure__token {
+  margin-left: 0;
+}
+
+/* 상단 안내 줄 — 날짜·시각 아래. 안에 아무것도 없으면 자리를 차지하지 않는다 */
+.shuttle-fixed .shuttle-stripbar {
+  display: none;
+}
+
+.shuttle-fixed .shuttle-stripbar:has(> :not(:empty)) {
+  display: flex;
+}

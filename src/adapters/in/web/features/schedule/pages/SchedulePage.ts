@@ -229,6 +229,9 @@ export function createSchedulePage(
       clockNode,
       el('div', { class: 'shuttle-appbar__actions' }, [infoNode]),
     ]),
+    // 상단 1줄 안내(운행 없음·대체·오늘 종료)·오류 배너 — 날짜·시각 바로 아래(2026-11-08). 예전 자리(고정 영역과 시간표 사이)는
+    // 표 머리와 시간표를 갈라 놓았다. 비어 있으면 자리를 차지하지 않는다(CSS :has).
+    el('div', { class: 'shuttle-stripbar', dataset: { testid: 'stripbar' } }, [bannerHost, noticeHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'day-row' } }, [tabsHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'stop-row' } }, [stopHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'filter-row' } }, [filterHost]),
@@ -238,7 +241,6 @@ export function createSchedulePage(
     el('a', { class: 'shuttle-skip-link', attrs: { href: '#shuttle-main' }, text: UI_TEXT.skipToContent }),
     fixedNode,
     // 상단 고정 영역 아래 최소 1줄(예외 안내) + 오류·오프라인 안내 — 둘 다 얇은 줄이다(§9-4).
-    el('div', { class: 'shuttle-stripbar' }, [bannerHost, noticeHost]),
     scroller,
     toastHost,
     sheetHost,

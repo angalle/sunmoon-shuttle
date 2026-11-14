@@ -548,7 +548,8 @@ const FIXED_PROBE = `
   const switchRect = rectOf(switchNode);
   return {
     fixedRect: rectOf(fixed),
-    fixedRowCount: fixed === null ? 0 : [...fixed.children].length,
+    // 상단 안내 줄(stripbar)은 비어 있으면 숨는다 — 보이는 줄만 센다
+    fixedRowCount: fixed === null ? 0 : [...fixed.children].filter((child) => getComputedStyle(child).display !== 'none').length,
     /** T37 §15-1 — 고정 영역(3줄) 텍스트에 '전체' 가 남아 있으면 위반이다(칩 영역 실측). */
     fixedText: fixed === null ? '' : (fixed.innerText || '').replace(/\\s+/g, ' ').trim(),
     chipRowText: chipBox === null ? '' : (chipBox.innerText || '').replace(/\\s+/g, ' ').trim(),

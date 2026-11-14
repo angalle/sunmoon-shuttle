@@ -123,13 +123,16 @@ function tableRow(row: TimetableRowView): HTMLElement {
         el('span', { class: 'shuttle-departure__time', text: row.departure }),
         row.originLabel === null ? null : el('span', { class: 'shuttle-departure__origin', text: row.originLabel }),
       ]),
-      el('span', { class: 'shuttle-departure__mid', attrs: { 'aria-hidden': duration === null ? 'true' : 'false' }, text: duration ?? '' }),
-      el('span', { class: 'shuttle-departure__cell shuttle-departure__cell--arrive' }, [
-        el('span', { class: 'shuttle-departure__arrive', text: row.arrival ?? '—' }),
+      // 가운데 열: 소요 시간 · 그 아래 `다음`/조건 토큰(금휴 등) — 출발·도착 시각이 각 열 가운데에 똑바로 서게(2026-11-08)
+      el('span', { class: 'shuttle-departure__mid' }, [
+        duration === null ? null : el('span', { class: 'shuttle-departure__duration', text: duration }),
         row.isNext ? el('span', { class: 'shuttle-departure__next-badge', attrs: { 'aria-hidden': 'true' }, text: UI_TEXT.rowNextBadge }) : null,
         row.isNext || row.token === null
           ? null
           : el('span', { class: 'shuttle-departure__token', dataset: { testid: 'row-token' }, text: row.token }),
+      ]),
+      el('span', { class: 'shuttle-departure__cell shuttle-departure__cell--arrive' }, [
+        el('span', { class: 'shuttle-departure__arrive', text: row.arrival ?? '—' }),
         row.isNext ? el('span', { class: 'shuttle-sr-only', text: UI_TEXT.srNextDeparture }) : null,
         row.isPast ? el('span', { class: 'shuttle-sr-only', text: UI_TEXT.srPastDeparture }) : null,
       ]),
