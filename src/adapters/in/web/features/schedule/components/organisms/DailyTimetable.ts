@@ -91,8 +91,55 @@ function timetableEmpty(view: TimetableView, props: DailyTimetableProps): HTMLEl
   ]);
 }
 
+/**
+ * 표 형식 행(2026-11-08 사용자 결정) — 머리 `학교 (→) 아산(KTX)역` 아래에
+ * **출발 시각**(출발지 열) · 소요(가운데) · **도착 시각**(도착지 열)을 한 줄로 둔다.
+ *   학교     →     아산(KTX)역
+ *   08:00   20분   08:20
+ * 출발지가 머리와 다르면(중간 정류장 출발) 출발 시각 아래에 그 정류장을 작게 적는다.
+ */
+function tableRow(row: TimetableRowView): HTMLElement {
+  const classes = ['shuttle-departure', 'shuttle-departure--table'];
+  if (row.isPast) classes.push('shuttle-departure--past');
+  if (row.isNext) classes.push('shuttle-departure--next');
+  else if (row.token !== null) classes.push('shuttle-departure--limited');
+  const duration = row.durationNote === null ? null : row.durationNote.replace(/\s*소요\s*$/, '');
+  return el(
+    'li',
+    {
+      class: classes.join(' '),
+      dataset: {
+        testid: 'timetable-row',
+        key: row.key,
+        route: row.routeName,
+        direction: row.direction,
+        past: row.isPast ? 'true' : 'false',
+        next: row.isNext ? 'true' : 'false',
+        token: row.token ?? '',
+      },
+    },
+    [
+      el('span', { class: 'shuttle-departure__cell' }, [
+        el('span', { class: 'shuttle-departure__time', text: row.departure }),
+        row.originLabel === null ? null : el('span', { class: 'shuttle-departure__origin', text: row.originLabel }),
+      ]),
+      el('span', { class: 'shuttle-departure__mid', attrs: { 'aria-hidden': duration === null ? 'true' : 'false' }, text: duration ?? '' }),
+      el('span', { class: 'shuttle-departure__cell shuttle-departure__cell--arrive' }, [
+        el('span', { class: 'shuttle-departure__arrive', text: row.arrival ?? '—' }),
+        row.isNext ? el('span', { class: 'shuttle-departure__next-badge', attrs: { 'aria-hidden': 'true' }, text: UI_TEXT.rowNextBadge }) : null,
+        row.isNext || row.token === null
+          ? null
+          : el('span', { class: 'shuttle-departure__token', dataset: { testid: 'row-token' }, text: row.token }),
+        row.isNext ? el('span', { class: 'shuttle-sr-only', text: UI_TEXT.srNextDeparture }) : null,
+        row.isPast ? el('span', { class: 'shuttle-sr-only', text: UI_TEXT.srPastDeparture }) : null,
+      ]),
+    ],
+  );
+}
+
 /** 행 하나 — 지난 편 dim · 다음 출발 강조 · 조건 토큰 ≤1. */
 function timetableRow(row: TimetableRowView, stopName: string | null): HTMLElement {
+  if (stopName !== null) return tableRow(row);
   const classes = ['shuttle-departure'];
   if (row.isPast) classes.push('shuttle-departure--past');
   if (row.isNext) classes.push('shuttle-departure--next');

@@ -289,6 +289,11 @@ const TEXT_NODES_PROBE = `
     '.shuttle-departure__time',
     '.shuttle-departure__route',
     '.shuttle-departure__dir',
+    // 2026-11-08 표 형식 행 — 출발/도착 시각 · 소요 · 출발 정류장 · 다음 표시
+    '.shuttle-departure__arrive',
+    '.shuttle-departure__mid',
+    '.shuttle-departure__origin',
+    '.shuttle-departure__next-badge',
     '.shuttle-departure__token',
     '.shuttle-strip__line',
     '.shuttle-banner',

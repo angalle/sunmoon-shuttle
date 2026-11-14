@@ -108,6 +108,8 @@ export const UI_TEXT = {
   directionHeaderToggleHint: '누르면',
   directionHeaderCountSuffix: '편',
   directionHeaderPending: '정류장',
+  /** 표 형식 행의 다음 출발 표시(화면용 — 낭독기는 srNextDeparture) */
+  rowNextBadge: '다음',
   /** 방향 라벨의 학교 쪽 이름 — `천안역 → 학교` */
   stopCampusName: '학교',
   /** 정류장을 고른 행의 제목·보조줄 */

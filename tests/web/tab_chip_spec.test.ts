@@ -65,7 +65,7 @@ describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
     expect(lengthPx('shell-pad-y')).toBe(8);
   });
 
-  it('고정 영역 총 높이가 문서 값(4줄 · 시간표 머리 48px: 202~212px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
+  it('고정 영역 총 높이가 문서 값(4줄 · 표 머리 48px · 아래 여백 0: 194~204px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
     // 앱바 48 + 아래 여백 4 + (줄 간격 3 × 2) + 요일 40 + 칩 34 + 고정 영역 아래 여백 2 + 경계 1
     const total =
       lengthPx('appbar-height') +
@@ -77,8 +77,8 @@ describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
       lengthPx('dirhead-height') +
       lengthPx('fixed-pad-bottom') +
       lengthPx('hairline');
-    expect(total).toBeGreaterThanOrEqual(202);
-    expect(total).toBeLessThanOrEqual(212);
+    expect(total).toBeGreaterThanOrEqual(194);
+    expect(total).toBeLessThanOrEqual(204);
   });
 
   it('편수 숫자(11px 캡션)가 라벨(13px)보다 작다(§12-3 유지) · 폰트는 15/13/11 그대로', () => {

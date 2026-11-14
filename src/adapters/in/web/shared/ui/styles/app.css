@@ -1563,37 +1563,22 @@ body {
   display: none;
 }
 
-/* ───────────────────────── 시간표 머리 — 방향 토글 (2026-11-08) ─────────────────────────
- * `천안역 → 학교` 한 줄이 버튼이다. 누르면 방향이 뒤집힌다. 흰 카드 머리 + 화살표 원(누를 곳) + 오른쪽 편수.
+/* ───────────────────────── 표 형식 시간표 — 머리 + 행 (2026-11-08) ─────────────────────────
+ * 머리 `학교 (→) 아산(KTX)역` 이 시간표 카드의 **열 머리**다. 머리와 행이 같은 3열 격자를 쓴다:
+ *   [출발지 열 · 출발 시각]  [가운데 · 화살표/소요]  [도착지 열 · 도착 시각]
+ * 머리는 고정 영역 맨 아래(카드 윗부분), 행 카드는 스크롤 영역 맨 위 — 둘이 틈 없이 이어져 한 장의 표로 보인다.
  */
 .shuttle-dirhead {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--tt-mid) minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-2);
-  width: 100%;
   height: var(--dirhead-height);
-  min-height: var(--touch-target-min);
-  padding: 0 var(--space-3) 0 var(--space-4);
-  border: 0;
-  border-radius: var(--radius-row);
+  padding: 0 var(--row-pad-x);
+  border-radius: var(--radius-row) var(--radius-row) 0 0;
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
   color: var(--color-text);
-  font: inherit;
   font-size: var(--font-size-row-time);
   font-weight: var(--font-weight-bold);
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--duration-fast) ease-out;
-}
-
-.shuttle-dirhead:hover {
-  background: var(--color-accent-soft);
-}
-
-.shuttle-dirhead:disabled {
-  cursor: default;
-  color: var(--color-text-muted);
 }
 
 .shuttle-dirhead__place {
@@ -1604,34 +1589,110 @@ body {
 }
 
 .shuttle-dirhead__arrow {
-  flex: 0 0 auto;
+  justify-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--space-6);
-  height: var(--space-6);
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-on-accent);
+  cursor: pointer;
+}
+
+/* 보이는 원은 32px, 터치 영역은 버튼 전체 48px */
+.shuttle-dirhead__arrow svg {
+  box-sizing: content-box;
+  padding: 7px;
   border-radius: 50%;
   background: var(--color-accent);
-  color: var(--color-on-accent);
+  transition: transform var(--duration-fast) ease-out;
 }
 
-.shuttle-dirhead__count {
-  display: inline-flex;
+.shuttle-dirhead__arrow:hover svg {
+  background: var(--color-accent-hover);
+}
+
+.shuttle-dirhead__arrow:disabled {
+  cursor: default;
+}
+
+/* 머리에 바로 붙는 시간표 카드 — 위 모서리를 펴고, 스크롤 영역의 위 여백을 없앤다 */
+.shuttle-scroll {
+  padding-top: 0;
+}
+
+.shuttle-departures,
+.shuttle-timetable__empty-block {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* 표 형식 행 */
+.shuttle-departure.shuttle-departure--table {
+  grid-template-columns: minmax(0, 1fr) var(--tt-mid) minmax(0, 1fr);
+  grid-template-rows: auto;
+  column-gap: 0;
+}
+
+.shuttle-departure--table + .shuttle-departure--table::before {
+  left: var(--row-pad-x);
+}
+
+.shuttle-departure__cell {
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-2);
-  margin-left: auto;
-  flex: 0 0 auto;
-  font-size: var(--font-size-row-meta);
-  font-weight: 600;
-  color: var(--color-accent);
-  font-variant-numeric: tabular-nums;
+  column-gap: var(--space-2);
+  row-gap: 0;
+  min-width: 0;
 }
 
-.shuttle-dirhead__swap {
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-alt);
+.shuttle-departure--table .shuttle-departure__time,
+.shuttle-departure__arrive {
+  font-size: var(--font-size-row-time);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: var(--row-line-height);
+}
+
+.shuttle-departure__arrive {
+  font-weight: 600;
+}
+
+.shuttle-departure__origin {
+  flex-basis: 100%;
   color: var(--color-text-muted);
   font-size: var(--font-size-caption);
-  line-height: 1.8;
+  line-height: var(--row-line-height);
 }
+
+.shuttle-departure__mid {
+  justify-self: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-row-meta);
+  white-space: nowrap;
+}
+
+.shuttle-departure__next-badge {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-red);
+  color: var(--color-on-brand-red);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.7;
+}
+
+.shuttle-departure--table.shuttle-departure--next .shuttle-departure__time {
+  color: var(--color-accent);
+}
+
+.shuttle-departure--past .shuttle-departure__arrive {
+  font-weight: 500;
+}
+

@@ -25,37 +25,34 @@ export function directionHeader(props: DirectionHeaderProps): HTMLElement {
   const [from, to] = props.value === 'in' ? [stop, UI_TEXT.stopCampusName] : [UI_TEXT.stopCampusName, stop];
   const count = props.counts[props.value];
   const otherCount = props.counts[next];
-  return el(
-    'button',
-    {
-      class: 'shuttle-dirhead',
-      attrs: {
-        type: 'button',
-        'aria-label': `${UI_TEXT.directionHeaderToggleLabel} — ${directionLabelFor(props.value, props.stopName)}, ${UI_TEXT.directionHeaderToggleHint} ${directionLabelFor(next, props.stopName)}`,
-        ...(props.stopName === null ? { disabled: '' } : {}),
-      },
-      dataset: {
-        testid: 'direction-toggle',
-        direction: props.value,
-        countIn: String(props.counts.in),
-        countOut: String(props.counts.out),
-      },
-      on: {
-        click: () => {
-          props.onToggle(next);
+  // 표 머리(2026-11-08): 출발지 열 · 가운데 화살표 버튼(누르면 방향 뒤집기) · 도착지 열 — 행의 출발/소요/도착 열과 같은 격자다.
+  return el('div', { class: 'shuttle-dirhead', dataset: { testid: 'direction-header' } }, [
+    el('span', { class: 'shuttle-dirhead__place', text: from }),
+    el(
+      'button',
+      {
+        class: 'shuttle-dirhead__arrow',
+        attrs: {
+          type: 'button',
+          'aria-label': `${UI_TEXT.directionHeaderToggleLabel} — ${directionLabelFor(props.value, props.stopName)}, ${UI_TEXT.directionHeaderToggleHint} ${directionLabelFor(next, props.stopName)}`,
+          ...(props.stopName === null ? { disabled: '' } : {}),
+        },
+        dataset: {
+          testid: 'direction-toggle',
+          direction: props.value,
+          countIn: String(props.counts.in),
+          countOut: String(props.counts.out),
+          count: String(count),
+          otherCount: String(otherCount),
+        },
+        on: {
+          click: () => {
+            props.onToggle(next);
+          },
         },
       },
-    },
-    [
-      el('span', { class: 'shuttle-dirhead__place', text: from }),
-      el('span', { class: 'shuttle-dirhead__arrow', attrs: { 'aria-hidden': 'true' } }, [
-        svgIcon([{ kind: 'path', d: 'M5 12h14M13 6l6 6-6 6' }], { size: '18' }),
-      ]),
-      el('span', { class: 'shuttle-dirhead__place', text: to }),
-      el('span', { class: 'shuttle-dirhead__count', attrs: { 'aria-hidden': 'true' } }, [
-        el('span', { class: 'shuttle-dirhead__num', text: `${String(count)}${UI_TEXT.directionHeaderCountSuffix}` }),
-        el('span', { class: 'shuttle-dirhead__swap', text: `⇄ ${String(otherCount)}` }),
-      ]),
-    ],
-  );
+      [svgIcon([{ kind: 'path', d: 'M5 12h14M13 6l6 6-6 6' }], { size: '18' })],
+    ),
+    el('span', { class: 'shuttle-dirhead__place shuttle-dirhead__place--to', text: to }),
+  ]);
 }
