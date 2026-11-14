@@ -54,7 +54,6 @@ import {
   freshnessView,
   moveNowHint,
   noticeGroups,
-  directionLabelFor,
   resolveStopId,
   stopOptions,
   stopWindowLines,
@@ -69,7 +68,7 @@ import {
 import type { ScheduleState, ScheduleStore } from '../store/scheduleStore';
 import { UI_TEXT, FALLBACK_SOURCE_URL } from '../types/texts';
 import { dayTabs as dayTabsMolecule, dayTabId } from '../components/molecules/DayTabs';
-import { directionFilter } from '../components/molecules/DirectionFilter';
+import { directionHeader } from '../components/molecules/DirectionHeader';
 import { stopFilter } from '../components/molecules/StopFilter';
 import { skeletonCards } from '../components/molecules/SkeletonCards';
 import { toast } from '../components/molecules/Toast';
@@ -624,9 +623,7 @@ export function createSchedulePage(
    */
   const focusKeyOf = (node: Element | null): string | null => {
     if (node === null) return null;
-    if (node.getAttribute('data-testid') === 'direction-chip') {
-      return `chip:${node.getAttribute('data-direction') ?? ''}`;
-    }
+    if (node.getAttribute('data-testid') === 'direction-toggle') return 'toggle';
     // 요일 탭(roving tabindex) — 재렌더로 탭 노드가 새로 만들어지므로 id 로 되돌린다(키보드 사용자 포커스 유지).
     const id = node.id;
     if (id.startsWith(`${TAB_ID_PREFIX}-tab-`)) return `tab:${id}`;
@@ -635,9 +632,8 @@ export function createSchedulePage(
 
   const restoreFocus = (key: string | null): void => {
     if (key === null) return;
-    if (key.startsWith('chip:')) {
-      const direction = key.slice('chip:'.length);
-      root.querySelector<HTMLElement>(`[data-testid="direction-chip"][data-direction="${direction}"]`)?.focus();
+    if (key === 'toggle') {
+      root.querySelector<HTMLElement>('[data-testid="direction-toggle"]')?.focus();
       return;
     }
     if (key.startsWith('tab:')) {
@@ -680,21 +676,19 @@ export function createSchedulePage(
     // 칩에 포커스가 **있었을 때만** 되돌린다. 예전엔 무조건 선택 칩에 포커스를 줘서, 아무것도 누르지 않아도
     // 진입·재렌더마다 포커스 링이 칩에 떴다(2026-11-08 Android 에뮬레이터에서 발견).
     const chipHadFocus = filterHost.contains(document.activeElement);
+    // 2026-11-08 — 방향은 칩 두 개가 아니라 **시간표 머리 하나**(`천안역 → 학교`)다. 누르면 반대 방향으로 뒤집힌다.
     replaceChildren(filterHost, [
-      directionFilter({
+      directionHeader({
         value: direction,
+        stopName: view?.stopName ?? null,
         counts: view?.counts ?? { all: 0, out: 0, in: 0 },
-        labels:
-          view?.stopName == null
-            ? undefined
-            : { in: directionLabelFor('in', view.stopName), out: directionLabelFor('out', view.stopName) },
-        onSelect: (value: DirectionSelection) => {
-          // §16-2(T38) — 택1이다: 눌린 방향이 그대로 선택이 된다(같은 칩을 다시 눌러도 유지 — 해제 없음).
-          selectDirection(value);
+        onToggle: (next: DirectionSelection) => {
+          selectDirection(next);
+          scrollToNextDeparture(true);
         },
       }),
     ]);
-    if (chipHadFocus) restoreFocus(`chip:${direction}`);
+    if (chipHadFocus) root.querySelector<HTMLElement>('[data-testid="direction-toggle"]')?.focus();
   };
 
   /** 정류장 칩 줄(시안 A) — 칩에 포커스가 있었을 때만 포커스를 되돌린다. */

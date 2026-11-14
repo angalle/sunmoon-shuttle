@@ -54,17 +54,17 @@ describe('writeUiPrefs → readUiPrefs 왕복', () => {
   });
 });
 
-describe('effectiveStoredDayType — 요일 선택은 그날(KST) 안에서만 유효하다', () => {
-  it('저장한 날과 같은 날이면 요일 선택을 되살린다(§11-1 재실행 시 유지)', () => {
+describe('effectiveStoredDayType — 마지막에 누른 요일 탭을 날짜와 상관없이 기억한다(2026-11-08)', () => {
+  it('저장한 날과 같은 날이면 되살린다', () => {
     expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', stop: null, date: '2026-10-06' }, '2026-10-06')).toBe('sunday');
   });
 
-  it('날이 바뀌거나 다른 날짜 화면이면 되살리지 않는다(오늘 요일로 시작)', () => {
-    expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', stop: null, date: '2026-10-06' }, '2026-10-10')).toBeNull();
+  it('날이 바뀌어도 되살린다(예전엔 오늘 요일로 돌아갔다)', () => {
+    expect(effectiveStoredDayType({ dayType: 'sunday', direction: 'in', stop: null, date: '2026-10-06' }, '2026-10-10')).toBe('sunday');
   });
 
-  it('날짜 정보가 없으면(옛 저장값·깨진 값) 되살리지 않는다', () => {
-    expect(effectiveStoredDayType({ dayType: 'saturday', direction: 'in', stop: null, date: null }, '2026-10-10')).toBeNull();
+  it('날짜 정보가 없는 옛 저장값도 요일이 있으면 되살린다', () => {
+    expect(effectiveStoredDayType({ dayType: 'saturday', direction: 'in', stop: null, date: null }, '2026-10-10')).toBe('saturday');
   });
 
   it('저장된 요일이 없으면 null', () => {

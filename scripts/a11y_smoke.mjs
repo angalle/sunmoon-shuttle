@@ -284,6 +284,8 @@ const TEXT_NODES_PROBE = `
     '.shuttle-button',
     '.shuttle-tab',
     '.shuttle-chip',
+    // 2026-11-08 — 시간표 머리(방향 토글): 출발지 · 도착지 · 편수 = 컨트롤 라벨·값
+    '.shuttle-dirhead',
     '.shuttle-departure__time',
     '.shuttle-departure__route',
     '.shuttle-departure__dir',

@@ -89,10 +89,12 @@ export function writeUiPrefs(
 }
 
 /**
- * 저장된 요일 선택이 **지금 이 날짜에서** 유효한지 판단해 돌려준다(§11-1).
- * 날짜가 다르거나 날짜 정보가 없으면 `null` — 그때는 오늘(KST) 요일로 시작한다.
- * (다른 날 화면(`?now=`)이나 날이 바뀐 뒤에 지난 선택이 따라오면 잘못된 요일 시간표를 보여 준다 — v1 스모크 ⑥⑦ 회귀)
+ * 저장된 요일 탭을 돌려준다 — **마지막에 누른 탭을 날짜와 상관없이 기억한다**(2026-11-08 사용자 결정).
+ * 예전 규칙(그날 안에서만 유효)은 폐기했다: 사용자는 주말 시간표를 자주 보면 다음 날에도 그 탭으로 열리길 원한다.
+ * 오늘 시간표로 돌아가는 길은 `현재 시간으로` 버튼(오늘 요일로 전환 + 다음 출발로 이동)이 맡는다.
+ * `todayKey` 는 호출 호환을 위해 남겨 둔다(쓰지 않는다).
  */
 export function effectiveStoredDayType(prefs: UiPrefs, todayKey: string): DayType | null {
-  return prefs.date === todayKey ? prefs.dayType : null;
+  void todayKey;
+  return prefs.dayType;
 }

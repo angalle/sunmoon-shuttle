@@ -340,7 +340,8 @@ async function main() {
         nextCount: document.querySelectorAll('[data-testid="timetable-row"][data-next="true"]').length,
         clock: document.querySelector('[data-testid="app-clock"]')?.textContent ?? null,
         boardNotice: document.querySelector('[data-testid="day-notice"]')?.textContent ?? null,
-        chips: [...document.querySelectorAll('[data-testid="direction-chip"]')].length,
+        chips: document.querySelectorAll('[data-testid="direction-toggle"]').length,
+        stopChips: document.querySelectorAll('[data-testid="stop-chip"]').length,
         listRows: document.querySelectorAll('[data-testid="timetable-list"] [data-testid="timetable-row"]').length,
         refreshLine: document.querySelector('[data-testid="data-refresh-line"]')?.textContent ?? null,
         sourceDetails: document.querySelectorAll('[data-testid="source-details"]').length,
@@ -363,8 +364,8 @@ async function main() {
     check('T27 본문 = 시간표 섹션 하나(적용 시간표 일요일)', initial.listReady === true && initial.listDay === 'sunday', `day=${String(initial.listDay)}`);
     check('T27 다음 출발 행이 정확히 하나 강조된다', initial.nextCount === 1, `count=${String(initial.nextCount)}`);
     check('T27 강조 행 시각이 고른 정류장(아산(KTX)역)의 가장 가까운 남은 편', initial.nextTime === '16:10', `next=${String(initial.nextTime)}`);
-    // T37 §15-1 — 방향 칩은 2개(`학교 도착`·`터미널 도착`)이고 `전체` 칩은 없다.
-    check('V1 방향 필터 칩 2개(T37 §15-1)', initial.chips === 2, `chips=${String(initial.chips)}`);
+    // 2026-11-08 — 방향은 시간표 머리 토글 1개 · 정류장 칩 4개(`전체` 없음)
+    check('방향 토글 1개 · 정류장 칩 4개', initial.chips === 1 && initial.stopChips === 4, `toggle=${String(initial.chips)} stops=${String(initial.stopChips)}`);
     check('V1 오늘 남은 출발 목록', initial.listRows > 0, `list rows=${String(initial.listRows)}`);
     check(
       'T27 시간표 행 수 = 발행물 판정 편수',

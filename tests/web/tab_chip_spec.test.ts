@@ -65,7 +65,7 @@ describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
     expect(lengthPx('shell-pad-y')).toBe(8);
   });
 
-  it('고정 영역 총 높이가 문서 값(시안 A 4줄: 188~198px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
+  it('고정 영역 총 높이가 문서 값(4줄 · 시간표 머리 48px: 202~212px)에 든다 — 실제 값은 JS 가 재서 --fixed-height 로 내린다', () => {
     // 앱바 48 + 아래 여백 4 + (줄 간격 3 × 2) + 요일 40 + 칩 34 + 고정 영역 아래 여백 2 + 경계 1
     const total =
       lengthPx('appbar-height') +
@@ -74,11 +74,11 @@ describe('T37 규격 — 상단 3줄 · 행 (docs/07 §15-3)', () => {
       lengthPx('day-tab-height') +
       lengthPx('chip-height') +
       lengthPx('fixed-row-gap') +
-      lengthPx('chip-height') +
+      lengthPx('dirhead-height') +
       lengthPx('fixed-pad-bottom') +
       lengthPx('hairline');
-    expect(total).toBeGreaterThanOrEqual(188);
-    expect(total).toBeLessThanOrEqual(198);
+    expect(total).toBeGreaterThanOrEqual(202);
+    expect(total).toBeLessThanOrEqual(212);
   });
 
   it('편수 숫자(11px 캡션)가 라벨(13px)보다 작다(§12-3 유지) · 폰트는 15/13/11 그대로', () => {
@@ -133,7 +133,9 @@ describe('T37/T38 소스 계약 — 칩 2개 · 택1(해제 불가) · 되묻지
     expect(page).toContain('options.initialDirection ?? DEFAULT_DIRECTION_SELECTION');
     // 해제(=`all` 로 복귀) 경로가 코드에 남아 있지 않다 — 눌린 값이 그대로 선택이 된다.
     expect(page).not.toContain("fullFilter = fullFilter === value ? 'all' : value;");
-    expect(page).toContain('selectDirection(value);');
+    // 2026-11-08: 방향은 시간표 머리 토글 하나 — 누르면 반대 방향(`next`)이 그대로 선택된다(해제 없음)
+    expect(page).toContain('selectDirection(next);');
+    expect(page).toContain('directionHeader({');
   });
 
   it('T38 §16-2 — 0편이면 얇은 1줄 + **전환 수단 1개**(자동 전환 금지)', () => {

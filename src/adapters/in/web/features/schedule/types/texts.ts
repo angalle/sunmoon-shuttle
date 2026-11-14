@@ -103,6 +103,11 @@ export const UI_TEXT = {
   filterDirectionLegend: '방향 필터',
   /** 정류장 선택(시안 A · 2026-11-08) */
   stopFilterLegend: '정류장 선택',
+  /** 시간표 머리(방향 토글 · 2026-11-08) */
+  directionHeaderToggleLabel: '방향 바꾸기',
+  directionHeaderToggleHint: '누르면',
+  directionHeaderCountSuffix: '편',
+  directionHeaderPending: '정류장',
   /** 방향 라벨의 학교 쪽 이름 — `천안역 → 학교` */
   stopCampusName: '학교',
   /** 정류장을 고른 행의 제목·보조줄 */
