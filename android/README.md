@@ -164,8 +164,52 @@ B안(데이터는 Pages 에서 · docs/07 §17)이 들어간 첫 버전을 한 �
 3. **AAB 빌드·확인** — `bash android/build-release.sh` → `서명: 업로드 키 (CN=sunmoon-shuttle …)` 가 찍히는지 확인.
 4. **Play Console** → 앱 만들기(패키지 `com.angalle.sunmoonshuttle`) → **Play 앱 서명 사용** → 내부 테스트 트랙에
    `android/app/build/outputs/bundle/release/app-release.aab` 업로드. 스토어 문구·개인정보처리방침 URL 은 `docs/05-store-listing.md`.
-5. 다음 업로드부터는 `android/app/build.gradle` 의 `versionCode` 를 **+1** 한 뒤 3~4 반복(재사용 금지).
-   지금 값은 `versionCode 1` / `versionName 1.0.0`(v1.0.0 · 2026-11-14) — 아직 한 번도 올리지 않았으므로 첫 업로드는 그대로 쓴다.
+5. ~~수동 반복~~ → **첫 업로드 완료(2026-11-14 · versionCode 2 · 비공개 테스트 검토 통과).** 이후 업로드는 아래 "Play 자동 배포"로 한다.
+   스토어 문구·그래픽은 `store/play/LISTING.md`.
+
+## Play 자동 배포 (GitHub Actions · `.github/workflows/play-release.yml`)
+
+태그를 push 하면 CI 가 AAB 를 빌드·서명해 Play **비공개 테스트(alpha)** 트랙에 올린다.
+
+```bash
+git tag -a v1.0.3 -m "v1.0.3 — 바뀐 점 한 줄" && git push origin v1.0.3
+```
+
+- **버전은 태그에서 계산**: `v1.0.3` → versionName `1.0.3` · versionCode `10003`(주×10000 + 부×100 + 수).
+  같은 태그를 다시 올리면 Play 가 거부한다(새 태그를 만든다). 로컬 수동 업로드는 하지 않는다(코드 충돌).
+- **출시 노트**: `store/play/whatsnew/whatsnew-ko-KR`(500자 이내)를 태그 전에 고친다.
+- **수동 실행**: GitHub → Actions → `play-release` → Run workflow → 트랙(`internal`/`alpha`/`production`)·버전 입력.
+- **시크릿이 하나라도 없으면** 빌드·서명 확인까지만 하고 업로드는 건너뛴다(경고만, 실패 아님). AAB 는 Actions 아티팩트로 30일 보관.
+
+### 처음 한 번: 시크릿 5개 등록 (사람이 하는 단계 — 키·비밀번호는 직접)
+
+**A. Play 업로드용 서비스 계정 만들기**
+
+1. [Google Cloud 콘솔](https://console.cloud.google.com/) → 프로젝트 하나 만들기(예: `sunmoon-shuttle-play`).
+2. **API 및 서비스 → 라이브러리** → `Google Play Android Developer API` → **사용**.
+3. **IAM 및 관리자 → 서비스 계정 → 서비스 계정 만들기**(이름 예: `play-uploader`, 역할은 주지 않아도 됨).
+4. 만든 서비스 계정 → **키 → 키 추가 → 새 키 만들기 → JSON** → 파일이 내려받아진다(이 파일이 비밀값 — 저장소에 넣지 않는다).
+5. [Play Console](https://play.google.com/console) → **사용자 및 권한 → 새 사용자 초대** → 서비스 계정 이메일
+   (`play-uploader@…iam.gserviceaccount.com`) 입력 → **앱 권한**에서 `선문 셔틀` 추가 →
+   `앱 정보 보기`, `테스트 트랙에 앱 출시`(프로덕션도 자동으로 올릴 거면 `프로덕션에 앱 출시`) 체크 → 초대.
+   권한이 퍼지는 데 **최대 하루** 걸릴 수 있다(그 사이 업로드는 `The caller does not have permission` 으로 실패).
+
+**B. GitHub 시크릿 등록** — 저장소 → **Settings → Secrets and variables → Actions → New repository secret**,
+또는 Mac 터미널에서 `gh` 로(값을 화면에 띄우지 않는다):
+
+```bash
+gh secret set PLAY_SERVICE_ACCOUNT_JSON < ~/Downloads/<내려받은-키>.json
+base64 -i ~/.android-keys/sunmoon-upload.jks | gh secret set ANDROID_UPLOAD_KEYSTORE_BASE64
+gh secret set ANDROID_UPLOAD_KEY_ALIAS --body upload
+gh secret set ANDROID_UPLOAD_STORE_PASSWORD   # 물으면 키 저장소 비밀번호 입력
+gh secret set ANDROID_UPLOAD_KEY_PASSWORD     # 물으면 키 비밀번호 입력
+```
+
+등록 후 내려받은 JSON 파일은 지우거나 비밀 관리 도구로 옮긴다. `gh secret list` 로 이름 5개가 보이면 끝.
+
+**C. 첫 자동 업로드 확인** — Actions → `play-release` → Run workflow → 트랙 `internal`, 버전 `1.0.3` →
+초록불이면 Play Console → 내부 테스트에 `1.0.3 (10003)` 이 보인다. 이후로는 태그만 push 하면 된다
+(이렇게 1.0.3 을 쓰면 다음 태그는 `v1.0.4` 부터 — 같은 버전 코드는 다시 못 올린다).
 
 ## 안드로이드 뒤로가기 동작 (정의)
 

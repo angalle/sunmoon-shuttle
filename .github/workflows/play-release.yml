@@ -1,0 +1,178 @@
+# Google Play 자동 배포 — 태그(v*) push 시 AAB 를 빌드·서명해 Play 테스트 트랙에 올린다.
+#
+#   git tag -a v1.0.3 -m "…" && git push origin v1.0.3     → 비공개 테스트(alpha) 트랙에 업로드
+#   Actions 탭 → play-release → Run workflow               → 트랙·버전을 골라 수동 실행
+#
+# 버전: 태그에서 계산 — v1.0.3 → versionName 1.0.3 · versionCode 10003(주×10000 + 부×100 + 수).
+#       같은 태그를 다시 올리면 Play 가 "버전 코드 사용됨"으로 거부한다(정상 — 새 태그를 만든다).
+# 시크릿(등록 방법: android/README.md "Play 자동 배포"): 하나라도 없으면 빌드만 하고 업로드는 건너뛴다.
+#   PLAY_SERVICE_ACCOUNT_JSON · ANDROID_UPLOAD_KEYSTORE_BASE64 · ANDROID_UPLOAD_STORE_PASSWORD
+#   ANDROID_UPLOAD_KEY_ALIAS · ANDROID_UPLOAD_KEY_PASSWORD
+# 비밀값은 로그에 찍지 않는다(GitHub 가 시크릿을 *** 로 가리지만, echo 자체를 하지 않는다).
+name: play-release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Play 트랙 (internal=내부 테스트 · alpha=비공개 테스트 · production=프로덕션)'
+        type: choice
+        options: [alpha, internal, production]
+        default: alpha
+      version:
+        description: '버전(예: 1.0.3) — 비우면 현재 태그/기본값'
+        type: string
+        required: false
+
+concurrency:
+  group: play-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PACKAGE_NAME: com.angalle.sunmoonshuttle
+  AAB: android/app/build/outputs/bundle/release/app-release.aab
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v7
+
+      - name: Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: npm
+
+      - name: JDK 17 (로컬 빌드와 같은 버전)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Android SDK (platform 36 · build-tools 36.0.0)
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-36 build-tools;36.0.0'
+
+      - name: 버전 계산
+        id: ver
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          raw="${INPUT_VERSION:-}"
+          if [ -z "$raw" ] && [ "${GITHUB_REF_TYPE}" = "tag" ]; then raw="${GITHUB_REF_NAME#v}"; fi
+          if [ -z "$raw" ]; then
+            echo "::error title=버전 없음::태그(v1.2.3)로 실행하거나 수동 실행 시 version 을 넣어 주세요."; exit 1
+          fi
+          if ! [[ "$raw" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error title=버전 형식::'$raw' — 1.2.3 형식만 받습니다."; exit 1
+          fi
+          code=$(( BASH_REMATCH[1] * 10000 + BASH_REMATCH[2] * 100 + BASH_REMATCH[3] ))
+          echo "name=$raw" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "track=${{ inputs.track || 'alpha' }}" >> "$GITHUB_OUTPUT"
+          echo "버전: $raw (versionCode $code) → 트랙 ${{ inputs.track || 'alpha' }}"
+
+      - name: 시크릿 확인 (값은 보지 않고 있는지만)
+        id: secrets
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          KS_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          missing=()
+          [ -n "$PLAY_JSON" ] || missing+=(PLAY_SERVICE_ACCOUNT_JSON)
+          [ -n "$KS_B64" ] || missing+=(ANDROID_UPLOAD_KEYSTORE_BASE64)
+          [ -n "$KS_PASS" ] || missing+=(ANDROID_UPLOAD_STORE_PASSWORD)
+          [ -n "$KEY_ALIAS" ] || missing+=(ANDROID_UPLOAD_KEY_ALIAS)
+          [ -n "$KEY_PASS" ] || missing+=(ANDROID_UPLOAD_KEY_PASSWORD)
+          if [ ${#missing[@]} -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=시크릿 없음 — 업로드 건너뜀::${missing[*]} (등록 방법: android/README.md \"Play 자동 배포\")"
+          fi
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 테스트
+        run: npm run test
+
+      - name: 웹 빌드 + 계약 데이터 동봉 + Capacitor 동기화
+        run: |
+          set -euo pipefail
+          npm run build
+          mkdir -p dist/data
+          cp data/timetable.json dist/data/timetable.json
+          ./node_modules/.bin/cap sync android
+          test -f android/app/src/main/assets/public/data/timetable.json
+
+      - name: 업로드 키 준비 (러너 임시 폴더 · 잡이 끝나면 사라짐)
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          KS_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          ks="$RUNNER_TEMP/upload.jks"
+          printf '%s' "$KS_B64" | base64 --decode > "$ks"
+          {
+            echo "storeFile=$ks"
+            echo "storePassword=$KS_PASS"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASS"
+          } > android/keystore.properties
+
+      - name: AAB 빌드 (bundleRelease)
+        run: |
+          ./android/gradlew -p android bundleRelease --console=plain \
+            -PversionCode=${{ steps.ver.outputs.code }} -PversionName=${{ steps.ver.outputs.name }}
+
+      - name: 서명 확인
+        run: |
+          set -euo pipefail
+          test -f "$AAB"
+          jarsigner -verify "$AAB" >/dev/null
+          if keytool -printcert -jarfile "$AAB" | grep -q "CN=Android Debug"; then
+            echo "::warning title=debug 서명::업로드 키가 없어 debug 키로 서명됨 — Play 업로드 불가(업로드 단계는 건너뜀)"
+          else
+            echo "서명: 업로드 키"
+          fi
+
+      - name: AAB 보관 (Actions 아티팩트 · 30일)
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-release-${{ steps.ver.outputs.name }}
+          path: ${{ env.AAB }}
+          retention-days: 30
+
+      - name: Play 업로드
+        if: steps.secrets.outputs.ready == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE_NAME }}
+          releaseFiles: ${{ env.AAB }}
+          releaseName: ${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }})
+          track: ${{ steps.ver.outputs.track }}
+          status: completed
+          whatsNewDirectory: store/play/whatsnew
+
+      - name: 업로드 키 정리
+        if: always()
+        run: rm -f android/keystore.properties "$RUNNER_TEMP/upload.jks"
