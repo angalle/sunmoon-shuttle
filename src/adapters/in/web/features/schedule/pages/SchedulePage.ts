@@ -591,6 +591,8 @@ export function createSchedulePage(
   let direction: DirectionSelection = options.initialDirection ?? DEFAULT_DIRECTION_SELECTION;
   /** 정류장 선택(시안 A) — 항상 1개. 모델이 오면 선택지에 맞춰 확정한다(`resolveStopId`). */
   let stopId: string | null = options.initialStop ?? null;
+  /** 방향을 방금 뒤집었는가 — 바로 다음 렌더에서만 머리 화살표 회전 효과를 준다 */
+  let headerJustFlipped = false;
 
   /** 요일·방향 선택 저장(§11-1) — 저장소 IO 는 조립 지점(app/mount.ts)이 갖고 여기서는 알리기만 한다.
    *  저장 시점의 날짜 키를 함께 넘긴다 — 요일 선택은 그날 안에서만 되살아난다(다른 날 화면에서 따라오지 않게). */
@@ -684,13 +686,16 @@ export function createSchedulePage(
         value: direction,
         stopName: view?.stopName ?? null,
         counts: view?.counts ?? { all: 0, out: 0, in: 0 },
+        justFlipped: headerJustFlipped,
         onToggle: (next: DirectionSelection) => {
+          headerJustFlipped = true;
           selectDirection(next);
+          headerJustFlipped = false;
           scrollToNextDeparture(true);
         },
       }),
     ]);
-    if (chipHadFocus) root.querySelector<HTMLElement>('[data-testid="direction-toggle"]')?.focus();
+    if (chipHadFocus || headerJustFlipped) root.querySelector<HTMLElement>('[data-testid="direction-toggle"]')?.focus({ preventScroll: true });
   };
 
   /** 정류장 칩 줄(시안 A) — 칩에 포커스가 있었을 때만 포커스를 되돌린다. */

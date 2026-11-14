@@ -17,6 +17,8 @@ export interface DirectionHeaderProps {
   readonly stopName: string | null;
   readonly counts: Readonly<Record<DirectionFilter, number>>;
   readonly onToggle: (next: DirectionSelection) => void;
+  /** 방금 방향을 뒤집었으면 true — 화살표가 반 바퀴 돌며 나타난다(움직임 줄이기 설정이면 없음) */
+  readonly justFlipped?: boolean | undefined;
 }
 
 export function directionHeader(props: DirectionHeaderProps): HTMLElement {
@@ -25,34 +27,38 @@ export function directionHeader(props: DirectionHeaderProps): HTMLElement {
   const [from, to] = props.value === 'in' ? [stop, UI_TEXT.stopCampusName] : [UI_TEXT.stopCampusName, stop];
   const count = props.counts[props.value];
   const otherCount = props.counts[next];
-  // 표 머리(2026-11-08): 출발지 열 · 가운데 화살표 버튼(누르면 방향 뒤집기) · 도착지 열 — 행의 출발/소요/도착 열과 같은 격자다.
-  return el('div', { class: 'shuttle-dirhead', dataset: { testid: 'direction-header' } }, [
-    el('span', { class: 'shuttle-dirhead__place', text: from }),
-    el(
-      'button',
-      {
-        class: 'shuttle-dirhead__arrow',
-        attrs: {
-          type: 'button',
-          'aria-label': `${UI_TEXT.directionHeaderToggleLabel} — ${directionLabelFor(props.value, props.stopName)}, ${UI_TEXT.directionHeaderToggleHint} ${directionLabelFor(next, props.stopName)}`,
-          ...(props.stopName === null ? { disabled: '' } : {}),
-        },
-        dataset: {
-          testid: 'direction-toggle',
-          direction: props.value,
-          countIn: String(props.counts.in),
-          countOut: String(props.counts.out),
-          count: String(count),
-          otherCount: String(otherCount),
-        },
-        on: {
-          click: () => {
-            props.onToggle(next);
-          },
+  // 표 머리(2026-11-08): **머리 한 줄 전체가 버튼**이다 — 출발지 · (화살표 + `바꾸기`) · 도착지.
+  // 가운데 원은 떠 있는 버튼처럼(그림자·바깥 링) 보이고, 방금 뒤집었으면 화살표가 반 바퀴 돌며 나타난다.
+  return el(
+    'button',
+    {
+      class: props.justFlipped === true ? 'shuttle-dirhead shuttle-dirhead--flipped' : 'shuttle-dirhead',
+      attrs: {
+        type: 'button',
+        'aria-label': `${UI_TEXT.directionHeaderToggleLabel} — ${directionLabelFor(props.value, props.stopName)}, ${UI_TEXT.directionHeaderToggleHint} ${directionLabelFor(next, props.stopName)}`,
+        ...(props.stopName === null ? { disabled: '' } : {}),
+      },
+      dataset: {
+        testid: 'direction-toggle',
+        direction: props.value,
+        countIn: String(props.counts.in),
+        countOut: String(props.counts.out),
+        count: String(count),
+        otherCount: String(otherCount),
+      },
+      on: {
+        click: () => {
+          props.onToggle(next);
         },
       },
-      [svgIcon([{ kind: 'path', d: 'M5 12h14M13 6l6 6-6 6' }], { size: '18' })],
-    ),
-    el('span', { class: 'shuttle-dirhead__place shuttle-dirhead__place--to', text: to }),
-  ]);
+    },
+    [
+      el('span', { class: 'shuttle-dirhead__place', text: from }),
+      el('span', { class: 'shuttle-dirhead__switch', attrs: { 'aria-hidden': 'true' } }, [
+        el('span', { class: 'shuttle-dirhead__arrow' }, [svgIcon([{ kind: 'path', d: 'M5 12h14M13 6l6 6-6 6' }], { size: '16' })]),
+        el('span', { class: 'shuttle-dirhead__hint', text: UI_TEXT.directionHeaderSwitchCaption }),
+      ]),
+      el('span', { class: 'shuttle-dirhead__place shuttle-dirhead__place--to', text: to }),
+    ],
+  );
 }

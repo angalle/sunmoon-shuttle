@@ -29,12 +29,12 @@
  *  AC-U12 T30 탭·칩 UI 정리 — 텍스트 축소·배치 (§12 규격 → §15-3 수치로 개정)
  *         - AC-U12-1 요일 탭 라벨에 `노선`·`개`·괄호·`오늘` 0건 · 오늘은 **점 1개**(`aria-label="오늘"`) · 등폭 3분할(≤1px) · 40px
  *         - AC-U12-2 칩 화면 텍스트 `학교 도착 24` 형식(`편`·`개`·괄호 0건) · 편수 11px < 라벨 13px · 알약 34px
- *         - AC-U12-3 3줄 좌우 여백 16px · 세로 중앙 · 고정 영역 높이 194~204px · 390×844·360×800 동일 규격
+ *         - AC-U12-3 3줄 좌우 여백 16px · 세로 중앙 · 고정 영역 높이 202~212px · 390×844·360×800 동일 규격
  *         - AC-U12-4 규격 변경 후에도 가려짐 0(수치) · 터치 타깃 탭 40px(가로 ≥48px)·칩 **터치 44px**(알약 34px)
  *  AC-U15 T37 칩 정리 · "오늘로 이동" · 여백 축소 (§15)
  *         - AC-U15-2 오늘이 아닌 요일에서 `현재 시간으로` → 요일 전환 + 현재 시각 행 스크롤 · `오늘로 이동합니다`(1.2~2.0초 소멸) · `오늘 보기` 버튼 없음
  *         - AC-U15-3 오늘이고 남은 편이 없음(23:00) → `오늘 남은 편이 없습니다 · 다음 운행: …` 1줄 유지(액션 없음)
- *         - AC-U15-4 치수 실측: 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 16 · 행 56 · 고정 영역 194~204px · 터치 위반 0
+ *         - AC-U15-4 치수 실측: 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 16 · 행 56 · 고정 영역 202~212px · 터치 위반 0
  *  AC-U16 T38 **"전체" 개념 삭제** — 방향은 항상 1개 (§16-2)
  *         - AC-U16-1 칩 2개 · **항상 정확히 1개 선택**(해제 시도해도 1개 유지 · 기본 `터미널 도착`) · 재실행 유지
  *         - AC-U16-2 목록의 **모든 행이 같은 방향** — 행 방향 카운트 제출(섞임 0건)
@@ -1531,16 +1531,16 @@ async function main() {
       }),
     );
 
-    /* AC-U15-4 — 3줄 공통 정렬(좌우 16px · 세로 중앙) + 고정 영역 총 높이(194~204px) */
+    /* AC-U15-4 — 3줄 공통 정렬(좌우 16px · 세로 중앙) + 고정 영역 총 높이(202~212px) */
     const rowLefts = [styled.appbarRect.left, styled.dayRowRect.left, styled.filterRowRect.left];
     const rowRights = [styled.appbarRect.right, styled.dayRowRect.right, styled.filterRowRect.right];
     check(
-      'AC-U15-4 3줄 좌우 여백이 모두 16px(실측) · 고정 영역 총 높이 194~204px',
+      'AC-U15-4 3줄 좌우 여백이 모두 16px(실측) · 고정 영역 총 높이 202~212px',
       rowLefts.every((left) => Math.abs(left - 16) <= 1) &&
         Math.max(...rowRights) - Math.min(...rowRights) <= 1 &&
         styled.fixedHeight !== null &&
-        styled.fixedHeight >= 194 &&
-        styled.fixedHeight <= 204,
+        styled.fixedHeight >= 202 &&
+        styled.fixedHeight <= 212,
       JSON.stringify({ left: rowLefts, right: rowRights, fixedHeight: styled.fixedHeight, appbar: styled.appbarRect, day: styled.dayRowRect, filter: styled.filterRowRect }),
     );
     check(
@@ -1622,20 +1622,20 @@ async function main() {
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     await delay(150);
 
-    /* ── AC-U15-4 — 치수 실측(T37 §15-3): 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 16 · 행 56 · 고정 194~204 ── */
+    /* ── AC-U15-4 — 치수 실측(T37 §15-3): 앱바 52 · 요일 40 · 칩 알약 34(터치 44) · 좌우 16 · 행 56 · 고정 202~212 ── */
     await evaluate(`const s = document.querySelector('.shuttle-scroll'); s.scrollTop = 0; return true;`);
     await delay(200);
     const dims = await evaluate(FIXED_PROBE);
     const rowDims = await evaluate(MOVE_PROBE);
     check(
-      'AC-U15-4 앱바 52px · 요일 줄 40px · 고정 영역 194~204px(실측 수치)',
+      'AC-U15-4 앱바 52px · 요일 줄 40px · 고정 영역 202~212px(실측 수치)',
       dims.appbarRect !== null &&
         Math.abs(dims.appbarRect.height - 52) <= 1 &&
         dims.dayRowRect !== null &&
         Math.abs(dims.dayRowRect.height - 40) <= 1 &&
         dims.fixedHeight !== null &&
-        dims.fixedHeight >= 194 &&
-        dims.fixedHeight <= 204,
+        dims.fixedHeight >= 202 &&
+        dims.fixedHeight <= 212,
       JSON.stringify({ appbar: dims.appbarRect?.height, dayRow: dims.dayRowRect?.height, filterRow: dims.filterRowRect?.height, fixedHeight: dims.fixedHeight }),
     );
     check(

@@ -1736,3 +1736,107 @@ body {
 .shuttle-fixed .shuttle-stripbar:has(> :not(:empty)) {
   display: flex;
 }
+
+/* ── 2026-11-08 금휴 등 조건 토큰 — 더 잘 보이게(경고 톤 알약 + 옅은 테두리) ── */
+.shuttle-departure--table .shuttle-departure__token {
+  padding: 0 var(--space-2);
+  border: var(--hairline) solid var(--color-warn-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-warn-bg);
+  color: var(--color-warn-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+/* ── 2026-11-08 시간표 머리 = 버튼 한 줄 — 누르고 싶게 ──
+ * 머리 전체가 버튼(누를 곳이 넓다) · 가운데 원은 떠 있는 버튼(그림자 + 바깥 링) · 아래 `바꾸기` 안내 ·
+ * 손가락을 대면 면 톤 + 원이 살짝 커지고, 누르면 눌림 · 방금 뒤집었으면 화살표가 반 바퀴 돈다.
+ */
+button.shuttle-dirhead {
+  width: 100%;
+  border: 0;
+  border-bottom: var(--hairline) solid var(--color-border-soft);
+  font: inherit;
+  font-size: var(--font-size-row-time);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--duration-fast) ease-out;
+}
+
+button.shuttle-dirhead:hover,
+button.shuttle-dirhead:active {
+  background: var(--color-accent-soft);
+}
+
+button.shuttle-dirhead:disabled {
+  cursor: default;
+  color: var(--color-text-muted);
+}
+
+.shuttle-dirhead__switch {
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.shuttle-dirhead .shuttle-dirhead__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft), var(--shadow-float);
+  transition: transform var(--duration-fast) ease-out;
+}
+
+.shuttle-dirhead .shuttle-dirhead__arrow svg {
+  padding: 0;
+  background: none;
+}
+
+button.shuttle-dirhead:hover .shuttle-dirhead__arrow {
+  transform: scale(1.08);
+}
+
+button.shuttle-dirhead:active .shuttle-dirhead__arrow {
+  transform: scale(0.92);
+}
+
+.shuttle-dirhead__hint {
+  color: var(--color-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.shuttle-dirhead--flipped .shuttle-dirhead__arrow svg {
+  animation: shuttle-dirhead-flip var(--duration-tab) ease-out;
+}
+
+@keyframes shuttle-dirhead-flip {
+  from {
+    transform: rotate(-180deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shuttle-dirhead--flipped .shuttle-dirhead__arrow svg {
+    animation: none;
+  }
+
+  .shuttle-dirhead .shuttle-dirhead__arrow {
+    transition: none;
+  }
+}
