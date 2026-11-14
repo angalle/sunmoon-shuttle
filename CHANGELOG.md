@@ -1,5 +1,16 @@
 # 변경 기록
 
+## v1.0.2 — 2026-11-14 (새 앱 아이콘)
+
+### 디자인
+- **새 앱 아이콘 — "새벽 길 위로 오는 셔틀"**: 초승달과 별, 언덕 너머 떠오르는 해(선문의 해·달), 학교로 이어지는 길, 그 길을 따라 오는 정면 셔틀
+- 웹 아이콘 · maskable · iOS 홈 화면 · 파비콘 · Android 런처(일반·원형·적응형) · 시작 화면 로고를 모두 같은 생성기(`scripts/generate_icons.mjs`)로 다시 만듦 — 색은 `tokens.css` 에서 읽음(아이콘 전용 `color-icon-moon/road/tire` 추가)
+
+### 검증
+- `npm run test` 677 passed · 스모크 4종 PASS · iOS 호환 44/44 · iOS PWA 스모크 PASS · iOS 시뮬레이터 공유 시트에 새 아이콘 표시 확인
+- Android `versionCode` 1 그대로(`versionName 1.0.2` · Play 미업로드)
+
+
 ## v1.0.1 — 2026-11-14 (iOS 확인 반영)
 
 ### 고침
