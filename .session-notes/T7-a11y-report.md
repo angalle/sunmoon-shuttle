@@ -1,13 +1,13 @@
 # T7·T11 감사 원출력 (a11y_smoke.mjs)
 
-- 일시: 2026-11-14T07:36:23.466Z
-- URL: http://127.0.0.1:56016/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
+- 일시: 2026-11-14T07:48:29.609Z
+- URL: http://127.0.0.1:56540/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
 - 뷰포트: 390×844 @2x (mobile, touch)
 - 스크린샷: .session-notes/T7-light.png · .session-notes/T7-dark.png · .session-notes/T7-focus-skip-link.png · .session-notes/T11-privacy.png
 
 ### ① 매니페스트 (Page.getAppManifest)
 
-- url: http://127.0.0.1:56016/sunmoon-shuttle/manifest.webmanifest
+- url: http://127.0.0.1:56540/sunmoon-shuttle/manifest.webmanifest
 - errors: []
 - name: 선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus
 - short_name: 셔틀버스 Shuttle
@@ -25,7 +25,7 @@
 | ./icons/maskable-512.png | 512x512 | maskable | 200 | 512x512 | 4290B |
 
 
-### ③ light — 대비 실측(전체 34개 텍스트 노드)
+### ③ light — 대비 실측(전체 35개 텍스트 노드)
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
 |---|---|---|---|---|---|---|
@@ -41,6 +41,7 @@
 | span.shuttle-chip__label | 천안터미널 | rgb(22, 34, 42) | rgb(255, 255, 255) | 13px | 16.2:1 | ≥4.5 |
 | span.shuttle-chip__label | 온양역/터미널 | rgb(93, 111, 120) | rgb(255, 255, 255) | 13px | 5.24:1 | ≥4.5 |
 | span.shuttle-dirhead__place | 학교 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
+| span.shuttle-dirhead__hint | 바꾸기 | rgb(0, 104, 122) | rgb(255, 255, 255) | 11px bold | 6.44:1 | ≥4.5 |
 | span.shuttle-dirhead__place.shuttle-dirhead__place--to | 아산(KTX)역 | rgb(22, 34, 42) | rgb(255, 255, 255) | 15px bold | 16.2:1 | ≥4.5 |
 | span.shuttle-departure__time | 09:00 | rgb(91, 104, 112) | rgb(255, 255, 255) | 15px bold | 5.74:1 | ≥4.5 |
 | span.shuttle-departure__duration | 약 20분 | rgb(91, 104, 112) | rgb(255, 255, 255) | 13px | 5.74:1 | ≥4.5 |
@@ -80,7 +81,7 @@
 | button.shuttle-chip | 천안역 | 56px | 44px | 48×44 |
 | button.shuttle-chip | 천안터미널 | 78px | 44px | 48×44 |
 | button.shuttle-chip.shuttle-chip--empty | 온양역/터미널 | 93px | 44px | 48×44 |
-| button.shuttle-dirhead__arrow |  | 48px | 48px | 48×48 |
+| button.shuttle-dirhead | 학교바꾸기아산(KTX)역 | 358px | 56px | 48×48 |
 | section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00약 20분09:20지난 편12:00약 | 358px | 464px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
 | button.shuttle-icon-button.shuttle-sheet__close |  | 48px | 48px | 48×48 |
@@ -92,7 +93,7 @@
 
 규격 미달: 0건
 
-레이아웃: 요소 260개 · body bg=rgb(243, 246, 247) · body color=rgb(22, 34, 42) · scrollWidth=390 ≤ clientWidth=390
+레이아웃: 요소 262개 · body bg=rgb(243, 246, 247) · body color=rgb(22, 34, 42) · scrollWidth=390 ≤ clientWidth=390
 
 
 #### 키보드 포커스(실측)
@@ -103,7 +104,7 @@
 ### 설치 안내 삭제 + 본문 텍스트 노드 전수 목록(T31 · docs/07 §13)
 - 설치 안내 노드: false · 금지 문자열 실측(값·상태·라벨 구역): 0건
 - §9-4 예외 구역(상태 1줄): 합니다
-- 본문 텍스트 노드 32개 · 허용 구역 밖 0건
+- 본문 텍스트 노드 33개 · 허용 구역 밖 0건
 - 전수 목록(문자열·위치·크기): .session-notes/T31-본문텍스트노드.md
 
 | 요소 | 문자열 | 위치(x,y) | 크기(w×h) | 폰트(px) | 구분 |
@@ -119,30 +120,31 @@
 | span.shuttle-chip__label | 천안역 | 131,186 | 34×20 | 13 | 값·상태·라벨 |
 | span.shuttle-chip__label | 천안터미널 | 195,186 | 56×20 | 13 | 값·상태·라벨 |
 | span.shuttle-chip__label | 온양역/터미널 | 281,186 | 71×20 | 13 | 값·상태·라벨 |
-| span.shuttle-dirhead__place | 학교 | 83,234 | 26×23 | 15 | 값·상태·라벨 |
-| span.shuttle-dirhead__place.shuttle-dirhead__place--to | 아산(KTX)역 | 253,234 | 82×23 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__time | 09:00 | 74,289 | 44×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__duration | 약 20분 | 174,288 | 42×20 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__arrive | 09:20 | 274,289 | 41×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__time | 12:00 | 74,345 | 44×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__duration | 약 20분 | 174,344 | 42×20 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__arrive | 12:20 | 274,345 | 41×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__time | 16:10 | 74,401 | 44×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__duration | 약 20분 | 174,390 | 42×20 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__next-badge | 다음 | 177,412 | 35×19 | 11 | 값·상태·라벨 |
-| span.shuttle-departure__arrive | 16:30 | 273,401 | 43×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__time | 18:20 | 74,457 | 44×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__duration | 약 20분 | 174,456 | 42×20 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__arrive | 18:40 | 273,457 | 43×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__time | 19:10 | 74,513 | 44×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__duration | 약 20분 | 174,512 | 42×20 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__arrive | 19:30 | 273,513 | 43×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__time | 20:00 | 74,569 | 44×20 | 15 | 값·상태·라벨 |
-| span.shuttle-departure__duration | 약 20분 | 174,568 | 42×20 | 13 | 값·상태·라벨 |
-| span.shuttle-departure__arrive | 20:20 | 273,569 | 43×20 | 15 | 값·상태·라벨 |
+| span.shuttle-dirhead__place | 학교 | 83,237 | 26×23 | 15 | 값·상태·라벨 |
+| span.shuttle-dirhead__hint | 바꾸기 | 181,257 | 29×13 | 11 | 값·상태·라벨 |
+| span.shuttle-dirhead__place.shuttle-dirhead__place--to | 아산(KTX)역 | 253,237 | 82×23 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__time | 09:00 | 74,297 | 44×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__duration | 약 20분 | 174,296 | 42×20 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__arrive | 09:20 | 274,297 | 41×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__time | 12:00 | 74,353 | 44×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__duration | 약 20분 | 174,352 | 42×20 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__arrive | 12:20 | 274,353 | 41×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__time | 16:10 | 74,409 | 44×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__duration | 약 20분 | 174,398 | 42×20 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__next-badge | 다음 | 177,420 | 35×19 | 11 | 값·상태·라벨 |
+| span.shuttle-departure__arrive | 16:30 | 273,409 | 43×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__time | 18:20 | 74,465 | 44×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__duration | 약 20분 | 174,464 | 42×20 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__arrive | 18:40 | 273,465 | 43×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__time | 19:10 | 74,521 | 44×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__duration | 약 20분 | 174,520 | 42×20 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__arrive | 19:30 | 273,521 | 43×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__time | 20:00 | 74,577 | 44×20 | 15 | 값·상태·라벨 |
+| span.shuttle-departure__duration | 약 20분 | 174,576 | 42×20 | 13 | 값·상태·라벨 |
+| span.shuttle-departure__arrive | 20:20 | 273,577 | 43×20 | 15 | 값·상태·라벨 |
 
 
-### ④ dark — 대비 실측(전체 34개 텍스트 노드)
+### ④ dark — 대비 실측(전체 35개 텍스트 노드)
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
 |---|---|---|---|---|---|---|
@@ -158,6 +160,7 @@
 | span.shuttle-chip__label | 천안터미널 | rgb(238, 242, 246) | rgb(27, 33, 41) | 13px | 14.4:1 | ≥4.5 |
 | span.shuttle-chip__label | 온양역/터미널 | rgb(154, 166, 178) | rgb(27, 33, 41) | 13px | 6.54:1 | ≥4.5 |
 | span.shuttle-dirhead__place | 학교 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
+| span.shuttle-dirhead__hint | 바꾸기 | rgb(95, 195, 207) | rgb(27, 33, 41) | 11px bold | 7.86:1 | ≥4.5 |
 | span.shuttle-dirhead__place.shuttle-dirhead__place--to | 아산(KTX)역 | rgb(238, 242, 246) | rgb(27, 33, 41) | 15px bold | 14.4:1 | ≥4.5 |
 | span.shuttle-departure__time | 09:00 | rgb(185, 195, 206) | rgb(27, 33, 41) | 15px bold | 9.07:1 | ≥4.5 |
 | span.shuttle-departure__duration | 약 20분 | rgb(185, 195, 206) | rgb(27, 33, 41) | 13px | 9.07:1 | ≥4.5 |
@@ -197,7 +200,7 @@
 | button.shuttle-chip | 천안역 | 56px | 44px | 48×44 |
 | button.shuttle-chip | 천안터미널 | 78px | 44px | 48×44 |
 | button.shuttle-chip.shuttle-chip--empty | 온양역/터미널 | 93px | 44px | 48×44 |
-| button.shuttle-dirhead__arrow |  | 48px | 48px | 48×48 |
+| button.shuttle-dirhead | 학교바꾸기아산(KTX)역 | 358px | 56px | 48×48 |
 | section.shuttle-tabpanel.shuttle-tabpanel--enter | 시간표09:00약 20분09:20지난 편12:00약 | 358px | 464px | 48×48 |
 | button.shuttle-icon-button |  | 48px | 48px | 48×48 |
 | button.shuttle-icon-button.shuttle-sheet__close |  | 48px | 48px | 48×48 |
@@ -209,7 +212,7 @@
 
 규격 미달: 0건
 
-레이아웃: 요소 260개 · body bg=rgb(18, 22, 27) · body color=rgb(238, 242, 246) · scrollWidth=390 ≤ clientWidth=390
+레이아웃: 요소 262개 · body bg=rgb(18, 22, 27) · body color=rgb(238, 242, 246) · scrollWidth=390 ≤ clientWidth=390
 
 
 #### 안전영역 토큰 주입 실측
@@ -223,10 +226,10 @@
 
 
 ### ⑧ 개인정보처리방침(privacy.html · T11)
-- URL: http://127.0.0.1:56016/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
+- URL: http://127.0.0.1:56540/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
 - h1: 개인정보처리방침 · 필수 문구 누락: 0건
 - body bg=rgb(243, 246, 247) · color=rgb(22, 34, 42) · 가로 스크롤 없음(scrollWidth=390)
-- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:56016/sunmoon-shuttle/privacy.html"}
+- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:56540/sunmoon-shuttle/privacy.html"}
 - 스크린샷: /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T11-privacy.png
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
