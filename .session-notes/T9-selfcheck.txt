@@ -1,12 +1,12 @@
-=== T9 검출력 자체검증 (2026-10-05 18:39:37 +0900) ===
+=== T9 검출력 자체검증 (2026-11-14 16:58:45 +0900) ===
 checker: scripts/qa/ios_compat_check.mjs
-sandbox: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q (리포 밖 temp — 리포 파일은 실제 파일 주입 1건 때만 건드린다)
+sandbox: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy (리포 밖 temp — 리포 파일은 실제 파일 주입 1건 때만 건드린다)
 
-주입 전 해시 — index.html=aaa0b3d0248ce764 manifest=13fb3e077af7e84c sw.js=5c4b110d33302d85
+주입 전 해시 — index.html=67837dd9933c105d manifest=ee519ebdacd61770 sw.js=1d4ddd60fcc83556
 
 [0] 기준선(sandbox 무주입)
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -47,7 +47,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -58,7 +58,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -67,7 +67,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -82,19 +82,19 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 43건 · PASS 43 · FAIL 0 · 소요 0.00s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 IOS COMPAT CHECK: PASS
   [PASS] 기준선 sandbox — 기준선: exit 0 (PASS) 기대대로
 
 [1] 실제 파일 주입 — public/manifest.webmanifest 에서 display·icons 삭제
-  주입 후 manifest(앞 6줄): {   "id": "./",   "name": "선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus",   "short_name": "셔틀버스 Shuttle",   "description": "선문대학교 셔틀버스 시간표(비공식) — 노선·요일별 시간표와 다음 버스까지 남은 시간. Sunmoon University shuttle bus timetable (unofficial).",   "lang": "ko", 
+  주입 후 manifest(앞 6줄): {   "id": "./",   "name": "선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus",   "short_name": "셔틀버스 Shuttle",   "description": "선문대학교 셔틀버스 시간표(비공식) — 지금 탈 수 있는 셔틀버스를 바로 보여줍니다. 노선·요일별 시간표와 다음 버스까지 남은 시간. Sunmoon University shuttle bus timetable (unofficial).",   "lang": "ko", 
 
-iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/github/sunmoon-shuttle
+iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/GitHub/sunmoon-shuttle
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -137,7 +137,7 @@ iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/github/sunmoon-shut
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   FAIL  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[]
   FAIL  [manifest.icon-512] 아이콘 512x512 선언
@@ -146,9 +146,9 @@ iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/github/sunmoon-shut
          → purpose=[]
   FAIL  [manifest.icons-real] 아이콘 0개 실파일 존재 + 선언 크기 = 실제 IHDR 크기
   PASS  [css.files] CSS 파일 발견(src·dist)
-         → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css, dist/assets/index-BET44E-c.css
+         → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css, dist/assets/index-CShYgqMC.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -157,7 +157,7 @@ iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/github/sunmoon-shut
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -171,11 +171,11 @@ iOS 호환 정적 검사 — root=/Users/leeheesun/Documents/github/sunmoon-shut
          → 비가드 사용 0건
 
 참고:
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="undefined" icons=0개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="undefined" icons=0개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 44건 · PASS 38 · FAIL 6 · 소요 0.01s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/real-inject.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/real-inject.json
 
 실패:
   FAIL  [manifest.required-fields] 필수 필드 8개 존재 — 누락: display, icons
@@ -185,11 +185,11 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/real
   FAIL  [manifest.icon-maskable] maskable 아이콘 선언(Android 적응형) — purpose=[]
   FAIL  [manifest.icons-real] 아이콘 0개 실파일 존재 + 선언 크기 = 실제 IHDR 크기 — 
   [PASS] 실제 파일 주입 — FAIL 검출(exit 1, manifest.display + manifest.required-fields)
-  [PASS] 실제 파일 원복 — 해시 동일(13fb3e077af7e84c)
+  [PASS] 실제 파일 원복 — 해시 동일(ee519ebdacd61770)
 
 [2] sandbox — manifest 아이콘 선언과 다른 실파일(icon-192 ← 180x180 파일)
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -230,7 +230,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -242,7 +242,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -251,7 +251,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -266,11 +266,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 43건 · PASS 42 · FAIL 1 · 소요 0.00s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [manifest.icons-real] 아이콘 4개 실파일 존재 + 선언 크기 = 실제 IHDR 크기 — ./icons/icon-192.png: 선언 192x192 ≠ 실파일 180x180
@@ -278,7 +278,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [3] sandbox — Service Worker 등록 호출 제거(src/…/serviceWorker.ts)
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -319,7 +319,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -330,7 +330,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -339,7 +339,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -354,11 +354,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 43건 · PASS 42 · FAIL 1 · 소요 0.00s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [sw.register-relative] SW 등록 호출(.register)이 있고 경로가 상대경로('./sw.js') — Pages 하위 경로에서 scope 가 그 하위로 잡힌다 — navigator.serviceWorker.register(...) 호출을 찾지 못했습니다(등록 경로 없음)
@@ -366,7 +366,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [4] sandbox — 등록 경로를 절대경로(/sw.js)로 변조
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -407,7 +407,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -418,7 +418,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -427,7 +427,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -442,11 +442,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 43건 · PASS 42 · FAIL 1 · 소요 0.00s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [sw.register-relative] SW 등록 호출(.register)이 있고 경로가 상대경로('./sw.js') — Pages 하위 경로에서 scope 가 그 하위로 잡힌다 — register(scriptPath) → "/sw.js" (scriptPath 기본값)
@@ -454,7 +454,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [5] sandbox — public/sw.js 제거(등록 대상 없음)
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -495,7 +495,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -506,7 +506,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -524,11 +524,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 38건 · PASS 37 · FAIL 1 · 소요 0.00s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [sw.file] public/sw.js 존재(등록 대상) — 
@@ -536,7 +536,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [6] sandbox — iOS Safari 16 에 없는 CSS 기능(color-mix) 주입
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -577,7 +577,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -597,7 +597,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -612,11 +612,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
 검사 43건 · PASS 42 · FAIL 1 · 소요 0.00s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58) — color-mix() → iOS 16.2+ 필요
@@ -624,7 +624,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [7] sandbox — 100vh 의 dvh 대체 제거(주소창 문제 재현)
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -665,7 +665,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -676,7 +676,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   FAIL  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
          → src/adapters/in/web/shared/ui/styles/app.css → min-height: 100vh (dvh 대체 없음)
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
@@ -686,7 +686,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -701,11 +701,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
-검사 43건 · PASS 42 · FAIL 1 · 소요 0.01s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+검사 43건 · PASS 42 · FAIL 1 · 소요 0.00s
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다 — src/adapters/in/web/shared/ui/styles/app.css → min-height: 100vh (dvh 대체 없음)
@@ -713,7 +713,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [8] sandbox — viewport-fit=cover 제거(안전영역 정합 깨짐)
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -754,7 +754,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -765,7 +765,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   FAIL  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=false env()=true var()=true
@@ -774,7 +774,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -789,11 +789,11 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
-검사 43건 · PASS 41 · FAIL 2 · 소요 0.01s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+검사 43건 · PASS 41 · FAIL 2 · 소요 0.00s
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [html.viewport-fit] viewport 에 viewport-fit=cover (노치 영역까지 쓰고 safe-area 로 보정) — viewport="width=device-width, initial-scale=1.0"
@@ -802,7 +802,7 @@ JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last
 
 [9] sandbox — IndexedDB 비가드 전역 사용 주입
 
-iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q
+iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy
 기준선: iOS Safari 16.0+ (출처: docs/00-requirements.md:58)
 
   PASS  [html.exists] index.html 존재
@@ -843,7 +843,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [manifest.relative-start] start_url/scope/id 가 상대경로(하위 배포 안전)
          → 검사: start_url, scope, id
   PASS  [manifest.colors] theme_color/background_color 가 #rrggbb 형식
-         → theme=#0b5497 bg=#f4f6f9
+         → theme=#00687a bg=#f3f6f7
   PASS  [manifest.icon-192] 아이콘 192x192 선언
          → sizes=[192x192, 512x512, 192x192, 512x512]
   PASS  [manifest.icon-512] 아이콘 512x512 선언
@@ -854,7 +854,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [css.files] CSS 파일 발견(src·dist)
          → src/adapters/in/web/shared/ui/styles/app.css, src/adapters/in/web/shared/ui/styles/tokens.css
   PASS  [css.ios-feature-baseline] 쓰인 CSS 기능 전부 iOS Safari 16.0+ 에서 지원(기준선 출처: docs/00-requirements.md:58)
-         → 사용 기능: :focus-visible(iOS 15.4+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
+         → 사용 기능: :has()(iOS 15.4+), :focus-visible(iOS 15.4+), inset 단축(iOS 14.5+), dvh/svh/lvh 단위(iOS 15.4+), env(safe-area-inset-*)(iOS 11.1+)
   PASS  [css.viewport-unit] 멀티뷰포트 높이(vh)에 dvh 대체가 같은 블록에 있다
   PASS  [css.safe-area-wiring] safe-area 3자 정합: viewport-fit=cover ↔ env(safe-area-inset-*) ↔ 레이아웃의 var(--safe-area-*)
          → viewport-fit=true env()=true var()=true
@@ -863,7 +863,7 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
   PASS  [sw.version] SW_VERSION 상수(캐시 무효화 정본)
   PASS  [sw.scope-relative] self.registration.scope 기준 상대경로 사용(하위 배포)
   PASS  [sw.shell-relative] 프리캐시 자산 경로가 전부 상대경로(./…)
-         → 9개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png
+         → 11개: ./, ./index.html, ./manifest.webmanifest, ./favicon.svg, ./apple-touch-icon.png, ./icons/favicon-32.png, ./icons/icon-192.png, ./icons/icon-512.png, ./icons/maskable-512.png, ./privacy.html, ./privacy.css
   PASS  [sw.skip-waiting] skipWaiting + clients.claim (배포 직후 이전 버전 방지)
   PASS  [sw.no-crossorigin] 교차 출처 요청을 다루지 않는다(자동 크롤 금지 계약)
   PASS  [sw.source-file] SW 등록 모듈 존재(app/serviceWorker.ts)
@@ -878,33 +878,27 @@ iOS 호환 정적 검사 — root=/var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn
 
 참고:
   INFO  dist/index.html 없음 — 배포 산출물 절대경로 검사는 npm run build 후 실행해야 한다.
-  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#0b5497 bg=#f4f6f9
+  INFO  manifest: name="선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus" display="standalone" icons=4개 theme=#00687a bg=#f3f6f7
   INFO  IndexedDB 실제 폴백 동작(런타임)은 scripts/qa/ios_pwa_smoke.mjs 의 "IndexedDB 없음" 단계가 실측한다.
 
-검사 43건 · PASS 42 · FAIL 1 · 소요 0.01s
-JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.pGKc9q/last.json
+검사 43건 · PASS 42 · FAIL 1 · 소요 0.00s
+JSON: /var/folders/xc/mfnbvlp92gjd437lrsb3yfw40000gn/T//t9-selfcheck.shj7Zy/last.json
 
 실패:
   FAIL  [idb.no-unguarded-global] 비가드 전역 indexedDB.<method> 직접 사용 0건(구형/프라이빗에서 예외 금지) — 비가드 사용 1건
   [PASS] IndexedDB 비가드 사용 — FAIL 검출(exit 1, id=idb.no-unguarded-global)
 
 === 원복 검증 ===
-주입 후 해시 — index.html=aaa0b3d0248ce764 manifest=13fb3e077af7e84c sw.js=5c4b110d33302d85
+주입 후 해시 — index.html=67837dd9933c105d manifest=ee519ebdacd61770 sw.js=1d4ddd60fcc83556
   [PASS] 추적 파일 3종 해시 주입 전 = 주입 후
   [PASS] 주입 대상 추적 파일 6경로 — git status 변경 0(원복 클린)
   (참고) 리포 전체 git status — 동시에 도는 다른 워커(T8 Android 등)의 변경이 섞여 있다:
-     M package-lock.json
-     M package.json
-    ?? ".session-notes/T8-1-\354\262\253\355\231\224\353\251\264.png"
-    ?? ".session-notes/T9-1-\354\225\204\354\235\264\355\217\260\353\267\260\355\217\254\355\212\270-\354\230\250\353\235\274\354\235\270.png"
-    ?? ".session-notes/T9-2-\354\230\244\355\224\204\353\235\274\354\235\270-\354\262\253\355\231\224\353\251\264.png"
-    ?? ".session-notes/T9-3-\354\230\244\355\224\204\353\235\274\354\235\270-\354\232\224\354\235\274\354\240\204\355\231\230.png"
-    ?? ".session-notes/T9-4-standalone-\354\240\204\354\262\264\355\231\224\353\251\264.png"
-    ?? ".session-notes/T9-5-IndexedDB\354\227\206\354\235\214-\355\217\264\353\260\261.png"
-    ?? .session-notes/T9-selfcheck.txt
-    ?? android/
-    ?? capacitor.config.json
-    ?? scripts/qa/
+     M ".session-notes/T9-1-\354\225\204\354\235\264\355\217\260\353\267\260\355\217\254\355\212\270-\354\230\250\353\235\274\354\235\270.png"
+     M ".session-notes/T9-2-\354\230\244\355\224\204\353\235\274\354\235\270-\354\262\253\355\231\224\353\251\264.png"
+     M ".session-notes/T9-3-\354\230\244\355\224\204\353\235\274\354\235\270-\354\232\224\354\235\274\354\240\204\355\231\230.png"
+     M ".session-notes/T9-4-standalone-\354\240\204\354\262\264\355\231\224\353\251\264.png"
+     M ".session-notes/T9-5-IndexedDB\354\227\206\354\235\214-\355\217\264\353\260\261.png"
+     M .session-notes/T9-selfcheck.txt
 
 케이스 결과: PASS 13 · FAIL 0
 SELF-CHECK: PASS (위조 주입 9종 전부 검출 · 원복 클린)

@@ -1,7 +1,7 @@
 {
   "name": "sunmoon-shuttle",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "선문대 셔틀버스 시간표 앱 — 오프라인 우선 PWA (비공식)",
   "type": "module",
   "engines": {

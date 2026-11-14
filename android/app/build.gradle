@@ -22,7 +22,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // versionName = 표기(사람이 읽는 버전), versionCode = 정수(Play 업로드마다 반드시 +1, 재사용 금지)
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

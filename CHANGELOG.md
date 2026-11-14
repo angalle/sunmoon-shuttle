@@ -1,5 +1,16 @@
 # 변경 기록
 
+## v1.0.1 — 2026-11-14 (iOS 확인 반영)
+
+### 고침
+- 앱을 켜면 시간표 아래에 **청록 가로줄**이 보이던 문제 — 시작할 때 시간표 영역에 준 포커스의 테두리였다(iOS Safari·Android WebView). 스크립트가 준 포커스만 테두리를 끄고, 키보드로 들어오면 그대로 보인다.
+
+### 검증
+- iOS 체크리스트(`scripts/qa/iOS-CHECKLIST.md`) — iPhone 17 Pro 시뮬레이터(iOS 26.5)로 A1~C6 · E1 통과, 비행기 모드·VoiceOver·저전력은 시뮬레이터 한계로 N/A(자동 검증으로 대신)
+- `npm run test` 677 passed · 스모크 4종 PASS
+- Android `versionCode` 는 아직 Play 에 올린 적이 없어 **1 그대로**(`versionName 1.0.1`)
+
+
 ## v1.0.0 — 2026-11-14 (1차 버전 고정)
 
 선문대 셔틀버스 시간표 앱의 첫 고정 버전. 웹(GitHub Pages)과 Android(Capacitor · `versionCode 1`)가 같은 화면·데이터를 쓴다.
@@ -31,4 +42,4 @@
 ### 남은 일 (다음 버전)
 - Play Console 첫 업로드(내부 테스트) — `android/README.md` "Play 첫 업로드"
 - 학사일정 화면 반영(방학 예고·시험 기간·공휴일 확인 필요) — `docs/10` T43~T45
-- 2027학년도 학사력 반입(2월 무렵) · iOS 실기기 확인
+- 2027학년도 학사력 반입(2월 무렵)
