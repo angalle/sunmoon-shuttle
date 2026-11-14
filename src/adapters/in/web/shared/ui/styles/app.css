@@ -115,6 +115,11 @@ body {
   display: none;
 }
 
+/* 시작 시 스크립트가 준 포커스(접근성 시작점)는 테두리 없이 — SchedulePage hideSplash 참고 */
+.shuttle-tabpanel[data-focus-origin='script']:focus {
+  outline: none;
+}
+
 /* 탭 전환 150~200ms 페이드/슬라이드 (docs/07 §5) */
 .shuttle-tabpanel--enter {
   animation: shuttle-tab-in var(--duration-tab) ease-out;

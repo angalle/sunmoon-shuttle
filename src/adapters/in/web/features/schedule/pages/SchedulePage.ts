@@ -534,7 +534,13 @@ export function createSchedulePage(
     splashNode.classList.add('shuttle-splash--out');
     const active = document.activeElement;
     // 포커스만 옮긴다 — 기본 포커스 스크롤이 본문을 0 으로 되돌리면 §9-3 자동 스크롤 목표가 지워진다(실측).
-    if (active === null || active === document.body) dayPanel.focus({ preventScroll: true });
+    // 스크립트 포커스는 테두리를 그리지 않는다 — WebKit·Android WebView 는 첫 로드의 프로그램 포커스도
+    // :focus-visible 로 보아 표 아래에 청록 줄이 남았다(실측). 키보드로 다시 들어오면 테두리가 돌아온다.
+    if (active === null || active === document.body) {
+      dayPanel.dataset.focusOrigin = 'script';
+      dayPanel.addEventListener('blur', () => delete dayPanel.dataset.focusOrigin, { once: true });
+      dayPanel.focus({ preventScroll: true });
+    }
     const fadeMs = splashFadeMs(reducedMotion());
     if (fadeMs <= 0) {
       removeSplash();
