@@ -3,7 +3,7 @@
 이 문서는 **Google Play / App Store 제출에 그대로 붙여넣을 수 있는 문구 초안**과 **개인정보처리방침 URL**을 담는다.
 근거: `docs/00-requirements.md`(범위 밖: 실시간 위치·예약·결제) · `docs/01-architecture.md` §7(스토어 정책 리스크) · `docs/03-verification.md` §7(AC-8: 수집 0 실측).
 
-- 앱 id(Android): `com.angalle.sunmoonshuttle` · 웹/PWA: `https://angalle.github.io/sunmoon-shuttle/`
+- 앱 id(Android): `com.hs.sunmoonshuttle` · 웹/PWA: `https://angalle.github.io/sunmoon-shuttle/`
 - 공통 전제: **비공식 앱**(학교 공식 아님) · **사용자 생성 콘텐츠 0** · **광고 0** · **개인정보 수집 0** · **무료**(과금 요소 없음)
 
 ---

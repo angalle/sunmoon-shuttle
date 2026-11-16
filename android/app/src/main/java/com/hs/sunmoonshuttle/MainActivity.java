@@ -1,4 +1,4 @@
-package com.angalle.sunmoonshuttle;
+package com.hs.sunmoonshuttle;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -116,7 +116,7 @@ PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
 
 | 항목 | 값 | 이유 / 되돌리기 |
 |---|---|---|
-| `appId` | `com.angalle.sunmoonshuttle` | 학교 공식 표기 회피(비공식 앱·상표 리스크). **배포 후 변경 불가** — 되돌리려면 `android/` 삭제 후 재생성, 이미 업로드했다면 새 앱 등록 |
+| `appId` | `com.hs.sunmoonshuttle` | 학교 공식 표기 회피(비공식 앱·상표 리스크). 2026-11-16 `com.angalle.sunmoonshuttle` → `com.hs.sunmoonshuttle` 로 변경(계정 ID 노출 회피 · Play 에 새 앱으로 등록). **배포 후 변경 불가** — 되돌리려면 `android/` 삭제 후 재생성, 이미 업로드했다면 새 앱 등록 |
 | `appName` | `셔틀버스 Shuttle` | PWA `short_name`(홈 화면 라벨)과 일치 → APK 설치본과 PWA 설치본의 이름이 갈라지지 않는다. 바꾸려면 값 수정 후 `cap sync` |
 | `webDir` | `dist` | vite 산출물. `base './'` 라 `https://localhost/` 에서 상대경로 그대로 동작 |
 | `server.androidScheme` | `https` | 앱 내부 오리진을 https 로 → **보안 컨텍스트**라서 `sw.js`(SW)와 IndexedDB 캐시(T6)가 실제로 동작. http 로 바꾸면 오프라인 캐시가 조용히 죽는다 |
@@ -162,9 +162,11 @@ B안(데이터는 Pages 에서 · docs/07 §17)이 들어간 첫 버전을 한 �
 2. **`android/keystore.properties` 만들기** — `cp android/keystore.properties.example android/keystore.properties` 후
    `storeFile` 을 키의 절대 경로(예: `/Users/<사용자>/.android-keys/sunmoon-upload.jks`)로 바꾸고 `storePassword`·`keyPassword` 를 채운다.
 3. **AAB 빌드·확인** — `bash android/build-release.sh` → `서명: 업로드 키 (CN=sunmoon-shuttle …)` 가 찍히는지 확인.
-4. **Play Console** → 앱 만들기(패키지 `com.angalle.sunmoonshuttle`) → **Play 앱 서명 사용** → 내부 테스트 트랙에
+4. **Play Console** → 앱 만들기(패키지 `com.hs.sunmoonshuttle`) → **Play 앱 서명 사용** → 내부 테스트 트랙에
    `android/app/build/outputs/bundle/release/app-release.aab` 업로드. 스토어 문구·개인정보처리방침 URL 은 `docs/05-store-listing.md`.
-5. ~~수동 반복~~ → **첫 업로드 완료(2026-11-14 · versionCode 2 · 비공개 테스트 검토 통과).** 이후 업로드는 아래 "Play 자동 배포"로 한다.
+5. **첫 업로드는 손으로 한 번** — 새 패키지 `com.hs.sunmoonshuttle` 앱(2026-11-16 생성)에 versionCode 1 AAB 를 올린다.
+   (구 패키지 `com.angalle.sunmoonshuttle` 앱은 2026-11-14 비공개 테스트까지 갔으나 패키지 변경으로 더 쓰지 않는다.)
+   그 뒤 업로드는 아래 "Play 자동 배포"로 한다.
    스토어 문구·그래픽은 `store/play/LISTING.md`.
 
 ## Play 자동 배포 (GitHub Actions · `.github/workflows/play-release.yml`)
