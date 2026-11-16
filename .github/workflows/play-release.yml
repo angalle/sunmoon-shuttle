@@ -34,7 +34,7 @@ permissions:
   contents: read
 
 env:
-  PACKAGE_NAME: com.hs.sunmoonshuttle
+  PACKAGE_NAME: com.angalle.sunmoonshuttle
   AAB: android/app/build/outputs/bundle/release/app-release.aab
 
 jobs:

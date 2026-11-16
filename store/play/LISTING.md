@@ -1,6 +1,6 @@
 # Google Play 스토어 등록 정보 (v1.0.2 · 2026-11-14)
 
-패키지 이름: `com.hs.sunmoonshuttle` · 업로드 파일: `android/app/build/outputs/bundle/release/app-release.aab`
+패키지 이름: `com.angalle.sunmoonshuttle` · 업로드 파일: `android/app/build/outputs/bundle/release/app-release.aab`
 
 ## 1. 기본 스토어 등록정보
 

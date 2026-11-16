@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">셔틀버스 Shuttle</string>
     <string name="title_activity_main">셔틀버스 Shuttle</string>
-    <string name="package_name">com.hs.sunmoonshuttle</string>
-    <string name="custom_url_scheme">com.hs.sunmoonshuttle</string>
+    <string name="package_name">com.angalle.sunmoonshuttle</string>
+    <string name="custom_url_scheme">com.angalle.sunmoonshuttle</string>
 </resources>
