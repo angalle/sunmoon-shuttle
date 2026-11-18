@@ -1,13 +1,13 @@
 # T7·T11 감사 원출력 (a11y_smoke.mjs)
 
-- 일시: 2026-11-14T08:54:48.680Z
-- URL: http://127.0.0.1:61239/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
+- 일시: 2026-11-18T05:42:41.056Z
+- URL: http://127.0.0.1:57715/sunmoon-shuttle/?now=2026-10-05T14%3A40%3A00%2B09%3A00
 - 뷰포트: 390×844 @2x (mobile, touch)
 - 스크린샷: .session-notes/T7-light.png · .session-notes/T7-dark.png · .session-notes/T7-focus-skip-link.png · .session-notes/T11-privacy.png
 
 ### ① 매니페스트 (Page.getAppManifest)
 
-- url: http://127.0.0.1:61239/sunmoon-shuttle/manifest.webmanifest
+- url: http://127.0.0.1:57715/sunmoon-shuttle/manifest.webmanifest
 - errors: []
 - name: 선문대 셔틀버스 시간표 · Sunmoon Shuttle Bus
 - short_name: 셔틀버스 Shuttle
@@ -93,7 +93,7 @@
 
 규격 미달: 0건
 
-레이아웃: 요소 262개 · body bg=rgb(243, 246, 247) · body color=rgb(22, 34, 42) · scrollWidth=390 ≤ clientWidth=390
+레이아웃: 요소 266개 · body bg=rgb(243, 246, 247) · body color=rgb(22, 34, 42) · scrollWidth=390 ≤ clientWidth=390
 
 
 #### 키보드 포커스(실측)
@@ -212,7 +212,7 @@
 
 규격 미달: 0건
 
-레이아웃: 요소 262개 · body bg=rgb(18, 22, 27) · body color=rgb(238, 242, 246) · scrollWidth=390 ≤ clientWidth=390
+레이아웃: 요소 266개 · body bg=rgb(18, 22, 27) · body color=rgb(238, 242, 246) · scrollWidth=390 ≤ clientWidth=390
 
 
 #### 안전영역 토큰 주입 실측
@@ -226,10 +226,10 @@
 
 
 ### ⑧ 개인정보처리방침(privacy.html · T11)
-- URL: http://127.0.0.1:61239/sunmoon-shuttle/privacy.html (HTTP 200, 6238B)
+- URL: http://127.0.0.1:57715/sunmoon-shuttle/privacy.html (HTTP 200, 6556B)
 - h1: 개인정보처리방침 · 필수 문구 누락: 0건
 - body bg=rgb(243, 246, 247) · color=rgb(22, 34, 42) · 가로 스크롤 없음(scrollWidth=390)
-- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:61239/sunmoon-shuttle/privacy.html"}
+- 푸터 링크: {"href":"./privacy.html","text":"개인정보처리방침","resolved":"http://127.0.0.1:57715/sunmoon-shuttle/privacy.html"}
 - 스크린샷: /Users/leeheesun/Documents/GitHub/sunmoon-shuttle/.session-notes/T11-privacy.png
 
 | 요소 | 문구 | 전경 | 배경 | 크기 | 대비 | 기준 |
@@ -253,7 +253,7 @@
 | strong | 오프라인에서도 시간표를 바로 보여주고 화면 설정을 기억 | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px bold | 14.92:1 | ≥4.5 |
 | li | — 원본 시간표에서 추출한 시간표 JSON, 내용 해시 | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
 | strong | IndexedDB | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px bold | 14.92:1 | ≥4.5 |
-| li | — 화면 설정(마지막으로 고른 요일·방향 필터)과 그  | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
+| li | — 화면 설정(마지막으로 고른 요일·정류장·방향) | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
 | strong | localStorage | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px bold | 14.92:1 | ≥4.5 |
 | p | 이 값들은 브라우저(또는 앱) 안에만 있고 외부로 전송 | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
 | h2 | 3. 제3자 제공 · 광고 · 분석 도구 — 없음 | rgb(22, 34, 42) | rgb(243, 246, 247) | 20px bold (큰글씨) | 14.92:1 | ≥3 |
@@ -275,6 +275,7 @@
 | h2 | 7. 시행일 · 개정 이력 | rgb(22, 34, 42) | rgb(243, 246, 247) | 20px bold (큰글씨) | 14.92:1 | ≥3 |
 | li | 시행일: 2026-10-05 | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
 | li | v1.0 (2026-10-05) — 최초 제정 | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
+| li | v1.1 (2026-11-14) — 저장 항목에 정류장 | rgb(22, 34, 42) | rgb(243, 246, 247) | 16px | 14.92:1 | ≥4.5 |
 | p | 이 앱은 학교 공식 앱이 아닙니다(비공식). 시간표 저 | rgb(91, 104, 112) | rgb(243, 246, 247) | 14px | 5.28:1 | ≥4.5 |
 | a | 원본 페이지 열기 | rgb(0, 104, 122) | rgb(243, 246, 247) | 14px | 5.93:1 | ≥4.5 |
 

@@ -400,7 +400,7 @@
 | Service Worker | 사용 | **사용 안 함**(화면은 이미 앱 안) |
 | 갱신 시점 | 진입 · 화면 복귀(30분 이상 지났을 때) | 같음 |
 
-- 판별: Capacitor 가 주입하는 `window.Capacitor.isNativePlatform()`(런타임 의존성 추가 없음 — `app/platform.ts`).
+- 판별: Capacitor 가 주입하는 `window.Capacitor.isNativePlatform()`(런타임 의존성 추가 없음 — `shared/lib/platform.ts`).
 - Pages 는 `access-control-allow-origin: *` 로 응답한다(실측) → 앱 출처 `https://localhost` 에서 그대로 받는다.
 - 앱 안 사본으로 물러서면 "마지막으로 받은 데이터" 로 표시하고, 나이는 사본의 발행 시각(`fetchedAt`) 기준이다(24h 초과면 `cache-expired`).
 - 오프라인 안내에는 기술 오류(주소·예외 문구)를 쓰지 않는다 — 콘솔에만 남긴다.

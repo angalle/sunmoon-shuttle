@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { isNativeApp } from '../../../../src/adapters/in/web/app/platform';
+import { isNativeApp } from '../../../../src/adapters/in/web/shared/lib/platform';
 import {
   loadTimetableModel,
   REMOTE_TIMETABLE_URL,

@@ -78,6 +78,8 @@ export const UI_TEXT = {
    */
   moveTopLabel: '맨 위로',
   moveNowLabel: '현재 시간으로',
+  /** 우하단 지도 버튼 접근성 이름(뒤에 ` — <타는 곳>` 이 붙는다) */
+  mapRouteLabel: '네이버 지도로 길찾기',
   /** 시간표가 빈 경우(그 요일 표에 안내할 회차가 없음) */
   timetableEmptyDay: '이 시간표에 안내할 회차가 없습니다',
   /**

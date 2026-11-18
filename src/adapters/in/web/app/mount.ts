@@ -15,7 +15,7 @@ import type { Clock } from '../../../../ports/clock';
 import type { TimetableCachePort } from '../../../../ports/timetable_cache';
 import { IndexedDbTimetableCache } from '../../../out/storage/indexedDbTimetableCache';
 import { loadTimetableModel, REMOTE_TIMETABLE_URL, TIMETABLE_PATH, type LoadedTimetable } from '../features/schedule/api/timetableApi';
-import { isNativeApp } from './platform';
+import { isNativeApp } from '../shared/lib/platform';
 import { createWebClock, readInitialSelection } from '../features/schedule/data/urlParams';
 import { readUiPrefs, writeUiPrefs, effectiveStoredDayType } from '../features/schedule/api/uiPrefsApi';
 import { createSchedulePage } from '../features/schedule/pages/SchedulePage';

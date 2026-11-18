@@ -130,9 +130,9 @@
    * 지름/높이는 터치 규격(≥48px)을 그대로 쓰고, 테두리는 얇게, 배경은 **반투명**(라이트 톤 유지)이다.
    */
   --floating-button-size: 48px;
-  /* 플로팅 이동 버튼 스택 높이(48×2 + 8) — 본문 하단 여백 계산에 쓴다 */
+  /* 플로팅 버튼 스택 높이(48×3 + 8×2) — 본문 하단 여백 계산에 쓴다 */
   --floating-stack-gap: var(--space-2);
-  --floating-stack-height: calc(2 * var(--floating-button-size) + var(--floating-stack-gap));
+  --floating-stack-height: calc(3 * var(--floating-button-size) + 2 * var(--floating-stack-gap)); /* 지도·현재 시간·맨 위로 (2026-11-18) */
   --floating-offset: var(--space-4); /* safe-area + 16px */
   /* 본문 하단 여백 — 마지막 행이 버튼 스택에 가려지지 않게 확보한다(§10-1 겹침 금지) */
   --floating-clearance: calc(var(--floating-stack-height) + var(--floating-offset) + var(--space-2));

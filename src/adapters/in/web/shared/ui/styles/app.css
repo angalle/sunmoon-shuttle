@@ -1298,6 +1298,11 @@ body {
   background: var(--color-accent-soft);
 }
 
+/* 지도 버튼처럼 상황에 따라 숨기는 아이콘 버튼 — display 가 클래스에 있어 UA [hidden] 보다 세므로 명시적으로 끈다 */
+.shuttle-icon-button[hidden] {
+  display: none;
+}
+
 .shuttle-icon-button:active {
   border-color: var(--color-accent);
 }

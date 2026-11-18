@@ -75,7 +75,9 @@ import { toast } from '../components/molecules/Toast';
 import { dailyTimetable } from '../components/organisms/DailyTimetable';
 import { dayNotice } from '../components/organisms/DayNotice';
 import { guideSheet } from '../components/organisms/GuideSheet';
-import { moveButtons } from '../components/molecules/MoveButtons';
+import { moveButtons, updateMapButton } from '../components/molecules/MoveButtons';
+import { openNaverRoute } from '../api/naverMap';
+import { boardingPlace, naverRouteLinks } from '../data/mapLinks';
 import { SPLASH_MAX_MS, decideSplash, splashFadeMs, type SplashHideReason } from '../data/splash';
 
 const TAB_ID_PREFIX = 'shuttle-day';
@@ -493,6 +495,11 @@ export function createSchedulePage(
   // 포커스 순서: 본문(요일 탭·목록) 다음, 정보 시트(숨김)·스플래시 앞.
   appNode.appendChild(
     moveButtons({
+      // 2026-11-18 — 지금 방향에서 버스 타는 곳까지 네이버 지도 길찾기(현재 위치 출발 · 위치 권한 불필요).
+      onMap: () => {
+        const place = boardingPlace(stopId, direction);
+        if (place !== null) openNaverRoute(naverRouteLinks(place));
+      },
       onNow: () => {
         // §15-2(T37) — 오늘이 아니면 **되묻지 않는다**: 오늘 요일 버킷으로 전환 + 다음 출발 행으로 스크롤 +
         // 짧은 이동 안내(`UI_TEXT.moveNowTodayNotice`, 1.5초 · 액션 버튼 없음).
@@ -702,6 +709,8 @@ export function createSchedulePage(
       }),
     ]);
     if (chipHadFocus || headerJustFlipped) root.querySelector<HTMLElement>('[data-testid="direction-toggle"]')?.focus({ preventScroll: true });
+    // 지도 버튼 — 정류장·방향이 바뀌면 "어디로 길찾기"도 바뀐다(정류장이 정해지기 전·좌표 없는 노선이면 숨김).
+    updateMapButton(appNode, view === null ? null : (boardingPlace(stopId, direction)?.name ?? null));
   };
 
   /** 정류장 칩 줄(시안 A) — 칩에 포커스가 있었을 때만 포커스를 되돌린다. */
