@@ -2,7 +2,7 @@
  * 분자: 우하단 이동 버튼 (features/schedule/components/molecules) — T28 · docs/07 §10-1.
  *
  * 우하단에 **세로 스택**을 놓는다(문구를 화면에 쓰지 않는다 — 아이콘 + 스크린리더 라벨):
- *  ⓪ `네이버 지도로 길찾기` — 지금 방향에서 버스 타는 곳까지(2026-11-18 · 라벨·표시는 페이지가 `updateMapButton` 으로 갱신)
+ *  ⓪ `네이버 지도로 길찾기` — 지금 방향의 셔틀 노선 출발지 → 도착지(2026-11-19 · 라벨·표시는 페이지가 `updateMapButton` 으로 갱신)
  *  ① `현재 시간으로` — 지금 시각 기준 **다음 출발 행**으로 즉시 이동(§9-3 자동 스크롤 로직 재사용)
  *  ② `맨 위로`       — 목록 맨 위로 즉시 이동
  *
@@ -18,7 +18,7 @@ export interface MoveButtonsProps {
   readonly onNow: () => void;
   /** `맨 위로` — 목록 맨 위로 이동. */
   readonly onTop: () => void;
-  /** `네이버 지도로 길찾기` — 지금 방향에서 버스 타는 곳까지. */
+  /** `네이버 지도로 길찾기` — 지금 방향의 셔틀 노선 출발지 → 도착지. */
   readonly onMap: () => void;
 }
 
@@ -29,7 +29,7 @@ const MAP_PIN_ICON = [
 ] as const;
 
 /**
- * 지도 버튼의 라벨·표시를 바꾼다. `placeName` 이 null 이면(정류장 미선택·좌표 없는 노선) 숨긴다.
+ * 지도 버튼의 라벨·표시를 바꾼다. `placeName`(예: `천안아산역 → 선문대학교 아산캠퍼스`)이 null 이면(정류장 미선택·좌표 없는 노선) 숨긴다.
  * 스택 노드는 처음에 만들어 두고 재렌더하지 않으므로 이 함수로만 갱신한다.
  */
 export function updateMapButton(stack: ParentNode, placeName: string | null): void {
