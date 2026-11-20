@@ -61,7 +61,8 @@ Capacitor iOS 는 앱 밖 주소를 `UIApplication.open` 으로 넘긴다(`WebVi
 5. **심사 제출 정보** — 문구는 `docs/05-store-listing.md` 에 있다.
    - 개인정보처리방침 URL: `https://angalle.github.io/sunmoon-shuttle/privacy.html`
    - 앱 개인정보(영양 성분표): **데이터를 수집하지 않음**
-   - 스크린샷: 6.9" iPhone(1320×2868 또는 1290×2796) 최소 1장 — iPad 지원(`TARGETED_DEVICE_FAMILY = 1,2`)을 유지하면 13" iPad 스크린샷도 필요하다.
+   - 스크린샷: 6.9" iPhone(1320×2868 또는 1290×2796) 최소 1장 + **13" iPad(2064×2752)** 최소 1장 — iPad 지원(`TARGETED_DEVICE_FAMILY = 1,2`)을 유지하기로 했다(2026-11-20).
+     iPad Pro 13" 시뮬레이터 실측: 시간표가 화면 전체 폭으로 늘어나 동작한다(`.session-notes/T47-iPad13-첫화면.png`).
    - 카테고리: 여행(보조: 유틸리티)
 
 **심사 위험(미리 알 것)**: 웹을 감싸기만 한 앱은 가이드라인 4.2(최소 기능)로 거절되는 일이 잦고,
