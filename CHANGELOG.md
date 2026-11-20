@@ -9,6 +9,7 @@
   - Android 앱은 `nmap://`로 열고, 1.5초 안에 앱이 안 열리면 웹으로 넘긴다. Android Chrome은 `intent://`(앱이 없으면 Chrome이 웹으로)로 연다. iPhone은 네이버 웹 길찾기를 바로 연다(Safari가 설치 안 된 앱 주소에 경고를 띄우기 때문).
   - 좌표는 OpenStreetMap에서 가져온 역·터미널 대표 지점이다. 셔틀이 실제로 서는 자리와 다를 수 있다(`features/schedule/data/mapLinks.ts` 표만 고치면 된다).
 - 플로팅 버튼 스택이 3개로 늘어 본문 아래 여백 토큰(`--floating-stack-height`)을 3개 기준으로 바꿨다.
+- 큰 화면(iPad 등)에서는 화면 폭을 최대 720px(`--shell-max-width: 45rem`)로 제한해 가운데에 둔다. 전에는 64rem이라 iPad 13"에서 화면 전체로 늘어났다. 휴대폰 화면은 그대로다.
 - 개인정보처리방침 v1.2: 네이버 지도로 넘길 때의 안내를 추가했다.
 
 ### iOS 앱 (새로 추가)

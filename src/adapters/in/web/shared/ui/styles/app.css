@@ -82,11 +82,11 @@ body {
 .shuttle-app {
   display: flex;
   flex-direction: column;
-  /* 이동 버튼(§10-1)의 기준 상자 — 우하단 고정 배치가 셸(max-width 64rem) 안에서 이뤄진다 */
+  /* 이동 버튼(§10-1)의 기준 상자 — 우하단 고정 배치가 셸(max-width = --shell-max-width) 안에서 이뤄진다 */
   position: relative;
   height: 100dvh;
   overflow: hidden;
-  max-width: 64rem;
+  max-width: var(--shell-max-width);
   margin: 0 auto;
   /* T37 §15-3 — 셸(=3줄) 좌우 여백 10px · 본문 상·하단 여백 8px(안전영역이 더 크면 그 값을 쓴다) */
   padding: max(var(--shell-pad-y), var(--safe-area-top)) max(var(--shell-pad-x), var(--safe-area-right))
