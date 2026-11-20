@@ -11,6 +11,12 @@
 - 플로팅 버튼 스택이 3개로 늘어 본문 아래 여백 토큰(`--floating-stack-height`)을 3개 기준으로 바꿨다.
 - 개인정보처리방침 v1.2: 네이버 지도로 넘길 때의 안내를 추가했다.
 
+### iOS 앱 (새로 추가)
+- Capacitor iOS 프로젝트(`ios/`, Swift Package Manager)를 추가했다. 앱 ID는 Android와 같은 `com.angalle.sunmoonshuttle`, 버전 1.0.3.
+- 앱 아이콘·스플래시는 `scripts/generate_ios_res.mjs`가 웹·안드로이드와 같은 그림으로 만든다(아이콘은 알파 없는 1024 RGB).
+- 시뮬레이터 실측: 주소창 없이 시간표가 뜨고, 지도 버튼을 누르면 네이버 지도 앱이 없을 때 Safari로 자동차 길찾기가 열린다. 빌드·출시 방법은 `ios/README.md`.
+- App Store 업로드·심사는 아직 하지 않았다.
+
 ### 검증
 - `npm run test` 687 passed · t24 스모크 80 PASS · a11y 44 PASS · iOS 호환 PASS
 - iOS 시뮬레이터: 지도 버튼을 누르면 네이버 "빠른길찾기"가 열리는 것을 확인했다(첫 구현 기준). 출발지·도착지 고정(자동차)으로 바꾼 뒤에는 웹 주소가 두 지점을 모두 넘기는 것을 curl 리다이렉트로 확인했다. Android 실기기(네이버 지도 앱 설치)에서는 아직 확인하지 않았다.
