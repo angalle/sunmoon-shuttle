@@ -13,6 +13,10 @@
  * 계약(스모크): `[data-testid="timetable-list"]` 안의 각 행은 `[data-testid="timetable-row"]` 이고
  * `data-past`/`data-next`/`data-token`/`data-direction`/`data-route` 를 갖는다. 시각 셀은
  * `.shuttle-departure__time`(기존 클래스 재사용 — 검증 스크립트가 행 시각을 읽는다).
+ *
+ * 2026-11-20 — 넓은 화면의 **오른쪽 열(반대 방향)** 은 `secondary: true` 로 그린다.
+ * testid 끝에 `-alt` 를 붙여(`timetable-row-alt` …) 기존 계약(`timetable-row` = 지금 고른 방향)을 흐리지 않고,
+ * 0편일 때의 방향 전환 버튼도 두지 않는다(방향은 왼쪽 열 머리가 바꾼다).
  */
 import { el } from '../../../../shared/lib/dom';
 import { button } from '../../../../shared/ui/atoms/Button';
@@ -27,16 +31,19 @@ export interface DailyTimetableProps {
    * 자동 전환은 없다 — 이 버튼을 눌렀을 때만 방향이 바뀐다(동작 본체는 페이지).
    */
   readonly onSwitchDirection?: ((direction: DirectionSelection) => void) | undefined;
+  /** 넓은 화면 오른쪽 열(반대 방향) — testid 에 `-alt` · 전환 버튼 없음 */
+  readonly secondary?: boolean | undefined;
 }
 
 export function dailyTimetable(props: DailyTimetableProps): HTMLElement {
   const { view } = props;
+  const suffix = props.secondary === true ? '-alt' : '';
   return el(
     'section',
     {
       class: 'shuttle-timetable',
       attrs: { 'aria-labelledby': props.headingId },
-      dataset: { testid: 'timetable-section', day: view.dayType, today: view.isToday ? 'true' : 'false' },
+      dataset: { testid: `timetable-section${suffix}`, day: view.dayType, today: view.isToday ? 'true' : 'false' },
     },
     [
       // 제목은 화면에 보이지 않는다(본문이 곧 시간표다) — 낭독기용 구조만 남긴다.
@@ -48,9 +55,9 @@ export function dailyTimetable(props: DailyTimetableProps): HTMLElement {
             {
               class: 'shuttle-departures',
               attrs: { 'aria-label': `${view.dayLabel} ${UI_TEXT.timetableTitle}` },
-              dataset: { testid: 'timetable-list' },
+              dataset: { testid: `timetable-list${suffix}` },
             },
-            view.rows.map((row) => timetableRow(row, view.stopName)),
+            view.rows.map((row) => timetableRow(row, view.stopName, `timetable-row${suffix}`)),
           ),
     ],
   );
@@ -68,14 +75,14 @@ function timetableEmpty(view: TimetableView, props: DailyTimetableProps): HTMLEl
   const stopIdle = !filtered && !view.noService && view.stopName !== null;
   const line = el('p', {
     class: 'shuttle-timetable__empty',
-    dataset: { testid: filtered ? 'timetable-filter-empty' : 'timetable-empty', reason: filtered ? 'filter' : stopIdle ? 'stop-day' : 'day' },
+    dataset: { testid: `${filtered ? 'timetable-filter-empty' : 'timetable-empty'}${props.secondary === true ? '-alt' : ''}`, reason: filtered ? 'filter' : stopIdle ? 'stop-day' : 'day' },
     text: filtered
       ? UI_TEXT.timetableEmptyFilter
       : stopIdle
         ? `${view.stopName ?? ''} ${UI_TEXT.timetableEmptyStopDaySuffix}`
         : UI_TEXT.timetableEmptyDay,
   });
-  if (!filtered || view.emptySwitch === null) return line;
+  if (!filtered || view.emptySwitch === null || props.secondary === true) return line;
   const switchView = view.emptySwitch;
   return el('div', { class: 'shuttle-timetable__empty-block' }, [
     line,
@@ -98,7 +105,7 @@ function timetableEmpty(view: TimetableView, props: DailyTimetableProps): HTMLEl
  *   08:00   20분   08:20
  * 출발지가 머리와 다르면(중간 정류장 출발) 출발 시각 아래에 그 정류장을 작게 적는다.
  */
-function tableRow(row: TimetableRowView): HTMLElement {
+function tableRow(row: TimetableRowView, testid: string): HTMLElement {
   const classes = ['shuttle-departure', 'shuttle-departure--table'];
   if (row.isPast) classes.push('shuttle-departure--past');
   if (row.isNext) classes.push('shuttle-departure--next');
@@ -109,7 +116,7 @@ function tableRow(row: TimetableRowView): HTMLElement {
     {
       class: classes.join(' '),
       dataset: {
-        testid: 'timetable-row',
+        testid,
         key: row.key,
         route: row.routeName,
         direction: row.direction,
@@ -129,7 +136,7 @@ function tableRow(row: TimetableRowView): HTMLElement {
         row.isNext ? el('span', { class: 'shuttle-departure__next-badge', attrs: { 'aria-hidden': 'true' }, text: UI_TEXT.rowNextBadge }) : null,
         row.isNext || row.token === null
           ? null
-          : el('span', { class: 'shuttle-departure__token', dataset: { testid: 'row-token' }, text: row.token }),
+          : el('span', { class: 'shuttle-departure__token', dataset: { testid: testid.endsWith('-alt') ? 'row-token-alt' : 'row-token' }, text: row.token }),
       ]),
       el('span', { class: 'shuttle-departure__cell shuttle-departure__cell--arrive' }, [
         el('span', { class: 'shuttle-departure__arrive', text: row.arrival ?? '—' }),
@@ -141,8 +148,8 @@ function tableRow(row: TimetableRowView): HTMLElement {
 }
 
 /** 행 하나 — 지난 편 dim · 다음 출발 강조 · 조건 토큰 ≤1. */
-function timetableRow(row: TimetableRowView, stopName: string | null): HTMLElement {
-  if (stopName !== null) return tableRow(row);
+function timetableRow(row: TimetableRowView, stopName: string | null, testid: string): HTMLElement {
+  if (stopName !== null) return tableRow(row, testid);
   const classes = ['shuttle-departure'];
   if (row.isPast) classes.push('shuttle-departure--past');
   if (row.isNext) classes.push('shuttle-departure--next');
@@ -164,7 +171,7 @@ function timetableRow(row: TimetableRowView, stopName: string | null): HTMLEleme
     {
       class: classes.join(' '),
       dataset: {
-        testid: 'timetable-row',
+        testid,
         key: row.key,
         route: row.routeName,
         direction: row.direction,
@@ -184,7 +191,7 @@ function timetableRow(row: TimetableRowView, stopName: string | null): HTMLEleme
           ? null
           : row.token === null
             ? null
-            : el('span', { class: 'shuttle-departure__token', dataset: { testid: 'row-token' }, text: row.token }),
+            : el('span', { class: 'shuttle-departure__token', dataset: { testid: testid.endsWith('-alt') ? 'row-token-alt' : 'row-token' }, text: row.token }),
         // 색·배경만으로 상태를 전달하지 않는다 — 낭독기용 표시를 함께 둔다.
         row.isNext ? el('span', { class: 'shuttle-sr-only', text: UI_TEXT.srNextDeparture }) : null,
         row.isPast ? el('span', { class: 'shuttle-sr-only', text: UI_TEXT.srPastDeparture }) : null,

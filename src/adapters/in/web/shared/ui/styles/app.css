@@ -1850,3 +1850,38 @@ button.shuttle-dirhead:active .shuttle-dirhead__arrow {
     transition: none;
   }
 }
+
+/* ───────────────────────── 넓은 화면 두 열 (2026-11-20 · 사용자 결정 "양방향을 나란히") ─────────────────────────
+ * 900px 이상(iPad 13" 세로 · iPad 가로 · PC)이면 왼쪽 = 지금 고른 방향, 오른쪽 = 반대 방향.
+ * 기준 폭은 SchedulePage.ts 의 WIDE_QUERY 와 같아야 한다(열 내용은 JS 가 그 값으로 정한다).
+ * 오른쪽 열은 본문 스크롤 영역 맨 위에 붙어 있고(sticky) 열 안에서 따로 스크롤한다 — 높이는 JS 가 스크롤 영역에 맞춘다.
+ * 휴대폰 폭에서는 오른쪽 열이 비어 있고 자리를 차지하지 않는다.
+ */
+.shuttle-alt-list:empty {
+  display: none;
+}
+
+/* 오른쪽 열 머리 — 버튼이 아니라 표시만: 원 대신 흐린 화살표, 누름 효과 없음 */
+.shuttle-dirhead--static .shuttle-dirhead__arrow {
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 56.25rem) {
+  .shuttle-fixed__row--dir,
+  .shuttle-tabpanel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--two-col-gap);
+    align-items: start;
+  }
+
+  .shuttle-alt-list {
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+}

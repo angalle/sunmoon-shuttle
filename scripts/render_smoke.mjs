@@ -475,6 +475,43 @@ async function main() {
     check('ⓘ 이용 안내 닫기', await clickByTestId('guide-close'));
     check('T5c 콘솔 오류 0(ⓘ 열기·닫기 포함)', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
 
+    // ── 넓은 화면 두 열(2026-11-20) — 1280px: 왼쪽 = 고른 방향, 오른쪽 = 반대 방향 · 같은 폭으로 나란히 ──
+    const twoCol = await evaluate(`
+      const box = (selector) => document.querySelector(selector)?.getBoundingClientRect() ?? null;
+      const main = box('[data-testid="timetable-section"]');
+      const alt = box('[data-testid="timetable-section-alt"]');
+      const toggle = document.querySelector('[data-testid="direction-toggle"]');
+      const altHead = document.querySelector('[data-testid="direction-header-alt"]');
+      const dirs = (selector) => [...new Set([...document.querySelectorAll(selector)].map((row) => row.dataset.direction))];
+      return {
+        mainRows: document.querySelectorAll('[data-testid="timetable-row"]').length,
+        altRows: document.querySelectorAll('[data-testid="timetable-row-alt"]').length,
+        mainDirs: dirs('[data-testid="timetable-row"]'),
+        altDirs: dirs('[data-testid="timetable-row-alt"]'),
+        toggleDir: toggle?.dataset.direction ?? null,
+        altHeadDir: altHead?.dataset.direction ?? null,
+        altHeadIsButton: altHead?.tagName === 'BUTTON',
+        sideBySide: main !== null && alt !== null && alt.left >= main.right && Math.abs(alt.width - main.width) < 2,
+        altNext: document.querySelectorAll('[data-testid="timetable-row-alt"][data-next="true"]').length,
+      };
+    `);
+    check(
+      '두 열: 1280px 에서 오른쪽 열(반대 방향)이 나란히 있다',
+      twoCol.altRows > 0 && twoCol.sideBySide === true,
+      `main=${String(twoCol.mainRows)} alt=${String(twoCol.altRows)} sideBySide=${String(twoCol.sideBySide)}`,
+    );
+    check(
+      '두 열: 왼쪽 = 고른 방향 · 오른쪽 = 반대 방향(행·머리가 일치)',
+      twoCol.mainDirs.length === 1 &&
+        twoCol.altDirs.length === 1 &&
+        twoCol.mainDirs[0] === twoCol.toggleDir &&
+        twoCol.altDirs[0] === twoCol.altHeadDir &&
+        twoCol.toggleDir !== twoCol.altHeadDir,
+      `main=${twoCol.mainDirs.join(',')}/${String(twoCol.toggleDir)} alt=${twoCol.altDirs.join(',')}/${String(twoCol.altHeadDir)}`,
+    );
+    check('두 열: 오른쪽 머리는 버튼이 아니다(방향은 왼쪽 머리 하나가 바꾼다) · 다음 강조 ≤1', twoCol.altHeadIsButton === false && twoCol.altNext <= 1, `next=${String(twoCol.altNext)}`);
+    await capture('T49-두열-1280.png');
+
     // ── 데이터 로드 실패 시 오류 UI(조용한 실패 금지) — CDP 로 요청을 실제로 실패시켜 확인 ──
     // ⚠️ T6 이후: 캐시(SW·IndexedDB)가 채워져 있으면 실패해도 **마지막 정상 데이터**가 뜨는 게 정상 동작이다
     //    (그 검증은 scripts/offline_smoke.mjs 의 AC-5 단계가 한다). 여기서 확인하는 것은 "캐시가 전혀 없을 때"의

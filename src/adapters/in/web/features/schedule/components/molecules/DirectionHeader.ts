@@ -62,3 +62,27 @@ export function directionHeader(props: DirectionHeaderProps): HTMLElement {
     ],
   );
 }
+
+/**
+ * 넓은 화면 오른쪽 열의 머리(2026-11-20) — 반대 방향 `학교 → 천안역` 을 **보여 주기만** 한다(버튼 아님).
+ * 방향을 바꾸는 곳은 왼쪽 열 머리 하나다. 모양은 같은 `shuttle-dirhead` 를 쓰고, 화살표는 원 없이 흐리게 둔다.
+ */
+export function staticDirectionHeader(props: { readonly value: DirectionSelection; readonly stopName: string | null }): HTMLElement {
+  const stop = props.stopName ?? UI_TEXT.directionHeaderPending;
+  const [from, to] = props.value === 'in' ? [stop, UI_TEXT.stopCampusName] : [UI_TEXT.stopCampusName, stop];
+  return el(
+    'div',
+    {
+      class: 'shuttle-dirhead shuttle-dirhead--static',
+      attrs: { role: 'heading', 'aria-level': '2', 'aria-label': directionLabelFor(props.value, props.stopName) },
+      dataset: { testid: 'direction-header-alt', direction: props.value },
+    },
+    [
+      el('span', { class: 'shuttle-dirhead__place', attrs: { 'aria-hidden': 'true' }, text: from }),
+      el('span', { class: 'shuttle-dirhead__switch', attrs: { 'aria-hidden': 'true' } }, [
+        el('span', { class: 'shuttle-dirhead__arrow' }, [svgIcon([{ kind: 'path', d: 'M5 12h14M13 6l6 6-6 6' }], { size: '16' })]),
+      ]),
+      el('span', { class: 'shuttle-dirhead__place shuttle-dirhead__place--to', attrs: { 'aria-hidden': 'true' }, text: to }),
+    ],
+  );
+}

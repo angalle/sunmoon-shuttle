@@ -152,6 +152,8 @@
   --shell-pad-y: 8px;
   /* 셸 최대 폭(2026-11-20 iPad 13" 실측: 64rem 이면 화면 전체로 늘어나 시각 사이가 너무 벌어진다) — 큰 화면에서는 가운데 정렬 */
   --shell-max-width: 45rem;
+  /* 넓은 화면 두 열(900px 이상) 사이 간격 — 셸 폭은 아래 미디어 쿼리에서 64rem 으로 넓힌다 */
+  --two-col-gap: 16px;
   /*
    * T30 §12 → **T37 §15-3 개정** — 상단 고정 3줄의 2·3줄 규격.
    *  · 요일 = **등폭 3분할** 세그먼트(높이 40px) · 오늘 표시는 점 하나(4px)
@@ -229,6 +231,13 @@
   --safe-area-left: env(safe-area-inset-left, 0px);
 
   --bp-md: 48rem;
+}
+
+/* 넓은 화면 두 열(app.css "넓은 화면 두 열" · SchedulePage WIDE_QUERY 와 같은 기준) — 두 시간표가 들어가게 셸을 넓힌다 */
+@media (min-width: 56.25rem) {
+  :root {
+    --shell-max-width: 64rem;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

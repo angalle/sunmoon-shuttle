@@ -68,7 +68,7 @@ import {
 import type { ScheduleState, ScheduleStore } from '../store/scheduleStore';
 import { UI_TEXT, FALLBACK_SOURCE_URL } from '../types/texts';
 import { dayTabs as dayTabsMolecule, dayTabId } from '../components/molecules/DayTabs';
-import { directionHeader } from '../components/molecules/DirectionHeader';
+import { directionHeader, staticDirectionHeader } from '../components/molecules/DirectionHeader';
 import { stopFilter } from '../components/molecules/StopFilter';
 import { skeletonCards } from '../components/molecules/SkeletonCards';
 import { toast } from '../components/molecules/Toast';
@@ -83,6 +83,12 @@ import { SPLASH_MAX_MS, decideSplash, splashFadeMs, type SplashHideReason } from
 const TAB_ID_PREFIX = 'shuttle-day';
 const DAY_PANEL_ID = 'shuttle-day-panel';
 const LIST_HEADING_ID = 'shuttle-timetable-heading';
+const ALT_LIST_HEADING_ID = 'shuttle-timetable-heading-alt';
+/**
+ * 넓은 화면(2026-11-20 · iPad 가로·세로 13" · PC) — 오른쪽 열에 **반대 방향** 시간표를 함께 둔다.
+ * CSS 의 같은 값(`app.css` "넓은 화면 두 열")과 맞춰야 한다 — 열 배치는 CSS, 열 내용은 이 값으로 JS 가 정한다.
+ */
+const WIDE_QUERY = '(min-width: 56.25rem)';
 const GUIDE_HEADING_ID = 'shuttle-guide-heading';
 const GUIDE_NOTICE_HEADING_ID = 'shuttle-guide-notice-heading';
 const SOURCE_HEADING_ID = 'shuttle-source-heading';
@@ -185,6 +191,13 @@ export function createSchedulePage(
   const filterHost = host('filter-host');
   const stopHost = host('stop-host');
   const listHost = host('list-host');
+  /** 넓은 화면 오른쪽 열 — 반대 방향 시간표. 왼쪽 목록과 따로 스크롤한다(자기 `다음` 행을 맨 위에 둔다). */
+  const altListHost = el('div', { class: 'shuttle-alt-list', dataset: { testid: 'alt-list-host' } });
+  /** 넓은 화면 오른쪽 열의 머리(보여 주기만) — 고정 영역 방향 줄의 오른쪽 칸 */
+  const altHeadHost = host('alt-head-host');
+  /** 넓은 화면 판정 — matchMedia 가 없는 환경(테스트 DOM)은 좁은 화면으로 본다 */
+  const wideQuery = typeof window.matchMedia === 'function' ? window.matchMedia(WIDE_QUERY) : null;
+  const isWide = (): boolean => wideQuery?.matches === true;
   const sheetHost = host('sheet-host');
   /** 하단 안내(토스트) 자리 — 이동 버튼 **위쪽**에 뜬다(§11-2). 여는 책임은 페이지, 배치는 CSS. */
   const toastHost = host('toast-host');
@@ -236,7 +249,7 @@ export function createSchedulePage(
     el('div', { class: 'shuttle-stripbar', dataset: { testid: 'stripbar' } }, [bannerHost, noticeHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'day-row' } }, [tabsHost]),
     el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'stop-row' } }, [stopHost]),
-    el('div', { class: 'shuttle-fixed__row', dataset: { testid: 'filter-row' } }, [filterHost]),
+    el('div', { class: 'shuttle-fixed__row shuttle-fixed__row--dir', dataset: { testid: 'filter-row' } }, [filterHost, altHeadHost]),
   ]);
 
   const appNode = el('div', { class: 'shuttle-app' }, [
@@ -252,7 +265,7 @@ export function createSchedulePage(
 
   // 본문은 **시간표 하나**다 — 요일·필터는 위 고정 영역이 맡는다(§9-1 · §11-1).
   replaceChildren(scroller, [dayPanel]);
-  replaceChildren(dayPanel, [listHost]);
+  replaceChildren(dayPanel, [listHost, altListHost]);
 
 
   /* ── 이용 안내 시트(ⓘ) — 표현(표시·포커스)만 페이지가 관리한다 ── */
@@ -325,6 +338,22 @@ export function createSchedulePage(
     }
   };
   document.addEventListener('keydown', onKeyDown);
+  // 화면 폭이 기준을 넘나들거나(iPad 회전 · 창 크기) 높이가 바뀌면 오른쪽 열을 다시 그린다.
+  const onWideChange = (): void => {
+    if (latestState === null) return;
+    altScrollKey = '';
+    renderFilter(renderRows(latestState));
+  };
+  wideQuery?.addEventListener('change', onWideChange);
+  const onResize = (): void => {
+    // matchMedia change 를 놓치는 환경에 대비해, 넓음/좁음이 그려진 상태와 다르면 여기서도 다시 그린다.
+    if (isWide() !== (altListHost.childElementCount > 0)) {
+      onWideChange();
+      return;
+    }
+    if (isWide()) altListHost.style.maxHeight = `${String(scroller.clientHeight)}px`;
+  };
+  window.addEventListener('resize', onResize);
 
   /* ── 자동 스크롤(§9-3) — 다음 출발 행을 상단 바 바로 아래로. 주기적 재스크롤 금지 ── */
   const scrollMetric: ScrollMetric = {
@@ -597,6 +626,8 @@ export function createSchedulePage(
 
   let lastStructureKey = '';
   let latestState: ScheduleState | null = null;
+  /** 오른쪽 열을 마지막으로 `다음` 행에 맞춘 조건 — 같으면 사용자가 내린 위치를 1분 틱마다 되돌리지 않는다 */
+  let altScrollKey = '';
   /**
    * 방향 선택(페이지 지역 상태 — 스킬 §5 · §16-2). **항상 1개**이고 `전체` 상태가 없다.
    * 저장된 값이 있으면 그 값으로 시작하고, 없으면 기본 `터미널 도착`(`DEFAULT_DIRECTION_SELECTION`).
@@ -682,7 +713,29 @@ export function createSchedulePage(
         },
       }),
     ]);
+    renderAltRows(state);
     return view;
+  };
+
+  /**
+   * 넓은 화면 오른쪽 열 — **반대 방향** 시간표(2026-11-20 사용자 결정 "양방향을 나란히").
+   * 좁은 화면이면 비운다(휴대폰 화면은 그대로). 높이는 본문 스크롤 영역에 맞추고, 열 안에서 따로 스크롤한다.
+   */
+  const renderAltRows = (state: ScheduleState): void => {
+    if (!isWide() || state.model === null) {
+      replaceChildren(altListHost, []);
+      altScrollKey = '';
+      return;
+    }
+    const opposite: DirectionSelection = direction === 'in' ? 'out' : 'in';
+    const altView = timetableView(state, opposite, stopId);
+    replaceChildren(altListHost, [dailyTimetable({ view: altView, headingId: ALT_LIST_HEADING_ID, secondary: true })]);
+    altListHost.style.maxHeight = `${String(scroller.clientHeight)}px`;
+    const nextRow = altListHost.querySelector<HTMLElement>('[data-testid="timetable-row-alt"][data-next="true"]');
+    const key = [state.dayType, opposite, stopId ?? '', nextRow?.dataset['key'] ?? ''].join('|');
+    if (key === altScrollKey) return;
+    altScrollKey = key;
+    altListHost.scrollTop = nextRow === null ? 0 : nextRow.offsetTop;
   };
 
   /**
@@ -709,6 +762,10 @@ export function createSchedulePage(
       }),
     ]);
     if (chipHadFocus || headerJustFlipped) root.querySelector<HTMLElement>('[data-testid="direction-toggle"]')?.focus({ preventScroll: true });
+    // 넓은 화면 오른쪽 열 머리 — 반대 방향을 보여 주기만 한다(방향은 왼쪽 머리가 바꾼다).
+    replaceChildren(altHeadHost, [
+      isWide() && view !== null ? staticDirectionHeader({ value: direction === 'in' ? 'out' : 'in', stopName: view.stopName }) : null,
+    ]);
     // 지도 버튼 — 정류장·방향이 바뀌면 "어디로 길찾기"도 바뀐다(정류장이 정해지기 전·좌표 없는 노선이면 숨김).
     const ends = view === null ? null : routeEnds(stopId, direction);
     updateMapButton(appNode, ends === null ? null : `${ends.from.name} → ${ends.to.name}`);
@@ -844,6 +901,8 @@ export function createSchedulePage(
   return () => {
     unsubscribe();
     document.removeEventListener('keydown', onKeyDown);
+    wideQuery?.removeEventListener('change', onWideChange);
+    window.removeEventListener('resize', onResize);
     cancelMove();
     closeToast();
     window.clearTimeout(splashMaxTimer);
